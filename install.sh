@@ -130,6 +130,15 @@ install_nodejs_npm() {
             read -p "Press Enter to continue..."
             nvm install --lts
             nvm use --lts
+        elif command -v emerge &>/dev/null; then
+            # Gentoo-based system
+            echo -e "${blue_fg_strong}[INFO]${reset} Installing Node.js and npm using emerge..."
+            sudo emerge -av net-misc/curl
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+            source "$NVM_DIR/nvm.sh"
+            read -p "Press Enter to continue..."
+            nvm install --lts
+            nvm use --lts
         else
             echo -e "${red_fg_strong}[ERROR] Unsupported Linux distribution.${reset}"
             exit 1
@@ -156,7 +165,6 @@ installstextras() {
     echo -e "${green_fg_strong}SillyTavern installed successfully.${reset}"
 
     echo -e "${blue_fg_strong}[INFO]${reset} Installing Extras..."
-    sudo apt-get install -y python3-venv
 
     # Download the Miniconda installer script
     wget https://repo.anaconda.com/miniconda/$miniconda_installer -P /tmp
@@ -224,23 +232,6 @@ installextras() {
     echo -e "${blue_fg_strong}/ Installer / Extras${reset}"
     echo "---------------------------------------------------------------"
     echo -e "${blue_fg_strong}[INFO]${reset} Installing Extras..."
-    
-    if command -v apt-get &>/dev/null; then
-        # Debian/Ubuntu-based system
-        sudo apt-get install -y python3-venv
-    elif command -v yum &>/dev/null; then
-        # Red Hat/Fedora-based system
-        sudo yum install -y python3-venv
-    elif command -v apk &>/dev/null; then
-        # Alpine Linux-based system
-        sudo apk add python3 py3-venv
-    elif command -v pacman &>/dev/null; then
-        # Arch Linux-based system
-        sudo pacman -S --noconfirm python python-pip
-    else
-        echo -e "${red_fg_strong}[ERROR] Unsupported package manager. Cannot install Python packages.${reset}"
-        exit 1
-    fi
 
     # Download the Miniconda installer script
     wget https://repo.anaconda.com/miniconda/$miniconda_installer -P /tmp
