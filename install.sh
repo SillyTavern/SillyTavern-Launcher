@@ -196,20 +196,6 @@ installstextras() {
     rm -rf /tmp/$miniconda_installer
     echo -e "${green_fg_strong}SillyTavern + Extras has been successfully installed.${reset}"
 
-    read -p "Do you want to create a shortcut on the desktop? [Y/n] " create_shortcut
-    if [ -z "$create_shortcut" ]; then
-        create_shortcut="Y"
-    fi
-
-    if [ "$create_shortcut" = "Y" ]; then
-        create_desktop_shortcut
-    elif [ "$create_shortcut" = "N" ]; then
-        echo "You chose not to create a desktop shortcut."
-        # Add code here for the installation without a shortcut.
-    else
-        echo "Invalid choice. Please enter Y or N."
-    fi
-
     installer
 }
 
