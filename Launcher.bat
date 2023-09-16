@@ -133,7 +133,7 @@ REM Home - backend
 if "%choice%"=="1" (
     call :start
 ) else if "%choice%"=="2" (
-    call :start_extras
+    call :start_stextras
 ) else if "%choice%"=="3" (
     call :update
 ) else if "%choice%"=="4" (
@@ -162,12 +162,24 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-echo %blue_fg_strong%[INFO]%reset% A new window has been launched.
-start /wait cmd /c start.bat
+echo %blue_fg_strong%[INFO]%reset% Server window has been launched.
+start cmd /k start.bat
 goto :home
 
 
-:start_extras
+:start_stextras
+REM Check if Node.js is installed
+node --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %red_fg_strong%[ERROR] node command not found in PATH%reset%
+    echo %red_bg%Please make sure Node.js is installed and added to your PATH.%reset%
+    echo %blue_bg%To install Node.js go to Toolbox%reset%
+    pause
+    goto :home
+)
+echo %blue_fg_strong%[INFO]%reset% Server window has been launched.
+start cmd /k start.bat
+
 REM Run conda activate from the Miniconda installation
 call "%miniconda_path%\Scripts\activate.bat"
 
@@ -175,7 +187,8 @@ REM Activate the sillytavernextras environment
 call conda activate sillytavernextras
 
 REM Start SillyTavern Extras with desired configurations
-python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=caption,summarize,classify,rvc,coqui-tts --classification-model=joeddav/distilbert-base-uncased-go-emotions-student --share
+echo %blue_fg_strong%[INFO]%reset% Extras window has been launched.
+start cmd /k python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=caption,summarize,classify,rvc,coqui-tts --classification-model=joeddav/distilbert-base-uncased-go-emotions-student --share --secure
 goto :home
 
 
@@ -633,7 +646,7 @@ pip install -r requirements-complete.txt
 pip install -r requirements-rvc.txt
 
 REM Start SillyTavern Extras with desired configurations
-python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=caption,summarize,classify,rvc,coqui-tts --classification-model=joeddav/distilbert-base-uncased-go-emotions-student --share
+start cmd /k python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=caption,summarize,classify,rvc,coqui-tts --classification-model=joeddav/distilbert-base-uncased-go-emotions-student --share --secure
 
 echo.
 echo %green_fg_strong%SillyTavern Extras have been successfully installed.%reset%
