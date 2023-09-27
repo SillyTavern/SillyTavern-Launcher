@@ -39,7 +39,7 @@ REM Environment Variables (winget)
 set "winget_path=%userprofile%\AppData\Local\Microsoft\WindowsApps"
 
 REM Environment Variables (TOOLBOX Install Extras)
-set "miniconda_path=%userprofile%\miniconda"
+set "miniconda_path=%userprofile%\miniconda3"
 
 
 REM Check if Winget is installed; if not, then install it
@@ -89,6 +89,9 @@ if %errorlevel% neq 0 (
 ) else (
     echo %blue_fg_strong%[INFO] Git is already installed.%reset%
 )
+
+REM Change the current directory to 'sillytavern' folder
+cd /d "SillyTavern"
 
 REM Check for updates
 git fetch origin
@@ -162,7 +165,8 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-echo %blue_fg_strong%[INFO]%reset% Server window has been launched.
+echo %blue_fg_strong%[INFO]%reset% SillyTavern has been launched.
+cd /d "%~dp0SillyTavern"
 start cmd /k start.bat
 goto :home
 
@@ -177,7 +181,8 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-echo %blue_fg_strong%[INFO]%reset% Server window has been launched.
+echo %blue_fg_strong%[INFO]%reset% SillyTavern has been launched.
+cd /d "%~dp0SillyTavern"
 start cmd /k start.bat
 
 REM Run conda activate from the Miniconda installation
@@ -186,9 +191,11 @@ call "%miniconda_path%\Scripts\activate.bat"
 REM Activate the sillytavernextras environment
 call conda activate sillytavernextras
 
+
 REM Start SillyTavern Extras with desired configurations
-echo %blue_fg_strong%[INFO]%reset% Extras window has been launched.
-start cmd /k python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=caption,summarize,classify,rvc,coqui-tts --classification-model=joeddav/distilbert-base-uncased-go-emotions-student --share --secure
+echo %blue_fg_strong%[INFO]%reset% Extras has been launched.
+cd /d "%~dp0SillyTavern-extras"
+start cmd /k python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=caption,summarize,classify,rvc,coqui-tts --classification-model=joeddav/distilbert-base-uncased-go-emotions-student
 goto :home
 
 
@@ -573,6 +580,7 @@ echo.
 echo Are you sure you want to proceed? [Y/N] 
 set /p "confirmation="
 if /i "!confirmation!"=="Y" (
+    cd /d "%~dp0SillyTavern"
     REM Remove non-excluded folders
     for /d %%D in (*) do (
         set "exclude_folder="
@@ -596,13 +604,13 @@ if /i "!confirmation!"=="Y" (
     )
 
     REM Clone repo into %temp% folder
-    git clone https://github.com/SillyTavern/SillyTavern.git "%temp%\SillyTavernTemp"
+    git clone https://github.com/SillyTavern/SillyTavern.git "%temp%\SillyTavern-TEMP"
 
     REM Move the contents of the temporary folder to the current directory
-    xcopy /e /y "%temp%\SillyTavernTemp\*" .
+    xcopy /e /y "%temp%\SillyTavern-TEMP\*" .
 
     REM Clean up the temporary folder
-    rmdir /s /q "%temp%\SillyTavernTemp"
+    rmdir /s /q "%temp%\SillyTavern-TEMP"
 
     echo %green_fg_strong%SillyTavern reinstalled successfully!%reset%
 ) else (
@@ -614,6 +622,58 @@ goto :toolbox
 
 
 :reinstallextras
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+REM Define the names of items to be excluded
+set "script_name=%~nx0"
+set "excluded_folders=backups"
+set "excluded_files=!script_name!"
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data in Sillytavern-extras                                      ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+echo Are you sure you want to proceed? [Y/N] 
+set /p "confirmation="
+if /i "!confirmation!"=="Y" (
+    cd /d "%~dp0SillyTavern-extras"
+    REM Remove non-excluded folders
+    for /d %%D in (*) do (
+        set "exclude_folder="
+        for %%E in (!excluded_folders!) do (
+            if "%%D"=="%%E" set "exclude_folder=true"
+        )
+        if not defined exclude_folder (
+            rmdir /s /q "%%D" 2>nul
+        )
+    )
+
+    REM Remove non-excluded files
+    for %%F in (*) do (
+        set "exclude_file="
+        for %%E in (!excluded_files!) do (
+            if "%%F"=="%%E" set "exclude_file=true"
+        )
+        if not defined exclude_file (
+            del /f /q "%%F" 2>nul
+        )
+    )
+
+    REM Clone repo into %temp% folder
+    git clone https://github.com/SillyTavern/SillyTavern-extras.git "%temp%\SillyTavern-extras-TEMP"
+
+    REM Move the contents of the temporary folder to the current directory
+    xcopy /e /y "%temp%\SillyTavern-extras-TEMP\*" .
+
+    REM Clean up the temporary folder
+    rmdir /s /q "%temp%\SillyTavern-extras-TEMP"
+) else (
+    echo Reinstall canceled.
+)
+endlocal
 cls
 echo %blue_fg_strong%SillyTavern Extras%reset%
 echo ---------------------------------------------------------------
@@ -644,11 +704,6 @@ cd SillyTavern-extras
 REM Install Python dependencies from requirements files
 pip install -r requirements-complete.txt
 pip install -r requirements-rvc.txt
-
-REM Start SillyTavern Extras with desired configurations
-start cmd /k python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=caption,summarize,classify,rvc,coqui-tts --classification-model=joeddav/distilbert-base-uncased-go-emotions-student --share --secure
-
-echo.
-echo %green_fg_strong%SillyTavern Extras have been successfully installed.%reset%
+echo %green_fg_strong%SillyTavern Extras have been successfully reinstalled.%reset%
 pause
 goto :toolbox
