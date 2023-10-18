@@ -195,7 +195,7 @@ call conda activate sillytavernextras
 REM Start SillyTavern Extras with desired configurations
 echo %blue_fg_strong%[INFO]%reset% Extras has been launched.
 cd /d "%~dp0SillyTavern-extras"
-start cmd /k python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=caption,summarize,classify,rvc,coqui-tts --classification-model=joeddav/distilbert-base-uncased-go-emotions-student
+start cmd /k python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc,coqui-tts
 goto :home
 
 
@@ -670,40 +670,41 @@ if /i "!confirmation!"=="Y" (
 
     REM Clean up the temporary folder
     rmdir /s /q "%temp%\SillyTavern-extras-TEMP"
+
+    endlocal    
+    cls
+    echo %blue_fg_strong%SillyTavern Extras%reset%
+    echo ---------------------------------------------------------------
+    echo %blue_fg_strong%[INFO]%reset% Installing SillyTavern Extras...
+    echo --------------------------------
+    echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
+
+    winget install -e --id Anaconda.Miniconda3
+
+    REM Run conda activate from the Miniconda installation
+    call "%miniconda_path%\Scripts\activate.bat"
+
+    REM Create a Conda environment named sillytavernextras
+    call conda create -n sillytavernextras -y
+
+    REM Activate the sillytavernextras environment
+    call conda activate sillytavernextras
+
+    REM Install Python 3.11 and Git in the sillytavernextras environment
+    call conda install python=3.11 git -y
+
+    REM Clone the SillyTavern Extras repository
+    git clone https://github.com/SillyTavern/SillyTavern-extras
+
+    REM Navigate to the SillyTavern-extras directory
+    cd SillyTavern-extras
+
+    REM Install Python dependencies from requirements files
+    pip install -r requirements-complete.txt
+    pip install -r requirements-rvc.txt
+    echo %green_fg_strong%SillyTavern Extras have been successfully reinstalled.%reset%
 ) else (
     echo Reinstall canceled.
 )
-endlocal
-cls
-echo %blue_fg_strong%SillyTavern Extras%reset%
-echo ---------------------------------------------------------------
-echo %blue_fg_strong%[INFO]%reset% Installing SillyTavern Extras...
-echo --------------------------------
-echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
-
-winget install -e --id Anaconda.Miniconda3
-
-REM Run conda activate from the Miniconda installation
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named sillytavernextras
-call conda create -n sillytavernextras -y
-
-REM Activate the sillytavernextras environment
-call conda activate sillytavernextras
-
-REM Install Python 3.11 and Git in the sillytavernextras environment
-call conda install python=3.11 git -y
-
-REM Clone the SillyTavern Extras repository
-git clone https://github.com/SillyTavern/SillyTavern-extras
-
-REM Navigate to the SillyTavern-extras directory
-cd SillyTavern-extras
-
-REM Install Python dependencies from requirements files
-pip install -r requirements-complete.txt
-pip install -r requirements-rvc.txt
-echo %green_fg_strong%SillyTavern Extras have been successfully reinstalled.%reset%
 pause
 goto :toolbox
