@@ -41,6 +41,23 @@ set "winget_path=%userprofile%\AppData\Local\Microsoft\WindowsApps"
 REM Environment Variables (TOOLBOX Install Extras)
 set "miniconda_path=%userprofile%\miniconda3"
 
+REM Define variables to track module status
+set "modules_path=%~dp0modules.txt"
+set "coqui_trigger=false"
+set "rvc_trigger=false"
+set "talkinghead_trigger=false"
+set "caption_trigger=false"
+set "summarize_trigger=false"
+
+
+REM Create modules.txt if it doesn't exist
+if not exist modules.txt (
+    type nul > modules.txt
+)
+
+REM Load module flags from modules.txt
+for /f "tokens=*" %%a in (modules.txt) do set "%%a"
+
 
 REM Check if Winget is installed; if not, then install it
 winget --version > nul 2>&1
@@ -91,7 +108,7 @@ if %errorlevel% neq 0 (
 )
 
 REM Change the current directory to 'sillytavern' folder
-cd /d "SillyTavern"
+cd /d "%~dp0SillyTavern"
 
 REM Check for updates
 git fetch origin
@@ -107,6 +124,7 @@ set "update_status=%green_fg_strong%Up to Date%reset%"
 
 REM Home - frontend
 :home
+title SillyTavern [HOME]
 cls
 echo %blue_fg_strong%/ Home%reset%
 echo -------------------------------------
@@ -200,8 +218,9 @@ goto :home
 
 
 :update
-echo Updating...
-pushd %~dp0
+title SillyTavern [UPDATE]
+echo %blue_fg_strong%[INFO]%reset% Updating SillyTavern...
+cd /d "%~dp0SillyTavern"
 REM Check if git is installed
 git --version > nul 2>&1
 if %errorlevel% neq 0 (
@@ -215,27 +234,48 @@ if %errorlevel% neq 0 (
         echo There were errors while updating. Please download the latest version manually.
     )
 )
+
+REM Check if SillyTavern-extras directory exists
+if not exist "%~dp0SillyTavern-extras" (
+    echo %red_fg_strong%[ERROR] SillyTavern-extras directory not found. Skipping extras update.%reset%
+    pause
+    goto :home
+)
+
+cd /d "%~dp0SillyTavern-extras"
+echo %blue_fg_strong%[INFO]%reset% Updating SillyTavern-extras...
+
+REM Check if git is installed
+git --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %red_fg_strong%[ERROR] git command not found in PATH. Skipping update.%reset%
+    echo %red_bg%Please make sure Git is installed and added to your PATH.%reset%
+    echo %blue_bg%To install Git go to Toolbox%reset%
+) else (
+    call git pull --rebase --autostash
+    if %errorlevel% neq 0 (
+        REM in case there are errors while updating
+        echo There were errors while updating. Please download the latest version manually.
+    )
+)
 pause
 goto :home
 
-
 REM Switch Brance - frontend
 :switchbrance_menu
+title SillyTavern [SWITCH-BRANCE]
 cls
 echo %blue_fg_strong%/ Home / Switch Branch%reset%
 echo -------------------------------------
 echo What would you like to do?
 echo 1. Switch to Release - SillyTavern
 echo 2. Switch to Staging - SillyTavern
-echo 3. Switch to Main - Extras
-echo 4. Switch to Neo - Extras
-echo 5. Back to Home
+echo 3. Back to Home
 
 REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
-echo Extras branch: %cyan_fg_strong%%current_branch%%reset%
 echo =================================
 set /p brance_choice=Choose Your Destiny: 
 
@@ -245,10 +285,6 @@ if "%brance_choice%"=="1" (
 ) else if "%brance_choice%"=="2" (
     call :switch_staging_st
 ) else if "%brance_choice%"=="3" (
-    call :switch_main_ste
-) else if "%brance_choice%"=="4" (
-    call :switch_neo_ste
-) else if "%brance_choice%"=="5" (
     goto :home
 ) else (
     color 6
@@ -260,6 +296,7 @@ if "%brance_choice%"=="1" (
 
 :switch_release_st
 echo %blue_fg_strong%[INFO]%reset% Switching to release branch...
+cd /d "%~dp0SillyTavern"
 git switch release
 pause
 goto :switchbrance_menu
@@ -267,29 +304,16 @@ goto :switchbrance_menu
 
 :switch_staging_st
 echo %blue_fg_strong%[INFO]%reset% Switching to staging branch...
+cd /d "%~dp0SillyTavern"
 git switch staging
 pause
 goto :switchbrance_menu
 
 
-:switch_main_ste
-echo %blue_fg_strong%[INFO]%reset% Switching to main branch...
-cd SillyTavern-extras
-git switch main
-pause
-goto :switchbrance_menu
-
-
-:switch_neo_ste
-echo %blue_fg_strong%[INFO]%reset% Switching to neo branch...
-cd SillyTavern-extras
-git switch neo
-pause
-goto :switchbrance_menu
-
 
 REM Backup - Frontend
 :backup_menu
+title SillyTavern [BACKUP]
 REM Check if 7-Zip is installed
 7z > nul 2>&1
 if %errorlevel% neq 0 (
@@ -325,8 +349,9 @@ if "%backup_choice%"=="1" (
 )
 
 :create_backup
+title SillyTavern [CREATE-BACKUP]
 REM Create a backup using 7zip
-7z a "backups\backup_.7z" ^
+7z a "%~dp0SillyTavern-backups\backup_.7z" ^
     "public\assets\*" ^
     "public\Backgrounds\*" ^
     "public\Characters\*" ^
@@ -370,19 +395,19 @@ set "minute=0!minute!"
 set "formatted_date=%month:~-2%-%day:~-2%-%year%_%hour:~-2%%minute:~-2%"
 
 REM Rename the backup file with the formatted date and time
-rename "backups\backup_.7z" "backup_%formatted_date%.7z"
+rename "%~dp0SillyTavern-backups\backup_.7z" "backup_%formatted_date%.7z"
 
 endlocal
 
 
-echo %green_fg_strong%Backup created successfully!%reset%
+echo %green_fg_strong%Backup created at %~dp0SillyTavern-backups%reset%
 pause
 endlocal
 goto :backup_menu
 
 
 :restore_backup
-REM Restore a backup using 7zip
+title SillyTavern [RESTORE-BACKUP]
 
 echo List of available backups:
 echo =========================
@@ -390,7 +415,7 @@ echo =========================
 setlocal enabledelayedexpansion
 set "backup_count=0"
 
-for %%F in ("backups\backup_*.7z") do (
+for %%F in ("%~dp0SillyTavern-backups\backup_*.7z") do (
     set /a "backup_count+=1"
     set "backup_files[!backup_count!]=%%~nF"
     echo !backup_count!. %cyan_fg_strong%%%~nF%reset%
@@ -404,7 +429,7 @@ if "%restore_choice%" geq "1" (
         set "selected_backup=!backup_files[%restore_choice%]!"
         echo Restoring backup !selected_backup!...
         REM Extract the contents of the "public" folder directly into the existing "public" folder
-        7z x "backups\!selected_backup!.7z" -o"temp" -aoa
+        7z x "%~dp0SillyTavern-backups\!selected_backup!.7z" -o"temp" -aoa
         xcopy /y /e "temp\public\*" "public\"
         rmdir /s /q "temp"
         echo %green_fg_strong%!selected_backup! restored successfully.%reset%
@@ -422,6 +447,7 @@ goto :backup_menu
 
 REM Toolbox - Frontend
 :toolbox
+title SillyTavern [TOOLBOX]
 cls
 echo %blue_fg_strong%/ Home / Toolbox%reset%
 echo -------------------------------------
@@ -431,9 +457,10 @@ echo 1. Install 7-Zip
 echo 2. Install FFmpeg
 echo 3. Install Node.js
 echo 4. Edit Environment
-echo 5. Reinstall SillyTavern
-echo 6. Reinstall Extras
-echo 7. Back to Home
+echo 5. Edit Extras Modules
+echo 6. Reinstall SillyTavern
+echo 7. Reinstall Extras
+echo 8. Back to Home
 
 set /p toolbox_choice=Choose Your Destiny: 
 
@@ -447,10 +474,12 @@ if "%toolbox_choice%"=="1" (
 ) else if "%toolbox_choice%"=="4" (
     call :editenvironment
 ) else if "%toolbox_choice%"=="5" (
-    call :reinstallsillytavern
+    call :editextrasmodules
 ) else if "%toolbox_choice%"=="6" (
-    call :reinstallextras
+    call :reinstallsillytavern
 ) else if "%toolbox_choice%"=="7" (
+    call :reinstallextras
+) else if "%toolbox_choice%"=="8" (
     goto :home
 ) else (
     color 6
@@ -461,6 +490,7 @@ if "%toolbox_choice%"=="1" (
 
 
 :install7zip
+title SillyTavern [INSTALL-7Z]
 echo %blue_fg_strong%[INFO]%reset% Installing 7-Zip...
 winget install -e --id 7zip.7zip
 
@@ -492,6 +522,7 @@ exit
 
 
 :installffmpeg
+title SillyTavern [INSTALL-FFMPEG]
 REM Check if 7-Zip is installed
 7z > nul 2>&1
 if %errorlevel% neq 0 (
@@ -552,6 +583,7 @@ exit
 
 
 :installnodejs
+title SillyTavern [INSTALL-NODEJS]
 echo %blue_fg_strong%[INFO]%reset% Installing Node.js...
 winget install -e --id OpenJS.NodeJS
 echo %green_fg_strong%Node.js is installed. Please restart the Launcher.%reset%
@@ -563,6 +595,7 @@ rundll32.exe sysdm.cpl,EditEnvironmentVariables
 goto :toolbox
 
 :reinstallsillytavern
+title SillyTavern [REINSTALL-ST]
 setlocal enabledelayedexpansion
 chcp 65001 > nul
 REM Define the names of items to be excluded
@@ -621,7 +654,95 @@ pause
 goto :toolbox
 
 
+REM Function to print module options with color based on their status
+:printModule
+if "%2"=="true" (
+    echo %green_fg_strong%%1 [Enabled]%reset%
+) else (
+    echo %red_fg_strong%%1 [Disabled]%reset%
+)
+exit /b
+
+:editextrasmodules
+title SillyTavern [EDIT-MODULES]
+REM editextrasmodules - Frontend
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Edit Extras Modules%reset%
+echo -------------------------------------
+echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Coqui, RVC, and Caption)
+REM color 7
+
+REM Display module options with colors based on their status
+call :printModule "1. Coqui (--enable-modules=coqui-tts --coqui-gpu --cuda-device=0)" %coqui_trigger%
+call :printModule "2. RVC (--enable-modules=rvc --rvc-save-file --max-content-length=1000)" %rvc_trigger%
+call :printModule "3. talkinghead (--enable-modules=talkinghead)" %talkinghead_trigger%
+call :printModule "4. caption (--enable-modules=caption)" %caption_trigger%
+call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger%
+echo 6. Back to Toolbox
+
+set "python_command="
+
+set /p module_choices=Choose modules to enable/disable (1-5): 
+
+REM Handle the user's module choices and construct the Python command
+for %%i in (%module_choices%) do (
+    if "%%i"=="1" (
+        if "%coqui_trigger%"=="true" (
+            set "coqui_trigger=false"
+        ) else (
+            set "coqui_trigger=true"
+        )
+        set "python_command= --enable-modules=coqui-tts --coqui-gpu --cuda-device=0"
+    ) else if "%%i"=="2" (
+        if "%rvc_trigger%"=="true" (
+            set "rvc_trigger=false"
+        ) else (
+            set "rvc_trigger=true"
+        )
+        set "python_command= --enable-modules=rvc --rvc-save-file --max-content-length=1000"
+    ) else if "%%i"=="3" (
+        if "%talkinghead_trigger%"=="true" (
+            set "talkinghead_trigger=false"
+        ) else (
+            set "talkinghead_trigger=true"
+        )
+        set "python_command= --enable-modules=talkinghead"
+    ) else if "%%i"=="4" (
+        if "%caption_trigger%"=="true" (
+            set "caption_trigger=false"
+        ) else (
+            set "caption_trigger=true"
+        )
+        set "python_command= --enable-modules=caption"
+    ) else if "%%i"=="5" (
+        if "%summarize_trigger%"=="true" (
+            set "summarize_trigger=false"
+        ) else (
+            set "summarize_trigger=true"
+        )
+        set "python_command= --enable-modules=summarize"
+    ) else if "%%i"=="6" (
+        goto :toolbox
+    )
+)
+
+REM Save the module flags to modules.txt
+echo coqui_trigger=%coqui_trigger%>"%~dp0modules.txt"
+echo rvc_trigger=%rvc_trigger%>>"%~dp0modules.txt"
+echo talkinghead_trigger=%talkinghead_trigger%>>"%~dp0modules.txt"
+echo caption_trigger=%caption_trigger%>>"%~dp0modules.txt"
+echo summarize_trigger=%summarize_trigger%>>"%~dp0modules.txt"
+
+REM Save the constructed Python command to modules.txt for testing
+echo start cmd /k python server.py %python_command%>>"%~dp0modules.txt"
+
+REM Construct and execute the Python command
+REM start cmd /k python server.py %python_command%
+
+goto :editextrasmodules
+
 :reinstallextras
+title SillyTavern [REINSTALL-EXTRAS]
 setlocal enabledelayedexpansion
 chcp 65001 > nul
 REM Define the names of items to be excluded
