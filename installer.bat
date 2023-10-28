@@ -1,7 +1,15 @@
 @echo off
-REM --------------------------------------------
-REM This script was created by: Deffcolony
-REM --------------------------------------------
+REM SillyTavern Installer
+REM Created by: Deffcolony
+REM
+REM Description:
+REM This script can install sillytavern and/or extras with shortcut to open the launcher.bat
+REM
+REM This script is intended for use on Windows systems.
+REM report any issues or bugs on the GitHub repository.
+REM
+REM GitHub: https://github.com/SillyTavern/SillyTavern-Launcher
+REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title SillyTavern Installer
 setlocal
 
@@ -25,25 +33,25 @@ REM Environment Variables (winget)
 set "winget_path=%userprofile%\AppData\Local\Microsoft\WindowsApps"
 
 REM Environment Variables (TOOLBOX Install Extras)
-set "miniconda_path=%userprofile%\miniconda"
+set "miniconda_path=%userprofile%\miniconda3"
 
 REM Define the paths and filenames for the shortcut creation
-set "shortcutTarget=SillyTavern\st-launcher.bat"
-set "iconFile=SillyTavern\public\st-launcher.ico"
+set "shortcutTarget=%~dp0st-launcher.bat"
+set "iconFile=%~dp0SillyTavern\public\st-launcher.ico"
 set "desktopPath=%userprofile%\Desktop"
-set "shortcutName=ST Launcher.lnk"
-set "startIn=SillyTavern"
+set "shortcutName=ST-Launcher.lnk"
+set "startIn=%~dp0"
 set "comment=SillyTavern Launcher"
 
 
 REM Check if Winget is installed; if not, then install it
 winget --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %yellow_fg_strong%[WARN] Winget is not installed on this system.
-    echo %blue_fg_strong%[INFO]%reset% Installing Winget...
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Winget is not installed on this system.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Winget...
     bitsadmin /transfer "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" /download /priority FOREGROUND "https://github.com/microsoft/winget-cli/releases/download/v1.5.2201/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "%temp%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
     start "" "%temp%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    echo %green_fg_strong%Winget is now installed.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Winget installed successfully.%reset%
 ) else (
     echo %blue_fg_strong%[INFO] Winget is already installed.%reset%
 )
@@ -65,7 +73,7 @@ if %ff_path_exists% neq 0 (
 
     rem Update the PATH value for the current session
     setx PATH "%new_path%" > nul
-    echo %green_fg_strong%winget added to PATH.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%winget added to PATH.%reset%
 ) else (
     set "new_path=%current_path%"
     echo %blue_fg_strong%[INFO] winget already exists in PATH.%reset%
@@ -75,10 +83,10 @@ if %ff_path_exists% neq 0 (
 REM Check if Git is installed if not then install git
 git --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %yellow_fg_strong%[WARN] Git is not installed on this system.%reset%
-    echo %blue_fg_strong%[INFO]%reset% Installing Git using Winget...
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Git is not installed on this system.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Git using Winget...
     winget install -e --id Git.Git
-    echo %green_fg_strong%Git is installed. Please restart the Launcher.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Git installed successfully. Please restart the Installer.%reset%
     pause
     exit
 ) else (
@@ -89,23 +97,24 @@ REM Check if Python App Execution Aliases exist
 if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe" (
     REM Disable App Execution Aliases for python.exe
     powershell.exe Remove-Item "%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe" -Force
-    echo %green_fg_strong%Execution Alias for python.exe has been removed.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Removed Execution Alias for python.exe%reset%
 ) else (
-    echo %blue_fg_strong%[INFO] Execution Alias for python.exe is already removed.%reset%
+    echo %blue_fg_strong%[INFO] Execution Alias for python.exe was already removed.%reset%
 )
 
 REM Check if python3.exe App Execution Alias exists
 if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\python3.exe" (
     REM Disable App Execution Aliases for python3.exe
     powershell.exe Remove-Item "%LOCALAPPDATA%\Microsoft\WindowsApps\python3.exe" -Force
-    echo %green_fg_strong%Execution Alias for python3.exe has been removed.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Removed Execution Alias for python3.exe%reset%
 ) else (
-    echo %blue_fg_strong%[INFO] Execution Alias for python3.exe is already removed.%reset%
+    echo %blue_fg_strong%[INFO] Execution Alias for python3.exe was already removed.%reset%
 )
 
 
 REM Installer - Frontend
 :installer
+title SillyTavern [INSTALLER]
 cls
 echo %blue_fg_strong%/ Installer%reset%
 echo -------------------------------------
@@ -139,162 +148,197 @@ if "%choice%"=="1" (
 
 
 :installstextras
+title SillyTavern [INSTALL ST + EXTRAS]
 cls
 echo %blue_fg_strong%/ Installer / SillyTavern + Extras%reset%
 echo ---------------------------------------------------------------
-echo %blue_fg_strong%[INFO]%reset% Installing SillyTavern + Extras...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern + Extras...
+echo .
 echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
 
-echo %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern repository...
 git clone https://github.com/SillyTavern/SillyTavern.git
-echo %green_fg_strong%SillyTavern installed successfully.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern installed successfully.%reset%
 
-echo %blue_fg_strong%[INFO]%reset% Installing Extras...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda...
 winget install -e --id Anaconda.Miniconda3
 
-rem winget install -e --id Microsoft.VisualStudio.2022.BuildTools
-
-echo %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-bitsadmin /transfer "vs_buildtools" /download /priority FOREGROUND "https://aka.ms/vs/17/release/vs_BuildTools.exe" "%temp%\vs_buildtools.exe"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
+bitsadmin /transfer "vs_buildtools" /download /priority FOREGROUND "https://aka.ms/vs/17/release/vs_BuildTools.exe"
 start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
-echo %green_fg_strong%vs_BuildTools is now installed. Please continue%reset%
-pause
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
 winget install -e --id Microsoft.VCRedist.2015+.x64
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
 winget install -e --id Microsoft.VCRedist.2015+.x86
 
 REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
 call "%miniconda_path%\Scripts\activate.bat"
 
 REM Create a Conda environment named sillytavernextras
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment sillytavernextras...
 call conda create -n sillytavernextras -y
 
 REM Activate the sillytavernextras environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment sillytavernextras...
 call conda activate sillytavernextras
 
 REM Install Python 3.11 and Git in the sillytavernextras environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
 call conda install python=3.11 git -y
 
 REM Clone the SillyTavern Extras repository
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern-extras repository...
 git clone https://github.com/SillyTavern/SillyTavern-extras.git
 
 REM Navigate to the SillyTavern-extras directory
 cd SillyTavern-extras
 
 REM Install Python dependencies from requirements files
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-complete...
 pip install -r requirements-complete.txt
-pip install -r requirements-rvc.txt
-echo %cyan_fg_strong%Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.%reset%
-echo %green_fg_strong%SillyTavern + Extras has been successfully installed.%reset%
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc...
+pip install -r requirements-rvc.txt
+
+
+echo %cyan_fg_strong%Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
+
+REM Ask if the user wants to create a shortcut
 set /p create_shortcut=Do you want to create a shortcut on the desktop? [Y/n] 
-setlocal enabledelayedexpansion
-if "%create_shortcut%"=="" set "create_shortcut=Y"
 if /i "%create_shortcut%"=="Y" (
 
-    REM Create the PowerShell command to create the shortcut
-    powershell.exe -Command "New-Object -ComObject WScript.Shell | ForEach-Object { $shortcut = $_.CreateShortcut('!desktopPath!\!shortcutName!'); $shortcut.TargetPath = '!cd!\!shortcutTarget!'; $shortcut.IconLocation = '!cd!\!iconFile!'; $shortcut.WorkingDirectory = '!cd!\!startIn!'; $shortcut.Description = '!comment!'; $shortcut.Save() }"
-
-    echo %green_fg_strong%Desktop shortcut created.%reset%
-) else if /i "%create_shortcut%"=="N" (
-    echo You chose not to create a desktop shortcut.
-    REM Add code here for the installation without a shortcut.
-) else (
-    echo Invalid choice. Please enter Y or N.
+    REM Create the shortcut
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating shortcut...
+    %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command ^
+        "$WshShell = New-Object -ComObject WScript.Shell; " ^
+        "$Shortcut = $WshShell.CreateShortcut('%desktopPath%\%shortcutName%'); " ^
+        "$Shortcut.TargetPath = '%shortcutTarget%'; " ^
+        "$Shortcut.WorkingDirectory = '%startIn%'; " ^
+        "$Shortcut.Description = '%comment%'; " ^
+        "$Shortcut.Save()"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
+    pause
 )
 endlocal
 goto :installer
 
 
 :installsillytavern
+title SillyTavern [INSTALL ST]
 cls
 echo %blue_fg_strong%/ Installer / SillyTavern%reset%
 echo ---------------------------------------------------------------
-echo %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
-echo --------------------------------
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
+echo .
 echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern repository...
 git clone https://github.com/SillyTavern/SillyTavern.git
-echo %green_fg_strong%SillyTavern installed successfully.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern installed successfully.%reset%
 
+REM Ask if the user wants to create a shortcut
 set /p create_shortcut=Do you want to create a shortcut on the desktop? [Y/n] 
-setlocal enabledelayedexpansion
-if "%create_shortcut%"=="" set "create_shortcut=Y"
 if /i "%create_shortcut%"=="Y" (
 
-    REM Create the PowerShell command to create the shortcut
-    powershell.exe -Command "New-Object -ComObject WScript.Shell | ForEach-Object { $shortcut = $_.CreateShortcut('!desktopPath!\!shortcutName!'); $shortcut.TargetPath = '!cd!\!shortcutTarget!'; $shortcut.IconLocation = '!cd!\!iconFile!'; $shortcut.WorkingDirectory = '!cd!\!startIn!'; $shortcut.Description = '!comment!'; $shortcut.Save() }"
-
-    echo %green_fg_strong%Desktop shortcut created.%reset%
-) else if /i "%create_shortcut%"=="N" (
-    echo You chose not to create a desktop shortcut.
-    REM Add code here for the installation without a shortcut.
-) else (
-    echo Invalid choice. Please enter Y or N.
+    REM Create the shortcut
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating shortcut...
+    %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command ^
+        "$WshShell = New-Object -ComObject WScript.Shell; " ^
+        "$Shortcut = $WshShell.CreateShortcut('%desktopPath%\%shortcutName%'); " ^
+        "$Shortcut.TargetPath = '%shortcutTarget%'; " ^
+        "$Shortcut.IconLocation = '%iconFile%'; " ^
+        "$Shortcut.WorkingDirectory = '%startIn%'; " ^
+        "$Shortcut.Description = '%comment%'; " ^
+        "$Shortcut.Save()"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
+    pause
 )
 endlocal
 goto :installer
 
 
 :installextras
+title SillyTavern [INSTALL EXTRAS]
 cls
 echo %blue_fg_strong%/ Installer / Extras%reset%
 echo ---------------------------------------------------------------
-echo %blue_fg_strong%[INFO]%reset% Installing Extras...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
 echo .
 echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda...
 winget install -e --id Anaconda.Miniconda3
 
 rem winget install -e --id Microsoft.VisualStudio.2022.BuildTools
 
-echo %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-bitsadmin /transfer "vs_buildtools" /download /priority FOREGROUND "https://aka.ms/vs/17/release/vs_BuildTools.exe" "%temp%\vs_buildtools.exe"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
+bitsadmin /transfer "vs_buildtools" /download /priority FOREGROUND "https://aka.ms/vs/17/release/vs_BuildTools.exe"
 start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
-echo %green_fg_strong%vs_BuildTools is now installed. Please continue%reset%
-pause
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
 winget install -e --id Microsoft.VCRedist.2015+.x64
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
 winget install -e --id Microsoft.VCRedist.2015+.x86
 
 REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
 call "%miniconda_path%\Scripts\activate.bat"
 
 REM Create a Conda environment named sillytavernextras
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment sillytavernextras...
 call conda create -n sillytavernextras -y
 
 REM Activate the sillytavernextras environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment sillytavernextras...
 call conda activate sillytavernextras
 
 REM Install Python 3.11 and Git in the sillytavernextras environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
 call conda install python=3.11 git -y
 
 REM Clone the SillyTavern Extras repository
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern-extras repository...
 git clone https://github.com/SillyTavern/SillyTavern-extras.git
 
 REM Navigate to the SillyTavern-extras directory
 cd SillyTavern-extras
 
 REM Install Python dependencies from requirements files
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-complete...
 pip install -r requirements-complete.txt
-pip install -r requirements-rvc.txt
-echo %cyan_fg_strong%Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.%reset%
-echo %green_fg_strong%Extras has been successfully installed.%reset%
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc...
+pip install -r requirements-rvc.txt
+
+
+echo %cyan_fg_strong%Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
+
+REM Ask if the user wants to create a shortcut
 set /p create_shortcut=Do you want to create a shortcut on the desktop? [Y/n] 
-setlocal enabledelayedexpansion
-if "%create_shortcut%"=="" set "create_shortcut=Y"
 if /i "%create_shortcut%"=="Y" (
 
-    REM Create the PowerShell command to create the shortcut
-    powershell.exe -Command "New-Object -ComObject WScript.Shell | ForEach-Object { $shortcut = $_.CreateShortcut('!desktopPath!\!shortcutName!'); $shortcut.TargetPath = '!cd!\!shortcutTarget!'; $shortcut.IconLocation = '!cd!\!iconFile!'; $shortcut.WorkingDirectory = '!cd!\!startIn!'; $shortcut.Description = '!comment!'; $shortcut.Save() }"
-
-    echo %green_fg_strong%Desktop shortcut created.%reset%
-) else if /i "%create_shortcut%"=="N" (
-    echo You chose not to create a desktop shortcut.
-    REM Add code here for the installation without a shortcut.
-) else (
-    echo Invalid choice. Please enter Y or N.
+    REM Create the shortcut
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating shortcut...
+    %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command ^
+        "$WshShell = New-Object -ComObject WScript.Shell; " ^
+        "$Shortcut = $WshShell.CreateShortcut('%desktopPath%\%shortcutName%'); " ^
+        "$Shortcut.TargetPath = '%shortcutTarget%'; " ^
+        "$Shortcut.IconLocation = '%iconFile%'; " ^
+        "$Shortcut.WorkingDirectory = '%startIn%'; " ^
+        "$Shortcut.Description = '%comment%'; " ^
+        "$Shortcut.Save()"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
+    pause
 )
 endlocal
 goto :installer

@@ -1,7 +1,15 @@
 @echo off
-REM --------------------------------------------
-REM This script was created by: Deffcolony
-REM --------------------------------------------
+REM SillyTavern Launcher
+REM Created by: Deffcolony
+REM
+REM Description:
+REM This script can launch, backup and reinstall sillytavern + extras 
+REM
+REM This script is intended for use on Windows systems.
+REM report any issues or bugs on the GitHub repository.
+REM
+REM GitHub: https://github.com/SillyTavern/SillyTavern-Launcher
+REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title SillyTavern Launcher
 setlocal
 
@@ -62,11 +70,11 @@ for /f "tokens=*" %%a in (modules.txt) do set "%%a"
 REM Check if Winget is installed; if not, then install it
 winget --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %yellow_fg_strong%[WARN] Winget is not installed on this system.
-    echo %blue_fg_strong%[INFO]%reset% Installing Winget...
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Winget is not installed on this system.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Winget...
     bitsadmin /transfer "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" /download /priority FOREGROUND "https://github.com/microsoft/winget-cli/releases/download/v1.5.2201/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "%temp%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
     start "" "%temp%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    echo %green_fg_strong%Winget is now installed.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Winget installed successfully.%reset%
 ) else (
     echo %blue_fg_strong%[INFO] Winget is already installed.%reset%
 )
@@ -87,7 +95,7 @@ if %ff_path_exists% neq 0 (
 
     rem Update the PATH value for the current session
     setx PATH "%new_path%" > nul
-    echo %green_fg_strong%winget added to PATH.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%winget added to PATH.%reset%
 ) else (
     set "new_path=%current_path%"
     echo %blue_fg_strong%[INFO] winget already exists in PATH.%reset%
@@ -97,10 +105,10 @@ if %ff_path_exists% neq 0 (
 REM Check if Git is installed if not then install git
 git --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %yellow_fg_strong%[WARN] Git is not installed on this system.%reset%
-    echo %blue_fg_strong%[INFO]%reset% Installing Git using Winget...
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Git is not installed on this system.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Git using Winget...
     winget install -e --id Git.Git
-    echo %green_fg_strong%Git is installed. Please restart the Launcher.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Git is installed. Please restart the Launcher.%reset%
     pause
     exit
 ) else (
@@ -183,7 +191,7 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-echo %blue_fg_strong%[INFO]%reset% SillyTavern has been launched.
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern has been launched.
 cd /d "%~dp0SillyTavern"
 start cmd /k start.bat
 goto :home
@@ -193,13 +201,13 @@ goto :home
 REM Check if Node.js is installed
 node --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %red_fg_strong%[ERROR] node command not found in PATH%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] node command not found in PATH%reset%
     echo %red_bg%Please make sure Node.js is installed and added to your PATH.%reset%
-    echo %blue_bg%To install Node.js go to Toolbox%reset%
+    echo %red_bg%To install Node.js go to Toolbox%reset%
     pause
     goto :home
 )
-echo %blue_fg_strong%[INFO]%reset% SillyTavern has been launched.
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern has been launched.
 cd /d "%~dp0SillyTavern"
 start cmd /k start.bat
 
@@ -211,7 +219,7 @@ call conda activate sillytavernextras
 
 
 REM Start SillyTavern Extras with desired configurations
-echo %blue_fg_strong%[INFO]%reset% Extras has been launched.
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras has been launched.
 cd /d "%~dp0SillyTavern-extras"
 start cmd /k python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc,coqui-tts
 goto :home
@@ -219,43 +227,45 @@ goto :home
 
 :update
 title SillyTavern [UPDATE]
-echo %blue_fg_strong%[INFO]%reset% Updating SillyTavern...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern...
 cd /d "%~dp0SillyTavern"
 REM Check if git is installed
 git --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %red_fg_strong%[ERROR] git command not found in PATH. Skipping update.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] git command not found in PATH. Skipping update.%reset%
     echo %red_bg%Please make sure Git is installed and added to your PATH.%reset%
-    echo %blue_bg%To install Git go to Toolbox%reset%
 ) else (
     call git pull --rebase --autostash
     if %errorlevel% neq 0 (
         REM incase there is still something wrong
-        echo There were errors while updating. Please download the latest version manually.
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Errors while updating. Please download the latest version manually.%reset%
+    ) else (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern updated successfully.%reset%
     )
 )
 
 REM Check if SillyTavern-extras directory exists
 if not exist "%~dp0SillyTavern-extras" (
-    echo %red_fg_strong%[ERROR] SillyTavern-extras directory not found. Skipping extras update.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] SillyTavern-extras directory not found. Skipping extras update.%reset%
     pause
     goto :home
 )
 
 cd /d "%~dp0SillyTavern-extras"
-echo %blue_fg_strong%[INFO]%reset% Updating SillyTavern-extras...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern-extras...
 
 REM Check if git is installed
 git --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %red_fg_strong%[ERROR] git command not found in PATH. Skipping update.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] git command not found in PATH. Skipping update.%reset%
     echo %red_bg%Please make sure Git is installed and added to your PATH.%reset%
-    echo %blue_bg%To install Git go to Toolbox%reset%
 ) else (
     call git pull --rebase --autostash
     if %errorlevel% neq 0 (
-        REM in case there are errors while updating
-        echo There were errors while updating. Please download the latest version manually.
+        REM incase there is still something wrong
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Errors while updating. Please download the latest version manually.%reset%
+    ) else (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-extras updated successfully.%reset%
     )
 )
 pause
@@ -295,7 +305,7 @@ if "%brance_choice%"=="1" (
 
 
 :switch_release_st
-echo %blue_fg_strong%[INFO]%reset% Switching to release branch...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to release branch...
 cd /d "%~dp0SillyTavern"
 git switch release
 pause
@@ -303,7 +313,7 @@ goto :switchbrance_menu
 
 
 :switch_staging_st
-echo %blue_fg_strong%[INFO]%reset% Switching to staging branch...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to staging branch...
 cd /d "%~dp0SillyTavern"
 git switch staging
 pause
@@ -317,9 +327,9 @@ title SillyTavern [BACKUP]
 REM Check if 7-Zip is installed
 7z > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %red_fg_strong%[ERROR] 7z command not found in PATH%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH%reset%
     echo %red_bg%Please make sure 7-Zip is installed and added to your PATH.%reset%
-    echo %blue_bg%To install 7-Zip go to Toolbox%reset%
+    echo %red_bg%To install 7-Zip go to Toolbox%reset%
     pause
     goto :home
 )
@@ -432,7 +442,7 @@ if "%restore_choice%" geq "1" (
         7z x "%~dp0SillyTavern-backups\!selected_backup!.7z" -o"temp" -aoa
         xcopy /y /e "temp\public\*" "public\"
         rmdir /s /q "temp"
-        echo %green_fg_strong%!selected_backup! restored successfully.%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%!selected_backup! restored successfully.%reset%
     ) else (
         color 6
         echo WARNING: Invalid backup number. Please insert a valid number.
@@ -460,26 +470,29 @@ echo 4. Edit Environment
 echo 5. Edit Extras Modules
 echo 6. Reinstall SillyTavern
 echo 7. Reinstall Extras
-echo 8. Back to Home
+echo 8. Uninstall SillyTavern + Extras
+echo 9. Back to Home
 
 set /p toolbox_choice=Choose Your Destiny: 
 
 REM Toolbox - Backend
 if "%toolbox_choice%"=="1" (
-    call :install7zip
+    call :install_7zip
 ) else if "%toolbox_choice%"=="2" (
-    call :installffmpeg
+    call :install_ffmpeg
 ) else if "%toolbox_choice%"=="3" (
-    call :installnodejs
+    call :install_nodejs
 ) else if "%toolbox_choice%"=="4" (
-    call :editenvironment
+    call :edit_environment
 ) else if "%toolbox_choice%"=="5" (
-    call :editextrasmodules
+    call :edit_extras_modules
 ) else if "%toolbox_choice%"=="6" (
-    call :reinstallsillytavern
+    call :reinstall_sillytavern
 ) else if "%toolbox_choice%"=="7" (
-    call :reinstallextras
+    call :reinstall_extras
 ) else if "%toolbox_choice%"=="8" (
+    call :uninstall_st_extras
+) else if "%toolbox_choice%"=="9" (
     goto :home
 ) else (
     color 6
@@ -489,7 +502,7 @@ if "%toolbox_choice%"=="1" (
 )
 
 
-:install7zip
+:install_7zip
 title SillyTavern [INSTALL-7Z]
 echo %blue_fg_strong%[INFO]%reset% Installing 7-Zip...
 winget install -e --id 7zip.7zip
@@ -516,37 +529,37 @@ reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "%new_path%" /f
 rem Update the PATH value for the current session
 setx PATH "%new_path%"
 
-echo %green_fg_strong%7-Zip is installed. Please restart the Launcher.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%7-Zip installed successfully. Please restart the Launcher.%reset%
 pause
 exit
 
 
-:installffmpeg
+:install_ffmpeg
 title SillyTavern [INSTALL-FFMPEG]
 REM Check if 7-Zip is installed
 7z > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %red_fg_strong%[ERROR] 7z command not found in PATH%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH%reset%
     echo %red_bg%Please make sure 7-Zip is installed and added to your PATH.%reset%
-    echo %blue_bg%To install 7-Zip go to Toolbox%reset%
+    echo %red_bg%To install 7-Zip go to Toolbox%reset%
     pause
     goto :toolbox
 )
 
-echo %blue_fg_strong%[INFO]%reset% Downloading FFmpeg archive...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading FFmpeg archive...
 rem bitsadmin /transfer "ffmpeg" /download /priority FOREGROUND "%ffmpeg_url%" "%ffdownload_path%"
 curl -o "%ffdownload_path%" "%ffmpeg_url%"
 
-echo %blue_fg_strong%[INFO]%reset% Creating ffmpeg directory if it doesn't exist...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating ffmpeg directory if it doesn't exist...
 if not exist "%ffextract_path%" (
     mkdir "%ffextract_path%"
 )
 
-echo %blue_fg_strong%[INFO]%reset% Extracting FFmpeg archive...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extracting FFmpeg archive...
 7z x "%ffdownload_path%" -o"%ffextract_path%"
 
 
-echo %blue_fg_strong%[INFO]%reset% Moving FFmpeg contents to C:\ffmpeg...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving FFmpeg contents to C:\ffmpeg...
 for /d %%i in ("%ffextract_path%\ffmpeg-*-full_build") do (
     xcopy "%%i\bin" "%ffextract_path%\bin" /E /I /Y
     xcopy "%%i\doc" "%ffextract_path%\doc" /E /I /Y
@@ -582,19 +595,19 @@ pause
 exit
 
 
-:installnodejs
+:install_nodejs
 title SillyTavern [INSTALL-NODEJS]
-echo %blue_fg_strong%[INFO]%reset% Installing Node.js...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Node.js...
 winget install -e --id OpenJS.NodeJS
-echo %green_fg_strong%Node.js is installed. Please restart the Launcher.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js is installed. Please restart the Launcher.%reset%
 pause
 exit
 
-:editenvironment
+:edit_environment
 rundll32.exe sysdm.cpl,EditEnvironmentVariables
 goto :toolbox
 
-:reinstallsillytavern
+:reinstall_sillytavern
 title SillyTavern [REINSTALL-ST]
 setlocal enabledelayedexpansion
 chcp 65001 > nul
@@ -645,7 +658,7 @@ if /i "!confirmation!"=="Y" (
     REM Clean up the temporary folder
     rmdir /s /q "%temp%\SillyTavern-TEMP"
 
-    echo %green_fg_strong%SillyTavern reinstalled successfully!%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern reinstalled successfully.%reset%
 ) else (
     echo Reinstall canceled.
 )
@@ -663,9 +676,9 @@ if "%2"=="true" (
 )
 exit /b
 
-:editextrasmodules
+:edit_extras_modules
 title SillyTavern [EDIT-MODULES]
-REM editextrasmodules - Frontend
+REM Edit Extras Modules - Frontend
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Edit Extras Modules%reset%
 echo -------------------------------------
@@ -739,9 +752,9 @@ echo start cmd /k python server.py %python_command%>>"%~dp0modules.txt"
 REM Construct and execute the Python command
 REM start cmd /k python server.py %python_command%
 
-goto :editextrasmodules
+goto :edit_extras_modules
 
-:reinstallextras
+:reinstall_extras
 title SillyTavern [REINSTALL-EXTRAS]
 setlocal enabledelayedexpansion
 chcp 65001 > nul
@@ -796,36 +809,97 @@ if /i "!confirmation!"=="Y" (
     cls
     echo %blue_fg_strong%SillyTavern Extras%reset%
     echo ---------------------------------------------------------------
-    echo %blue_fg_strong%[INFO]%reset% Installing SillyTavern Extras...
-    echo --------------------------------
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
+    echo .
     echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
 
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda...
     winget install -e --id Anaconda.Miniconda3
 
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
+    bitsadmin /transfer "vs_buildtools" /download /priority FOREGROUND "https://aka.ms/vs/17/release/vs_BuildTools.exe"
+    start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
+    winget install -e --id Microsoft.VCRedist.2015+.x64
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
+    winget install -e --id Microsoft.VCRedist.2015+.x86
+
     REM Run conda activate from the Miniconda installation
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
     call "%miniconda_path%\Scripts\activate.bat"
 
     REM Create a Conda environment named sillytavernextras
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment sillytavernextras...
     call conda create -n sillytavernextras -y
 
     REM Activate the sillytavernextras environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment sillytavernextras...
     call conda activate sillytavernextras
 
     REM Install Python 3.11 and Git in the sillytavernextras environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
     call conda install python=3.11 git -y
 
     REM Clone the SillyTavern Extras repository
-    git clone https://github.com/SillyTavern/SillyTavern-extras
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern-extras repository...
+    git clone https://github.com/SillyTavern/SillyTavern-extras.git
 
     REM Navigate to the SillyTavern-extras directory
     cd SillyTavern-extras
 
     REM Install Python dependencies from requirements files
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-complete...
     pip install -r requirements-complete.txt
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc...
     pip install -r requirements-rvc.txt
-    echo %green_fg_strong%SillyTavern Extras have been successfully reinstalled.%reset%
+
+
+    echo %cyan_fg_strong%Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
 ) else (
-    echo Reinstall canceled.
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Reinstall Extras canceled.
 )
 pause
 goto :toolbox
+
+
+:uninstall_st_extras
+title SillyTavern [UNINSTALL]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of SillyTavern + Extras                                    ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda environment 'sillytavernextras'...
+    call conda remove --name sillytavernextras --all -y
+
+    REM Remove the folder SillyTavern-extras
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern-extras directory...
+    cd /d "%~dp0"
+    rmdir /s /q SillyTavern-extras
+
+    REM Remove the folder SillyTavern
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern directory...
+    cd /d "%~dp0"
+    rmdir /s /q SillyTavern
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern + Extras has been uninstalled successfully.%reset%
+    pause
+    goto :home
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall SillyTavern + Extras canceled.
+    pause
+    goto :home
+)
