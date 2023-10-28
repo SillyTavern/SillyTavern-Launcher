@@ -604,7 +604,7 @@ pause
 exit
 
 :edit_environment
-rundll32.exe sysdm.cpl,editenvironmentVariables
+rundll32.exe sysdm.cpl,EditEnvironmentVariables
 goto :toolbox
 
 :reinstall_sillytavern
