@@ -635,7 +635,7 @@ if [ -n "$IS_MACOS" ]; then
     install_nodejs_npm
     home
 # Detect the package manager and execute the appropriate installation
-if command -v apt-get &>/dev/null; then
+elif command -v apt-get &>/dev/null; then
     log_message "INFO" "Detected Debian/Ubuntu-based system.${reset}"
     # Debian/Ubuntu
     install_git
