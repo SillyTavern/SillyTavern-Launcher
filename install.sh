@@ -372,8 +372,7 @@ if [ -n "$IS_MACOS" ]; then
     install_git
     install_nodejs_npm
     installer
-# Detect the package manager and execute the appropriate installation
-if command -v apt-get &>/dev/null; then
+elif command -v apt-get &>/dev/null; then
     log_message "INFO" "${blue_fg_strong}Detected Debian/Ubuntu-based system.${reset}"
     # Debian/Ubuntu
     install_git
@@ -407,5 +406,3 @@ else
     log_message "ERROR" "${red_fg_strong}Unsupported package manager. Cannot detect Linux distribution.${reset}"
     exit 1
 fi
-
-
