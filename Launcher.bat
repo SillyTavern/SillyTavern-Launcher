@@ -72,7 +72,7 @@ winget --version > nul 2>&1
 if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Winget is not installed on this system.%reset%
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Winget...
-    bitsadmin /transfer "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe" /download /priority FOREGROUND "https://github.com/microsoft/winget-cli/releases/download/v1.5.2201/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "%temp%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+    curl -L -o "%temp%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "https://github.com/microsoft/winget-cli/releases/download/v1.6.2771/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
     start "" "%temp%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Winget installed successfully.%reset%
 ) else (
@@ -162,7 +162,7 @@ REM Home - backend
 if "%choice%"=="1" (
     call :start
 ) else if "%choice%"=="2" (
-    call :start_stextras
+    call :start_st_extras
 ) else if "%choice%"=="3" (
     call :update
 ) else if "%choice%"=="4" (
@@ -197,7 +197,7 @@ start cmd /k start.bat
 goto :home
 
 
-:start_stextras
+:start_st_extras
 REM Check if Node.js is installed
 node --version > nul 2>&1
 if %errorlevel% neq 0 (
@@ -547,7 +547,6 @@ if %errorlevel% neq 0 (
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading FFmpeg archive...
-rem bitsadmin /transfer "ffmpeg" /download /priority FOREGROUND "%ffmpeg_url%" "%ffdownload_path%"
 curl -o "%ffdownload_path%" "%ffmpeg_url%"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating ffmpeg directory if it doesn't exist...
@@ -817,9 +816,15 @@ if /i "!confirmation!"=="Y" (
     winget install -e --id Anaconda.Miniconda3
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-    bitsadmin /transfer "vs_buildtools" /download /priority FOREGROUND "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-    start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
+    curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
 
+    if %errorlevel% neq 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Download failed. Please try again%reset%
+    pause
+    goto :toolbox
+    ) else (
+    start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
+    )
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
     winget install -e --id Microsoft.VCRedist.2015+.x64
 
