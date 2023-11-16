@@ -36,7 +36,7 @@ set "zip7_download_path=%TEMP%\%zip7version%.exe"
 
 REM Environment Variables (TOOLBOX FFmpeg)
 set "ffmpeg_url=https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z"
-set "ffdownload_path=%TEMP%\ffmpeg.7z"
+set "ffdownload_path=%~dp0ffmpeg.7z"
 set "ffextract_path=C:\ffmpeg"
 set "bin_path=%ffextract_path%\bin"
 
@@ -547,7 +547,7 @@ if %errorlevel% neq 0 (
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading FFmpeg archive...
-curl -o "%ffdownload_path%" "%ffmpeg_url%"
+curl -L -o "%ffdownload_path%" "%ffmpeg_url%"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating ffmpeg directory if it doesn't exist...
 if not exist "%ffextract_path%" (

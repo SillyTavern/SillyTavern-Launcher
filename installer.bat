@@ -36,7 +36,7 @@ REM Environment Variables (TOOLBOX Install Extras)
 set "miniconda_path=%userprofile%\miniconda3"
 
 REM Define the paths and filenames for the shortcut creation
-set "shortcutTarget=%~dp0st-launcher.bat"
+set "shortcutTarget=%~dp0launcher.bat"
 set "iconFile=%~dp0SillyTavern\public\st-launcher.ico"
 set "desktopPath=%userprofile%\Desktop"
 set "shortcutName=ST-Launcher.lnk"
@@ -208,13 +208,23 @@ git clone https://github.com/SillyTavern/SillyTavern-extras.git
 REM Navigate to the SillyTavern-extras directory
 cd SillyTavern-extras
 
-REM Install Python dependencies from requirements files
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-complete...
-pip install -r requirements-complete.txt
+REM Provide a link to the Coqui documentation
+echo %yellow_fg_strong%[DISCLAIMER] The installation of Coqui requirements is not recommended unless you have a specific use case. It may conflict with additional dependencies and functionalities to your environment.%reset%
+echo %blue_fg_strong%[INFO]%reset% To learn more about Coqui, visit: https://docs.sillytavern.app/extras/installation/#decide-which-module-to-use
+
+REM Ask the user if they want to install requirements-coqui.txt
+set /p install_coqui_requirements=Do you want to install Coqui TTS? [Y/N] 
+
+REM Check the user's response
+if /i "%install_coqui_requirements%"=="Y" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-coqui...
+    pip install -r requirements-coqui.txt
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]Coqui requirements installation skipped.%reset% 
+)
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc...
 pip install -r requirements-rvc.txt
-
 
 echo %cyan_fg_strong%Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.%reset%
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
@@ -325,9 +335,20 @@ git clone https://github.com/SillyTavern/SillyTavern-extras.git
 REM Navigate to the SillyTavern-extras directory
 cd SillyTavern-extras
 
-REM Install Python dependencies from requirements files
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-complete...
-pip install -r requirements-complete.txt
+REM Provide a link to the Coqui documentation
+echo %yellow_fg_strong%[DISCLAIMER] The installation of Coqui requirements is not recommended unless you have a specific use case. It may conflict with additional dependencies and functionalities to your environment.%reset%
+echo %blue_fg_strong%[INFO]%reset% To learn more about Coqui, visit: https://docs.sillytavern.app/extras/installation/#decide-which-module-to-use
+
+REM Ask the user if they want to install requirements-coqui.txt
+set /p install_coqui_requirements=Do you want to install Coqui TTS? [Y/N] 
+
+REM Check the user's response
+if /i "%install_coqui_requirements%"=="Y" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-coqui...
+    pip install -r requirements-coqui.txt
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]Coqui requirements installation skipped.%reset% 
+)
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc...
 pip install -r requirements-rvc.txt
