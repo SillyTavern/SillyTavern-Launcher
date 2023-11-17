@@ -214,8 +214,8 @@ start cmd /k start.bat
 REM Run conda activate from the Miniconda installation
 call "%miniconda_path%\Scripts\activate.bat"
 
-REM Activate the sillytavernextras environment
-call conda activate sillytavernextras
+REM Activate the extras environment
+call conda activate extras
 
 
 REM Start SillyTavern Extras with desired configurations
@@ -835,15 +835,15 @@ if /i "!confirmation!"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
     call "%miniconda_path%\Scripts\activate.bat"
 
-    REM Create a Conda environment named sillytavernextras
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment sillytavernextras...
-    call conda create -n sillytavernextras -y
+    REM Create a Conda environment named extras
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
+    call conda create -n extras -y
 
-    REM Activate the sillytavernextras environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment sillytavernextras...
-    call conda activate sillytavernextras
+    REM Activate the extras environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
+    call conda activate extras
 
-    REM Install Python 3.11 and Git in the sillytavernextras environment
+    REM Install Python 3.11 and Git in the extras environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
     call conda install python=3.11 git -y
 
@@ -887,8 +887,8 @@ set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
 if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda environment 'sillytavernextras'...
-    call conda remove --name sillytavernextras --all -y
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda environment 'extras'...
+    call conda remove --name extras --all -y
 
     REM Remove the folder SillyTavern-extras
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern-extras directory...
