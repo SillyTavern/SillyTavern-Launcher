@@ -223,11 +223,11 @@ install_st_extras() {
     conda config --set auto_activate_base false
     conda init bash
 
-    log_message "INFO" "Creating Conda environment sillytavernextras..."
-    conda create -n sillytavernextras -y
+    log_message "INFO" "Creating Conda environment extras..."
+    conda create -n extras -y
 
-    log_message "INFO" "Activating Conda environment sillytavernextras..."
-    conda activate sillytavernextras
+    log_message "INFO" "Activating Conda environment extras..."
+    conda activate extras
 
     log_message "INFO" "Installing Python and Git in the Conda environment..."
     conda install python=3.11 git -y
@@ -297,11 +297,11 @@ install_extras() {
     conda config --set auto_activate_base false
     conda init bash
 
-    log_message "INFO" "Creating Conda environment sillytavernextras..."
-    conda create -n sillytavernextras -y
+    log_message "INFO" "Creating Conda environment extras..."
+    conda create -n extras -y
 
-    log_message "INFO" "Activating Conda environment sillytavernextras..."
-    conda activate sillytavernextras
+    log_message "INFO" "Activating Conda environment extras..."
+    conda activate extras
 
     log_message "INFO" "Installing Python and Git in the Conda environment..."
     conda install python=3.11 git -y
