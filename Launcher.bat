@@ -160,7 +160,7 @@ if not defined choice set "choice=1"
 
 REM Home - backend
 if "%choice%"=="1" (
-    call :start
+    call :start_st
 ) else if "%choice%"=="2" (
     call :start_st_extras
 ) else if "%choice%"=="3" (
@@ -181,7 +181,7 @@ if "%choice%"=="1" (
 )
 
 
-:start
+:start_st
 REM Check if Node.js is installed
 node --version > nul 2>&1
 if %errorlevel% neq 0 (
