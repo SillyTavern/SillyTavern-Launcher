@@ -586,8 +586,20 @@ reinstall_extras() {
 
         cd SillyTavern-extras
 
-        log_message "INFO" "Installing pip requirements-complete..."
-        pip install -r requirements-complete.txt
+        log_message "INFO" "Installing modules from requirements.txt..."
+        pip install -r requirements.txt
+
+        log_message "DISCLAIMER" "The installation of Coqui requirements is not recommended unless you have a specific use case. It may conflict with additional dependencies and functionalities to your environment."
+        log_message "INFO" "To learn more about Coqui, visit: https://docs.sillytavern.app/extras/installation/#decide-which-module-to-use"
+
+        read -p "Do you want to install Coqui TTS? [Y/N] " install_coqui_requirements
+
+        if [[ "$install_coqui_requirements" == [Yy] ]]; then
+            log_message "INFO" "Installing pip requirements-coqui..."
+            pip install -r requirements-coqui.txt
+        else
+            log_message "INFO" "Coqui requirements installation skipped."
+        fi
 
         log_message "INFO" "Installing pip requirements-rvc..."
         pip install -r requirements-rvc.txt

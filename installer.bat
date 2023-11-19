@@ -208,6 +208,9 @@ git clone https://github.com/SillyTavern/SillyTavern-extras.git
 REM Navigate to the SillyTavern-extras directory
 cd SillyTavern-extras
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements.txt...
+pip install -r requirements.txt
+
 REM Provide a link to the Coqui documentation
 echo %yellow_fg_strong%[DISCLAIMER] The installation of Coqui requirements is not recommended unless you have a specific use case. It may conflict with additional dependencies and functionalities to your environment.%reset%
 echo %blue_fg_strong%[INFO]%reset% To learn more about Coqui, visit: https://docs.sillytavern.app/extras/installation/#decide-which-module-to-use
