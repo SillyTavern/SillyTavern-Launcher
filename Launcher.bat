@@ -51,7 +51,7 @@ set "miniconda_path=%userprofile%\miniconda3"
 
 REM Define variables to track module status
 set "modules_path=%~dp0modules.txt"
-set "coqui_trigger=false"
+set "xtts_trigger=false"
 set "rvc_trigger=false"
 set "talkinghead_trigger=false"
 set "caption_trigger=false"
@@ -221,7 +221,7 @@ call conda activate extras
 REM Start SillyTavern Extras with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras has been launched.
 cd /d "%~dp0SillyTavern-extras"
-start cmd /k python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc,coqui-tts
+start cmd /k python server.py --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc
 
 REM Check if the xtts conda environment exists
 conda activate xtts > nul 2>&1
@@ -697,7 +697,7 @@ echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Coqui, 
 REM color 7
 
 REM Display module options with colors based on their status
-call :printModule "1. Coqui (--enable-modules=coqui-tts --coqui-gpu --cuda-device=0)" %coqui_trigger%
+call :printModule "1. XTTS (xtts_api_server --gpu 0 --cuda-device=0)" %xtts_trigger%
 call :printModule "2. RVC (--enable-modules=rvc --rvc-save-file --max-content-length=1000)" %rvc_trigger%
 call :printModule "3. talkinghead (--enable-modules=talkinghead)" %talkinghead_trigger%
 call :printModule "4. caption (--enable-modules=caption)" %caption_trigger%
@@ -711,12 +711,12 @@ set /p module_choices=Choose modules to enable/disable (1-5):
 REM Handle the user's module choices and construct the Python command
 for %%i in (%module_choices%) do (
     if "%%i"=="1" (
-        if "%coqui_trigger%"=="true" (
-            set "coqui_trigger=false"
+        if "%xtts_trigger%"=="true" (
+            set "xtts_trigger=false"
         ) else (
-            set "coqui_trigger=true"
+            set "xtts_trigger=true"
         )
-        set "python_command= --enable-modules=coqui-tts --coqui-gpu --cuda-device=0"
+        set "python_command= xtts_api_server --gpu 0 --cuda-device=0"
     ) else if "%%i"=="2" (
         if "%rvc_trigger%"=="true" (
             set "rvc_trigger=false"
@@ -751,7 +751,7 @@ for %%i in (%module_choices%) do (
 )
 
 REM Save the module flags to modules.txt
-echo coqui_trigger=%coqui_trigger%>"%~dp0modules.txt"
+echo xtts_trigger=%xtts_trigger%>"%~dp0modules.txt"
 echo rvc_trigger=%rvc_trigger%>>"%~dp0modules.txt"
 echo talkinghead_trigger=%talkinghead_trigger%>>"%~dp0modules.txt"
 echo caption_trigger=%caption_trigger%>>"%~dp0modules.txt"
@@ -923,20 +923,6 @@ if /i "!confirmation!"=="Y" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]XTTS installation skipped.%reset% 
     )
 
-    REM Provide a link to the Coqui documentation
-    echo %yellow_fg_strong%[DISCLAIMER] The installation of Coqui requirements is not recommended unless you have a specific use case. It may conflict with additional dependencies and functionalities to your environment.%reset%
-    echo %blue_fg_strong%[INFO]%reset% To learn more about Coqui, visit: https://docs.sillytavern.app/extras/installation/#decide-which-module-to-use
-
-    REM Ask the user if they want to install requirements-coqui.txt
-    set /p install_coqui_requirements=Do you want to install Coqui TTS? [Y/N] 
-
-    REM Check the user's response
-    if /i "%install_coqui_requirements%"=="Y" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-coqui...
-        pip install -r requirements-coqui.txt
-    ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]Coqui requirements installation skipped.%reset% 
-    )
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc...
     pip install -r requirements-rvc.txt

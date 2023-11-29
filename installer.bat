@@ -260,32 +260,12 @@ if /i "%install_xtts_requirements%"=="Y" (
     REM Activate the extras environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
     call conda activate extras
-
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
 )
 
-
-REM Provide a link to the Coqui documentation
-echo %yellow_fg_strong%[DISCLAIMER] The installation of Coqui requirements is not recommended unless you have a specific use case. It may conflict with additional dependencies and functionalities to your environment.%reset%
-echo %blue_fg_strong%[INFO]%reset% To learn more about Coqui, visit: https://docs.sillytavern.app/extras/installation/#decide-which-module-to-use
-
-REM Ask the user if they want to install requirements-coqui.txt
-set /p install_coqui_requirements=Install Coqui TTS? [Y/N] 
-
-REM Check the user's response
-if /i "%install_coqui_requirements%"=="Y" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-coqui...
-    pip install -r requirements-coqui.txt
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] Coqui requirements installation skipped.%reset% 
-)
-
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc...
 pip install -r requirements-rvc.txt
-
-echo %cyan_fg_strong%Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.%reset%
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
 
 REM Ask if the user wants to create a shortcut
 set /p create_shortcut=Do you want to create a shortcut on the desktop? [Y/n] 
@@ -303,6 +283,7 @@ if /i "%create_shortcut%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
 )
 
+
 REM Ask if the user wants to start the launcher.bat
 set /p start_launcher=Start the launcher now? [Y/n] 
 if /i "%start_launcher%"=="Y" (
@@ -313,6 +294,7 @@ if /i "%start_launcher%"=="Y" (
     goto :installer
 )
 goto :installer
+
 
 :install_sillytavern
 title SillyTavern [INSTALL ST]
@@ -342,6 +324,7 @@ if /i "%create_shortcut%"=="Y" (
         "$Shortcut.Save()"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
 )
+
 
 REM Ask if the user wants to start the launcher.bat
 set /p start_launcher=Start the launcher now? [Y/n] 
@@ -461,29 +444,12 @@ if /i "%install_xtts_requirements%"=="Y" (
     call conda activate extras
 
 ) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]XTTS installation skipped.%reset% 
-)
-
-
-REM Provide a link to the Coqui documentation
-echo %yellow_fg_strong%[DISCLAIMER] The installation of Coqui requirements is not recommended unless you have a specific use case. It may conflict with additional dependencies and functionalities to your environment.%reset%
-echo %blue_fg_strong%[INFO] To learn more about Coqui, visit:%reset% https://docs.sillytavern.app/extras/installation/#decide-which-module-to-use
-
-REM Ask the user if they want to install requirements-coqui.txt
-set /p install_coqui_requirements=Install Coqui TTS? [Y/N] 
-
-REM Check the user's response
-if /i "%install_coqui_requirements%"=="Y" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-coqui...
-    pip install -r requirements-coqui.txt
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]Coqui requirements installation skipped.%reset% 
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc...
 pip install -r requirements-rvc.txt
 
-echo %cyan_fg_strong%Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.%reset%
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
 
 REM Ask if the user wants to create a shortcut
