@@ -51,7 +51,7 @@ set "miniconda_path=%userprofile%\miniconda3"
 
 REM Define variables to track module status
 set "modules_path=%~dp0modules.txt"
-set "coqui_trigger=false"
+set "xtts_trigger=false"
 set "rvc_trigger=false"
 set "talkinghead_trigger=false"
 set "caption_trigger=false"
@@ -221,7 +221,19 @@ call conda activate extras
 REM Start SillyTavern Extras with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras has been launched.
 cd /d "%~dp0SillyTavern-extras"
-start cmd /k python server.py --coqui-gpu --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc,coqui-tts
+start cmd /k python server.py --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc
+
+REM Check if the xtts conda environment exists
+conda activate xtts > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% xtts conda environment not found. Skipping xtts_api_server launch.
+    goto :home
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% xtts conda environment found. Launching xtts_api_server...
+    call conda activate xtts
+    start cmd /k python -m xtts_api_server
+    goto :home
+)
 goto :home
 
 
@@ -685,7 +697,7 @@ echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Coqui, 
 REM color 7
 
 REM Display module options with colors based on their status
-call :printModule "1. Coqui (--enable-modules=coqui-tts --coqui-gpu --cuda-device=0)" %coqui_trigger%
+call :printModule "1. XTTS (xtts_api_server --gpu 0 --cuda-device=0)" %xtts_trigger%
 call :printModule "2. RVC (--enable-modules=rvc --rvc-save-file --max-content-length=1000)" %rvc_trigger%
 call :printModule "3. talkinghead (--enable-modules=talkinghead)" %talkinghead_trigger%
 call :printModule "4. caption (--enable-modules=caption)" %caption_trigger%
@@ -699,12 +711,12 @@ set /p module_choices=Choose modules to enable/disable (1-5):
 REM Handle the user's module choices and construct the Python command
 for %%i in (%module_choices%) do (
     if "%%i"=="1" (
-        if "%coqui_trigger%"=="true" (
-            set "coqui_trigger=false"
+        if "%xtts_trigger%"=="true" (
+            set "xtts_trigger=false"
         ) else (
-            set "coqui_trigger=true"
+            set "xtts_trigger=true"
         )
-        set "python_command= --enable-modules=coqui-tts --coqui-gpu --cuda-device=0"
+        set "python_command= xtts_api_server --gpu 0 --cuda-device=0"
     ) else if "%%i"=="2" (
         if "%rvc_trigger%"=="true" (
             set "rvc_trigger=false"
@@ -739,7 +751,7 @@ for %%i in (%module_choices%) do (
 )
 
 REM Save the module flags to modules.txt
-echo coqui_trigger=%coqui_trigger%>"%~dp0modules.txt"
+echo xtts_trigger=%xtts_trigger%>"%~dp0modules.txt"
 echo rvc_trigger=%rvc_trigger%>>"%~dp0modules.txt"
 echo talkinghead_trigger=%talkinghead_trigger%>>"%~dp0modules.txt"
 echo caption_trigger=%caption_trigger%>>"%~dp0modules.txt"
@@ -809,7 +821,6 @@ if /i "!confirmation!"=="Y" (
     echo %blue_fg_strong%SillyTavern Extras%reset%
     echo ---------------------------------------------------------------
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
-    echo .
     echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda...
@@ -854,23 +865,64 @@ if /i "!confirmation!"=="Y" (
     REM Navigate to the SillyTavern-extras directory
     cd SillyTavern-extras
 
+    REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements.txt...
     pip install -r requirements.txt
 
-    REM Provide a link to the Coqui documentation
-    echo %yellow_fg_strong%[DISCLAIMER] The installation of Coqui requirements is not recommended unless you have a specific use case. It may conflict with additional dependencies and functionalities to your environment.%reset%
-    echo %blue_fg_strong%[INFO]%reset% To learn more about Coqui, visit: https://docs.sillytavern.app/extras/installation/#decide-which-module-to-use
+    REM Provide a link to the XTTS
+    echo %blue_fg_strong%[INFO] Feeling excited to give your robotic waifu/husbando a new shiny voice modulator?%reset%
+    echo %blue_fg_strong%To learn more about XTTS, visit:%reset% https://coqui.ai/blog/tts/open_xtts
 
-    REM Ask the user if they want to install requirements-coqui.txt
-    set /p install_coqui_requirements=Do you want to install Coqui TTS? [Y/N] 
+    REM Ask the user if they want to install XTTS
+    set /p install_xtts_requirements=Install XTTS? [Y/N] 
 
     REM Check the user's response
-    if /i "%install_coqui_requirements%"=="Y" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-coqui...
-        pip install -r requirements-coqui.txt
+    if /i "%install_xtts_requirements%"=="Y" (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
+
+        REM Run conda deactivate for extras
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment extras...
+        call conda deactivate
+
+        REM Create folders for xtts
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
+        mkdir "%~dp0xtts"
+        mkdir "%~dp0xtts\speakers"
+        mkdir "%~dp0xtts\output"
+
+        REM Run conda activate from the Miniconda installation
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+        call "%miniconda_path%\Scripts\activate.bat"
+
+        REM Create a Conda environment named xtts
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment xtts...
+        call conda create -n xtts -y
+
+        REM Activate the xtts environment
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment xtts...
+        call conda activate xtts
+
+        REM Install Python 3.10 in the xtts environment
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python in the Conda environment...
+        conda install python=3.10 -y
+
+        REM Install pip requirements
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
+        pip install xtts-api-server
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+        REM Run conda deactivate for xtts
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment xtts...
+        call conda deactivate
+
+        REM Activate the extras environment
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
+        call conda activate extras
+
     ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]Coqui requirements installation skipped.%reset% 
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]XTTS installation skipped.%reset% 
     )
+
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc...
     pip install -r requirements-rvc.txt
@@ -892,7 +944,7 @@ chcp 65001 > nul
 REM Confirm with the user before proceeding
 echo.
 echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of SillyTavern + Extras                                    ║%reset%
+echo %red_bg%║ WARNING: This will delete all data of SillyTavern + Extras + XTTS                             ║%reset%
 echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
 echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
 echo.
@@ -903,15 +955,21 @@ if /i "%confirmation%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda environment 'extras'...
     call conda remove --name extras --all -y
 
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda environment 'xtts'...
+    call conda remove --name xtts --all -y
+
     REM Remove the folder SillyTavern-extras
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern-extras directory...
-    cd /d "%~dp0"
-    rmdir /s /q SillyTavern-extras
+    rmdir /s /q %~dp0SillyTavern-extras
+
+    REM Remove the folder SillyTavern
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts directory...
+    rmdir /s /q %~dp0xtts
 
     REM Remove the folder SillyTavern
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern directory...
-    cd /d "%~dp0"
-    rmdir /s /q SillyTavern
+    rmdir /s /q %~dp0SillyTavern
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern + Extras has been uninstalled successfully.%reset%
     pause
