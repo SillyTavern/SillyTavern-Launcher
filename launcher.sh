@@ -223,9 +223,15 @@ start_st() {
     detected_terminal=$(find_terminal)
     log_message "INFO" "Found terminal: $detected_terminal"
     # Enable read p command for troubleshooting    
-#    read -p "Press Enter to continue..."
+    # read -p "Press Enter to continue..."
+
     # Start SillyTavern in the detected terminal
-    exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern && ./start.sh" &
+    if [ "$(uname)" == "Darwin" ]; then
+        log_message "INFO" "Detected macOS. Opening new Terminal window."
+        open -a Terminal "$(dirname "$0")/start.sh"
+    else
+        exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern && ./start.sh" &
+    fi
 
     home
 }
@@ -240,10 +246,17 @@ start_st_extras() {
     detected_terminal=$(find_terminal)
     log_message "INFO" "Found terminal: $detected_terminal"
     # Enable read p command for troubleshooting    
-#    read -p "Press Enter to continue..."
-    # Start SillyTavern + extras in the detected terminal
-    exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern && ./start.sh" &
-    exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern-extras && ./start.sh" &
+    # read -p "Press Enter to continue..."
+
+    # Start SillyTavern in the detected terminal
+    if [ "$(uname)" == "Darwin" ]; then
+        log_message "INFO" "Detected macOS. Opening new Terminal window."
+        open -a Terminal "$(dirname "$0")/start.sh"
+        open -a Terminal "$(dirname "$0")/SillyTavern-extras/start.sh"
+    else
+        exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern && ./start.sh" &
+        exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern-extras && ./start.sh" &
+    fi
 
     home
 }

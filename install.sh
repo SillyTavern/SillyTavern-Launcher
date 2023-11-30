@@ -42,13 +42,11 @@ miniconda_path="$HOME/miniconda"
 miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
 
 # Define the paths and filenames for the shortcut creation
-shortcutTarget="SillyTavern/st-launcher.sh"
-iconFile="SillyTavern/public/st-launcher.ico"
-desktopPath="$HOME/Desktop"
-shortcutName="ST Launcher.desktop"
-startIn="SillyTavern"
-comment="SillyTavern Launcher"
-
+script_path="$(realpath "$(dirname "$0")")/launcher.sh"
+icon_path="$(realpath "$(dirname "$0")")/st-launcher.ico"
+script_name=st-launcher
+desktop_dir="$(eval echo ~$(logname))/Desktop"
+desktop_file="$desktop_dir/st-launcher.desktop"
 
 # Function to log messages with timestamps and colors
 log_message() {
@@ -109,6 +107,10 @@ install_git() {
             # macOS
             log_message "INFO" "Installing Git using Homebrew..."
             brew install git
+        elif command -v pkg &>/dev/null; then
+            # Termux on Android
+            log_message "INFO" "Installing Git using pkg..."
+            pkg install git
         else
             log_message "ERROR" "${red_fg_strong}Unsupported Linux distribution.${reset}"
             exit 1
@@ -172,6 +174,10 @@ install_nodejs_npm() {
             read -p "Press Enter to continue..."
             nvm install --lts
             nvm use --lts
+        elif command -v pkg &>/dev/null; then
+            # Termux on Android
+            log_message "INFO" "Installing Node.js and npm using pkg..."
+            pkg install nodejs npm
         elif command -v brew &>/dev/null; then
             # macOS
             log_message "INFO" "Installing Node.js and npm using Homebrew..."
@@ -260,6 +266,35 @@ install_st_extras() {
     rm -rf /tmp/$miniconda_installer
     log_message "INFO" "${green_fg_strong}SillyTavern + Extras successfully installed.${reset}"
     
+    # Ask if the user wants to create a desktop shortcut
+    read -p "Do you want to create a shortcut on the desktop? [Y/n] " create_shortcut
+    if [[ "${create_shortcut}" == "Y" || "${create_shortcut}" == "y" ]]; then
+
+    # Create the desktop shortcut
+    echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Creating desktop shortcut..."
+	
+	echo "[Desktop Entry]" > "$desktop_file"
+	echo "Version=1.0" >> "$desktop_file"
+	echo "Type=Application" >> "$desktop_file"
+	echo "Name=$script_name" >> "$desktop_file"
+	echo "Exec=$script_path" >> "$desktop_file"
+	echo "Icon=$icon_path" >> "$desktop_file"
+	echo "Terminal=true" >> "$desktop_file"
+	echo "Comment=SillyTavern Launcher" >> "$desktop_file"
+	chmod +x "$desktop_file"
+
+    echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} ${green_fg_strong}Desktop shortcut created at: $desktop_file${reset}"
+    fi
+
+    # Ask if the user wants to start the launcher
+    read -p "Start the launcher now? [Y/n] " start_launcher
+    if [[ "${start_launcher}" == "Y" || "${start_launcher}" == "y" ]]; then
+        # Run the launcher
+        echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Running launcher in a new window..."
+        cd "$(dirname "$0")"
+        chmod +x launcher.sh && ./launcher.sh
+    fi
+
     installer
 }
 
@@ -276,7 +311,35 @@ install_sillytavern() {
     log_message "INFO" "Cloning SillyTavern repository..."
     git clone https://github.com/SillyTavern/SillyTavern.git
     log_message "INFO" "${green_fg_strong}SillyTavern installed successfully.${reset}"
-    read -p "Press Enter to continue..."
+
+    # Ask if the user wants to create a desktop shortcut
+    read -p "Do you want to create a shortcut on the desktop? [Y/n] " create_shortcut
+    if [[ "${create_shortcut}" == "Y" || "${create_shortcut}" == "y" ]]; then
+
+    # Create the desktop shortcut
+    echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Creating desktop shortcut..."
+	
+	echo "[Desktop Entry]" > "$desktop_file"
+	echo "Version=1.0" >> "$desktop_file"
+	echo "Type=Application" >> "$desktop_file"
+	echo "Name=$script_name" >> "$desktop_file"
+	echo "Exec=$script_path" >> "$desktop_file"
+	echo "Icon=$icon_path" >> "$desktop_file"
+	echo "Terminal=true" >> "$desktop_file"
+	echo "Comment=SillyTavern Launcher" >> "$desktop_file"
+	chmod +x "$desktop_file"
+
+    echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} ${green_fg_strong}Desktop shortcut created at: $desktop_file${reset}"
+    fi
+
+    # Ask if the user wants to start the launcher
+    read -p "Start the launcher now? [Y/n] " start_launcher
+    if [[ "${start_launcher}" == "Y" || "${start_launcher}" == "y" ]]; then
+        # Run the launcher
+        echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Running launcher in a new window..."
+        cd "$(dirname "$0")"
+        chmod +x launcher.sh && ./launcher.sh
+    fi
 
     installer
 }
@@ -411,6 +474,12 @@ elif command -v pacman &>/dev/null; then
 elif command -v emerge &>/dev/null; then
     log_message "INFO" "${blue_fg_strong}Detected Gentoo Linux-based system. Now you are the real CHAD${reset}"
     # Gentoo Linux
+    install_git
+    install_nodejs_npm
+    installer
+elif command -v pkg &>/dev/null; then
+    log_message "INFO" "${blue_fg_strong}Detected pkg System${reset}"
+    # pkg 
     install_git
     install_nodejs_npm
     installer
