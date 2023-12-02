@@ -264,7 +264,6 @@ if /i "%install_xtts_requirements%"=="Y" (
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
     rmdir /s /q "%~dp0xtts-api-server"
-    pause
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
 )
@@ -508,7 +507,6 @@ if /i "%install_xtts_requirements%"=="Y" (
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
     rmdir /s /q "%~dp0xtts-api-server"
-    pause
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
 )
