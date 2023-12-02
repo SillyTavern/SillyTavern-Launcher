@@ -961,15 +961,15 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder SillyTavern-extras
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern-extras directory...
-    rmdir /s /q %~dp0SillyTavern-extras
+    rmdir /s /q "%~dp0SillyTavern-extras"
 
     REM Remove the folder SillyTavern
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts directory...
-    rmdir /s /q %~dp0xtts
+    rmdir /s /q "%~dp0xtts"
 
     REM Remove the folder SillyTavern
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern directory...
-    rmdir /s /q %~dp0SillyTavern
+    rmdir /s /q "%~dp0SillyTavern"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern + Extras has been uninstalled successfully.%reset%
     pause
