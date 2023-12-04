@@ -248,15 +248,17 @@ start_st_extras() {
     check_nodejs
     if [ "$LAUNCH_NEW_WIN" = "0" ]; then
         log_message "INFO" "SillyTavern launched"
-        {
-            cd "$(dirname "$0")./SillyTavern" || exit 1
-            ./start.sh
-        } &
+        ./start.sh &
         local main_pid=$!
         log_message "INFO" "Extras launched under pid $main_pid"
         {
             #has to be after the first one, so we are 1 directory up
-            cd "$(dirname "$0")../SillyTavern-extras" || exit 1
+            cd "$(dirname "$0")./SillyTavern-extras" || {
+                log_message "ERROR" "SillyTavern-extras directory not found. Please make sure you have installed SillyTavern-extras."
+                kill $main_pid
+                exit 1
+            }
+            log_message "INFO" "Wordking dir: $(pwd)"
             ./start.sh
         } &
         local extras_pid=$!

@@ -38,9 +38,80 @@ red_bg="\033[41m"
 blue_bg="\033[44m"
 yellow_bg="\033[43m"
 
-# Environment Variables (TOOLBOX Install Extras)
-miniconda_path="$HOME/miniconda"
-miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
+
+function find_conda {
+    local paths=(
+        "$HOME/miniconda3"
+        "$HOME/miniconda"
+        "$HOME/opt/miniconda3"
+        "$HOME/opt/miniconda"
+        "/opt/miniconda3"
+        "/opt/miniconda"
+        "/usr/local/miniconda3"
+        "/usr/local/miniconda"
+        "/usr/miniconda3"
+        "/usr/miniconda"
+        "$HOME/anaconda3"
+        "$HOME/anaconda"
+        "$HOME/opt/anaconda3"
+        "$HOME/opt/anaconda"
+        "/opt/anaconda3"
+        "/opt/anaconda"
+        "/usr/local/anaconda3"
+        "/usr/local/anaconda"
+        "/usr/anaconda3"
+        "/usr/anaconda"
+    )
+
+    if [ "$(uname)" == "Darwin" ]; then
+        paths+=("/opt/homebrew-cask/Caskroom/miniconda")
+        paths+=("/usr/local/Caskroom/miniconda/base")
+    fi
+
+    for path in "${paths[@]}"; do
+        if [ -d "$path" ]; then
+            echo "$path"
+            return 0
+        fi
+    done
+
+    echo "ERROR: Could not find miniconda installation" >&2
+    return 1
+}
+
+if [ -n "$CONDA_PATH" ]; then
+    CONDA_PATH="$(find_conda)"
+fi
+
+# miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
+os_name="$(uname -s)"
+arch="$(uname -m)"
+if [ "$os_name" == "Linux" ]; then
+    if [ "$arch" == "x86_64" ]; then
+        miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
+    elif [ "$arch" == "aarch64" ]; then
+        miniconda_installer="Miniconda3-latest-Linux-aarch64.sh"
+    else
+        echo "ERROR: Unsupported architecture: $arch" >&2
+        exit 1
+    fi
+elif [ "$os_name" == "Darwin" ]; then
+    if [ "$arch" == "x86_64" ]; then
+        miniconda_installer="Miniconda3-latest-MacOSX-x86_64.sh"
+    else
+        miniconda_installer="Miniconda3-latest-MacOSX-arm64.sh"
+    fi
+else
+    echo "ERROR: Unsupported operating system: $os_name, using the linux installer (on $arch)" >&2
+    if [ "$arch" == "x86_64" ]; then
+        miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
+    elif [ "$arch" == "aarch64" ]; then
+        miniconda_installer="Miniconda3-latest-Linux-aarch64.sh"
+    else
+        echo "ERROR: Unsupported architecture: $arch" >&2
+        exit 1
+    fi
+fi
 
 # Define the paths and filenames for the shortcut creation
 script_path="$(realpath "$(dirname "$0")")/launcher.sh"
@@ -216,14 +287,14 @@ install_st_extras() {
     chmod +x /tmp/$miniconda_installer
 
     # Run the installer script
-    bash /tmp/$miniconda_installer -b -u -p $miniconda_path
+    bash /tmp/$miniconda_installer -b -u -p $CONDA_PATH
 
     # Update PATH to include Miniconda
-    export PATH="$miniconda_path/bin:$PATH"
+    export PATH="$CONDA_PATH/bin:$PATH"
 
     # Activate Conda environment
     log_message "INFO" "Activating Miniconda environment..."
-    source $miniconda_path/etc/profile.d/conda.sh
+    source $CONDA_PATH/etc/profile.d/conda.sh
 
     # Create and activate the Conda environment
     log_message "INFO" "Disabling conda auto activate..."
@@ -242,7 +313,7 @@ install_st_extras() {
     log_message "INFO" "Cloning SillyTavern-extras repository..."
     git clone https://github.com/SillyTavern/SillyTavern-extras.git
 
-    cd SillyTavern-extras
+    cd SillyTavern-extras || exit 1
 
     log_message "INFO" "Installing modules from requirements.txt..."
     pip install -r requirements.txt
@@ -359,14 +430,14 @@ install_extras() {
     chmod +x /tmp/$miniconda_installer
 
     # Run the installer script
-    bash /tmp/$miniconda_installer -b -u -p $miniconda_path
+    bash /tmp/$miniconda_installer -b -u -p $CONDA_PATH
 
     # Update PATH to include Miniconda
-    export PATH="$miniconda_path/bin:$PATH"
+    export PATH="$CONDA_PATH/bin:$PATH"
 
     # Activate Conda environment
     log_message "INFO" "Activating Miniconda environment..."
-    source $miniconda_path/etc/profile.d/conda.sh
+    source $CONDA_PATH/etc/profile.d/conda.sh
 
     # Create and activate the Conda environment
     log_message "INFO" "Disabling conda auto activate..."
