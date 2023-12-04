@@ -36,6 +36,7 @@ cyan_fg_strong="\033[96m"
 # Normal Background Colors
 red_bg="\033[41m"
 blue_bg="\033[44m"
+yellow_bg="\033[43m"
 
 # Environment Variables (TOOLBOX Install Extras)
 miniconda_path="$HOME/miniconda"
@@ -52,7 +53,7 @@ desktop_file="$desktop_dir/st-launcher.desktop"
 log_message() {
     # This is only time
     current_time=$(date +'%H:%M:%S')
-    # This is with date and time 
+    # This is with date and time
     # current_time=$(date +'%Y-%m-%d %H:%M:%S')
     case "$1" in
         "INFO")
@@ -265,14 +266,14 @@ install_st_extras() {
     # Cleanup the Downloaded file
     rm -rf /tmp/$miniconda_installer
     log_message "INFO" "${green_fg_strong}SillyTavern + Extras successfully installed.${reset}"
-    
+
     # Ask if the user wants to create a desktop shortcut
     read -p "Do you want to create a shortcut on the desktop? [Y/n] " create_shortcut
     if [[ "${create_shortcut}" == "Y" || "${create_shortcut}" == "y" ]]; then
 
     # Create the desktop shortcut
     echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Creating desktop shortcut..."
-	
+
 	echo "[Desktop Entry]" > "$desktop_file"
 	echo "Version=1.0" >> "$desktop_file"
 	echo "Type=Application" >> "$desktop_file"
@@ -318,7 +319,7 @@ install_sillytavern() {
 
     # Create the desktop shortcut
     echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Creating desktop shortcut..."
-	
+
 	echo "[Desktop Entry]" > "$desktop_file"
 	echo "Version=1.0" >> "$desktop_file"
 	echo "Type=Application" >> "$desktop_file"
@@ -479,7 +480,7 @@ elif command -v emerge &>/dev/null; then
     installer
 elif command -v pkg &>/dev/null; then
     log_message "INFO" "${blue_fg_strong}Detected pkg System${reset}"
-    # pkg 
+    # pkg
     install_git
     install_nodejs_npm
     installer
