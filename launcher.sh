@@ -248,12 +248,19 @@ start_st_extras() {
     check_nodejs
     if [ "$LAUNCH_NEW_WIN" = "0" ]; then
         log_message "INFO" "SillyTavern launched"
-        cd "$(dirname "$0")./SillyTavern" || exit 1
-        ./start.sh &
+        {
+            cd "$(dirname "$0")./SillyTavern" || exit 1
+            ./start.sh
+        } &
         local main_pid=$!
-        cd "$(dirname "$0")./SillyTavern-extras" || exit 1
-        ./start.sh &
+        log_message "INFO" "Extras launched under pid $main_pid"
+        {
+            #has to be after the first one, so we are 1 directory up
+            cd "$(dirname "$0")../SillyTavern-extras" || exit 1
+            ./start.sh
+        } &
         local extras_pid=$!
+        log_message "INFO" "Extras launched under pid $extras_pid"
 
         wait $main_pid
         kill $extras_pid
