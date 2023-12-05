@@ -38,6 +38,7 @@ cyan_fg_strong="\033[96m"
 # Normal Background Colors
 red_bg="\033[41m"
 blue_bg="\033[44m"
+yellow_bg="\033[43m"
 
 # Environment Variables (TOOLBOX 7-Zip)
 zip7version="7z2301-x64"
@@ -68,7 +69,7 @@ summarize_trigger="false"
 log_message() {
     # This is only time
     current_time=$(date +'%H:%M:%S')
-    # This is with date and time 
+    # This is with date and time
     # current_time=$(date +'%Y-%m-%d %H:%M:%S')
     case "$1" in
         "INFO")
@@ -217,20 +218,27 @@ find_terminal() {
 # Function to start SillyTavern
 start_st() {
     check_nodejs
-    log_message "INFO" "SillyTavern launched in a new window."
-    # Find a suitable terminal
-    local detected_terminal
-    detected_terminal=$(find_terminal)
-    log_message "INFO" "Found terminal: $detected_terminal"
-    # Enable read p command for troubleshooting    
-    # read -p "Press Enter to continue..."
-
-    # Start SillyTavern in the detected terminal
-    if [ "$(uname)" == "Darwin" ]; then
-        log_message "INFO" "Detected macOS. Opening new Terminal window."
-        open -a Terminal "$(dirname "$0")/start.sh"
+    #if LAUNCH_NEW_WIN is set to 0, SillyTavern will launch in the same window
+    if [ "$LAUNCH_NEW_WIN" = "0" ]; then
+        log_message "INFO" "SillyTavern launched"
+        cd "$(dirname "$0")./SillyTavern" || exit 1
+        ./start.sh
     else
-        exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern && ./start.sh" &
+        log_message "INFO" "SillyTavern launched in a new window."
+        # Find a suitable terminal
+        local detected_terminal
+        detected_terminal=$(find_terminal)
+        log_message "INFO" "Found terminal: $detected_terminal"
+        # Enable read p command for troubleshooting
+        # read -p "Press Enter to continue..."
+
+        # Start SillyTavern in the detected terminal
+        if [ "$(uname)" == "Darwin" ]; then
+            log_message "INFO" "Detected macOS. Opening new Terminal window."
+            open -a Terminal "$(dirname "$0")/start.sh"
+        else
+            exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern && ./start.sh" &
+        fi
     fi
 
     home
@@ -239,23 +247,45 @@ start_st() {
 # Function to start SillyTavern with Extras
 start_st_extras() {
     check_nodejs
-    log_message "INFO" "SillyTavern launched in a new window."
-    log_message "INFO" "Extras launched in a new window."
-    # Find a suitable terminal
-    local detected_terminal
-    detected_terminal=$(find_terminal)
-    log_message "INFO" "Found terminal: $detected_terminal"
-    # Enable read p command for troubleshooting    
-    # read -p "Press Enter to continue..."
+    if [ "$LAUNCH_NEW_WIN" = "0" ]; then
+        log_message "INFO" "SillyTavern launched"
+        ./start.sh &
+        local main_pid=$!
+        log_message "INFO" "Extras launched under pid $main_pid"
+        {
+            #has to be after the first one, so we are 1 directory up
+            cd "$(dirname "$0")./SillyTavern-extras" || {
+                log_message "ERROR" "SillyTavern-extras directory not found. Please make sure you have installed SillyTavern-extras."
+                kill $main_pid
+                exit 1
+            }
+            log_message "INFO" "Wordking dir: $(pwd)"
+            ./start.sh
+        } &
+        local extras_pid=$!
+        log_message "INFO" "Extras launched under pid $extras_pid"
 
-    # Start SillyTavern in the detected terminal
-    if [ "$(uname)" == "Darwin" ]; then
-        log_message "INFO" "Detected macOS. Opening new Terminal window."
-        open -a Terminal "$(dirname "$0")/start.sh"
-        open -a Terminal "$(dirname "$0")/SillyTavern-extras/start.sh"
+        wait $main_pid
+        kill $extras_pid
     else
-        exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern && ./start.sh" &
-        exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern-extras && ./start.sh" &
+        log_message "INFO" "SillyTavern launched in a new window."
+        log_message "INFO" "Extras launched in a new window."
+        # Find a suitable terminal
+        local detected_terminal
+        detected_terminal=$(find_terminal)
+        log_message "INFO" "Found terminal: $detected_terminal"
+        # Enable read p command for troubleshooting
+        # read -p "Press Enter to continue..."
+
+        # Start SillyTavern in the detected terminal
+        if [ "$(uname)" == "Darwin" ]; then
+            log_message "INFO" "Detected macOS. Opening new Terminal window."
+            open -a Terminal "$(dirname "$0")/start.sh"
+            open -a Terminal "$(dirname "$0")/SillyTavern-extras/start.sh"
+        else
+            exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern && ./start.sh" &
+            exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern-extras && ./start.sh" &
+        fi
     fi
 
     home
@@ -327,38 +357,38 @@ restore_backup() {
     # List available backups
     echo "List of available backups:"
     echo "========================"
-    
+
     backup_count=0
     backup_files=()
-    
+
     for file in backups/backup_*.tar.gz; do
         backup_count=$((backup_count + 1))
         backup_files+=("$file")
         echo -e "$backup_count. ${cyan_fg_strong}$(basename "$file")${reset}"
     done
-    
+
     echo "========================"
     read -p "Enter the number of the backup to restore: " restore_choice
-    
+
     if [ "$restore_choice" -ge 1 ] && [ "$restore_choice" -le "$backup_count" ]; then
         selected_backup="${backup_files[restore_choice - 1]}"
         echo "Restoring backup $selected_backup..."
-        
+
         # Extract the contents of the backup to a temporary directory
         temp_dir=$(mktemp -d)
         tar -xzvf "$selected_backup" -C "$temp_dir"
-        
+
         # Copy the restored files to the appropriate location
         rsync -av "$temp_dir/public/" "public/"
-        
+
         # Clean up the temporary directory
         rm -r "$temp_dir"
-        
+
         echo -e "${green_fg_strong}$selected_backup restored successfully.${reset}"
     else
         echo -e "${yellow_fg_strong}WARNING: Invalid backup number. Please insert a valid number.${reset}"
     fi
-    
+
     read -p "Press Enter to continue..."
     backup_menu
 }

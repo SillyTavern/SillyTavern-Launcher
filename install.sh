@@ -36,10 +36,82 @@ cyan_fg_strong="\033[96m"
 # Normal Background Colors
 red_bg="\033[41m"
 blue_bg="\033[44m"
+yellow_bg="\033[43m"
 
-# Environment Variables (TOOLBOX Install Extras)
-miniconda_path="$HOME/miniconda"
-miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
+
+function find_conda {
+    local paths=(
+        "$HOME/miniconda3"
+        "$HOME/miniconda"
+        "$HOME/opt/miniconda3"
+        "$HOME/opt/miniconda"
+        "/opt/miniconda3"
+        "/opt/miniconda"
+        "/usr/local/miniconda3"
+        "/usr/local/miniconda"
+        "/usr/miniconda3"
+        "/usr/miniconda"
+        "$HOME/anaconda3"
+        "$HOME/anaconda"
+        "$HOME/opt/anaconda3"
+        "$HOME/opt/anaconda"
+        "/opt/anaconda3"
+        "/opt/anaconda"
+        "/usr/local/anaconda3"
+        "/usr/local/anaconda"
+        "/usr/anaconda3"
+        "/usr/anaconda"
+    )
+
+    if [ "$(uname)" == "Darwin" ]; then
+        paths+=("/opt/homebrew-cask/Caskroom/miniconda")
+        paths+=("/usr/local/Caskroom/miniconda/base")
+    fi
+
+    for path in "${paths[@]}"; do
+        if [ -d "$path" ]; then
+            echo "$path"
+            return 0
+        fi
+    done
+
+    echo "ERROR: Could not find miniconda installation" >&2
+    return 1
+}
+
+if [ -n "$CONDA_PATH" ]; then
+    CONDA_PATH="$(find_conda)"
+fi
+
+# miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
+os_name="$(uname -s)"
+arch="$(uname -m)"
+if [ "$os_name" == "Linux" ]; then
+    if [ "$arch" == "x86_64" ]; then
+        miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
+    elif [ "$arch" == "aarch64" ]; then
+        miniconda_installer="Miniconda3-latest-Linux-aarch64.sh"
+    else
+        echo "ERROR: Unsupported architecture: $arch" >&2
+        exit 1
+    fi
+elif [ "$os_name" == "Darwin" ]; then
+    if [ "$arch" == "x86_64" ]; then
+        miniconda_installer="Miniconda3-latest-MacOSX-x86_64.sh"
+    else
+        miniconda_installer="Miniconda3-latest-MacOSX-arm64.sh"
+    fi
+else
+    echo "ERROR: Unsupported operating system: $os_name, using the linux installer (on $arch)" >&2
+    if [ "$arch" == "x86_64" ]; then
+        miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
+    elif [ "$arch" == "aarch64" ]; then
+        miniconda_installer="Miniconda3-latest-Linux-aarch64.sh"
+    else
+        echo "ERROR: Unsupported architecture: $arch" >&2
+        exit 1
+    fi
+fi
 
 # Define the paths and filenames for the shortcut creation
 script_path="$(realpath "$(dirname "$0")")/launcher.sh"
@@ -52,7 +124,7 @@ desktop_file="$desktop_dir/st-launcher.desktop"
 log_message() {
     # This is only time
     current_time=$(date +'%H:%M:%S')
-    # This is with date and time 
+    # This is with date and time
     # current_time=$(date +'%Y-%m-%d %H:%M:%S')
     case "$1" in
         "INFO")
@@ -210,19 +282,22 @@ install_st_extras() {
 
     log_message "INFO" "Installing Extras..."
 
+    log_message "INFO" "Cloning SillyTavern-extras repository..."
+    git clone https://github.com/SillyTavern/SillyTavern-extras.git
+
     # Download the Miniconda installer script
     wget https://repo.anaconda.com/miniconda/$miniconda_installer -P /tmp
     chmod +x /tmp/$miniconda_installer
 
     # Run the installer script
-    bash /tmp/$miniconda_installer -b -u -p $miniconda_path
+    bash /tmp/$miniconda_installer -b -u -p $CONDA_PATH
 
     # Update PATH to include Miniconda
-    export PATH="$miniconda_path/bin:$PATH"
+    export PATH="$CONDA_PATH/bin:$PATH"
 
     # Activate Conda environment
     log_message "INFO" "Activating Miniconda environment..."
-    source $miniconda_path/etc/profile.d/conda.sh
+    source $CONDA_PATH/etc/profile.d/conda.sh
 
     # Create and activate the Conda environment
     log_message "INFO" "Disabling conda auto activate..."
@@ -238,32 +313,117 @@ install_st_extras() {
     log_message "INFO" "Installing Python and Git in the Conda environment..."
     conda install python=3.11 git -y
 
-    log_message "INFO" "Cloning SillyTavern-extras repository..."
-    git clone https://github.com/SillyTavern/SillyTavern-extras.git
+    # Provide a link to XTTS
+    log_message "INFO" "${blue_fg_strong}Feeling excited to give your robotic waifu/husbando a new shiny voice modulator?${reset}"
+    log_message "INFO" "${blue_fg_strong}To learn more about XTTS, visit:${reset} https://coqui.ai/blog/tts/open_xtts"
 
-    cd SillyTavern-extras
+    # Ask the user if they want to install XTTS
+    read -p "Install XTTS? [Y/N]: " install_xtts_requirements
 
-    log_message "INFO" "Installing modules from requirements.txt..."
-    pip install -r requirements.txt
+    # Check the user's response
+    if [[ "$install_xtts_requirements" == "Y" || "$install_xtts_requirements" == "y" ]]; then
+        log_message "INFO" "Installing XTTS..."
 
-    log_message "DISCLAIMER" "The installation of Coqui requirements is not recommended unless you have a specific use case. It may conflict with additional dependencies and functionalities to your environment."
-    log_message "INFO" "To learn more about Coqui, visit: https://docs.sillytavern.app/extras/installation/#decide-which-module-to-use"
+        # Activate the Miniconda installation
+        log_message "INFO" "Activating Miniconda environment..."
+        source "$miniconda_path/bin/activate"
 
-    read -p "Do you want to install Coqui TTS? [Y/N] " install_coqui_requirements
+        # Create a Conda environment named xtts
+        log_message "INFO" "Creating Conda environment xtts..."
+        conda create -n xtts -y
 
-    if [[ "$install_coqui_requirements" == [Yy] ]]; then
-        log_message "INFO" "Installing pip requirements-coqui..."
-        pip install -r requirements-coqui.txt
+        # Activate the xtts environment
+        log_message "INFO" "Activating Conda environment xtts..."
+        source activate xtts
+
+        # Check if activation was successful
+        if [ $? -eq 0 ]; then
+            log_message "INFO" "Conda environment xtts activated successfully."
+        else
+            log_message "ERROR" "Failed to activate Conda environment xtts."
+        fi
+
+        # Install Python 3.10 in the xtts environment
+        log_message "INFO" "Installing Python in the Conda environment..."
+        conda install python=3.10 -y
+
+        # Install pip requirements
+        log_message "INFO" "Installing pip requirements for xtts..."
+        pip install xtts-api-server
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+        # Create folders for xtts
+        log_message "INFO" "Creating xtts folders..."
+        mkdir "$PWD/xtts"
+        mkdir "$PWD/xtts/speakers"
+        mkdir "$PWD/xtts/output"
+
+        # Clone the xtts-api-server repository for voice examples
+        log_message "INFO" "Cloning xtts-api-server repository..."
+        git clone https://github.com/daswer123/xtts-api-server.git
+
+        log_message "INFO" "Adding voice examples to speakers directory..."
+        cp -r "$PWD/xtts-api-server/example/"* "$PWD/xtts/speakers/"
+
+        log_message "INFO" "Removing the xtts-api-server directory..."
+        rm -rf "$PWD/xtts-api-server"
+
     else
-        log_message "INFO" "Coqui requirements installation skipped."
+        log_message "INFO" "XTTS installation skipped."
     fi
 
-    log_message "INFO" "Installing pip requirements-rvc..."
+    # Activate the extras environment
+    log_message "INFO" "Activating Conda environment extras..."
+    conda activate extras
+
+    # Navigate to the SillyTavern-extras directory
+    cd "$PWD/SillyTavern-extras"
+
+    # Ask the user about the GPU
+    echo -e "What is your GPU?"
+    echo -e "1. NVIDIA"
+    echo -e "2. AMD"
+    echo -e "3. None (CPU-only mode)"
+
+    # Get GPU information
+    gpu_info=""
+    while IFS= read -r line; do
+        gpu_info+=" $line"
+    done < <(lspci | grep VGA | cut -d ':' -f3)
+
+    echo ""
+    echo -e "${blue_bg}╔════ GPU INFO ═════════════════════════════════╗${reset}"
+    echo -e "${blue_bg}║                                               ║${reset}"
+    echo -e "${blue_bg}║* ${gpu_info:1}                     ║${reset}"
+    echo -e "${blue_bg}║                                               ║${reset}"
+    echo -e "${blue_bg}╚═══════════════════════════════════════════════╝${reset}"
+    echo ""
+
+    # Prompt for GPU choice
+    read -p "Enter the number corresponding to your GPU: " gpu_choice
+
+    # Check the user's response
+    if [ "$gpu_choice" == "1" ]; then
+        # Install pip requirements
+        log_message "INFO" "Installing modules from requirements.txt in extras..."
+        pip install -r requirements.txt
+    elif [ "$gpu_choice" == "2" ]; then
+        log_message "INFO" "Installing modules from requirements-rocm.txt in extras..."
+        pip install -r requirements-rocm.txt
+    elif [ "$gpu_choice" == "3" ]; then
+        log_message "INFO" "Installing modules from requirements-silicon.txt in extras..."
+        pip install -r requirements-silicon.txt
+    else
+        log_message "ERROR" "Invalid GPU choice. Please enter a valid number."
+        exit 1
+    fi
+
+    log_message "INFO" "Installing pip requirements-rvc in extras environment..."
     pip install -r requirements-rvc.txt
 
-    echo -e "${cyan_fg_strong}Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.${reset}"
     # Cleanup the Downloaded file
     rm -rf /tmp/$miniconda_installer
+
     log_message "INFO" "${green_fg_strong}SillyTavern + Extras successfully installed.${reset}"
     
     # Ask if the user wants to create a desktop shortcut
@@ -353,19 +513,22 @@ install_extras() {
     echo "---------------------------------------------------------------"
     log_message "INFO" "Installing Extras..."
 
+    log_message "INFO" "Cloning SillyTavern-extras repository..."
+    git clone https://github.com/SillyTavern/SillyTavern-extras.git
+
     # Download the Miniconda installer script
     wget https://repo.anaconda.com/miniconda/$miniconda_installer -P /tmp
     chmod +x /tmp/$miniconda_installer
 
     # Run the installer script
-    bash /tmp/$miniconda_installer -b -u -p $miniconda_path
+    bash /tmp/$miniconda_installer -b -u -p $CONDA_PATH
 
     # Update PATH to include Miniconda
-    export PATH="$miniconda_path/bin:$PATH"
+    export PATH="$CONDA_PATH/bin:$PATH"
 
     # Activate Conda environment
     log_message "INFO" "Activating Miniconda environment..."
-    source $miniconda_path/etc/profile.d/conda.sh
+    source $CONDA_PATH/etc/profile.d/conda.sh
 
     # Create and activate the Conda environment
     log_message "INFO" "Disabling conda auto activate..."
@@ -381,18 +544,117 @@ install_extras() {
     log_message "INFO" "Installing Python and Git in the Conda environment..."
     conda install python=3.11 git -y
 
-    log_message "INFO" "Cloning SillyTavern-extras repository..."
-    git clone https://github.com/SillyTavern/SillyTavern-extras.git
+    # Provide a link to XTTS
+    log_message "INFO" "${blue_fg_strong}Feeling excited to give your robotic waifu/husbando a new shiny voice modulator?${reset}"
+    log_message "INFO" "${blue_fg_strong}To learn more about XTTS, visit:${reset} https://coqui.ai/blog/tts/open_xtts"
 
-    cd SillyTavern-extras
+    # Ask the user if they want to install XTTS
+    read -p "Install XTTS? [Y/N]: " install_xtts_requirements
 
-    log_message "INFO" "Installing pip requirements-complete..."
-    pip install -r requirements-complete.txt
+    # Check the user's response
+    if [[ "$install_xtts_requirements" == "Y" || "$install_xtts_requirements" == "y" ]]; then
+        log_message "INFO" "Installing XTTS..."
 
-    log_message "INFO" "Installing pip requirements-rvc..."
+        # Activate the Miniconda installation
+        log_message "INFO" "Activating Miniconda environment..."
+        source "$miniconda_path/bin/activate"
+
+        # Create a Conda environment named xtts
+        log_message "INFO" "Creating Conda environment xtts..."
+        conda create -n xtts -y
+
+        # Activate the xtts environment
+        log_message "INFO" "Activating Conda environment xtts..."
+        source activate xtts
+
+        # Check if activation was successful
+        if [ $? -eq 0 ]; then
+            log_message "INFO" "Conda environment xtts activated successfully."
+        else
+            log_message "ERROR" "Failed to activate Conda environment xtts."
+        fi
+
+        # Install Python 3.10 in the xtts environment
+        log_message "INFO" "Installing Python in the Conda environment..."
+        conda install python=3.10 -y
+
+        # Install pip requirements
+        log_message "INFO" "Installing pip requirements for xtts..."
+        pip install xtts-api-server
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+        # Create folders for xtts
+        log_message "INFO" "Creating xtts folders..."
+        mkdir "$PWD/xtts"
+        mkdir "$PWD/xtts/speakers"
+        mkdir "$PWD/xtts/output"
+
+        # Clone the xtts-api-server repository for voice examples
+        log_message "INFO" "Cloning xtts-api-server repository..."
+        git clone https://github.com/daswer123/xtts-api-server.git
+
+        log_message "INFO" "Adding voice examples to speakers directory..."
+        cp -r "$PWD/xtts-api-server/example/"* "$PWD/xtts/speakers/"
+
+        log_message "INFO" "Removing the xtts-api-server directory..."
+        rm -rf "$PWD/xtts-api-server"
+
+    else
+        log_message "INFO" "XTTS installation skipped."
+    fi
+
+    # Activate the extras environment
+    log_message "INFO" "Activating Conda environment extras..."
+    conda activate extras
+
+    # Navigate to the SillyTavern-extras directory
+    cd "$PWD/SillyTavern-extras"
+
+    # Ask the user about the GPU
+    echo -e "What is your GPU?"
+    echo -e "1. NVIDIA"
+    echo -e "2. AMD"
+    echo -e "3. None (CPU-only mode)"
+
+    # Get GPU information
+    gpu_info=""
+    while IFS= read -r line; do
+        gpu_info+=" $line"
+    done < <(lspci | grep VGA | cut -d ':' -f3)
+
+    echo ""
+    echo -e "${blue_bg}╔════ GPU INFO ═════════════════════════════════╗${reset}"
+    echo -e "${blue_bg}║                                               ║${reset}"
+    echo -e "${blue_bg}║* ${gpu_info:1}                     ║${reset}"
+    echo -e "${blue_bg}║                                               ║${reset}"
+    echo -e "${blue_bg}╚═══════════════════════════════════════════════╝${reset}"
+    echo ""
+
+    # Prompt for GPU choice
+    read -p "Enter the number corresponding to your GPU: " gpu_choice
+
+    # Check the user's response
+    if [ "$gpu_choice" == "1" ]; then
+        # Install pip requirements
+        log_message "INFO" "Installing modules from requirements.txt in extras..."
+        pip install -r requirements.txt
+    elif [ "$gpu_choice" == "2" ]; then
+        log_message "INFO" "Installing modules from requirements-rocm.txt in extras..."
+        pip install -r requirements-rocm.txt
+    elif [ "$gpu_choice" == "3" ]; then
+        log_message "INFO" "Installing modules from requirements-silicon.txt in extras..."
+        pip install -r requirements-silicon.txt
+    else
+        log_message "ERROR" "Invalid GPU choice. Please enter a valid number."
+        exit 1
+    fi
+
+    log_message "INFO" "Installing pip requirements-rvc in extras environment..."
     pip install -r requirements-rvc.txt
-    echo -e "${cyan_fg_strong}Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.${reset}"
-    log_message "INFO" "${green_fg_strong}SillyTavern + Extras has been successfully installed.${reset}"
+
+    # Cleanup the Downloaded file
+    rm -rf /tmp/$miniconda_installer
+    log_message "INFO" "${green_fg_strong}Extras has been successfully installed.${reset}"
 
     installer
 }
@@ -479,7 +741,7 @@ elif command -v emerge &>/dev/null; then
     installer
 elif command -v pkg &>/dev/null; then
     log_message "INFO" "${blue_fg_strong}Detected pkg System${reset}"
-    # pkg 
+    # pkg
     install_git
     install_nodejs_npm
     installer
