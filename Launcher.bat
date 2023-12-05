@@ -217,23 +217,14 @@ call "%miniconda_path%\Scripts\activate.bat"
 REM Activate the extras environment
 call conda activate extras
 
-
 REM Start SillyTavern Extras with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras has been launched.
 cd /d "%~dp0SillyTavern-extras"
 start cmd /k python server.py --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc
 
-REM Check if the xtts conda environment exists
-conda activate xtts > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% xtts conda environment not found. Skipping xtts_api_server launch.
-    goto :home
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% xtts conda environment found. Launching xtts_api_server...
-    call conda activate xtts
-    start cmd /k python -m xtts_api_server
-    goto :home
-)
+REM Activate the xtts environment
+call conda activate xtts
+start cmd /k python -m xtts_api_server
 goto :home
 
 
