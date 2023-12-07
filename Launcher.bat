@@ -149,7 +149,8 @@ REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
-echo Update Status: %update_status%
+echo SillyTavern: %update_status%
+echo Launcher: V1.0.1
 echo =================================
 
 set "choice="
@@ -191,9 +192,8 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern has been launched.
-cd /d "%~dp0SillyTavern"
-start cmd /k start.bat
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
+start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
 goto :home
 
 
@@ -207,9 +207,10 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern has been launched.
-cd /d "%~dp0SillyTavern"
-start cmd /k start.bat
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
+start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
+
+
 
 REM Run conda activate from the Miniconda installation
 call "%miniconda_path%\Scripts\activate.bat"
@@ -218,13 +219,17 @@ REM Activate the extras environment
 call conda activate extras
 
 REM Start SillyTavern Extras with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras has been launched.
-cd /d "%~dp0SillyTavern-extras"
-start cmd /k python server.py --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
+start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && python server.py --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc"
+
+
 
 REM Activate the xtts environment
 call conda activate xtts
-start cmd /k python -m xtts_api_server
+
+REM Start XTTS
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
+start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
 goto :home
 
 
@@ -684,7 +689,7 @@ REM Edit Extras Modules - Frontend
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Edit Extras Modules%reset%
 echo -------------------------------------
-echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Coqui, RVC, and Caption)
+echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable XTTS, RVC, and Caption)
 REM color 7
 
 REM Display module options with colors based on their status
@@ -707,35 +712,35 @@ for %%i in (%module_choices%) do (
         ) else (
             set "xtts_trigger=true"
         )
-        set "python_command= xtts_api_server --gpu 0 --cuda-device=0"
+        REM set "python_command= xtts_api_server --gpu 0 --cuda-device=0"
     ) else if "%%i"=="2" (
         if "%rvc_trigger%"=="true" (
             set "rvc_trigger=false"
         ) else (
             set "rvc_trigger=true"
         )
-        set "python_command= --enable-modules=rvc --rvc-save-file --max-content-length=1000"
+        REM set "python_command= --enable-modules=rvc --rvc-save-file --max-content-length=1000"
     ) else if "%%i"=="3" (
         if "%talkinghead_trigger%"=="true" (
             set "talkinghead_trigger=false"
         ) else (
             set "talkinghead_trigger=true"
         )
-        set "python_command= --enable-modules=talkinghead"
+        REM set "python_command= --enable-modules=talkinghead"
     ) else if "%%i"=="4" (
         if "%caption_trigger%"=="true" (
             set "caption_trigger=false"
         ) else (
             set "caption_trigger=true"
         )
-        set "python_command= --enable-modules=caption"
+        REM set "python_command= --enable-modules=caption"
     ) else if "%%i"=="5" (
         if "%summarize_trigger%"=="true" (
             set "summarize_trigger=false"
         ) else (
             set "summarize_trigger=true"
         )
-        set "python_command= --enable-modules=summarize"
+        REM set "python_command= --enable-modules=summarize"
     ) else if "%%i"=="6" (
         goto :toolbox
     )
@@ -748,8 +753,45 @@ echo talkinghead_trigger=%talkinghead_trigger%>>"%~dp0modules.txt"
 echo caption_trigger=%caption_trigger%>>"%~dp0modules.txt"
 echo summarize_trigger=%summarize_trigger%>>"%~dp0modules.txt"
 
+REM remove modules_enable
+set "modules_enable="
+
+REM Compile the Python command
+set "python_command=start cmd /k python server.py"
+if "%xtts_trigger%"=="true" (
+    set "python_command=%python_command% --gpu 0 --cuda-device=0"
+)
+if "%rvc_trigger%"=="true" (
+    set "python_command=%python_command% --rvc-save-file --max-content-length=1000"
+    set "modules_enable=%modules_enable%rvc,"
+)
+if "%talkinghead_trigger%"=="true" (
+    set "modules_enable=%modules_enable%talkinghead,"
+)
+if "%caption_trigger%"=="true" (
+    set "modules_enable=%modules_enable%caption,"
+)
+if "%summarize_trigger%"=="true" (
+    set "modules_enable=%modules_enable%summarize,"
+)
+
+REM is modules_enable empty?
+if defined modules_enable (
+    REM remove last comma
+    set "modules_enable=%modules_enable:~0,-1%"
+)
+
+REM command completed
+if defined modules_enable (
+    set "python_command=%python_command% --enable-modules=%modules_enable%"
+) else (
+    set "python_command=%python_command%"
+)
+
+
 REM Save the constructed Python command to modules.txt for testing
-echo start cmd /k python server.py %python_command%>>"%~dp0modules.txt"
+echo %python_command%>>"%~dp0modules.txt"
+REM echo start cmd /k python server.py %python_command%>>"%~dp0modules.txt"
 
 REM Construct and execute the Python command
 REM start cmd /k python server.py %python_command%
