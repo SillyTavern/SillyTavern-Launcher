@@ -220,7 +220,16 @@ call conda activate extras
 
 REM Start SillyTavern Extras with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
-start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && python server.py --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc"
+
+@REM read modules.txt and find the start_command line
+for /F "tokens=*" %%a in ('findstr /I "start_command=" %modules_path%') do (
+    set "start_command=%%a"
+)
+echo "starting with command = %start_command%"
+
+start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %start_command%"
+
+@REM start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && python server.py --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc"
 
 
 
@@ -231,6 +240,8 @@ REM Start XTTS
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
 start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
 goto :home
+
+@REM end of start_st_extras
 
 
 :update
@@ -757,9 +768,9 @@ REM remove modules_enable
 set "modules_enable="
 
 REM Compile the Python command
-set "python_command=start cmd /k python server.py"
+set "python_command=/k python server.py"
 if "%xtts_trigger%"=="true" (
-    set "python_command=%python_command% --gpu 0 --cuda-device=0"
+    set "python_command=%python_command% --gpu 0 --cuda-device=0 "
 )
 if "%rvc_trigger%"=="true" (
     set "python_command=%python_command% --rvc-save-file --max-content-length=1000"
@@ -784,17 +795,19 @@ if defined modules_enable (
 REM command completed
 if defined modules_enable (
     set "python_command=%python_command% --enable-modules=%modules_enable%"
-) else (
-    set "python_command=%python_command%"
 )
 
 
-REM Save the constructed Python command to modules.txt for testing
-echo %python_command%>>"%~dp0modules.txt"
-REM echo start cmd /k python server.py %python_command%>>"%~dp0modules.txt"
+@REM REM Save the constructed Python command to modules.txt for testing
+echo start_command=%python_command%>>"%~dp0modules.txt"
+@REM REM echo start cmd /k python server.py %python_command%>>"%~dp0modules.txt"
 
-REM Construct and execute the Python command
-REM start cmd /k python server.py %python_command%
+@REM REM Construct and execute the Python command
+@REM REM start cmd /k python server.py %python_command%
+
+@REM echo "DEBUG: %python_command%"
+
+@REM pause
 
 goto :edit_extras_modules
 
