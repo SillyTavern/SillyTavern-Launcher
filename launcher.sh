@@ -162,7 +162,8 @@ home() {
 
     echo "======== VERSION STATUS ========"
     echo -e "SillyTavern branch: ${cyan_fg_strong}$current_branch${reset}"
-    echo -e "Update Status: $update_status"
+    echo -e "Sillytavern: $update_status"
+    echo -e "Launcher: V1.0.1"
     echo "================================"
 
     read -p "Choose Your Destiny: " home_choice
@@ -483,6 +484,128 @@ edit_environment() {
         source ~/.bashrc  # Reload the environment (may vary based on your shell)
         echo "Environment reloaded."
     fi
+}
+
+# Function to print module options with color based on their status
+printModule() {
+    if [ "$2" == "true" ]; then
+        echo -e "\e[32m$1 [Enabled]\e[0m"
+    else
+        echo -e "\e[31m$1 [Disabled]\e[0m"
+    fi
+}
+
+# Function to edit extras modules
+edit_extras_modules() {
+    while true; do
+        echo "SillyTavern [EDIT-MODULES]"
+        clear
+        echo -e "\e[34m/ Home / Toolbox / Edit Extras Modules\e[0m"
+        echo "-------------------------------------"
+        echo "Choose extras modules to enable or disable (e.g., '1 2 4' to enable XTTS, RVC, and Caption)"
+        echo
+
+        # Display module options with colors based on their status
+        printModule "1. XTTS (--gpu 0 --cuda-device=0)" "$xtts_trigger"
+        printModule "2. RVC (--enable-modules=rvc --rvc-save-file --max-content-length=1000)" "$rvc_trigger"
+        printModule "3. talkinghead (--enable-modules=talkinghead)" "$talkinghead_trigger"
+        printModule "4. caption (--enable-modules=caption)" "$caption_trigger"
+        printModule "5. summarize (--enable-modules=summarize)" "$summarize_trigger"
+        echo "6. Back to Toolbox"
+
+        python_command=""
+
+        read -p "Choose modules to enable/disable (1-5): " module_choices
+
+        # Handle the user's module choices and construct the Python command
+        for i in $module_choices; do
+            case $i in
+                1)
+                    [ "$xtts_trigger" == "true" ] && xtts_trigger="false" || xtts_trigger="true"
+                    # python_command="--gpu 0 --cuda-device=0"
+                    ;;
+                2)
+                    [ "$rvc_trigger" == "true" ] && rvc_trigger="false" || rvc_trigger="true"
+                    # python_command=" --enable-modules=rvc --rvc-save-file --max-content-length=1000"
+                    ;;
+                3)
+                    [ "$talkinghead_trigger" == "true" ] && talkinghead_trigger="false" || talkinghead_trigger="true"
+                    # python_command=" --enable-modules=talkinghead"
+                    ;;
+                4)
+                    [ "$caption_trigger" == "true" ] && caption_trigger="false" || caption_trigger="true"
+                    # python_command=" --enable-modules=caption"
+                    ;;
+                5)
+                    [ "$summarize_trigger" == "true" ] && summarize_trigger="false" || summarize_trigger="true"
+                    # python_command=" --enable-modules=summarize"
+                    ;;
+                6)
+                    toolbox
+                    break  # Break out of the loop when user selects Back to Toolbox
+                    ;;
+                *)
+                    ;;
+            esac
+        done
+    done
+}
+
+
+# Initial module triggers
+xtts_trigger="false"
+rvc_trigger="false"
+talkinghead_trigger="false"
+caption_trigger="false"
+summarize_trigger="false"
+
+# Function to save the module flags to modules.txt
+saveModuleFlags() {
+    echo "xtts_trigger=$xtts_trigger" > "$PWD/modules.txt"
+    echo "rvc_trigger=$rvc_trigger" >> "$PWD/modules.txt"
+    echo "talkinghead_trigger=$talkinghead_trigger" >> "$PWD/modules.txt"
+    echo "caption_trigger=$caption_trigger" >> "$PWD/modules.txt"
+    echo "summarize_trigger=$summarize_trigger" >> "$PWD/modules.txt"
+}
+
+# Function to compile the Python command
+compilePythonCommand() {
+    modules_enable=""
+    python_command="start cmd /k python server.py"
+
+    if [ "$xtts_trigger" == "true" ]; then
+        python_command="$python_command --gpu 0 --cuda-device=0"
+    fi
+
+    if [ "$rvc_trigger" == "true" ]; then
+        python_command="$python_command --rvc-save-file --max-content-length=1000"
+        modules_enable="$modules_enable rvc,"
+    fi
+
+    if [ "$talkinghead_trigger" == "true" ]; then
+        modules_enable="$modules_enable talkinghead,"
+    fi
+
+    if [ "$caption_trigger" == "true" ]; then
+        modules_enable="$modules_enable caption,"
+    fi
+
+    if [ "$summarize_trigger" == "true" ]; then
+        modules_enable="$modules_enable summarize,"
+    fi
+
+    # Remove the last comma
+    if [ -n "$modules_enable" ]; then
+        modules_enable="${modules_enable%,}"
+    fi
+
+    # Check if modules_enable is not empty
+    if [ -n "$modules_enable" ]; then
+        python_command="$python_command --enable-modules=$modules_enable"
+    fi
+
+    # Save the constructed Python command to modules.txt for testing
+    echo "$python_command" >> "$PWD/modules.txt"
 }
 
 # Function to reinstall SillyTavern

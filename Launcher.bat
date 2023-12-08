@@ -51,7 +51,7 @@ set "miniconda_path=%userprofile%\miniconda3"
 
 REM Define variables to track module status
 set "modules_path=%~dp0modules.txt"
-set "xtts_trigger=false"
+set "cuda_trigger=false"
 set "rvc_trigger=false"
 set "talkinghead_trigger=false"
 set "caption_trigger=false"
@@ -138,18 +138,20 @@ echo %blue_fg_strong%/ Home%reset%
 echo -------------------------------------
 echo What would you like to do?
 echo 1. Start SillyTavern
-echo 2. Start SillyTavern + Extras
-echo 3. Update
-echo 4. Backup
-echo 5. Switch branch
-echo 6. Toolbox
-echo 7. Exit
+echo 2. Start Extras
+echo 3. Start SillyTavern + Extras
+echo 4. Update
+echo 5. Backup
+echo 6. Switch branch
+echo 7. Toolbox
+echo 0. Exit
 
 REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
-echo Update Status: %update_status%
+echo SillyTavern: %update_status%
+echo Launcher: V1.0.1
 echo =================================
 
 set "choice="
@@ -162,16 +164,18 @@ REM Home - backend
 if "%choice%"=="1" (
     call :start_st
 ) else if "%choice%"=="2" (
-    call :start_st_extras
+    call :start_extras
 ) else if "%choice%"=="3" (
-    call :update
+    call :start_st_extras
 ) else if "%choice%"=="4" (
-    call :backup_menu
+    call :update
 ) else if "%choice%"=="5" (
-    call :switchbrance_menu
+    call :backup_menu
 ) else if "%choice%"=="6" (
-    call :toolbox
+    call :switchbrance_menu
 ) else if "%choice%"=="7" (
+    call :toolbox
+) else if "%choice%"=="0" (
     exit
 ) else (
     color 6
@@ -191,9 +195,28 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern has been launched.
-cd /d "%~dp0SillyTavern"
-start cmd /k start.bat
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
+start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
+goto :home
+
+
+:start_extras
+REM Run conda activate from the Miniconda installation
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the extras environment
+call conda activate extras
+
+REM Start SillyTavern Extras with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
+
+REM read modules.txt and find the start_command line
+for /F "tokens=*" %%a in ('findstr /I "start_command=" %modules_path%') do (
+    set start_command=%%a
+)
+
+set start_command=%start_command:start_command=%
+start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %start_command%"
 goto :home
 
 
@@ -207,9 +230,9 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern has been launched.
-cd /d "%~dp0SillyTavern"
-start cmd /k start.bat
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
+start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
+
 
 REM Run conda activate from the Miniconda installation
 call "%miniconda_path%\Scripts\activate.bat"
@@ -218,13 +241,25 @@ REM Activate the extras environment
 call conda activate extras
 
 REM Start SillyTavern Extras with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras has been launched.
-cd /d "%~dp0SillyTavern-extras"
-start cmd /k python server.py --rvc-save-file --cuda-device=0 --max-content-length=1000 --enable-modules=talkinghead,chromadb,caption,summarize,rvc
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
+
+@REM echo "Getting start command from modules.txt"
+
+REM read modules.txt and find the start_command line
+for /F "tokens=*" %%a in ('findstr /I "start_command=" %modules_path%') do (
+    set start_command=%%a
+)
+
+set start_command=%start_command:start_command=%
+start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %start_command%"
+
 
 REM Activate the xtts environment
 call conda activate xtts
-start cmd /k python -m xtts_api_server
+
+REM Start XTTS
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
+start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
 goto :home
 
 
@@ -283,7 +318,7 @@ echo -------------------------------------
 echo What would you like to do?
 echo 1. Switch to Release - SillyTavern
 echo 2. Switch to Staging - SillyTavern
-echo 3. Back to Home
+echo 0. Back to Home
 
 REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
@@ -297,7 +332,7 @@ if "%brance_choice%"=="1" (
     call :switch_release_st
 ) else if "%brance_choice%"=="2" (
     call :switch_staging_st
-) else if "%brance_choice%"=="3" (
+) else if "%brance_choice%"=="0" (
     goto :home
 ) else (
     color 6
@@ -343,7 +378,7 @@ echo What would you like to do?
 REM color 7
 echo 1. Create Backup
 echo 2. Restore Backup
-echo 3. Back to Home
+echo 0. Back to Home
 
 set /p backup_choice=Choose Your Destiny: 
 
@@ -352,7 +387,7 @@ if "%backup_choice%"=="1" (
     call :create_backup
 ) else if "%backup_choice%"=="2" (
     call :restore_backup
-) else if "%backup_choice%"=="3" (
+) else if "%backup_choice%"=="0" (
     goto :home
 ) else (
     color 6
@@ -474,7 +509,7 @@ echo 5. Edit Extras Modules
 echo 6. Reinstall SillyTavern
 echo 7. Reinstall Extras
 echo 8. Uninstall SillyTavern + Extras
-echo 9. Back to Home
+echo 0. Back to Home
 
 set /p toolbox_choice=Choose Your Destiny: 
 
@@ -495,7 +530,7 @@ if "%toolbox_choice%"=="1" (
     call :reinstall_extras
 ) else if "%toolbox_choice%"=="8" (
     call :uninstall_st_extras
-) else if "%toolbox_choice%"=="9" (
+) else if "%toolbox_choice%"=="0" (
     goto :home
 ) else (
     color 6
@@ -684,77 +719,118 @@ REM Edit Extras Modules - Frontend
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Edit Extras Modules%reset%
 echo -------------------------------------
-echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Coqui, RVC, and Caption)
+echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Cuda, RVC, and Caption)
 REM color 7
 
 REM Display module options with colors based on their status
-call :printModule "1. XTTS (xtts_api_server --gpu 0 --cuda-device=0)" %xtts_trigger%
+call :printModule "1. Cuda (--gpu 0 --cuda --cuda-device=0)" %cuda_trigger%
 call :printModule "2. RVC (--enable-modules=rvc --rvc-save-file --max-content-length=1000)" %rvc_trigger%
 call :printModule "3. talkinghead (--enable-modules=talkinghead)" %talkinghead_trigger%
 call :printModule "4. caption (--enable-modules=caption)" %caption_trigger%
 call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger%
-echo 6. Back to Toolbox
+call :printModule "6. listen (--listen)" %listen_trigger%
+echo 0. Back to Toolbox
 
 set "python_command="
 
-set /p module_choices=Choose modules to enable/disable (1-5): 
+set /p module_choices=Choose modules to enable/disable (1-6): 
 
 REM Handle the user's module choices and construct the Python command
 for %%i in (%module_choices%) do (
     if "%%i"=="1" (
-        if "%xtts_trigger%"=="true" (
-            set "xtts_trigger=false"
+        if "%cuda_trigger%"=="true" (
+            set "cuda_trigger=false"
         ) else (
-            set "xtts_trigger=true"
+            set "cuda_trigger=true"
         )
-        set "python_command= xtts_api_server --gpu 0 --cuda-device=0"
+        REM set "python_command= --gpu 0 --cuda-device=0"
     ) else if "%%i"=="2" (
         if "%rvc_trigger%"=="true" (
             set "rvc_trigger=false"
         ) else (
             set "rvc_trigger=true"
         )
-        set "python_command= --enable-modules=rvc --rvc-save-file --max-content-length=1000"
+        REM set "python_command= --enable-modules=rvc --rvc-save-file --max-content-length=1000"
     ) else if "%%i"=="3" (
         if "%talkinghead_trigger%"=="true" (
             set "talkinghead_trigger=false"
         ) else (
             set "talkinghead_trigger=true"
         )
-        set "python_command= --enable-modules=talkinghead"
+        REM set "python_command= --enable-modules=talkinghead"
     ) else if "%%i"=="4" (
         if "%caption_trigger%"=="true" (
             set "caption_trigger=false"
         ) else (
             set "caption_trigger=true"
         )
-        set "python_command= --enable-modules=caption"
+        REM set "python_command= --enable-modules=caption"
     ) else if "%%i"=="5" (
         if "%summarize_trigger%"=="true" (
             set "summarize_trigger=false"
         ) else (
             set "summarize_trigger=true"
         )
-        set "python_command= --enable-modules=summarize"
     ) else if "%%i"=="6" (
+        if "%listen_trigger%"=="true" (
+            set "listen_trigger=false"
+        ) else (
+            set "listen_trigger=true"
+        )
+        REM set "python_command= --listen"
+    ) else if "%%i"=="0" (
         goto :toolbox
     )
 )
 
 REM Save the module flags to modules.txt
-echo xtts_trigger=%xtts_trigger%>"%~dp0modules.txt"
+echo cuda_trigger=%cuda_trigger%>"%~dp0modules.txt"
 echo rvc_trigger=%rvc_trigger%>>"%~dp0modules.txt"
 echo talkinghead_trigger=%talkinghead_trigger%>>"%~dp0modules.txt"
 echo caption_trigger=%caption_trigger%>>"%~dp0modules.txt"
 echo summarize_trigger=%summarize_trigger%>>"%~dp0modules.txt"
+echo listen_trigger=%listen_trigger%>>"%~dp0modules.txt"
+
+REM remove modules_enable
+set "modules_enable="
+
+REM Compile the Python command
+set "python_command=python server.py"
+if "%listen_trigger%"=="true" (
+    set "python_command=%python_command% --listen"
+)
+if "%cuda_trigger%"=="true" (
+    set "python_command=%python_command% --gpu 0 --cuda --cuda-device=0 "
+)
+if "%rvc_trigger%"=="true" (
+    set "python_command=%python_command% --rvc-save-file --max-content-length=1000"
+    set "modules_enable=%modules_enable%rvc,"
+)
+if "%talkinghead_trigger%"=="true" (
+    set "modules_enable=%modules_enable%talkinghead,"
+)
+if "%caption_trigger%"=="true" (
+    set "modules_enable=%modules_enable%caption,"
+)
+if "%summarize_trigger%"=="true" (
+    set "modules_enable=%modules_enable%summarize,"
+)
+
+REM is modules_enable empty?
+if defined modules_enable (
+    REM remove last comma
+    set "modules_enable=%modules_enable:~0,-1%"
+)
+
+REM command completed
+if defined modules_enable (
+    set "python_command=%python_command% --enable-modules=%modules_enable%"
+)
 
 REM Save the constructed Python command to modules.txt for testing
-echo start cmd /k python server.py %python_command%>>"%~dp0modules.txt"
-
-REM Construct and execute the Python command
-REM start cmd /k python server.py %python_command%
-
+echo start_command=%python_command%>>"%~dp0modules.txt"
 goto :edit_extras_modules
+
 
 :reinstall_extras
 title SillyTavern [REINSTALL-EXTRAS]
