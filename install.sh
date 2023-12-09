@@ -141,7 +141,31 @@ log_message() {
             ;;
     esac
 }
+boxDrawingText()
+{
+    local string=$1
+    local maxwidth=$2
+    # empty string
+    local color=
 
+    if [ $# -eq 3 ]; then
+        color=$3
+    fi
+
+    local stringlength=${#string}
+
+    # stringlength < maxwidth ? maxwidth : stringlength
+    local width=$((stringlength < maxwidth ? maxwidth : stringlength))
+
+    local topL="╔"
+    local bottomL="╚"
+    local topR="╗"
+    local bottomR="╝"
+    local middle="║"
+    local space=" "
+
+    echo -e "$color$middle$string$(printf ' %.0s' $(seq 1 $((width - stringlength))))$middle"
+}
 # Log your messages test window
 #log_message "INFO" "Something has been launched."
 #log_message "WARN" "${yellow_fg_strong}Something is not installed on this system.${reset}"
@@ -623,11 +647,11 @@ install_extras() {
     done < <(lspci | grep VGA | cut -d ':' -f3)
 
     echo ""
-    echo -e "${blue_bg}╔════ GPU INFO ═════════════════════════════════╗${reset}"
-    echo -e "${blue_bg}║                                               ║${reset}"
-    echo -e "${blue_bg}║* ${gpu_info:1}                     ║${reset}"
-    echo -e "${blue_bg}║                                               ║${reset}"
-    echo -e "${blue_bg}╚═══════════════════════════════════════════════╝${reset}"
+    echo -e "${blue_bg}╔════ GPU INFO ═════════════════════════════════════════════════════════════╗${reset}"
+    boxDrawingText "" 75 $blue_bg
+    boxDrawingText "* ${gpu_info:1}" 75 $blue_bg
+    boxDrawingText "" 75 $blue_bg
+    echo -e "${blue_bg}╚═══════════════════════════════════════════════════════════════════════════╝${reset}"
     echo ""
 
     # Prompt for GPU choice
