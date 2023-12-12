@@ -212,7 +212,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a
 
 REM read modules.txt and find the start_command line
 for /F "tokens=*" %%a in ('findstr /I "start_command=" %modules_path%') do (
-    set start_command=%%a
+set %%a
 )
 
 set start_command=%start_command:start_command=%
@@ -243,11 +243,9 @@ call conda activate extras
 REM Start SillyTavern Extras with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
 
-@REM echo "Getting start command from modules.txt"
-
 REM read modules.txt and find the start_command line
 for /F "tokens=*" %%a in ('findstr /I "start_command=" %modules_path%') do (
-    set start_command=%%a
+set %%a
 )
 
 set start_command=%start_command:start_command=%
@@ -723,9 +721,9 @@ echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Cuda, R
 REM color 7
 
 REM Display module options with colors based on their status
-call :printModule "1. Cuda (--gpu 0 --cuda --cuda-device=0)" %cuda_trigger%
+call :printModule "1. Cuda (--cuda)" %cuda_trigger%
 call :printModule "2. RVC (--enable-modules=rvc --rvc-save-file --max-content-length=1000)" %rvc_trigger%
-call :printModule "3. talkinghead (--enable-modules=talkinghead)" %talkinghead_trigger%
+call :printModule "3. talkinghead (--enable-modules=talkinghead --talkinghead-gpu)" %talkinghead_trigger%
 call :printModule "4. caption (--enable-modules=caption)" %caption_trigger%
 call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger%
 call :printModule "6. listen (--listen)" %listen_trigger%
@@ -800,13 +798,14 @@ if "%listen_trigger%"=="true" (
     set "python_command=%python_command% --listen"
 )
 if "%cuda_trigger%"=="true" (
-    set "python_command=%python_command% --gpu 0 --cuda --cuda-device=0 "
+    set "python_command=%python_command% --cuda"
 )
 if "%rvc_trigger%"=="true" (
     set "python_command=%python_command% --rvc-save-file --max-content-length=1000"
     set "modules_enable=%modules_enable%rvc,"
 )
 if "%talkinghead_trigger%"=="true" (
+    set "python_command=%python_command% --talkinghead-gpu"
     set "modules_enable=%modules_enable%talkinghead,"
 )
 if "%caption_trigger%"=="true" (

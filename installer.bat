@@ -247,6 +247,7 @@ if /i "%install_xtts_requirements%"=="Y" (
     REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
     pip install xtts-api-server
+    pip install pydub
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
     REM Create folders for xtts
@@ -305,6 +306,7 @@ if "%gpu_choice%"=="1" (
     REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements.txt in extras
     pip install -r requirements.txt
+    call conda install -c conda-forge faiss-gpu -y
 ) else if "%gpu_choice%"=="2" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements-rocm.txt in extras
     pip install -r requirements-rocm.txt
@@ -320,6 +322,7 @@ if "%gpu_choice%"=="1" (
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
 pip install -r requirements-rvc.txt
+pip install tensorboardX
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
 
@@ -334,6 +337,7 @@ if /i "%create_shortcut%"=="Y" (
         "$WshShell = New-Object -ComObject WScript.Shell; " ^
         "$Shortcut = $WshShell.CreateShortcut('%desktopPath%\%shortcutName%'); " ^
         "$Shortcut.TargetPath = '%shortcutTarget%'; " ^
+        "$Shortcut.IconLocation = '%iconFile%'; " ^
         "$Shortcut.WorkingDirectory = '%startIn%'; " ^
         "$Shortcut.Description = '%comment%'; " ^
         "$Shortcut.Save()"
@@ -548,6 +552,7 @@ if "%gpu_choice%"=="1" (
     REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements.txt in extras
     pip install -r requirements.txt
+    call conda install -c conda-forge faiss-gpu -y
 ) else if "%gpu_choice%"=="2" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements-rocm.txt in extras
     pip install -r requirements-rocm.txt
@@ -563,6 +568,7 @@ if "%gpu_choice%"=="1" (
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
 pip install -r requirements-rvc.txt
+pip install tensorboardX
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
 

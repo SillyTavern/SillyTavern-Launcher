@@ -141,7 +141,31 @@ log_message() {
             ;;
     esac
 }
+boxDrawingText()
+{
+    local string=$1
+    local maxwidth=$2
+    # empty string
+    local color=
 
+    if [ $# -eq 3 ]; then
+        color=$3
+    fi
+
+    local stringlength=${#string}
+
+    # stringlength < maxwidth ? maxwidth : stringlength
+    local width=$((stringlength < maxwidth ? maxwidth : stringlength))
+
+    local topL="╔"
+    local bottomL="╚"
+    local topR="╗"
+    local bottomR="╝"
+    local middle="║"
+    local space=" "
+
+    echo -e "$color$middle$string$(printf ' %.0s' $(seq 1 $((width - stringlength))))$middle"
+}
 # Log your messages test window
 #log_message "INFO" "Something has been launched."
 #log_message "WARN" "${yellow_fg_strong}Something is not installed on this system.${reset}"
@@ -350,6 +374,7 @@ install_st_extras() {
         # Install pip requirements
         log_message "INFO" "Installing pip requirements for xtts..."
         pip install xtts-api-server
+        pip install pydub
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
         # Create folders for xtts
@@ -407,6 +432,7 @@ install_st_extras() {
         # Install pip requirements
         log_message "INFO" "Installing modules from requirements.txt in extras..."
         pip install -r requirements.txt
+        conda install -c conda-forge faiss-gpu -y
     elif [ "$gpu_choice" == "2" ]; then
         log_message "INFO" "Installing modules from requirements-rocm.txt in extras..."
         pip install -r requirements-rocm.txt
@@ -420,6 +446,7 @@ install_st_extras() {
 
     log_message "INFO" "Installing pip requirements-rvc in extras environment..."
     pip install -r requirements-rvc.txt
+    pip install tensorboardX
 
     # Cleanup the Downloaded file
     rm -rf /tmp/$miniconda_installer
@@ -581,6 +608,7 @@ install_extras() {
         # Install pip requirements
         log_message "INFO" "Installing pip requirements for xtts..."
         pip install xtts-api-server
+        pip install pydub
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
         # Create folders for xtts
@@ -623,11 +651,11 @@ install_extras() {
     done < <(lspci | grep VGA | cut -d ':' -f3)
 
     echo ""
-    echo -e "${blue_bg}╔════ GPU INFO ═════════════════════════════════╗${reset}"
-    echo -e "${blue_bg}║                                               ║${reset}"
-    echo -e "${blue_bg}║* ${gpu_info:1}                     ║${reset}"
-    echo -e "${blue_bg}║                                               ║${reset}"
-    echo -e "${blue_bg}╚═══════════════════════════════════════════════╝${reset}"
+    echo -e "${blue_bg}╔════ GPU INFO ═════════════════════════════════════════════════════════════╗${reset}"
+    boxDrawingText "" 75 $blue_bg
+    boxDrawingText "* ${gpu_info:1}" 75 $blue_bg
+    boxDrawingText "" 75 $blue_bg
+    echo -e "${blue_bg}╚═══════════════════════════════════════════════════════════════════════════╝${reset}"
     echo ""
 
     # Prompt for GPU choice
@@ -638,6 +666,7 @@ install_extras() {
         # Install pip requirements
         log_message "INFO" "Installing modules from requirements.txt in extras..."
         pip install -r requirements.txt
+        conda install -c conda-forge faiss-gpu -y
     elif [ "$gpu_choice" == "2" ]; then
         log_message "INFO" "Installing modules from requirements-rocm.txt in extras..."
         pip install -r requirements-rocm.txt
@@ -651,6 +680,7 @@ install_extras() {
 
     log_message "INFO" "Installing pip requirements-rvc in extras environment..."
     pip install -r requirements-rvc.txt
+    pip install tensorboardX
 
     # Cleanup the Downloaded file
     rm -rf /tmp/$miniconda_installer
