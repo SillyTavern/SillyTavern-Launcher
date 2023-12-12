@@ -28,6 +28,7 @@ set "cyan_fg_strong=[96m"
 REM Normal Background Colors
 set "red_bg=[41m"
 set "blue_bg=[44m"
+set "yellow_bg=[43m"
 
 REM Environment Variables (winget)
 set "winget_path=%userprofile%\AppData\Local\Microsoft\WindowsApps"
@@ -93,6 +94,19 @@ if %errorlevel% neq 0 (
     echo %blue_fg_strong%[INFO] Git is already installed.%reset%
 )
 
+REM Check if Miniconda3 is installed if not then install Miniconda3
+call conda --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Miniconda3 is not installed on this system.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using Winget...
+    winget install -e --id Anaconda.Miniconda3
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Miniconda3 installed successfully. Please restart the Installer.%reset%
+    pause
+    exit
+) else (
+    echo %blue_fg_strong%[INFO] Miniconda3 is already installed.%reset%
+)
+
 REM Check if Python App Execution Aliases exist
 if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe" (
     REM Disable App Execution Aliases for python.exe
@@ -153,7 +167,6 @@ cls
 echo %blue_fg_strong%/ Installer / SillyTavern + Extras%reset%
 echo ---------------------------------------------------------------
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern + Extras...
-echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
 
@@ -161,54 +174,10 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern 
 git clone https://github.com/SillyTavern/SillyTavern.git
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern installed successfully.%reset%
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
-
 REM Clone the SillyTavern Extras repository
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern-extras repository...
 git clone https://github.com/SillyTavern/SillyTavern-extras.git
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
-winget install -e --id Microsoft.VCRedist.2015+.x64
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
-winget install -e --id Microsoft.VCRedist.2015+.x86
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-
-if %errorlevel% neq 0 (
-  echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Download failed. Please restart the installer%reset%
-  pause
-  goto :installer
-) else (
-  start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
-)
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda...
-winget install -e --id Anaconda.Miniconda3
-
-REM Create a Conda environment named extras
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
-call conda create -n extras -y
-
-REM Activate the extras environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
-call conda activate extras
-
-REM Check if activation was successful
-if %errorlevel% equ 0 (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment extras activated successfully.
-) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment extras.%reset%
-)
-
-REM Install Python 3.11 and Git in the extras environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
-call conda install python=3.11 git -y
-
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
 
 REM Provide a link to the XTTS
 echo %blue_fg_strong%[INFO] Feeling excited to give your robotic waifu/husbando a new shiny voice modulator?%reset%
@@ -269,6 +238,10 @@ if /i "%install_xtts_requirements%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
 )
 
+REM Create a Conda environment named extras
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
+call conda create -n extras -y
+
 REM Activate the extras environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
 call conda activate extras
@@ -319,6 +292,37 @@ if "%gpu_choice%"=="1" (
     goto what_gpu
 )
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
+winget install -e --id Microsoft.VCRedist.2015+.x64
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
+winget install -e --id Microsoft.VCRedist.2015+.x86
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
+curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
+
+if %errorlevel% neq 0 (
+  echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Download failed. Please restart the installer%reset%
+  pause
+  goto :installer
+) else (
+  start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
+)
+
+REM Activate the extras environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
+call conda activate extras
+
+REM Check if activation was successful
+if %errorlevel% equ 0 (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment extras activated successfully.
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment extras.%reset%
+)
+
+REM Install Python 3.11 and Git in the extras environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
+call conda install python=3.11 git -y
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
 pip install -r requirements-rvc.txt
@@ -342,7 +346,6 @@ if /i "%create_shortcut%"=="Y" (
         "$Shortcut.Description = '%comment%'; " ^
         "$Shortcut.Save()"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
-    pause
 )
 
 
@@ -353,7 +356,7 @@ if /i "%start_launcher%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running launcher in a new window...
     cd /d "%~dp0"
     start cmd /k launcher.bat
-    goto :installer
+    exit
 )
 goto :installer
 
@@ -364,7 +367,6 @@ cls
 echo %blue_fg_strong%/ Installer / SillyTavern%reset%
 echo ---------------------------------------------------------------
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
-echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern repository...
 git clone https://github.com/SillyTavern/SillyTavern.git
@@ -385,7 +387,6 @@ if /i "%create_shortcut%"=="Y" (
         "$Shortcut.Description = '%comment%'; " ^
         "$Shortcut.Save()"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
-    pause
 )
 
 
@@ -396,7 +397,7 @@ if /i "%start_launcher%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running launcher in a new window...
     cd /d "%~dp0"
     start cmd /k launcher.bat
-    goto :installer
+    exit
 )
 goto :installer
 
@@ -406,56 +407,11 @@ title SillyTavern [INSTALL EXTRAS]
 cls
 echo %blue_fg_strong%/ Installer / Extras%reset%
 echo ---------------------------------------------------------------
-echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
-
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
 
 REM Clone the SillyTavern Extras repository
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern-extras repository...
 git clone https://github.com/SillyTavern/SillyTavern-extras.git
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
-winget install -e --id Microsoft.VCRedist.2015+.x64
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
-winget install -e --id Microsoft.VCRedist.2015+.x86
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-
-if %errorlevel% neq 0 (
-  echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Download failed. Please restart the installer%reset%
-  pause
-  goto :installer
-) else (
-  start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
-)
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda...
-winget install -e --id Anaconda.Miniconda3
-
-REM Create a Conda environment named extras
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
-call conda create -n extras -y
-
-REM Activate the extras environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
-call conda activate extras
-
-REM Check if activation was successful
-if %errorlevel% equ 0 (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment extras activated successfully.
-) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment extras.%reset%
-)
-
-REM Install Python 3.11 and Git in the extras environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
-call conda install python=3.11 git -y
-
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
 
 REM Provide a link to the XTTS
 echo %blue_fg_strong%[INFO] Feeling excited to give your robotic waifu/husbando a new shiny voice modulator?%reset%
@@ -494,6 +450,7 @@ if /i "%install_xtts_requirements%"=="Y" (
     REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
     pip install xtts-api-server
+    pip install pydub
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
     REM Create folders for xtts
@@ -514,6 +471,10 @@ if /i "%install_xtts_requirements%"=="Y" (
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
 )
+
+REM Create a Conda environment named extras
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
+call conda create -n extras -y
 
 REM Activate the extras environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
@@ -565,13 +526,43 @@ if "%gpu_choice%"=="1" (
     goto what_gpu
 )
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
+winget install -e --id Microsoft.VCRedist.2015+.x64
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
+winget install -e --id Microsoft.VCRedist.2015+.x86
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
+curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
+
+if %errorlevel% neq 0 (
+  echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Download failed. Please restart the installer%reset%
+  pause
+  goto :installer
+) else (
+  start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
+)
+
+REM Activate the extras environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
+call conda activate extras
+
+REM Check if activation was successful
+if %errorlevel% equ 0 (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment extras activated successfully.
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment extras.%reset%
+)
+
+REM Install Python 3.11 and Git in the extras environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
+call conda install python=3.11 git -y
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
 pip install -r requirements-rvc.txt
 pip install tensorboardX
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
-
 
 REM Ask if the user wants to create a shortcut
 set /p create_shortcut=Do you want to create a shortcut on the desktop? [Y/n] 
@@ -588,7 +579,6 @@ if /i "%create_shortcut%"=="Y" (
         "$Shortcut.Description = '%comment%'; " ^
         "$Shortcut.Save()"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
-    pause
 )
 
 
@@ -599,6 +589,6 @@ if /i "%start_launcher%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running launcher in a new window...
     cd /d "%~dp0"
     start cmd /k launcher.bat
-    goto :installer
+    exit
 )
 goto :installer
