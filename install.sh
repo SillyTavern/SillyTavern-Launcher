@@ -374,6 +374,7 @@ install_st_extras() {
         # Install pip requirements
         log_message "INFO" "Installing pip requirements for xtts..."
         pip install xtts-api-server
+        pip install pydub
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
         # Create folders for xtts
@@ -431,6 +432,7 @@ install_st_extras() {
         # Install pip requirements
         log_message "INFO" "Installing modules from requirements.txt in extras..."
         pip install -r requirements.txt
+        conda install -c conda-forge faiss-gpu -y
     elif [ "$gpu_choice" == "2" ]; then
         log_message "INFO" "Installing modules from requirements-rocm.txt in extras..."
         pip install -r requirements-rocm.txt
@@ -444,6 +446,7 @@ install_st_extras() {
 
     log_message "INFO" "Installing pip requirements-rvc in extras environment..."
     pip install -r requirements-rvc.txt
+    pip install tensorboardX
 
     # Cleanup the Downloaded file
     rm -rf /tmp/$miniconda_installer
@@ -605,6 +608,7 @@ install_extras() {
         # Install pip requirements
         log_message "INFO" "Installing pip requirements for xtts..."
         pip install xtts-api-server
+        pip install pydub
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
         # Create folders for xtts
@@ -662,6 +666,7 @@ install_extras() {
         # Install pip requirements
         log_message "INFO" "Installing modules from requirements.txt in extras..."
         pip install -r requirements.txt
+        conda install -c conda-forge faiss-gpu -y
     elif [ "$gpu_choice" == "2" ]; then
         log_message "INFO" "Installing modules from requirements-rocm.txt in extras..."
         pip install -r requirements-rocm.txt
@@ -675,6 +680,7 @@ install_extras() {
 
     log_message "INFO" "Installing pip requirements-rvc in extras environment..."
     pip install -r requirements-rvc.txt
+    pip install tensorboardX
 
     # Cleanup the Downloaded file
     rm -rf /tmp/$miniconda_installer
