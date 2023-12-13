@@ -57,6 +57,7 @@ set "rvc_trigger=false"
 set "talkinghead_trigger=false"
 set "caption_trigger=false"
 set "summarize_trigger=false"
+set "listen_trigger=false"
 
 
 REM Create modules.txt if it doesn't exist
