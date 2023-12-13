@@ -28,6 +28,7 @@ set "cyan_fg_strong=[96m"
 REM Normal Background Colors
 set "red_bg=[41m"
 set "blue_bg=[44m"
+set "yellow_bg=[43m"
 
 REM Environment Variables (TOOLBOX 7-Zip)
 set "zip7version=7z2301-x64"
@@ -115,6 +116,19 @@ if %errorlevel% neq 0 (
     echo %blue_fg_strong%[INFO] Git is already installed.%reset%
 )
 
+REM Check if Miniconda3 is installed if not then install Miniconda3
+call conda --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Miniconda3 is not installed on this system.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using Winget...
+    winget install -e --id Anaconda.Miniconda3
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Miniconda3 installed successfully. Please restart the Installer.%reset%
+    pause
+    exit
+) else (
+    echo %blue_fg_strong%[INFO] Miniconda3 is already installed.%reset%
+)
+
 REM Change the current directory to 'sillytavern' folder
 cd /d "%~dp0SillyTavern"
 
@@ -151,7 +165,7 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo Launcher: V1.0.1
+echo Launcher: V1.0.2
 echo =================================
 
 set "choice="
@@ -201,6 +215,23 @@ goto :home
 
 
 :start_extras
+REM Check if XTTS environment exists
+set "xtts_env_exist="
+call conda activate xtts && set "xtts_env_exist=1" || set "xtts_env_exist="
+
+REM Ask the user if they want to start XTTS only if the environment exists
+if defined xtts_env_exist (
+    set /p start_xtts=Start XTTS as well? [Y/N] 
+    if /i "%start_xtts%"=="Y" (
+        REM Activate the xtts environment
+        call conda activate xtts
+
+        REM Start XTTS
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
+        start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
+    )
+)
+
 REM Run conda activate from the Miniconda installation
 call "%miniconda_path%\Scripts\activate.bat"
 
@@ -221,6 +252,23 @@ goto :home
 
 
 :start_st_extras
+REM Check if XTTS environment exists
+set "xtts_env_exist="
+call conda activate xtts && set "xtts_env_exist=1" || set "xtts_env_exist="
+
+REM Ask the user if they want to start XTTS only if the environment exists
+if defined xtts_env_exist (
+    set /p start_xtts=Start XTTS as well? [Y/N] 
+    if /i "%start_xtts%"=="Y" (
+        REM Activate the xtts environment
+        call conda activate xtts
+
+        REM Start XTTS
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
+        start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
+    )
+)
+
 REM Check if Node.js is installed
 node --version > nul 2>&1
 if %errorlevel% neq 0 (
@@ -235,6 +283,7 @@ start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --
 
 
 REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
 call "%miniconda_path%\Scripts\activate.bat"
 
 REM Activate the extras environment
@@ -250,14 +299,6 @@ set %%a
 
 set start_command=%start_command:start_command=%
 start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %start_command%"
-
-
-REM Activate the xtts environment
-call conda activate xtts
-
-REM Start XTTS
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
-start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
 goto :home
 
 
@@ -887,53 +928,10 @@ if /i "!confirmation!"=="Y" (
     echo %blue_fg_strong%SillyTavern Extras%reset%
     echo ---------------------------------------------------------------
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
-    echo %cyan_fg_strong%This may take a while. Please be patient.%reset%
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda...
-    winget install -e --id Anaconda.Miniconda3
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-    curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-
-    if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Download failed. Please try again%reset%
-    pause
-    goto :toolbox
-    ) else (
-    start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
-    )
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
-    winget install -e --id Microsoft.VCRedist.2015+.x64
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
-    winget install -e --id Microsoft.VCRedist.2015+.x86
-
-    REM Run conda activate from the Miniconda installation
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-    call "%miniconda_path%\Scripts\activate.bat"
-
-    REM Create a Conda environment named extras
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
-    call conda create -n extras -y
-
-    REM Activate the extras environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
-    call conda activate extras
-
-    REM Install Python 3.11 and Git in the extras environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
-    call conda install python=3.11 git -y
 
     REM Clone the SillyTavern Extras repository
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern-extras repository...
     git clone https://github.com/SillyTavern/SillyTavern-extras.git
-
-    REM Navigate to the SillyTavern-extras directory
-    cd SillyTavern-extras
-
-    REM Install pip requirements
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements.txt...
-    pip install -r requirements.txt
 
     REM Provide a link to the XTTS
     echo %blue_fg_strong%[INFO] Feeling excited to give your robotic waifu/husbando a new shiny voice modulator?%reset%
@@ -946,17 +944,7 @@ if /i "!confirmation!"=="Y" (
     if /i "%install_xtts_requirements%"=="Y" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
 
-        REM Run conda deactivate for extras
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment extras...
-        call conda deactivate
-
-        REM Create folders for xtts
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
-        mkdir "%~dp0xtts"
-        mkdir "%~dp0xtts\speakers"
-        mkdir "%~dp0xtts\output"
-
-        REM Run conda activate from the Miniconda installation
+        REM Activate the Miniconda installation
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
         call "%miniconda_path%\Scripts\activate.bat"
 
@@ -968,32 +956,133 @@ if /i "!confirmation!"=="Y" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment xtts...
         call conda activate xtts
 
+        REM Check if activation was successful
+        if %errorlevel% equ 0 (
+            echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment xtts activated successfully.
+        ) else (
+            echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment xtts.%reset%
+        )
+
         REM Install Python 3.10 in the xtts environment
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python in the Conda environment...
-        conda install python=3.10 -y
+        call conda install python=3.10 -y
 
         REM Install pip requirements
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
         pip install xtts-api-server
+        pip install pydub
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-        REM Run conda deactivate for xtts
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment xtts...
-        call conda deactivate
+        REM Create folders for xtts
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
+        mkdir "%~dp0xtts"
+        mkdir "%~dp0xtts\speakers"
+        mkdir "%~dp0xtts\output"
 
-        REM Activate the extras environment
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
-        call conda activate extras
+        REM Clone the xtts-api-server repository for voice examples
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
+        git clone https://github.com/daswer123/xtts-api-server.git
 
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
+        xcopy "%~dp0xtts-api-server\example\*" "%~dp0xtts\speakers\" /y /e
+
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
+        rmdir /s /q "%~dp0xtts-api-server"
     ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]XTTS installation skipped.%reset% 
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
+    )
+
+    REM Create a Conda environment named extras
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
+    call conda create -n extras -y
+
+    REM Activate the extras environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
+    call conda activate extras
+
+    REM Navigate to the SillyTavern-extras directory
+    cd "%~dp0SillyTavern-extras"
+
+
+    :what_gpu
+    echo What is your GPU?
+    echo 1. NVIDIA
+    echo 2. AMD
+    echo 3. None (CPU-only mode)
+
+    setlocal enabledelayedexpansion
+    chcp 65001 > nul
+    REM Get GPU information
+    for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+        set "gpu_info=!gpu_info! %%i"
+    )
+
+    echo.
+    echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
+    echo %blue_bg%║                                               ║%reset%
+    echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
+    echo %blue_bg%║                                               ║%reset%
+    echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
+    echo.
+
+    endlocal
+    set /p gpu_choice=Enter number corresponding to your GPU: 
+
+    REM Check the user's response
+    if "%gpu_choice%"=="1" (
+        REM Install pip requirements
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements.txt in extras
+        pip install -r requirements.txt
+        call conda install -c conda-forge faiss-gpu -y
+    ) else if "%gpu_choice%"=="2" (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements-rocm.txt in extras
+        pip install -r requirements-rocm.txt
+    ) else if "%gpu_choice%"=="3" (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements-silicon.txt in extras
+        pip install -r requirements-silicon.txt
+    ) else (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid GPU choice. Please enter a valid number.
+        pause
+        goto what_gpu
     )
 
 
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc...
-    pip install -r requirements-rvc.txt
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
+    winget install -e --id Microsoft.VCRedist.2015+.x64
 
-    echo %cyan_fg_strong%Yes, If you are seeing errors about Numpy and Librosa then that is completely normal. If facebook updates their fairseq library to python 3.11 then this error will not appear anymore.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
+    winget install -e --id Microsoft.VCRedist.2015+.x86
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
+    curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
+
+    if %errorlevel% neq 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Download failed. Please restart the installer%reset%
+    pause
+    goto :installer
+    ) else (
+    start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
+    )
+
+    REM Activate the extras environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
+    call conda activate extras
+
+    REM Check if activation was successful
+    if %errorlevel% equ 0 (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment extras activated successfully.
+    ) else (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment extras.%reset%
+    )
+
+    REM Install Python 3.11 and Git in the extras environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
+    call conda install python=3.11 git -y
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
+    pip install -r requirements-rvc.txt
+    pip install tensorboardX
+
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Reinstall Extras canceled.
