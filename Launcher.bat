@@ -338,7 +338,7 @@ if %errorlevel% neq 0 (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] git command not found in PATH. Skipping update.%reset%
     echo %red_bg%Please make sure Git is installed and added to your PATH.%reset%
 ) else (
-    call git pull --rebase --autostash
+    call git pull
     if %errorlevel% neq 0 (
         REM incase there is still something wrong
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Errors while updating. Please download the latest version manually.%reset%
