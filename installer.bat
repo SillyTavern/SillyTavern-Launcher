@@ -217,6 +217,7 @@ if /i "%install_xtts_requirements%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
     pip install xtts-api-server
     pip install pydub
+    pip install stream2sentence==0.2.2
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
     REM Create folders for xtts
