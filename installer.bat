@@ -166,6 +166,52 @@ title SillyTavern [INSTALL ST + EXTRAS]
 cls
 echo %blue_fg_strong%/ Installer / SillyTavern + Extras%reset%
 echo ---------------------------------------------------------------
+
+:what_gpu
+echo What is your GPU?
+echo 1. NVIDIA
+echo 2. AMD
+echo 3. None (CPU-only mode)
+
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+REM Get GPU information
+for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+    set "gpu_info=!gpu_info! %%i"
+)
+
+echo.
+echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
+echo.
+
+endlocal
+set /p gpu_choice=Enter number corresponding to your GPU: 
+
+REM Set the GPU choice in an environment variable for choise callback
+set "GPU_CHOICE=%gpu_choice%"
+
+REM Check the user's response
+if "%gpu_choice%"=="1" (
+    REM Install pip requirements
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
+    goto :install_st_extras_pre
+) else if "%gpu_choice%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
+    goto :install_st_extras_pre
+) else if "%gpu_choice%"=="3" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
+    goto :install_st_extras_pre
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid GPU choice. Please enter a valid number.
+    pause
+    goto what_gpu
+)
+
+:install_st_extras_pre
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern + Extras...
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
@@ -207,6 +253,8 @@ if /i "%install_xtts_requirements%"=="Y" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment xtts activated successfully.
     ) else (
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment xtts.%reset%
+        echo %blue_bg%[%time%]%reset% %red_fg_strong%[INFO] Press any key to try again otherwise close the installer and restart%reset%
+        goto :install_st_extras_pre
     )
 
     REM Install Python 3.10 in the xtts environment
@@ -218,8 +266,23 @@ if /i "%install_xtts_requirements%"=="Y" (
     pip install xtts-api-server
     pip install pydub
     pip install stream2sentence==0.2.2
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
+    REM Use the GPU choice made earlier to set the correct PyTorch index-url
+    if "%GPU_CHOICE%"=="1" (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+        goto :install_xtts
+    ) else if "%GPU_CHOICE%"=="2" (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+        goto :install_xtts
+    ) else if "%GPU_CHOICE%"=="3" (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch
+        pip install torch torchvision torchaudio
+        goto :install_xtts
+    )
+
+    :install_xtts
     REM Create folders for xtts
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
     mkdir "%~dp0xtts"
@@ -251,48 +314,23 @@ REM Navigate to the SillyTavern-extras directory
 cd "%~dp0SillyTavern-extras"
 
 
-:what_gpu
-echo What is your GPU?
-echo 1. NVIDIA
-echo 2. AMD
-echo 3. None (CPU-only mode)
-
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-REM Get GPU information
-for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-    set "gpu_info=!gpu_info! %%i"
-)
-
-echo.
-echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
-echo.
-
-endlocal
-set /p gpu_choice=Enter number corresponding to your GPU: 
-
-REM Check the user's response
-if "%gpu_choice%"=="1" (
-    REM Install pip requirements
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements.txt in extras
+REM Use the GPU choice made earlier to install requirements for extras
+if "%GPU_CHOICE%"=="1" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for NVIDIA from requirements.txt in extras
     pip install -r requirements.txt
     call conda install -c conda-forge faiss-gpu -y
-) else if "%gpu_choice%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements-rocm.txt in extras
+    goto :install_st_extras_post
+) else if "%GPU_CHOICE%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for AMD from requirements-rocm.txt in extras
     pip install -r requirements-rocm.txt
-) else if "%gpu_choice%"=="3" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements-silicon.txt in extras
+    goto :install_st_extras_post
+) else if "%GPU_CHOICE%"=="3" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for CPU from requirements-silicon.txt in extras
     pip install -r requirements-silicon.txt
-) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid GPU choice. Please enter a valid number.
-    pause
-    goto what_gpu
+    goto :install_st_extras_post
 )
 
+:install_st_extras_post
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
 winget install -e --id Microsoft.VCRedist.2015+.x64
 
@@ -408,6 +446,52 @@ title SillyTavern [INSTALL EXTRAS]
 cls
 echo %blue_fg_strong%/ Installer / Extras%reset%
 echo ---------------------------------------------------------------
+
+:what_gpu
+echo What is your GPU?
+echo 1. NVIDIA
+echo 2. AMD
+echo 3. None (CPU-only mode)
+
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+REM Get GPU information
+for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+    set "gpu_info=!gpu_info! %%i"
+)
+
+echo.
+echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
+echo.
+
+endlocal
+set /p gpu_choice=Enter number corresponding to your GPU: 
+
+REM Set the GPU choice in an environment variable for choise callback
+set "GPU_CHOICE=%gpu_choice%"
+
+REM Check the user's response
+if "%gpu_choice%"=="1" (
+    REM Install pip requirements
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
+    goto :install_extras_pre
+) else if "%gpu_choice%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
+    goto :install_extras_pre
+) else if "%gpu_choice%"=="3" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
+    goto :install_extras_pre
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid GPU choice. Please enter a valid number.
+    pause
+    goto what_gpu
+)
+
+:install_extras_pre
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
 
 REM Clone the SillyTavern Extras repository
@@ -452,8 +536,24 @@ if /i "%install_xtts_requirements%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
     pip install xtts-api-server
     pip install pydub
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+    pip install stream2sentence==0.2.2
+    
+    REM Use the GPU choice made earlier to set the correct PyTorch index-url
+    if "%GPU_CHOICE%"=="1" (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+        goto :install_xtts
+    ) else if "%GPU_CHOICE%"=="2" (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+        goto :install_xtts
+    ) else if "%GPU_CHOICE%"=="3" (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch
+        pip install torch torchvision torchaudio
+        goto :install_xtts
+    )
 
+    :install_xtts
     REM Create folders for xtts
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
     mkdir "%~dp0xtts"
@@ -484,49 +584,23 @@ call conda activate extras
 REM Navigate to the SillyTavern-extras directory
 cd "%~dp0SillyTavern-extras"
 
-
-:what_gpu
-echo What is your GPU?
-echo 1. NVIDIA
-echo 2. AMD
-echo 3. None (CPU-only mode)
-
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-REM Get GPU information
-for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-    set "gpu_info=!gpu_info! %%i"
-)
-
-echo.
-echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
-echo.
-
-endlocal
-set /p gpu_choice=Enter number corresponding to your GPU: 
-
-REM Check the user's response
-if "%gpu_choice%"=="1" (
-    REM Install pip requirements
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements.txt in extras
+REM Use the GPU choice made earlier to install requirements for extras
+if "%GPU_CHOICE%"=="1" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for NVIDIA from requirements.txt in extras
     pip install -r requirements.txt
     call conda install -c conda-forge faiss-gpu -y
-) else if "%gpu_choice%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements-rocm.txt in extras
+    goto :install_extras_post
+) else if "%GPU_CHOICE%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for AMD from requirements-rocm.txt in extras
     pip install -r requirements-rocm.txt
-) else if "%gpu_choice%"=="3" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules from requirements-silicon.txt in extras
+    goto :install_extras_post
+) else if "%GPU_CHOICE%"=="3" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for CPU from requirements-silicon.txt in extras
     pip install -r requirements-silicon.txt
-) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid GPU choice. Please enter a valid number.
-    pause
-    goto what_gpu
+    goto :install_extras_post
 )
 
+:install_extras_post
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
 winget install -e --id Microsoft.VCRedist.2015+.x64
 
