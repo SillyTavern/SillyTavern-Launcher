@@ -126,7 +126,7 @@ if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\python3.exe" (
 )
 
 
-REM Installer - Frontend
+REM Installer menu - Frontend
 :installer
 title SillyTavern [INSTALLER]
 cls
@@ -136,7 +136,8 @@ echo What would you like to do?
 echo 1. Install SillyTavern + Extras
 echo 2. Install SillyTavern
 echo 3. Install Extras
-echo 4. Exit
+echo 4. Support
+echo 0. Exit
 
 set "choice="
 set /p "choice=Choose Your Destiny (default is 1): "
@@ -144,7 +145,7 @@ set /p "choice=Choose Your Destiny (default is 1): "
 REM Default to choice 1 if no input is provided
 if not defined choice set "choice=1"
 
-REM Installer - Backend
+REM Installer menu - Backend
 if "%choice%"=="1" (
     call :install_st_extras
 ) else if "%choice%"=="2" (
@@ -152,6 +153,8 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="3" (
     call :install_extras
 ) else if "%choice%"=="4" (
+    call :support
+) else if "%choice%"=="0" (
     exit
 ) else (
     color 6
@@ -167,6 +170,7 @@ cls
 echo %blue_fg_strong%/ Installer / SillyTavern + Extras%reset%
 echo ---------------------------------------------------------------
 
+REM GPU menu - Frontend
 :what_gpu
 echo What is your GPU?
 echo 1. NVIDIA
@@ -191,6 +195,7 @@ echo.
 endlocal
 set /p gpu_choice=Enter number corresponding to your GPU: 
 
+REM GPU menu - Backend
 REM Set the GPU choice in an environment variable for choise callback
 set "GPU_CHOICE=%gpu_choice%"
 
@@ -206,7 +211,7 @@ if "%gpu_choice%"=="1" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
     goto :install_st_extras_pre
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid GPU choice. Please enter a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid number. Please enter a valid number.
     pause
     goto what_gpu
 )
@@ -447,6 +452,7 @@ cls
 echo %blue_fg_strong%/ Installer / Extras%reset%
 echo ---------------------------------------------------------------
 
+REM GPU menu - Frontend
 :what_gpu
 echo What is your GPU?
 echo 1. NVIDIA
@@ -471,6 +477,7 @@ echo.
 endlocal
 set /p gpu_choice=Enter number corresponding to your GPU: 
 
+REM GPU menu - Backend
 REM Set the GPU choice in an environment variable for choise callback
 set "GPU_CHOICE=%gpu_choice%"
 
@@ -486,7 +493,7 @@ if "%gpu_choice%"=="1" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
     goto :install_extras_pre
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid GPU choice. Please enter a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid number. Please enter a valid number.
     pause
     goto what_gpu
 )
@@ -667,3 +674,45 @@ if /i "%start_launcher%"=="Y" (
     exit
 )
 goto :installer
+
+REM Support menu - Frontend
+:support
+title SillyTavern [SUPPORT]
+cls
+echo %blue_fg_strong%/ Installer / Support%reset%
+echo -------------------------------------
+echo What would you like to do?
+echo 1. I want to report a issue
+echo 2. Documentation
+echo 3. Discord
+echo 0. Back to Installer
+
+set /p support_choice=Choose Your Destiny: 
+
+REM Support menu - Backend
+if "%support_choice%"=="1" (
+    call :issue_report
+) else if "%support_choice%"=="2" (
+    call :documentation
+) else if "%support_choice%"=="3" (
+    call :discord
+) else if "%support_choice%"=="0" (
+    goto :installer
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :support
+)
+
+:issue_report
+start "" "https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose"
+goto :support
+
+:documentation
+start "" "https://docs.sillytavern.app/"
+goto :support
+
+:discord
+start "" "https://discord.gg/sillytavern"
+goto :support

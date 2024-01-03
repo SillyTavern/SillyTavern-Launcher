@@ -153,17 +153,19 @@ home() {
     echo "-------------------------------------"
     echo "What would you like to do?"
     echo "1. Start SillyTavern"
-    echo "2. Start SillyTavern + Extras"
-    echo "3. Update"
-    echo "4. Backup"
-    echo "5. Switch branch"
-    echo "6. Toolbox"
+    echo "2. Start Extras"
+    echo "3. Start SillyTavern + Extras "
+    echo "4. Update"
+    echo "5. Backup"
+    echo "6. Switch branch"
+    echo "7. Toolbox"
+    echo "8. Support"
     echo "0. Exit"
 
     echo "======== VERSION STATUS ========"
     echo -e "SillyTavern branch: ${cyan_fg_strong}$current_branch${reset}"
     echo -e "Sillytavern: $update_status"
-    echo -e "Launcher: V1.0.2"
+    echo -e "Launcher: V1.0.4"
     echo "================================"
 
     read -p "Choose Your Destiny: " home_choice
@@ -176,11 +178,13 @@ home() {
     # Home Menu - Backend
     case $home_choice in
         1) start_st ;;
-        2) start_st_extras ;;
-        3) update ;;
-        4) backup_menu ;;
-        5) switch_branch_menu ;;
-        6) toolbox ;;
+        2) start_extras ;;
+        3) start_st_extras ;;
+        4) update ;;
+        5) backup_menu ;;
+        6) switch_branch_menu ;;
+        7) toolbox ;;
+        8) support ;;
         0) exit ;;
         *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
            read -p "Press Enter to continue..."
@@ -242,6 +246,46 @@ start_st() {
         fi
     fi
 
+    home
+}
+
+# Function to start SillyTavern with Extras
+start_extras() {
+    check_nodejs
+    if [ "$LAUNCH_NEW_WIN" = "0" ]; then
+        local main_pid=$!
+        log_message "INFO" "Extras launched under pid $main_pid"
+        {
+            #has to be after the first one, so we are 1 directory up
+            cd "$(dirname "$0")./SillyTavern-extras" || {
+                log_message "ERROR" "SillyTavern-extras directory not found. Please make sure you have installed SillyTavern-extras."
+                kill $main_pid
+                exit 1
+            }
+            log_message "INFO" "Wordking dir: $(pwd)"
+            ./start.sh
+        } &
+        local extras_pid=$!
+        log_message "INFO" "Extras launched under pid $extras_pid"
+        wait $main_pid
+        kill $extras_pid
+    else
+        log_message "INFO" "Extras launched in a new window."
+        # Find a suitable terminal
+        local detected_terminal
+        detected_terminal=$(find_terminal)
+        log_message "INFO" "Found terminal: $detected_terminal"
+        # Enable read p command for troubleshooting
+        # read -p "Press Enter to continue..."
+
+        # Start SillyTavern in the detected terminal
+        if [ "$(uname)" == "Darwin" ]; then
+            log_message "INFO" "Detected macOS. Opening new Terminal window."
+            open -a Terminal "$(dirname "$0")/SillyTavern-extras/start.sh"
+        else
+            exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern-extras && ./start.sh" &
+        fi
+    fi
     home
 }
 
@@ -786,6 +830,76 @@ toolbox() {
         *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
            read -p "Press Enter to continue..."
            toolbox ;;
+    esac
+}
+
+# Functions for Support Menu - Backend
+issue_report() {
+    if [ "$EUID" -eq 0 ]; then
+        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
+    else
+        if [ "$(uname -s)" == "Darwin" ]; then
+            open https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose
+        else
+            xdg-open https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose
+        fi
+    fi
+    read -p "Press Enter to continue..."
+    support
+}
+
+documentation() {
+    if [ "$EUID" -eq 0 ]; then
+        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
+    else
+        if [ "$(uname -s)" == "Darwin" ]; then
+            open https://docs.sillytavern.app/
+        else
+            xdg-open https://docs.sillytavern.app/
+        fi
+    fi
+    read -p "Press Enter to continue..."
+    support
+}
+
+discord() {
+    if [ "$EUID" -eq 0 ]; then
+        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
+    else
+        if [ "$(uname -s)" == "Darwin" ]; then
+            open https://discord.gg/sillytavern
+        else
+            xdg-open https://discord.gg/sillytavern
+        fi
+    fi
+    read -p "Press Enter to continue..."
+    support
+}
+
+
+# Support Menu - Frontend
+support() {
+    echo -e "\033]0;SillyTavern [SUPPORT]\007"
+    clear
+    echo -e "${blue_fg_strong}/ Home / Support${reset}"
+    echo "-------------------------------------"
+    echo "What would you like to do?"
+    echo "1. I want to report an issue"
+    echo "2. Documentation"
+    echo "3. Discord"
+    echo "0. Back to installer"
+
+    read -p "Choose Your Destiny: " support_choice
+
+    # Support Menu - Backend
+    case $support_choice in
+        1) issue_report ;;
+        2) documentation ;;
+        3) discord ;;
+        0) installer ;;
+        *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
+           read -p "Press Enter to continue..."
+           support ;;
     esac
 }
 

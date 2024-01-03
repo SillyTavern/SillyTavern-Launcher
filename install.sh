@@ -297,14 +297,59 @@ install_nodejs_npm() {
     fi
 }
 
-
-
 # Function to install SillyTavern + Extras
 install_st_extras() {
     echo -e "\033]0;SillyTavern [INSTALL-ST-EXTRAS]\007"
     clear
     echo -e "${blue_fg_strong}/ Installer / SillyTavern + Extras${reset}"
     echo "---------------------------------------------------------------"
+
+    # Ask the user about the GPU
+    echo -e "What is your GPU?"
+    echo -e "1. NVIDIA"
+    echo -e "2. AMD"
+    echo -e "3. None (CPU-only mode)"
+
+    # Get GPU information
+    gpu_info=""
+    while IFS= read -r line; do
+        gpu_info+=" $line"
+    done < <(lspci | grep VGA | cut -d ':' -f3)
+
+    echo ""
+    echo -e "${blue_bg}╔════ GPU INFO ═════════════════════════════════════════════════════════════╗${reset}"
+    boxDrawingText "" 75 $blue_bg
+    boxDrawingText "* ${gpu_info:1}" 75 $blue_bg
+    boxDrawingText "" 75 $blue_bg
+    echo -e "${blue_bg}╚═══════════════════════════════════════════════════════════════════════════╝${reset}"
+    echo ""
+
+    # Prompt for GPU choice
+    read -p "Enter the number corresponding to your GPU: " gpu_choice
+
+    # GPU menu - Backend
+    # Set the GPU choice in an environment variable for choice callback
+    export GPU_CHOICE=$gpu_choice
+
+    # Check the user's response
+    if [ "$gpu_choice" == "1" ]; then
+        log_message "INFO" "GPU choice set to NVIDIA"
+        install_st_extras_pre
+    elif [ "$gpu_choice" == "2" ]; then
+        log_message "INFO" "GPU choice set to AMD"
+        install_st_extras_pre
+    elif [ "$gpu_choice" == "3" ]; then
+        log_message "INFO" "Using CPU-only mode"
+        install_st_extras_pre
+    else
+        log_message "ERROR" "${red_fg_strong}Invalid number. Please enter a valid number.${reset}"
+        read -p "Press Enter to continue..."
+        install_st_extras
+    fi
+}
+
+# Function to install_st_extras_pre
+install_st_extras_pre() {
     log_message "INFO" "Installing SillyTavern + Extras..."
     echo -e "${cyan_fg_strong}This may take a while. Please be patient.${reset}"
 
@@ -313,7 +358,6 @@ install_st_extras() {
     log_message "INFO" "${green_fg_strong}SillyTavern installed successfully.${reset}"
 
     log_message "INFO" "Installing Extras..."
-
     log_message "INFO" "Cloning SillyTavern-extras repository..."
     git clone https://github.com/SillyTavern/SillyTavern-extras.git
 
@@ -342,6 +386,16 @@ install_st_extras() {
     log_message "INFO" "Activating Conda environment extras..."
     conda activate extras
 
+    # Check if extras activation was successful
+    if [ $? -eq 0 ]; then
+        log_message "INFO" "Conda environment extras activated successfully."
+    else
+        log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: extras${reset}"
+        log_message "INFO" "Press Enter to try again otherwise close the installer and restart."
+        read -p "Press Enter to try again..."
+        install_st_extras_pre
+    fi
+
     log_message "INFO" "Installing Python and Git in the Conda environment..."
     conda install python=3.11 git -y
 
@@ -354,6 +408,15 @@ install_st_extras() {
 
     # Check the user's response
     if [[ "$install_xtts_requirements" == "Y" || "$install_xtts_requirements" == "y" ]]; then
+        install_xtts
+        else
+            log_message "INFO" "XTTS installation skipped."
+            install_st_extras_post
+        fi
+}
+
+# Function to install_xtts
+install_xtts() {
         log_message "INFO" "Installing XTTS..."
 
         # Activate the Miniconda installation
@@ -368,22 +431,19 @@ install_st_extras() {
         log_message "INFO" "Activating Conda environment xtts..."
         source activate xtts
 
-        # Check if activation was successful
+        # Check if xtts activation was successful
         if [ $? -eq 0 ]; then
             log_message "INFO" "Conda environment xtts activated successfully."
         else
-            log_message "ERROR" "Failed to activate Conda environment xtts."
+            log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: xtts${reset}"
+            log_message "INFO" "Press Enter to try again otherwise close the installer and restart."
+            read -p "Press Enter to try again..."
+            install_xtts
         fi
 
         # Install Python 3.10 in the xtts environment
         log_message "INFO" "Installing Python in the Conda environment..."
         conda install python=3.10 -y
-
-        # Install pip3 requirements
-        log_message "INFO" "Installing pip3 requirements for xtts..."
-        pip3 install xtts-api-server
-        pip3 install pydub
-        pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
         # Create folders for xtts
         log_message "INFO" "Creating xtts folders..."
@@ -401,10 +461,29 @@ install_st_extras() {
         log_message "INFO" "Removing the xtts-api-server directory..."
         rm -rf "$PWD/xtts-api-server"
 
-    else
-        log_message "INFO" "XTTS installation skipped."
-    fi
+        # Install pip3 requirements
+        log_message "INFO" "Installing pip3 requirements for xtts..."
+        pip3 install xtts-api-server
+        pip3 install pydub
+        pip3 install stream2sentence
 
+        # Use the GPU choice made earlier to set the correct PyTorch index-url
+        if [ "$GPU_CHOICE" == "1" ]; then
+            log_message "INFO" "Installing NVIDIA version of PyTorch"
+            pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+            install_st_extras_post
+        elif [ "$GPU_CHOICE" == "2" ]; then
+            log_message "INFO" "Installing AMD version of PyTorch"
+            pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+            install_st_extras_post
+        elif [ "$GPU_CHOICE" == "3" ]; then
+            log_message "INFO" "Installing CPU-only version of PyTorch"
+            pip3 install torch torchvision torchaudio
+            install_st_extras_post
+        fi
+}
+
+install_st_extras_post() {
     # Activate the extras environment
     log_message "INFO" "Activating Conda environment extras..."
     conda activate extras
@@ -412,45 +491,25 @@ install_st_extras() {
     # Navigate to the SillyTavern-extras directory
     cd "$PWD/SillyTavern-extras"
 
-    # Ask the user about the GPU
-    echo -e "What is your GPU?"
-    echo -e "1. NVIDIA"
-    echo -e "2. AMD"
-    echo -e "3. None (CPU-only mode)"
-
-    # Get GPU information
-    gpu_info=""
-    while IFS= read -r line; do
-        gpu_info+=" $line"
-    done < <(lspci | grep VGA | cut -d ':' -f3)
-
-    echo ""
-    echo -e "${blue_bg}╔════ GPU INFO ═════════════════════════════════╗${reset}"
-    echo -e "${blue_bg}║                                               ║${reset}"
-    echo -e "${blue_bg}║* ${gpu_info:1}                     ║${reset}"
-    echo -e "${blue_bg}║                                               ║${reset}"
-    echo -e "${blue_bg}╚═══════════════════════════════════════════════╝${reset}"
-    echo ""
-
-    # Prompt for GPU choice
-    read -p "Enter the number corresponding to your GPU: " gpu_choice
-
-    # Check the user's response
-    if [ "$gpu_choice" == "1" ]; then
-        # Install pip3 requirements
-        log_message "INFO" "Installing modules from requirements.txt in extras..."
+    # Use the GPU choice made earlier to install requirements for extras
+    if [ "$GPU_CHOICE" == "1" ]; then
+        log_message "INFO" "Installing modules for NVIDIA from requirements.txt in extras"
         pip3 install -r requirements.txt
         conda install -c conda-forge faiss-gpu -y
-    elif [ "$gpu_choice" == "2" ]; then
-        log_message "INFO" "Installing modules from requirements-rocm.txt in extras..."
+        install_st_extras_post
+    elif [ "$GPU_CHOICE" == "2" ]; then
+        log_message "INFO" "Installing modules for AMD from requirements-rocm.txt in extras"
         pip3 install -r requirements-rocm.txt
-    elif [ "$gpu_choice" == "3" ]; then
-        log_message "INFO" "Installing modules from requirements-silicon.txt in extras..."
+        install_st_extras_post
+    elif [ "$GPU_CHOICE" == "3" ]; then
+        log_message "INFO" "Installing modules for CPU from requirements-silicon.txt in extras"
         pip3 install -r requirements-silicon.txt
-    else
-        log_message "ERROR" "Invalid GPU choice. Please enter a valid number."
-        exit 1
+        install_st_extras_post
     fi
+
+    # Install Python 3.11 and Git in the extras environment
+    log_message "INFO" "Installing Python and Git in the Conda environment..."
+    conda install python=3.11 git -y
 
     log_message "INFO" "Installing pip3 requirements-rvc in extras environment..."
     pip3 install -r requirements-rvc.txt
@@ -492,8 +551,6 @@ install_st_extras() {
 
     installer
 }
-
-
 
 # Function to install SillyTavern
 install_sillytavern() {
@@ -546,8 +603,54 @@ install_extras() {
     clear
     echo -e "${blue_fg_strong}/ Installer / Extras${reset}"
     echo "---------------------------------------------------------------"
-    log_message "INFO" "Installing Extras..."
 
+    # Ask the user about the GPU
+    echo -e "What is your GPU?"
+    echo -e "1. NVIDIA"
+    echo -e "2. AMD"
+    echo -e "3. None (CPU-only mode)"
+
+    # Get GPU information
+    gpu_info=""
+    while IFS= read -r line; do
+        gpu_info+=" $line"
+    done < <(lspci | grep VGA | cut -d ':' -f3)
+
+    echo ""
+    echo -e "${blue_bg}╔════ GPU INFO ═════════════════════════════════════════════════════════════╗${reset}"
+    boxDrawingText "" 75 $blue_bg
+    boxDrawingText "* ${gpu_info:1}" 75 $blue_bg
+    boxDrawingText "" 75 $blue_bg
+    echo -e "${blue_bg}╚═══════════════════════════════════════════════════════════════════════════╝${reset}"
+    echo ""
+
+    # Prompt for GPU choice
+    read -p "Enter the number corresponding to your GPU: " gpu_choice
+
+    # GPU menu - Backend
+    # Set the GPU choice in an environment variable for choice callback
+    export GPU_CHOICE=$gpu_choice
+
+    # Check the user's response
+    if [ "$gpu_choice" == "1" ]; then
+        log_message "INFO" "GPU choice set to NVIDIA"
+        install_extras_pre
+    elif [ "$gpu_choice" == "2" ]; then
+        log_message "INFO" "GPU choice set to AMD"
+        install_extras_pre
+    elif [ "$gpu_choice" == "3" ]; then
+        log_message "INFO" "Using CPU-only mode"
+        install_extras_pre
+    else
+        log_message "ERROR" "${red_fg_strong}Invalid number. Please enter a valid number.${reset}"
+        read -p "Press Enter to continue..."
+        install_extras
+    fi
+}
+
+# Function to install_extras_pre
+install_extras_pre() {
+    log_message "INFO" "Installing Extras..."
     log_message "INFO" "Cloning SillyTavern-extras repository..."
     git clone https://github.com/SillyTavern/SillyTavern-extras.git
 
@@ -576,6 +679,16 @@ install_extras() {
     log_message "INFO" "Activating Conda environment extras..."
     conda activate extras
 
+    # Check if extras activation was successful
+    if [ $? -eq 0 ]; then
+        log_message "INFO" "Conda environment extras activated successfully."
+    else
+        log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: extras${reset}"
+        log_message "INFO" "Press Enter to try again otherwise close the installer and restart."
+        read -p "Press Enter to try again..."
+        install_extras_pre
+    fi
+
     log_message "INFO" "Installing Python and Git in the Conda environment..."
     conda install python=3.11 git -y
 
@@ -588,6 +701,15 @@ install_extras() {
 
     # Check the user's response
     if [[ "$install_xtts_requirements" == "Y" || "$install_xtts_requirements" == "y" ]]; then
+        install_xtts
+        else
+            log_message "INFO" "XTTS installation skipped."
+            install_extras_post
+        fi
+}
+
+# Function to install_xtts
+install_xtts() {
         log_message "INFO" "Installing XTTS..."
 
         # Activate the Miniconda installation
@@ -600,24 +722,21 @@ install_extras() {
 
         # Activate the xtts environment
         log_message "INFO" "Activating Conda environment xtts..."
-        source activate xtts
+        conda activate xtts
 
         # Check if activation was successful
         if [ $? -eq 0 ]; then
             log_message "INFO" "Conda environment xtts activated successfully."
         else
-            log_message "ERROR" "Failed to activate Conda environment xtts."
+            log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: xtts${reset}"
+            log_message "INFO" "Press Enter to try again otherwise close the installer and restart."
+            read -p "Press Enter to try again..."
+            install_xtts
         fi
 
         # Install Python 3.10 in the xtts environment
         log_message "INFO" "Installing Python in the Conda environment..."
         conda install python=3.10 -y
-
-        # Install pip3 requirements
-        log_message "INFO" "Installing pip3 requirements for xtts..."
-        pip3 install xtts-api-server
-        pip3 install pydub
-        pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
         # Create folders for xtts
         log_message "INFO" "Creating xtts folders..."
@@ -635,10 +754,29 @@ install_extras() {
         log_message "INFO" "Removing the xtts-api-server directory..."
         rm -rf "$PWD/xtts-api-server"
 
-    else
-        log_message "INFO" "XTTS installation skipped."
-    fi
+        # Install pip3 requirements
+        log_message "INFO" "Installing pip3 requirements for xtts..."
+        pip3 install xtts-api-server
+        pip3 install pydub
+        pip3 install stream2sentence
 
+        # Use the GPU choice made earlier to set the correct PyTorch index-url
+        if [ "$GPU_CHOICE" == "1" ]; then
+            log_message "INFO" "Installing NVIDIA version of PyTorch"
+            pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+            install_extras_post
+        elif [ "$GPU_CHOICE" == "2" ]; then
+            log_message "INFO" "Installing AMD version of PyTorch"
+            pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+            install_extras_post
+        elif [ "$GPU_CHOICE" == "3" ]; then
+            log_message "INFO" "Installing CPU-only version of PyTorch"
+            pip3 install torch torchvision torchaudio
+            install_extras_post
+        fi
+}
+
+install_extras_post() {
     # Activate the extras environment
     log_message "INFO" "Activating Conda environment extras..."
     conda activate extras
@@ -646,45 +784,25 @@ install_extras() {
     # Navigate to the SillyTavern-extras directory
     cd "$PWD/SillyTavern-extras"
 
-    # Ask the user about the GPU
-    echo -e "What is your GPU?"
-    echo -e "1. NVIDIA"
-    echo -e "2. AMD"
-    echo -e "3. None (CPU-only mode)"
-
-    # Get GPU information
-    gpu_info=""
-    while IFS= read -r line; do
-        gpu_info+=" $line"
-    done < <(lspci | grep VGA | cut -d ':' -f3)
-
-    echo ""
-    echo -e "${blue_bg}╔════ GPU INFO ═════════════════════════════════════════════════════════════╗${reset}"
-    boxDrawingText "" 75 $blue_bg
-    boxDrawingText "* ${gpu_info:1}" 75 $blue_bg
-    boxDrawingText "" 75 $blue_bg
-    echo -e "${blue_bg}╚═══════════════════════════════════════════════════════════════════════════╝${reset}"
-    echo ""
-
-    # Prompt for GPU choice
-    read -p "Enter the number corresponding to your GPU: " gpu_choice
-
-    # Check the user's response
-    if [ "$gpu_choice" == "1" ]; then
-        # Install pip3 requirements
-        log_message "INFO" "Installing modules from requirements.txt in extras..."
+    # Use the GPU choice made earlier to install requirements for extras
+    if [ "$GPU_CHOICE" == "1" ]; then
+        log_message "INFO" "Installing modules for NVIDIA from requirements.txt in extras"
         pip3 install -r requirements.txt
         conda install -c conda-forge faiss-gpu -y
-    elif [ "$gpu_choice" == "2" ]; then
-        log_message "INFO" "Installing modules from requirements-rocm.txt in extras..."
+        install_extras_post
+    elif [ "$GPU_CHOICE" == "2" ]; then
+        log_message "INFO" "Installing modules for AMD from requirements-rocm.txt in extras"
         pip3 install -r requirements-rocm.txt
-    elif [ "$gpu_choice" == "3" ]; then
-        log_message "INFO" "Installing modules from requirements-silicon.txt in extras..."
+        install_extras_post
+    elif [ "$GPU_CHOICE" == "3" ]; then
+        log_message "INFO" "Installing modules for CPU from requirements-silicon.txt in extras"
         pip3 install -r requirements-silicon.txt
-    else
-        log_message "ERROR" "Invalid GPU choice. Please enter a valid number."
-        exit 1
+        install_extras_post
     fi
+
+    # Install Python 3.11 and Git in the extras environment
+    log_message "INFO" "Installing Python and Git in the Conda environment..."
+    conda install python=3.11 git -y
 
     log_message "INFO" "Installing pip3 requirements-rvc in extras environment..."
     pip3 install -r requirements-rvc.txt
@@ -692,13 +810,10 @@ install_extras() {
 
     # Cleanup the Downloaded file
     rm -rf /tmp/$miniconda_installer
-    log_message "INFO" "${green_fg_strong}Extras has been successfully installed.${reset}"
 
+    log_message "INFO" "${green_fg_strong}SillyTavern + Extras successfully installed.${reset}"
     installer
 }
-
-
-
 
 # Function for the installer menu
 installer() {
@@ -710,7 +825,8 @@ installer() {
     echo "1. Install SillyTavern + Extras"
     echo "2. Install SillyTavern"
     echo "3. Install Extras"
-    echo "4. Exit"
+    echo "4. Support"
+    echo "0. Exit"
 
     read -p "Choose Your Destiny (default is 1): " choice
 
@@ -719,20 +835,87 @@ installer() {
       choice=1
     fi
 
-    # Installer - Backend
-    if [ "$choice" = "1" ]; then
-        install_st_extras
-    elif [ "$choice" = "2" ]; then
-        install_sillytavern
-    elif [ "$choice" = "3" ]; then
-        install_extras
-    elif [ "$choice" = "4" ]; then
-        exit
+    # Installer Menu - Backend
+    case $choice in
+        1) install_st_extras ;;
+        2) install_sillytavern ;;
+        3) install_extras ;;
+        4) support ;;
+        0) exit ;;
+        *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
+           read -p "Press Enter to continue..."
+           installer ;;
+    esac
+}
+
+# Functions for Support Menu - Backend
+issue_report() {
+    if [ "$EUID" -eq 0 ]; then
+        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
     else
-        echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
-        read -p "Press Enter to continue..."
-        installer
+        if [ "$(uname -s)" == "Darwin" ]; then
+            open https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose
+        else
+            xdg-open https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose
+        fi
     fi
+    read -p "Press Enter to continue..."
+    support
+}
+
+documentation() {
+    if [ "$EUID" -eq 0 ]; then
+        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
+    else
+        if [ "$(uname -s)" == "Darwin" ]; then
+            open https://docs.sillytavern.app/
+        else
+            xdg-open https://docs.sillytavern.app/
+        fi
+    fi
+    read -p "Press Enter to continue..."
+    support
+}
+
+discord() {
+    if [ "$EUID" -eq 0 ]; then
+        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
+    else
+        if [ "$(uname -s)" == "Darwin" ]; then
+            open https://discord.gg/sillytavern
+        else
+            xdg-open https://discord.gg/sillytavern
+        fi
+    fi
+    read -p "Press Enter to continue..."
+    support
+}
+
+
+# Support Menu - Frontend
+support() {
+    echo -e "\033]0;SillyTavern [SUPPORT]\007"
+    clear
+    echo -e "${blue_fg_strong}/ Home / Support${reset}"
+    echo "-------------------------------------"
+    echo "What would you like to do?"
+    echo "1. I want to report an issue"
+    echo "2. Documentation"
+    echo "3. Discord"
+    echo "0. Back to installer"
+
+    read -p "Choose Your Destiny: " support_choice
+
+    # Support Menu - Backend
+    case $support_choice in
+        1) issue_report ;;
+        2) documentation ;;
+        3) discord ;;
+        0) installer ;;
+        *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
+           read -p "Press Enter to continue..."
+           support ;;
+    esac
 }
 
 # Check if the script is running on macOS

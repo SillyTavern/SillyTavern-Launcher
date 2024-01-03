@@ -159,6 +159,7 @@ echo 4. Update
 echo 5. Backup
 echo 6. Switch branch
 echo 7. Toolbox
+echo 8. Support
 echo 0. Exit
 
 REM Get the current Git branch
@@ -166,7 +167,7 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo Launcher: V1.0.2
+echo Launcher: V1.0.4
 echo =================================
 
 set "choice="
@@ -190,6 +191,8 @@ if "%choice%"=="1" (
     call :switchbrance_menu
 ) else if "%choice%"=="7" (
     call :toolbox
+) else if "%choice%"=="8" (
+    call :support
 ) else if "%choice%"=="0" (
     exit
 ) else (
@@ -1199,3 +1202,45 @@ if /i "%confirmation%"=="Y" (
     pause
     goto :home
 )
+
+REM Support menu - Frontend
+:support
+title SillyTavern [SUPPORT]
+cls
+echo %blue_fg_strong%/ Home / Support%reset%
+echo -------------------------------------
+echo What would you like to do?
+echo 1. I want to report a issue
+echo 2. Documentation
+echo 3. Discord
+echo 0. Back to Home
+
+set /p support_choice=Choose Your Destiny: 
+
+REM Support menu - Backend
+if "%support_choice%"=="1" (
+    call :issue_report
+) else if "%support_choice%"=="2" (
+    call :documentation
+) else if "%support_choice%"=="3" (
+    call :discord
+) else if "%support_choice%"=="0" (
+    goto :home
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :support
+)
+
+:issue_report
+start "" "https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose"
+goto :support
+
+:documentation
+start "" "https://docs.sillytavern.app/"
+goto :support
+
+:discord
+start "" "https://discord.gg/sillytavern"
+goto :support
