@@ -1,0 +1,78 @@
+name: Bug Report 🐛
+description: Report something that's not working the intended way. Support requests for external programs (reverse proxies, 3rd party servers, other peoples' forks) will be refused!
+title: '[BUG] <title>'
+labels: ['🐛 Bug']
+body:
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: What OS are you running the file from?
+      options:
+        - Windows 
+        - Linux
+        - Android (Termux)
+        - Mac
+    validations:
+      required: true
+
+  - type: input
+    id: system
+    attributes:
+      label: System
+      description: >-
+        Specify your OS/Distro version and/or Docker version.
+        For Windows:
+        - Press WINDOWS KEY + R.
+        - Type `winver` and press Enter.
+        For Linux:
+        - Open a terminal.
+        - Run one of the following commands based on your distribution:
+          - For Ubuntu/Debian: `lsb_release -a`
+          - For CentOS/Fedora: `cat /etc/os-release`
+          - For others: Check your distribution's documentation.
+        For macOS:
+        - Click on the Apple logo in the top-left corner.
+        - Select "About This Mac" to see the macOS version.
+      placeholder:
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Describe the problem
+      description: Please describe exactly what is not working, include the steps to reproduce, actual result and expected result
+      placeholder: When doing ABC then DEF, I expect to see XYZ, but I actually see ZYX
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Additional info
+      description: Logs? Screenshots? Yes, please.
+      placeholder: If the issue happens during build-time, include terminal logs. For run-time errors, include browser logs which you can view in the Dev Tools (F12), under the Console tab. Take care to blank out any personal info.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: check-check-check
+    attributes:
+      label: Please tick the boxes
+      description: Before submitting, please ensure that
+      options:
+        - label: You have explained the issue clearly, and included all relevant info
+          required: true
+        - label: You've checked that this [issue hasn't already been raised](https://github.com/SillyTavern/SillyTavern-Launcher/issues?q=is%3Aissue)
+          required: true
+        - label: You've checked the [docs](https://docs.sillytavern.app/) ![important](https://img.shields.io/badge/Important!-F6094E)
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |-
+        ## Thanks 🙏
+        Thank you for raising this ticket - in doing so you are helping to make SillyTavern-Launcher better for everyone.
+    validations:
+      required: false
