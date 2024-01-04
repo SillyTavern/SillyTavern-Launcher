@@ -232,7 +232,7 @@ if defined xtts_env_exist (
 
         REM Start XTTS
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
-        start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
+        start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server --deepspeed --stream-play-sync"
     )
 )
 
@@ -346,7 +346,7 @@ if %errorlevel% neq 0 (
     call git pull --rebase --autostash
     if %errorlevel% neq 0 (
         REM incase there is still something wrong
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Errors while updating. Please download the latest version manually.%reset%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Errors while updating.%reset%
     ) else (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern updated successfully.%reset%
     )
@@ -354,28 +354,32 @@ if %errorlevel% neq 0 (
 
 REM Check if SillyTavern-extras directory exists
 if not exist "%~dp0SillyTavern-extras" (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] SillyTavern-extras directory not found. Skipping extras update.%reset%
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] SillyTavern-extras directory not found. Skipping extras update.%reset%
+    goto :update_xtts
+)
+cd /d "%~dp0SillyTavern-extras"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern-extras...
+call git pull
+if %errorlevel% neq 0 (
+    REM in case there is still something wrong
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Errors while updating.%reset%
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-extras updated successfully.%reset%
+    goto :update_xtts
+)
+
+:update_xtts
+REM Check if XTTS directory exists
+if not exist "%~dp0xtts" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] xtts directory not found. Skipping XTTS update.%reset%
     pause
     goto :home
 )
-
-cd /d "%~dp0SillyTavern-extras"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern-extras...
-
-REM Check if git is installed
-git --version > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] git command not found in PATH. Skipping update.%reset%
-    echo %red_bg%Please make sure Git is installed and added to your PATH.%reset%
-) else (
-    call git pull
-    if %errorlevel% neq 0 (
-        REM incase there is still something wrong
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Errors while updating. Please download the latest version manually.%reset%
-    ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-extras updated successfully.%reset%
-    )
-)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating XTTS...
+call conda activate xtts
+pip install --upgrade xtts-api-server
+call conda deactivate
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS updated successfully.%reset%
 pause
 goto :home
 
@@ -955,15 +959,16 @@ if /i "!confirmation!"=="Y" (
     rmdir /s /q "%temp%\SillyTavern-extras-TEMP"
 
     endlocal    
+    :what_gpu
     cls
-    echo %blue_fg_strong%SillyTavern Extras%reset%
+    echo %blue_fg_strong%/ Home / Toolbox / Reinstall Extras%reset%
     echo ---------------------------------------------------------------
 
-    :what_gpu
     echo What is your GPU?
     echo 1. NVIDIA
     echo 2. AMD
     echo 3. None (CPU-only mode)
+    echo 0. Cancel Reinstall
 
     setlocal enabledelayedexpansion
     chcp 65001 > nul
@@ -997,8 +1002,10 @@ if /i "!confirmation!"=="Y" (
     ) else if "%gpu_choice%"=="3" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
         goto :reinstall_extras_pre
+    ) else if "%gpu_choice%"=="0" (
+        goto :toolbox
     ) else (
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid GPU choice. Please enter a valid number.
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
         pause
         goto what_gpu
     )

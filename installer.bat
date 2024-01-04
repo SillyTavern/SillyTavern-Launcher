@@ -157,8 +157,7 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="0" (
     exit
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
     pause
     goto :installer
 )
@@ -171,11 +170,11 @@ echo %blue_fg_strong%/ Installer / SillyTavern + Extras%reset%
 echo ---------------------------------------------------------------
 
 REM GPU menu - Frontend
-:what_gpu
 echo What is your GPU?
 echo 1. NVIDIA
 echo 2. AMD
 echo 3. None (CPU-only mode)
+echo 0. Cancel install
 
 setlocal enabledelayedexpansion
 chcp 65001 > nul
@@ -210,10 +209,12 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="3" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
     goto :install_st_extras_pre
+) else if "%gpu_choice%"=="0" (
+    goto :installer
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid number. Please enter a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
     pause
-    goto what_gpu
+    goto :install_st_extras
 )
 
 :install_st_extras_pre
@@ -270,7 +271,7 @@ if /i "%install_xtts_requirements%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
     pip install xtts-api-server
     pip install pydub
-    pip install stream2sentence==0.2.2
+    pip install stream2sentence
 
     REM Use the GPU choice made earlier to set the correct PyTorch index-url
     if "%GPU_CHOICE%"=="1" (
@@ -453,11 +454,11 @@ echo %blue_fg_strong%/ Installer / Extras%reset%
 echo ---------------------------------------------------------------
 
 REM GPU menu - Frontend
-:what_gpu
 echo What is your GPU?
 echo 1. NVIDIA
 echo 2. AMD
 echo 3. None (CPU-only mode)
+echo 0. Cancel install
 
 setlocal enabledelayedexpansion
 chcp 65001 > nul
@@ -492,10 +493,12 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="3" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
     goto :install_extras_pre
+) else if "%gpu_choice%"=="0" (
+    goto :installer
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Invalid number. Please enter a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
     pause
-    goto what_gpu
+    goto :install_extras
 )
 
 :install_extras_pre
@@ -543,7 +546,7 @@ if /i "%install_xtts_requirements%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
     pip install xtts-api-server
     pip install pydub
-    pip install stream2sentence==0.2.2
+    pip install stream2sentence
     
     REM Use the GPU choice made earlier to set the correct PyTorch index-url
     if "%GPU_CHOICE%"=="1" (
@@ -699,8 +702,7 @@ if "%support_choice%"=="1" (
 ) else if "%support_choice%"=="0" (
     goto :installer
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
     pause
     goto :support
 )
