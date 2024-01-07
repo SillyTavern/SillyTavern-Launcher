@@ -282,7 +282,7 @@ if defined xtts_env_exist (
 
         REM Start XTTS
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
-        start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
+        start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server --deepspeed"
     )
 )
 

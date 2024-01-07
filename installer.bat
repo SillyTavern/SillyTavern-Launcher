@@ -248,24 +248,13 @@ if /i "%install_xtts_requirements%"=="Y" (
 
     REM Create a Conda environment named xtts
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment xtts...
-    call conda create -n xtts -y
+    call conda create -n xtts python=3.10 git -y
 
     REM Activate the xtts environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment xtts...
     call conda activate xtts
 
-    REM Check if activation was successful
-    if %errorlevel% equ 0 (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment xtts activated successfully.
-    ) else (
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment xtts.%reset%
-        echo %blue_bg%[%time%]%reset% %red_fg_strong%[INFO] Press any key to try again otherwise close the installer and restart%reset%
-        goto :install_st_extras_pre
-    )
 
-    REM Install Python 3.10 in the xtts environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python in the Conda environment...
-    call conda install python=3.10 -y
 
     REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
@@ -275,15 +264,15 @@ if /i "%install_xtts_requirements%"=="Y" (
 
     REM Use the GPU choice made earlier to set the correct PyTorch index-url
     if "%GPU_CHOICE%"=="1" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch for xtts...
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
         goto :install_xtts
     ) else if "%GPU_CHOICE%"=="2" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch for xtts...
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
         goto :install_xtts
     ) else if "%GPU_CHOICE%"=="3" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch for xtts...
         pip install torch torchvision torchaudio
         goto :install_xtts
     )
@@ -304,13 +293,14 @@ if /i "%install_xtts_requirements%"=="Y" (
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
     rmdir /s /q "%~dp0xtts-api-server"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
 )
 
 REM Create a Conda environment named extras
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
-call conda create -n extras -y
+call conda create -n extras python=3.11 git -y
 
 REM Activate the extras environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
@@ -319,12 +309,11 @@ call conda activate extras
 REM Navigate to the SillyTavern-extras directory
 cd "%~dp0SillyTavern-extras"
 
-
 REM Use the GPU choice made earlier to install requirements for extras
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for NVIDIA from requirements.txt in extras
-    pip install -r requirements.txt
     call conda install -c conda-forge faiss-gpu -y
+    pip install -r requirements.txt
     goto :install_st_extras_post
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for AMD from requirements-rocm.txt in extras
@@ -337,6 +326,10 @@ if "%GPU_CHOICE%"=="1" (
 )
 
 :install_st_extras_post
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
+pip install -r requirements-rvc.txt
+pip install tensorboardX
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
 winget install -e --id Microsoft.VCRedist.2015+.x64
 
@@ -353,25 +346,6 @@ if %errorlevel% neq 0 (
 ) else (
   start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
 )
-
-REM Activate the extras environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
-call conda activate extras
-
-REM Check if activation was successful
-if %errorlevel% equ 0 (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment extras activated successfully.
-) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment extras.%reset%
-)
-
-REM Install Python 3.11 and Git in the extras environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
-call conda install python=3.11 git -y
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
-pip install -r requirements-rvc.txt
-pip install tensorboardX
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
 
@@ -525,22 +499,11 @@ if /i "%install_xtts_requirements%"=="Y" (
 
     REM Create a Conda environment named xtts
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment xtts...
-    call conda create -n xtts -y
+    call conda create -n xtts python=3.10 git -y
 
     REM Activate the xtts environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment xtts...
     call conda activate xtts
-
-    REM Check if activation was successful
-    if %errorlevel% equ 0 (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment xtts activated successfully.
-    ) else (
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment xtts.%reset%
-    )
-
-    REM Install Python 3.10 in the xtts environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python in the Conda environment...
-    call conda install python=3.10 -y
 
     REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
@@ -550,15 +513,15 @@ if /i "%install_xtts_requirements%"=="Y" (
     
     REM Use the GPU choice made earlier to set the correct PyTorch index-url
     if "%GPU_CHOICE%"=="1" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch for xtts...
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
         goto :install_xtts
     ) else if "%GPU_CHOICE%"=="2" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch for xtts...
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
         goto :install_xtts
     ) else if "%GPU_CHOICE%"=="3" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch for xtts...
         pip install torch torchvision torchaudio
         goto :install_xtts
     )
@@ -585,7 +548,7 @@ if /i "%install_xtts_requirements%"=="Y" (
 
 REM Create a Conda environment named extras
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
-call conda create -n extras -y
+call conda create -n extras python=3.11 git -y
 
 REM Activate the extras environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
@@ -597,8 +560,8 @@ cd "%~dp0SillyTavern-extras"
 REM Use the GPU choice made earlier to install requirements for extras
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for NVIDIA from requirements.txt in extras
-    pip install -r requirements.txt
     call conda install -c conda-forge faiss-gpu -y
+    pip install -r requirements.txt
     goto :install_extras_post
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for AMD from requirements-rocm.txt in extras
@@ -611,6 +574,10 @@ if "%GPU_CHOICE%"=="1" (
 )
 
 :install_extras_post
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
+pip install -r requirements-rvc.txt
+pip install tensorboardX
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
 winget install -e --id Microsoft.VCRedist.2015+.x64
 
@@ -627,25 +594,6 @@ if %errorlevel% neq 0 (
 ) else (
   start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
 )
-
-REM Activate the extras environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
-call conda activate extras
-
-REM Check if activation was successful
-if %errorlevel% equ 0 (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment extras activated successfully.
-) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment extras.%reset%
-)
-
-REM Install Python 3.11 and Git in the extras environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
-call conda install python=3.11 git -y
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
-pip install -r requirements-rvc.txt
-pip install tensorboardX
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
 
