@@ -254,18 +254,10 @@ if /i "%install_xtts_requirements%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment xtts...
     call conda activate xtts
 
-
-
-    REM Install pip requirements
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
-    pip install xtts-api-server
-    pip install pydub
-    pip install stream2sentence
-
     REM Use the GPU choice made earlier to set the correct PyTorch index-url
     if "%GPU_CHOICE%"=="1" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch for xtts...
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+        pip install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
         goto :install_xtts
     ) else if "%GPU_CHOICE%"=="2" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch for xtts...
@@ -276,6 +268,12 @@ if /i "%install_xtts_requirements%"=="Y" (
         pip install torch torchvision torchaudio
         goto :install_xtts
     )
+
+    REM Install pip requirements
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
+    pip install xtts-api-server
+    pip install pydub
+    pip install stream2sentence
 
     :install_xtts
     REM Create folders for xtts

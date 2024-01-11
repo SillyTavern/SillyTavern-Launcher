@@ -470,7 +470,7 @@ install_xtts() {
         # Use the GPU choice made earlier to set the correct PyTorch index-url
         if [ "$GPU_CHOICE" == "1" ]; then
             log_message "INFO" "Installing NVIDIA version of PyTorch"
-            pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+            pip3 install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
             install_st_extras_post
         elif [ "$GPU_CHOICE" == "2" ]; then
             log_message "INFO" "Installing AMD version of PyTorch"
