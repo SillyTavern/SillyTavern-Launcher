@@ -219,11 +219,24 @@ if "%gpu_choice%"=="1" (
 
 :install_st_extras_pre
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern + Extras...
-
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
 
+set max_retries=3
+set retry_count=0
+
+:retry_st_extras_pre
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern repository...
 git clone https://github.com/SillyTavern/SillyTavern.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_st_extras_pre
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :installer
+)
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern installed successfully.%reset%
 
 REM Clone the SillyTavern Extras repository
@@ -385,8 +398,22 @@ echo %blue_fg_strong%/ Installer / SillyTavern%reset%
 echo ---------------------------------------------------------------
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
 
+set max_retries=3
+set retry_count=0
+
+:retry_install_sillytavern
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern repository...
 git clone https://github.com/SillyTavern/SillyTavern.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_sillytavern
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :installer
+)
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern installed successfully.%reset%
 
 REM Ask if the user wants to create a shortcut
@@ -476,9 +503,23 @@ if "%gpu_choice%"=="1" (
 :install_extras_pre
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
 
+set max_retries=3
+set retry_count=0
+
+:retry_extras_pre
 REM Clone the SillyTavern Extras repository
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern-extras repository...
 git clone https://github.com/SillyTavern/SillyTavern-extras.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_extras_pre
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :installer
+)
+
 
 REM Provide a link to the XTTS
 echo %blue_fg_strong%[INFO] Feeling excited to give your robotic waifu/husbando a new shiny voice modulator?%reset%

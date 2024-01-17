@@ -154,7 +154,7 @@ echo -------------------------------------
 echo What would you like to do?
 echo 1. Start SillyTavern
 echo 2. Start Extras
-echo 3. Start SillyTavern + Extras
+echo 3. Start XTTS
 echo 4. Update
 echo 5. Backup
 echo 6. Switch branch
@@ -182,7 +182,7 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="2" (
     call :start_extras
 ) else if "%choice%"=="3" (
-    call :start_st_extras
+    call :start_xtts
 ) else if "%choice%"=="4" (
     call :update
 ) else if "%choice%"=="5" (
@@ -268,23 +268,14 @@ set "start_command=%start_command:start_command=%"
 start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %start_command%"
 goto :home
 
-:start_st_extras
-REM Check if XTTS environment exists
-set "xtts_env_exist="
-call conda activate xtts && set "xtts_env_exist=1" || set "xtts_env_exist="
+:start_xtts
+REM Activate the xtts environment
+call conda activate xtts
 
-REM Ask the user if they want to start XTTS only if the environment exists
-if defined xtts_env_exist (
-    set /p start_xtts=Start XTTS as well? [Y/N] 
-    if /i "%start_xtts%"=="Y" (
-        REM Activate the xtts environment
-        call conda activate xtts
-
-        REM Start XTTS
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
-        start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
-    )
-)
+REM Start XTTS
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
+start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
+goto :home
 
 REM Check if Node.js is installed
 node --version > nul 2>&1
@@ -580,9 +571,10 @@ echo 2. Install FFmpeg
 echo 3. Install Node.js
 echo 4. Edit Environment
 echo 5. Edit Extras Modules
-echo 6. Reinstall SillyTavern
-echo 7. Reinstall Extras
-echo 8. Uninstall SillyTavern + Extras
+echo 6. Remove node_modules folder
+echo 7. Reinstall SillyTavern
+echo 8. Reinstall Extras
+echo 9. Uninstall SillyTavern + Extras
 echo 0. Back to Home
 
 set /p toolbox_choice=Choose Your Destiny: 
@@ -599,10 +591,12 @@ if "%toolbox_choice%"=="1" (
 ) else if "%toolbox_choice%"=="5" (
     call :edit_extras_modules
 ) else if "%toolbox_choice%"=="6" (
-    call :reinstall_sillytavern
+    call :remove_node_modules
 ) else if "%toolbox_choice%"=="7" (
-    call :reinstall_extras
+    call :reinstall_sillytavern
 ) else if "%toolbox_choice%"=="8" (
+    call :reinstall_extras
+) else if "%toolbox_choice%"=="9" (
     call :uninstall_st_extras
 ) else if "%toolbox_choice%"=="0" (
     goto :home
@@ -906,6 +900,12 @@ REM Save the constructed Python command to modules.txt for testing
 echo start_command=%python_command%>>"%~dp0modules.txt"
 goto :edit_extras_modules
 
+
+:remove_node_modules
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing node_modules folder...
+cd /d "%~dp0SillyTavern"
+rmdir /s /q "node_modules"
+goto :toolbox
 
 :reinstall_extras
 title SillyTavern [REINSTALL-EXTRAS]
