@@ -309,6 +309,7 @@ install_st_extras() {
     echo -e "1. NVIDIA"
     echo -e "2. AMD"
     echo -e "3. None (CPU-only mode)"
+    echo -e "0. Cancel install"
 
     # Get GPU information
     gpu_info=""
@@ -341,6 +342,8 @@ install_st_extras() {
     elif [ "$gpu_choice" == "3" ]; then
         log_message "INFO" "Using CPU-only mode"
         install_st_extras_pre
+    elif [ "$gpu_choice" == "0" ]; then
+        installer
     else
         log_message "ERROR" "${red_fg_strong}Invalid number. Please enter a valid number.${reset}"
         read -p "Press Enter to continue..."
@@ -417,70 +420,70 @@ install_st_extras_pre() {
 
 # Function to install_xtts
 install_xtts() {
-        log_message "INFO" "Installing XTTS..."
+    log_message "INFO" "Installing XTTS..."
 
-        # Activate the Miniconda installation
-        log_message "INFO" "Activating Miniconda environment..."
-        source "$miniconda_path/bin/activate"
+    # Activate the Miniconda installation
+    log_message "INFO" "Activating Miniconda environment..."
+    source "$miniconda_path/bin/activate"
 
-        # Create a Conda environment named xtts
-        log_message "INFO" "Creating Conda environment xtts..."
-        conda create -n xtts -y
+    # Create a Conda environment named xtts
+    log_message "INFO" "Creating Conda environment xtts..."
+    conda create -n xtts -y
 
-        # Activate the xtts environment
-        log_message "INFO" "Activating Conda environment xtts..."
-        source activate xtts
+    # Activate the xtts environment
+    log_message "INFO" "Activating Conda environment xtts..."
+    source activate xtts
 
-        # Check if xtts activation was successful
-        if [ $? -eq 0 ]; then
-            log_message "INFO" "Conda environment xtts activated successfully."
-        else
-            log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: xtts${reset}"
-            log_message "INFO" "Press Enter to try again otherwise close the installer and restart."
-            read -p "Press Enter to try again..."
-            install_xtts
-        fi
+    # Check if xtts activation was successful
+    if [ $? -eq 0 ]; then
+        log_message "INFO" "Conda environment xtts activated successfully."
+    else
+        log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: xtts${reset}"
+        log_message "INFO" "Press Enter to try again otherwise close the installer and restart."
+        read -p "Press Enter to try again..."
+        install_xtts
+    fi
 
-        # Install Python 3.10 in the xtts environment
-        log_message "INFO" "Installing Python in the Conda environment..."
-        conda install python=3.10 -y
+    # Install Python 3.10 in the xtts environment
+    log_message "INFO" "Installing Python in the Conda environment..."
+    conda install python=3.10 -y
 
-        # Create folders for xtts
-        log_message "INFO" "Creating xtts folders..."
-        mkdir "$PWD/xtts"
-        mkdir "$PWD/xtts/speakers"
-        mkdir "$PWD/xtts/output"
+    # Create folders for xtts
+    log_message "INFO" "Creating xtts folders..."
+    mkdir "$PWD/xtts"
+    mkdir "$PWD/xtts/speakers"
+    mkdir "$PWD/xtts/output"
 
-        # Clone the xtts-api-server repository for voice examples
-        log_message "INFO" "Cloning xtts-api-server repository..."
-        git clone https://github.com/daswer123/xtts-api-server.git
+    # Clone the xtts-api-server repository for voice examples
+    log_message "INFO" "Cloning xtts-api-server repository..."
+    git clone https://github.com/daswer123/xtts-api-server.git
 
-        log_message "INFO" "Adding voice examples to speakers directory..."
-        cp -r "$PWD/xtts-api-server/example/"* "$PWD/xtts/speakers/"
+    log_message "INFO" "Adding voice examples to speakers directory..."
+    cp -r "$PWD/xtts-api-server/example/"* "$PWD/xtts/speakers/"
 
-        log_message "INFO" "Removing the xtts-api-server directory..."
-        rm -rf "$PWD/xtts-api-server"
+    log_message "INFO" "Removing the xtts-api-server directory..."
+    rm -rf "$PWD/xtts-api-server"
 
-        # Install pip3 requirements
-        log_message "INFO" "Installing pip3 requirements for xtts..."
-        pip3 install xtts-api-server
-        pip3 install pydub
-        pip3 install stream2sentence
+    # Install pip3 requirements
+    log_message "INFO" "Installing pip3 requirements for xtts..."
+    pip3 install xtts-api-server
+    pip3 install pydub
+    pip3 install stream2sentence
 
-        # Use the GPU choice made earlier to set the correct PyTorch index-url
-        if [ "$GPU_CHOICE" == "1" ]; then
-            log_message "INFO" "Installing NVIDIA version of PyTorch"
-            pip3 install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
-            install_st_extras_post
-        elif [ "$GPU_CHOICE" == "2" ]; then
-            log_message "INFO" "Installing AMD version of PyTorch"
-            pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-            install_st_extras_post
-        elif [ "$GPU_CHOICE" == "3" ]; then
-            log_message "INFO" "Installing CPU-only version of PyTorch"
-            pip3 install torch torchvision torchaudio
-            install_st_extras_post
-        fi
+    # Use the GPU choice made earlier to set the correct PyTorch index-url
+    if [ "$GPU_CHOICE" == "1" ]; then
+        log_message "INFO" "Installing NVIDIA version of PyTorch"
+        pip3 install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+        install_st_extras_post
+    elif [ "$GPU_CHOICE" == "2" ]; then
+        log_message "INFO" "Installing AMD version of PyTorch"
+        pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+        install_st_extras_post
+    elif [ "$GPU_CHOICE" == "3" ]; then
+        log_message "INFO" "Installing CPU-only version of PyTorch"
+        pip3 install torch torchvision torchaudio
+        install_st_extras_post
+    fi
 }
 
 install_st_extras_post() {
@@ -609,6 +612,7 @@ install_extras() {
     echo -e "1. NVIDIA"
     echo -e "2. AMD"
     echo -e "3. None (CPU-only mode)"
+    echo -e "0. Cancel install"
 
     # Get GPU information
     gpu_info=""
@@ -641,6 +645,8 @@ install_extras() {
     elif [ "$gpu_choice" == "3" ]; then
         log_message "INFO" "Using CPU-only mode"
         install_extras_pre
+    elif [ "$gpu_choice" == "0" ]; then
+        installer
     else
         log_message "ERROR" "${red_fg_strong}Invalid number. Please enter a valid number.${reset}"
         read -p "Press Enter to continue..."
@@ -815,7 +821,7 @@ install_extras_post() {
     installer
 }
 
-# Function for the installer menu
+# Installer Menu - Frontend
 installer() {
     echo -e "\033]0;SillyTavern [INSTALLER]\007"
     clear

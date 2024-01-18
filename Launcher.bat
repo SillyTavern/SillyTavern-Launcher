@@ -219,23 +219,6 @@ goto :home
 
 
 :start_extras
-REM Check if XTTS environment exists
-set "xtts_env_exist="
-call conda activate xtts && set "xtts_env_exist=1" || set "xtts_env_exist="
-
-REM Ask the user if they want to start XTTS only if the environment exists
-if defined xtts_env_exist (
-    set /p start_xtts=Start XTTS as well? [Y/N] 
-    if /i "%start_xtts%"=="Y" (
-        REM Activate the xtts environment
-        call conda activate xtts
-
-        REM Start XTTS
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
-        start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
-    )
-)
-
 REM Run conda activate from the Miniconda installation
 call "%miniconda_path%\Scripts\activate.bat"
 
@@ -326,37 +309,66 @@ goto :home
 
 :update
 title SillyTavern [UPDATE]
+REM Update SillyTavern-Launcher
+set max_retries=3
+set retry_count=0
+
+:retry_update_st_launcher
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern-Launcher...
+cd /d "%~dp0"
+call git pull
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_st_launcher
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SillyTavern-Launcher repository after %max_retries% retries.%reset%
+    pause
+    goto :home
+)
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-Launcher updated successfully.%reset%
+
+REM Update SillyTavern
+set max_retries=3
+set retry_count=0
+
+:retry_update_st
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern...
 cd /d "%~dp0SillyTavern"
-REM Check if git is installed
-git --version > nul 2>&1
+call git pull
 if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] git command not found in PATH. Skipping update.%reset%
-    echo %red_bg%Please make sure Git is installed and added to your PATH.%reset%
-) else (
-    call git pull --rebase --autostash
-    if %errorlevel% neq 0 (
-        REM incase there is still something wrong
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Errors while updating.%reset%
-    ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern updated successfully.%reset%
-    )
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_st
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SillyTavern repository after %max_retries% retries.%reset%
+    pause
+    goto :home
 )
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern updated successfully.%reset%
+
 
 REM Check if SillyTavern-extras directory exists
 if not exist "%~dp0SillyTavern-extras" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] SillyTavern-extras directory not found. Skipping extras update.%reset%
     goto :update_xtts
 )
-cd /d "%~dp0SillyTavern-extras"
+
+REM Update SillyTavern-extras
+set max_retries=3
+set retry_count=0
+
+:retry_update_extras
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern-extras...
+cd /d "%~dp0SillyTavern-extras"
 call git pull
 if %errorlevel% neq 0 (
-    REM in case there is still something wrong
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Errors while updating.%reset%
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-extras updated successfully.%reset%
-    goto :update_xtts
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_extras
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SillyTavern-extras repository after %max_retries% retries.%reset%
+    pause
+    goto :home
 )
 
 :update_xtts

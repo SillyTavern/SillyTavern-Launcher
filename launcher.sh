@@ -154,7 +154,7 @@ home() {
     echo "What would you like to do?"
     echo "1. Start SillyTavern"
     echo "2. Start Extras"
-    echo "3. Start SillyTavern + Extras "
+    echo "3. Start XTTS"
     echo "4. Update"
     echo "5. Backup"
     echo "6. Switch branch"
@@ -179,7 +179,7 @@ home() {
     case $home_choice in
         1) start_st ;;
         2) start_extras ;;
-        3) start_st_extras ;;
+        3) start_xtts ;;
         4) update ;;
         5) backup_menu ;;
         6) switch_branch_menu ;;
@@ -281,40 +281,38 @@ start_extras() {
         # Start SillyTavern in the detected terminal
         if [ "$(uname)" == "Darwin" ]; then
             log_message "INFO" "Detected macOS. Opening new Terminal window."
-            open -a Terminal "$(dirname "$0")/SillyTavern-extras/start.sh"
+            open -a Terminal --args --title="SillyTavern Extras" --working-directory="$(dirname "$0")/SillyTavern-extras" --command "conda activate xtts; python server.py --listen --rvc-save-file --max-content-length=1000 --enable-modules=rvc,caption; exec bash"
         else
-            exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern-extras && ./start.sh" &
+            exec "$detected_terminal" -e "cd '$(dirname "$0")/SillyTavern-extras' && conda activate extras && python server.py --listen --rvc-save-file --max-content-length=1000 --enable-modules=rvc,caption; bash"
         fi
     fi
     home
-}
+} 
 
-# Function to start SillyTavern with Extras
-start_st_extras() {
+# Function to start xtts
+start_xtts() {
     check_nodejs
-    if [ "$LAUNCH_NEW_WIN" = "0" ]; then
-        log_message "INFO" "SillyTavern launched"
-        ./start.sh &
-        local main_pid=$!
-        log_message "INFO" "Extras launched under pid $main_pid"
-        {
-            #has to be after the first one, so we are 1 directory up
-            cd "$(dirname "$0")./SillyTavern-extras" || {
-                log_message "ERROR" "SillyTavern-extras directory not found. Please make sure you have installed SillyTavern-extras."
-                kill $main_pid
-                exit 1
-            }
-            log_message "INFO" "Wordking dir: $(pwd)"
-            ./start.sh
-        } &
-        local extras_pid=$!
-        log_message "INFO" "Extras launched under pid $extras_pid"
 
-        wait $main_pid
-        kill $extras_pid
+    if [ "$LAUNCH_NEW_WIN" = "0" ]; then
+        local main_pid=$!
+        log_message "INFO" "xtts launched under pid $main_pid"
+
+        # Move to xtts directory
+        cd "$(dirname "$0")/xtts" || {
+            log_message "ERROR" "xtts directory not found. Please make sure you have installed xtts"
+            kill "$main_pid"
+            exit 1
+        }
+
+        log_message "INFO" "Working dir: $(pwd)"
+        ./start.sh &
+        local xtts_pid=$!
+        log_message "INFO" "xtts launched under pid $xtts_pid"
+
+        wait "$main_pid"
+        kill "$xtts_pid"
     else
-        log_message "INFO" "SillyTavern launched in a new window."
-        log_message "INFO" "Extras launched in a new window."
+        log_message "INFO" "xtts launched in a new window."
         # Find a suitable terminal
         local detected_terminal
         detected_terminal=$(find_terminal)
@@ -322,17 +320,14 @@ start_st_extras() {
         # Enable read p command for troubleshooting
         # read -p "Press Enter to continue..."
 
-        # Start SillyTavern in the detected terminal
+        # Start XTTS in the detected terminal
         if [ "$(uname)" == "Darwin" ]; then
             log_message "INFO" "Detected macOS. Opening new Terminal window."
-            open -a Terminal "$(dirname "$0")/start.sh"
-            open -a Terminal "$(dirname "$0")/SillyTavern-extras/start.sh"
+            open -a Terminal --args --title="XTTSv2 API Server" --working-directory="$(dirname "$0")/xtts" --command "conda activate xtts; python -m xtts_api_server; exec bash"
         else
-            exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern && ./start.sh" &
-            exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern-extras && ./start.sh" &
+            exec "$detected_terminal" -e "cd '$(dirname "$0")/xtts' && conda activate xtts && python -m xtts_api_server; bash"
         fi
     fi
-
     home
 }
 
@@ -600,6 +595,14 @@ edit_extras_modules() {
     edit_extras_modules
 }
 
+# Function to remove node modules folder
+remove_node_modules() {
+    log_message "INFO" "Removing node_modules folder..."
+    cd "$(dirname "$0")./SillyTavern"
+    rm -rf node_modules
+
+    toolbox
+}
 
 # Function to reinstall SillyTavern
 reinstall_sillytavern() {
@@ -617,7 +620,7 @@ reinstall_sillytavern() {
     read confirmation
 
     if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
-        cd "$PWD/SillyTavern"
+        cd "$(dirname "$0")./SillyTavern"
 
         # Remove non-excluded folders
         for dir in *; do
@@ -681,7 +684,7 @@ reinstall_extras() {
     read confirmation
 
     if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
-        cd "$PWD/SillyTavern-extras"
+        cd "$(dirname "$0")./SillyTavern-extras"
 
         # Remove non-excluded folders
         for dir in *; do
@@ -783,7 +786,7 @@ uninstall_st_extras() {
     read confirmation
 
     if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
-        cd "$PWD"
+        cd "$(dirname "$0")"
         log_message "INFO" "Removing the SillyTavern + Sillytavern-extras directory..."
         rm -rf SillyTavern SillyTavern-extras
         log_message "INFO" "Removing the Conda environment 'extras'..."
@@ -809,9 +812,10 @@ toolbox() {
     echo "3. Install Node.js"
     echo "4. Edit Environment"
     echo "5. Edit Extras Modules"
-    echo "6. Reinstall SillyTavern"
-    echo "7. Reinstall Extras"
-    echo "8. Uninstall SillyTavern + Extras"
+    echo "6. Remove node_modules folder"
+    echo "7. Reinstall SillyTavern"
+    echo "8. Reinstall Extras"
+    echo "9. Uninstall SillyTavern + Extras"
     echo "0. Back to Home"
 
     read -p "Choose Your Destiny: " toolbox_choice
@@ -823,9 +827,10 @@ toolbox() {
         3) install_nodejs ;;
         4) edit_environment ;;
         5) edit_extras_modules ;;
-        6) reinstall_sillytavern ;;
-        7) reinstall_extras ;;
-        8) uninstall_st_extras ;;
+        6) remove_node_modules ;;
+        7) reinstall_sillytavern ;;
+        8) reinstall_extras ;;
+        9) uninstall_st_extras ;;
         0) home ;;
         *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
            read -p "Press Enter to continue..."
