@@ -58,6 +58,16 @@ set "talkinghead_trigger=false"
 set "caption_trigger=false"
 set "summarize_trigger=false"
 set "listen_trigger=false"
+set "whisper_trigger=false"
+
+REM Define variables to track module status (XTTS)
+set "modules_path=%~dp0modules-xtts.txt"
+set "xtts_cuda_trigger=false"
+set "xtts_hs_trigger=false"
+set "xtts_deepspeed_trigger=false"
+set "xtts_cache_trigger=false"
+set "xtts_listen_trigger=false"
+set "xtts_model_trigger=false"
 
 
 REM Create modules.txt if it doesn't exist
@@ -67,6 +77,15 @@ if not exist modules.txt (
 
 REM Load module flags from modules.txt
 for /f "tokens=*" %%a in (modules.txt) do set "%%a"
+
+
+REM Create modules-xtts.txt if it doesn't exist
+if not exist modules-xtts.txt (
+    type nul > modules-xtts.txt
+)
+
+REM Load module flags from modules-xtts.txt
+for /f "tokens=*" %%a in (modules-xtts.txt) do set "%%a"
 
 
 REM Check if Winget is installed; if not, then install it
@@ -257,7 +276,28 @@ call conda activate xtts
 
 REM Start XTTS
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
-start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && python -m xtts_api_server"
+
+REM Set the path to modules.txt (in the same directory as the script)
+set "xtts_modules_path=%~dp0modules-xtts.txt"
+
+REM Read modules.txt and find the xtts_start_command line
+set "xtts_start_command="
+
+for /F "tokens=*" %%a in ('findstr /I "xtts_start_command=" "%xtts_modules_path%"') do (
+    set "%%a"
+)
+
+if not defined xtts_start_command (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
+    echo %red_bg%Please make sure you enabled at least one of the modules from Edit Extras Modules.%reset%
+    echo.
+    echo %blue_bg%We will redirect you to the Edit Extras Modules menu.%reset%
+    pause
+    goto :edit_extras_modules
+)
+
+set "xtts_start_command=%xtts_start_command:xtts_start_command=%"
+start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && %xtts_start_command%"
 goto :home
 
 REM Check if Node.js is installed
@@ -578,37 +618,34 @@ echo %blue_fg_strong%/ Home / Toolbox%reset%
 echo -------------------------------------
 echo What would you like to do?
 REM color 7
-echo 1. Install 7-Zip
-echo 2. Install FFmpeg
-echo 3. Install Node.js
+echo 1. App Installer
+echo 2. Edit Extras Modules
+echo 3. Edit XTTS Modules
 echo 4. Edit Environment
-echo 5. Edit Extras Modules
-echo 6. Remove node_modules folder
-echo 7. Reinstall SillyTavern
-echo 8. Reinstall Extras
-echo 9. Uninstall SillyTavern + Extras
+echo 5. Remove node_modules folder
+echo 6. Reinstall SillyTavern
+echo 7. Reinstall Extras
+echo 8. Uninstall SillyTavern + Extras
 echo 0. Back to Home
 
 set /p toolbox_choice=Choose Your Destiny: 
 
 REM Toolbox - Backend
 if "%toolbox_choice%"=="1" (
-    call :install_7zip
+    call :app_installer
 ) else if "%toolbox_choice%"=="2" (
-    call :install_ffmpeg
+    call :edit_extras_modules
 ) else if "%toolbox_choice%"=="3" (
-    call :install_nodejs
+    call :edit_xtts_modules
 ) else if "%toolbox_choice%"=="4" (
     call :edit_environment
 ) else if "%toolbox_choice%"=="5" (
-    call :edit_extras_modules
-) else if "%toolbox_choice%"=="6" (
     call :remove_node_modules
-) else if "%toolbox_choice%"=="7" (
+) else if "%toolbox_choice%"=="6" (
     call :reinstall_sillytavern
-) else if "%toolbox_choice%"=="8" (
+) else if "%toolbox_choice%"=="7" (
     call :reinstall_extras
-) else if "%toolbox_choice%"=="9" (
+) else if "%toolbox_choice%"=="8" (
     call :uninstall_st_extras
 ) else if "%toolbox_choice%"=="0" (
     goto :home
@@ -617,6 +654,37 @@ if "%toolbox_choice%"=="1" (
     echo WARNING: Invalid number. Please insert a valid number.
     pause
     goto :toolbox
+)
+
+REM App Installer - Frontend
+:app_installer
+title SillyTavern [APP INSTALLER]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer%reset%
+echo ------------------------------------------------
+echo What would you like to do?
+REM color 7
+echo 1. Install 7-Zip
+echo 2. Install FFmpeg
+echo 3. Install Node.js
+echo 0. Back to Toolbox
+
+set /p app_installer_choice=Choose Your Destiny: 
+
+REM App Installer - Backend
+if "%app_installer_choice%"=="1" (
+    call :install_7zip
+) else if "%app_installer_choice%"=="2" (
+    call :install_ffmpeg
+) else if "%app_installer_choice%"=="3" (
+    call :install_nodejs
+) else if "%app_installer_choice%"=="0" (
+    goto :toolbox
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :app_installer
 )
 
 
@@ -794,7 +862,7 @@ if "%2"=="true" (
 exit /b
 
 :edit_extras_modules
-title SillyTavern [EDIT-MODULES]
+title SillyTavern [EXTRAS-MODULES]
 REM Edit Extras Modules - Frontend
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Edit Extras Modules%reset%
@@ -809,6 +877,7 @@ call :printModule "3. talkinghead (--enable-modules=talkinghead --talkinghead-gp
 call :printModule "4. caption (--enable-modules=caption)" %caption_trigger%
 call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger%
 call :printModule "6. listen (--listen)" %listen_trigger%
+call :printModule "7. whisper (--enable-modules=whisper-stt)" %whisper_trigger%
 echo 0. Back to Toolbox
 
 set "python_command="
@@ -858,6 +927,13 @@ for %%i in (%module_choices%) do (
             set "listen_trigger=true"
         )
         REM set "python_command= --listen"
+    ) else if "%%i"=="7" (
+        if "%whisper_trigger%"=="true" (
+            set "whisper_trigger=false"
+        ) else (
+            set "whisper_trigger=true"
+        )
+        REM set "python_command= --enable-modules=whisper-stt"
     ) else if "%%i"=="0" (
         goto :toolbox
     )
@@ -870,6 +946,7 @@ echo talkinghead_trigger=%talkinghead_trigger%>>"%~dp0modules.txt"
 echo caption_trigger=%caption_trigger%>>"%~dp0modules.txt"
 echo summarize_trigger=%summarize_trigger%>>"%~dp0modules.txt"
 echo listen_trigger=%listen_trigger%>>"%~dp0modules.txt"
+echo whisper_trigger=%whisper_trigger%>>"%~dp0modules.txt"
 
 REM remove modules_enable
 set "modules_enable="
@@ -896,6 +973,9 @@ if "%caption_trigger%"=="true" (
 if "%summarize_trigger%"=="true" (
     set "modules_enable=%modules_enable%summarize,"
 )
+if "%whisper_trigger%"=="true" (
+    set "modules_enable=%modules_enable%whisper-stt,"
+)
 
 REM is modules_enable empty?
 if defined modules_enable (
@@ -911,6 +991,134 @@ if defined modules_enable (
 REM Save the constructed Python command to modules.txt for testing
 echo start_command=%python_command%>>"%~dp0modules.txt"
 goto :edit_extras_modules
+
+REM ==================================================================================================================================================
+
+REM Function to print module options with color based on their status
+:printModule
+if "%2"=="true" (
+    echo %green_fg_strong%%1 [Enabled]%reset%
+) else (
+    echo %red_fg_strong%%1 [Disabled]%reset%
+)
+exit /b
+
+:edit_xtts_modules
+title SillyTavern [XTTS-MODULES]
+REM Edit XTTS Modules - Frontend
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Edit XTTS Modules%reset%
+echo -------------------------------------
+echo Choose XTTS modules to enable or disable (e.g., "1 2 4" to enable Cuda, hs, and cache)
+REM color 7
+
+REM Display module options with colors based on their status
+call :printModule "1. cuda (--device cuda)" %xtts_cuda_trigger%
+call :printModule "2. hs (-hs 0.0.0.0)" %xtts_hs_trigger%
+call :printModule "3. deepspeed (--deepspeed)" %xtts_deepspeed_trigger%
+call :printModule "4. cache (--use-cache)" %xtts_cache_trigger%
+call :printModule "5. listen (--listen)" %xtts_listen_trigger%
+call :printModule "6. model (--model-source local)" %xtts_model_trigger%
+echo 0. Back to Toolbox
+
+set "python_command="
+
+set /p xtts_module_choices=Choose modules to enable/disable (1-6): 
+
+REM Handle the user's module choices and construct the Python command
+for %%i in (%xtts_module_choices%) do (
+    if "%%i"=="1" (
+        if "%xtts_cuda_trigger%"=="true" (
+            set "xtts_cuda_trigger=false"
+        ) else (
+            set "xtts_cuda_trigger=true"
+        )
+        REM set "python_command= --device cuda"
+    ) else if "%%i"=="2" (
+        if "%xtts_hs_trigger%"=="true" (
+            set "xtts_hs_trigger=false"
+        ) else (
+            set "xtts_hs_trigger=true"
+        )
+        REM set "python_command= -hs 0.0.0.0"
+    ) else if "%%i"=="3" (
+        if "%xtts_deepspeed_trigger%"=="true" (
+            set "xtts_deepspeed_trigger=false"
+        ) else (
+            set "xtts_deepspeed_trigger=true"
+        )
+        REM set "python_command= --deepspeed"
+    ) else if "%%i"=="4" (
+        if "%xtts_cache_trigger%"=="true" (
+            set "xtts_cache_trigger=false"
+        ) else (
+            set "xtts_cache_trigger=true"
+        )
+        REM set "python_command= --use-cache"
+    ) else if "%%i"=="5" (
+        if "%xtts_listen_trigger%"=="true" (
+            set "xtts_listen_trigger=false"
+        ) else (
+            set "xtts_listen_trigger=true"
+        )
+    ) else if "%%i"=="6" (
+        if "%xtts_model_trigger%"=="true" (
+            set "xtts_model_trigger=false"
+        ) else (
+            set "xtts_model_trigger=true"
+        )
+        REM set "python_command= --model-source local"
+    ) else if "%%i"=="0" (
+        goto :toolbox
+    )
+)
+
+REM Save the module flags to modules-xtts.txt
+echo xtts_cuda_trigger=%xtts_cuda_trigger%>"%~dp0modules-xtts.txt"
+echo xtts_hs_trigger=%xtts_hs_trigger%>>"%~dp0modules-xtts.txt"
+echo xtts_deepspeed_trigger=%xtts_deepspeed_trigger%>>"%~dp0modules-xtts.txt"
+echo xtts_cache_trigger=%xtts_cache_trigger%>>"%~dp0modules-xtts.txt"
+echo xtts_listen_trigger=%xtts_listen_trigger%>>"%~dp0modules-xtts.txt"
+echo xtts_model_trigger=%xtts_model_trigger%>>"%~dp0modules-xtts.txt"
+
+REM remove modules_enable
+set "modules_enable="
+
+REM Compile the Python command
+set "python_command=python -m xtts_api_server"
+if "%xtts_cuda_trigger%"=="true" (
+    set "python_command=%python_command% --device cuda"
+)
+if "%xtts_hs_trigger%"=="true" (
+    set "python_command=%python_command% -hs 0.0.0.0"
+)
+if "%xtts_deepspeed_trigger%"=="true" (
+    set "python_command=%python_command% --deepspeed"
+)
+if "%xtts_cache_trigger%"=="true" (
+    set "python_command=%python_command% --use-cache"
+)
+if "%xtts_listen_trigger%"=="true" (
+    set "python_command=%python_command% --listen"
+)
+if "%xtts_model_trigger%"=="true" (
+    set "python_command=%python_command% --model-source local"
+)
+
+REM is modules_enable empty?
+if defined modules_enable (
+    REM remove last comma
+    set "modules_enable=%modules_enable:~0,-1%"
+)
+
+REM command completed
+if defined modules_enable (
+    set "python_command=%python_command% --enable-modules=%modules_enable%"
+)
+
+REM Save the constructed Python command to modules-xtts.txt for testing
+echo xtts_start_command=%python_command%>>"%~dp0modules-xtts.txt"
+goto :edit_xtts_modules
 
 
 :remove_node_modules
@@ -1217,7 +1425,7 @@ if /i "%confirmation%"=="Y" (
     pause
     goto :home
 ) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall SillyTavern + Extras canceled.
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
     pause
     goto :home
 )
