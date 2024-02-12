@@ -299,11 +299,11 @@ for /F "tokens=*" %%a in ('findstr /I "xtts_start_command=" "%xtts_modules_path%
 
 if not defined xtts_start_command (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
-    echo %red_bg%Please make sure you enabled at least one of the modules from Edit Extras Modules.%reset%
+    echo %red_bg%Please make sure you enabled at least one of the modules from Edit XTTS Modules.%reset%
     echo.
-    echo %blue_bg%We will redirect you to the Edit Extras Modules menu.%reset%
+    echo %blue_bg%We will redirect you to the Edit XTTS Modules menu.%reset%
     pause
-    goto :edit_extras_modules
+    goto :edit_xtts_modules
 )
 
 set "xtts_start_command=%xtts_start_command:xtts_start_command=%"
