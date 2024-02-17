@@ -59,6 +59,7 @@ set "caption_trigger=false"
 set "summarize_trigger=false"
 set "listen_trigger=false"
 set "whisper_trigger=false"
+set "edge_tts_trigger=false"
 
 REM Define variables to track module status (XTTS)
 set "modules_path=%~dp0modules-xtts.txt"
@@ -903,6 +904,7 @@ call :printModule "4. caption (--enable-modules=caption)" %caption_trigger%
 call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger%
 call :printModule "6. listen (--listen)" %listen_trigger%
 call :printModule "7. whisper (--enable-modules=whisper-stt)" %whisper_trigger%
+call :printModule "8. Edge-tts (--enable-modules=edge-tts)" %edge_tts_trigger%
 echo 0. Back to Toolbox
 
 set "python_command="
@@ -959,10 +961,18 @@ for %%i in (%module_choices%) do (
             set "whisper_trigger=true"
         )
         REM set "python_command= --enable-modules=whisper-stt"
+    ) else if "%%i"=="8" (
+        if "%edge_tts_trigger%"=="true" (
+            set "edge_tts_trigger=false"
+        ) else (
+            set "edge_tts_trigger=true"
+        )
+        REM set "python_command= --enable-modules=edge-tts"
     ) else if "%%i"=="0" (
         goto :toolbox
     )
 )
+
 
 REM Save the module flags to modules.txt
 echo cuda_trigger=%cuda_trigger%>"%~dp0modules.txt"
@@ -972,6 +982,7 @@ echo caption_trigger=%caption_trigger%>>"%~dp0modules.txt"
 echo summarize_trigger=%summarize_trigger%>>"%~dp0modules.txt"
 echo listen_trigger=%listen_trigger%>>"%~dp0modules.txt"
 echo whisper_trigger=%whisper_trigger%>>"%~dp0modules.txt"
+echo edge_tts_trigger=%edge_tts_trigger%>>"%~dp0modules.txt"
 
 REM remove modules_enable
 set "modules_enable="
@@ -1000,6 +1011,9 @@ if "%summarize_trigger%"=="true" (
 )
 if "%whisper_trigger%"=="true" (
     set "modules_enable=%modules_enable%whisper-stt,"
+)
+if "%edge_tts_trigger%"=="true" (
+    set "modules_enable=%modules_enable%edge-tts,"
 )
 
 REM is modules_enable empty?

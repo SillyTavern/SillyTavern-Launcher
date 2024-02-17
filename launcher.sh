@@ -63,6 +63,7 @@ rvc_trigger="false"
 talkinghead_trigger="false"
 caption_trigger="false"
 summarize_trigger="false"
+edge_tts_trigger="false"
 
 
 # Function to log messages with timestamps and colors
@@ -549,6 +550,7 @@ edit_extras_modules() {
     printModule "4. caption (--enable-modules=caption)" "$caption_trigger"
     printModule "5. summarize (--enable-modules=summarize)" "$summarize_trigger"
     printModule "6. listen (--listen)" "$listen_trigger"
+    printModule "7. Edge TTS (--enable-modules=edge-tts)" "$edge_tts_trigger"
     echo "0. Back to Toolbox"
 
     set "python_command="
@@ -564,6 +566,7 @@ edit_extras_modules() {
             4) [ "$caption_trigger" == "true" ] && caption_trigger=false || caption_trigger=true ;;
             5) [ "$summarize_trigger" == "true" ] && summarize_trigger=false || summarize_trigger=true ;;
             6) [ "$listen_trigger" == "true" ] && listen_trigger=false || listen_trigger=true ;;
+            7) [ "$edge_tts_trigger" == "true" ] && edge_tts_trigger=false || edge_tts_trigger=true ;;
             0) toolbox ;;
         esac
     done
@@ -576,6 +579,7 @@ edit_extras_modules() {
     echo "caption_trigger=$caption_trigger" >> "$modules_file"
     echo "summarize_trigger=$summarize_trigger" >> "$modules_file"
     echo "listen_trigger=$listen_trigger" >> "$modules_file"
+    echo "edge_tts_trigger=$edge_tts_trigger" >> "$modules_file"
 
     # Compile the Python command
     python_command="python server.py"
@@ -586,6 +590,7 @@ edit_extras_modules() {
     [ "$talkinghead_trigger" == "true" ] && modules_enable+="talkinghead,"
     [ "$caption_trigger" == "true" ] && modules_enable+="caption,"
     [ "$summarize_trigger" == "true" ] && modules_enable+="summarize,"
+    [ "$edge_tts_trigger" == "true" ] && modules_enable+="edge-tts,"
 
     # Remove the last comma from modules_enable
     modules_enable="${modules_enable%,}"
