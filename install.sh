@@ -499,15 +499,12 @@ install_st_extras_post() {
         log_message "INFO" "Installing modules for NVIDIA from requirements.txt in extras"
         pip3 install -r requirements.txt
         conda install -c conda-forge faiss-gpu -y
-        install_st_extras_post
     elif [ "$GPU_CHOICE" == "2" ]; then
         log_message "INFO" "Installing modules for AMD from requirements-rocm.txt in extras"
         pip3 install -r requirements-rocm.txt
-        install_st_extras_post
     elif [ "$GPU_CHOICE" == "3" ]; then
         log_message "INFO" "Installing modules for CPU from requirements-silicon.txt in extras"
         pip3 install -r requirements-silicon.txt
-        install_st_extras_post
     fi
 
     # Install Python 3.11 and Git in the extras environment
@@ -795,15 +792,12 @@ install_extras_post() {
         log_message "INFO" "Installing modules for NVIDIA from requirements.txt in extras"
         pip3 install -r requirements.txt
         conda install -c conda-forge faiss-gpu -y
-        install_extras_post
     elif [ "$GPU_CHOICE" == "2" ]; then
         log_message "INFO" "Installing modules for AMD from requirements-rocm.txt in extras"
         pip3 install -r requirements-rocm.txt
-        install_extras_post
     elif [ "$GPU_CHOICE" == "3" ]; then
         log_message "INFO" "Installing modules for CPU from requirements-silicon.txt in extras"
         pip3 install -r requirements-silicon.txt
-        install_extras_post
     fi
 
     # Install Python 3.11 and Git in the extras environment
