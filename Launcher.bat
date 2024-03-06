@@ -197,7 +197,7 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo Launcher: V1.0.5
+echo Launcher: V1.0.6
 echo =================================
 
 set "choice="
@@ -630,13 +630,11 @@ echo -------------------------------------
 echo What would you like to do?
 REM color 7
 echo 1. App Installer
-echo 2. Edit Extras Modules
-echo 3. Edit XTTS Modules
-echo 4. Edit Environment
-echo 5. Remove node_modules folder
-echo 6. Reinstall SillyTavern
-echo 7. Reinstall Extras
-echo 8. Uninstall SillyTavern + Extras
+echo 2. App Uninstaller
+echo 3. Edit Extras Modules
+echo 4. Edit XTTS Modules
+echo 5. Edit Environment Variables
+echo 6. Remove node_modules folder
 echo 0. Back to Home
 
 set /p toolbox_choice=Choose Your Destiny: 
@@ -645,19 +643,15 @@ REM Toolbox - Backend
 if "%toolbox_choice%"=="1" (
     call :app_installer
 ) else if "%toolbox_choice%"=="2" (
-    call :edit_extras_modules
+    call :app_uninstaller
 ) else if "%toolbox_choice%"=="3" (
-    call :edit_xtts_modules
+    call :edit_extras_modules
 ) else if "%toolbox_choice%"=="4" (
-    call :edit_environment
+    call :edit_xtts_modules
 ) else if "%toolbox_choice%"=="5" (
-    call :remove_node_modules
+    call :edit_environment_var
 ) else if "%toolbox_choice%"=="6" (
-    call :reinstall_sillytavern
-) else if "%toolbox_choice%"=="7" (
-    call :reinstall_extras
-) else if "%toolbox_choice%"=="8" (
-    call :uninstall_st_extras
+    call :remove_node_modules
 ) else if "%toolbox_choice%"=="0" (
     goto :home
 ) else (
@@ -814,7 +808,11 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Nod
 pause
 exit
 
-:edit_environment
+
+
+
+
+:edit_environment_var
 rundll32.exe sysdm.cpl,EditEnvironmentVariables
 goto :toolbox
 
@@ -1166,274 +1164,48 @@ cd /d "%~dp0SillyTavern"
 rmdir /s /q "node_modules"
 goto :toolbox
 
-:reinstall_extras
-title SillyTavern [REINSTALL-EXTRAS]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-REM Define the names of items to be excluded
-set "script_name=%~nx0"
-set "excluded_folders=backups"
-set "excluded_files=!script_name!"
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data in Sillytavern-extras                                      ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-echo Are you sure you want to proceed? [Y/N] 
-set /p "confirmation="
-if /i "!confirmation!"=="Y" (
-    cd /d "%~dp0SillyTavern-extras"
-    REM Remove non-excluded folders
-    for /d %%D in (*) do (
-        set "exclude_folder="
-        for %%E in (!excluded_folders!) do (
-            if "%%D"=="%%E" set "exclude_folder=true"
-        )
-        if not defined exclude_folder (
-            rmdir /s /q "%%D" 2>nul
-        )
-    )
-
-    REM Remove non-excluded files
-    for %%F in (*) do (
-        set "exclude_file="
-        for %%E in (!excluded_files!) do (
-            if "%%F"=="%%E" set "exclude_file=true"
-        )
-        if not defined exclude_file (
-            del /f /q "%%F" 2>nul
-        )
-    )
-
-    REM Clone repo into %temp% folder
-    git clone https://github.com/SillyTavern/SillyTavern-extras.git "%temp%\SillyTavern-extras-TEMP"
-
-    REM Move the contents of the temporary folder to the current directory
-    xcopy /e /y "%temp%\SillyTavern-extras-TEMP\*" .
-
-    REM Clean up the temporary folder
-    rmdir /s /q "%temp%\SillyTavern-extras-TEMP"
-
-    endlocal    
-    :what_gpu
-    cls
-    echo %blue_fg_strong%/ Home / Toolbox / Reinstall Extras%reset%
-    echo ---------------------------------------------------------------
-
-    echo What is your GPU?
-    echo 1. NVIDIA
-    echo 2. AMD
-    echo 3. None (CPU-only mode)
-    echo 0. Cancel Reinstall
-
-    setlocal enabledelayedexpansion
-    chcp 65001 > nul
-    REM Get GPU information
-    for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-        set "gpu_info=!gpu_info! %%i"
-    )
-
-    echo.
-    echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
-    echo %blue_bg%║                                               ║%reset%
-    echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
-    echo %blue_bg%║                                               ║%reset%
-    echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
-    echo.
-
-    endlocal
-    set /p gpu_choice=Enter number corresponding to your GPU: 
-
-    REM Set the GPU choice in an environment variable for choise callback
-    set "GPU_CHOICE=%gpu_choice%"
-
-    REM Check the user's response
-    if "%gpu_choice%"=="1" (
-        REM Install pip requirements
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
-        goto :reinstall_extras_pre
-    ) else if "%gpu_choice%"=="2" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
-        goto :reinstall_extras_pre
-    ) else if "%gpu_choice%"=="3" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
-        goto :reinstall_extras_pre
-    ) else if "%gpu_choice%"=="0" (
-        goto :toolbox
-    ) else (
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
-        pause
-        goto what_gpu
-    )
-
-    :reinstall_extras_pre
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern-extras repository...
-    git clone https://github.com/SillyTavern/SillyTavern-extras.git
-
-    REM Provide a link to the XTTS
-    echo %blue_fg_strong%[INFO] Feeling excited to give your robotic waifu/husbando a new shiny voice modulator?%reset%
-    echo %blue_fg_strong%To learn more about XTTS, visit:%reset% https://coqui.ai/blog/tts/open_xtts
-
-    REM Ask the user if they want to install XTTS
-    set /p install_xtts_requirements=Install XTTS? [Y/N] 
-
-    REM Check the user's response
-    if /i "%install_xtts_requirements%"=="Y" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
-
-        REM Activate the Miniconda installation
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-        call "%miniconda_path%\Scripts\activate.bat"
-
-        REM Create a Conda environment named xtts
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment xtts...
-        call conda create -n xtts -y
-
-        REM Activate the xtts environment
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment xtts...
-        call conda activate xtts
-
-        REM Check if activation was successful
-        if %errorlevel% equ 0 (
-            echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment xtts activated successfully.
-        ) else (
-            echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment xtts.%reset%
-            echo %blue_bg%[%time%]%reset% %red_fg_strong%[INFO] Press any key to try again otherwise close the installer and restart%reset%
-            pause
-            goto :reinstall_extras
-        )
-
-        REM Install Python 3.10 in the xtts environment
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python in the Conda environment...
-        call conda install python=3.10 -y
-
-        REM Install pip requirements
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
-        pip install xtts-api-server
-        pip install pydub
-        pip install stream2sentence==0.2.2
-
-        REM Use the GPU choice made earlier to set the correct PyTorch index-url
-        if "%GPU_CHOICE%"=="1" (
-            echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch
-            pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-            goto :reinstall_xtts
-        ) else if "%GPU_CHOICE%"=="2" (
-            echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch
-            pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-            goto :reinstall_xtts
-        ) else if "%GPU_CHOICE%"=="3" (
-            echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch
-            pip install torch torchvision torchaudio
-            goto :reinstall_xtts
-        )
-
-        :reinstall_xtts
-        REM Create folders for xtts
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
-        mkdir "%~dp0xtts"
-        mkdir "%~dp0xtts\speakers"
-        mkdir "%~dp0xtts\output"
-
-        REM Clone the xtts-api-server repository for voice examples
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
-        git clone https://github.com/daswer123/xtts-api-server.git
-
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
-        xcopy "%~dp0xtts-api-server\example\*" "%~dp0xtts\speakers\" /y /e
-
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
-        rmdir /s /q "%~dp0xtts-api-server"
-    ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
-    )
-
-    REM Create a Conda environment named extras
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
-    call conda create -n extras -y
-
-    REM Activate the extras environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
-    call conda activate extras
-
-    REM Navigate to the SillyTavern-extras directory
-    cd "%~dp0SillyTavern-extras"
 
 
-    REM Use the GPU choice made earlier to install requirements for extras
-    if "%GPU_CHOICE%"=="1" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for NVIDIA from requirements.txt in extras
-        pip install -r requirements.txt
-        call conda install -c conda-forge faiss-gpu -y
-        goto :reinstall_extras_post
-    ) else if "%GPU_CHOICE%"=="2" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for AMD from requirements-rocm.txt in extras
-        pip install -r requirements-rocm.txt
-        goto :reinstall_extras_post
-    ) else if "%GPU_CHOICE%"=="3" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for CPU from requirements-silicon.txt in extras
-        pip install -r requirements-silicon.txt
-        goto :reinstall_extras_post
-    )
+:app_uninstaller
+REM App Uninstaller - Frontend
+:app_uninstaller
+title SillyTavern [APP UNINSTALLER]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller%reset%
+echo ------------------------------------------------
+echo What would you like to do?
+echo 1. UNINSTALL Extras
+echo 2. UNINSTALL XTTS
+echo 3. UNINSTALL SillyTavern
+echo 0. Back to Toolbox
 
-    :reinstall_extras_post
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
-    winget install -e --id Microsoft.VCRedist.2015+.x64
+set /p app_uninstaller_choice=Choose Your Destiny: 
 
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
-    winget install -e --id Microsoft.VCRedist.2015+.x86
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-    curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-
-    if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Download failed. Please restart the installer%reset%
-    pause
-    goto :installer
-    ) else (
-    start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
-    )
-
-    REM Activate the extras environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
-    call conda activate extras
-
-    REM Check if activation was successful
-    if %errorlevel% equ 0 (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Conda environment extras activated successfully.
-    ) else (
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to activate Conda environment extras.%reset%
-    )
-
-    REM Install Python 3.11 and Git in the extras environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python and Git in the Conda environment...
-    call conda install python=3.11 git -y
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
-    pip install -r requirements-rvc.txt
-    pip install tensorboardX
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
+REM App Uninstaller - Backend
+if "%app_uninstaller_choice%"=="1" (
+    call :uninstall_extras
+) else if "%app_uninstaller_choice%"=="2" (
+    call :uninstall_xtts
+) else if "%app_uninstaller_choice%"=="3" (
+    call :uninstall_st
+) else if "%app_uninstaller_choice%"=="0" (
+    goto :toolbox
 ) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Reinstall Extras canceled.
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :app_uninstaller
 )
-pause
-goto :toolbox
 
-
-:uninstall_st_extras
-title SillyTavern [UNINSTALL]
+:uninstall_extras
+title SillyTavern [UNINSTALL EXTRAS]
 setlocal enabledelayedexpansion
 chcp 65001 > nul
 
 REM Confirm with the user before proceeding
 echo.
 echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of SillyTavern + Extras + XTTS                             ║%reset%
+echo %red_bg%║ WARNING: This will delete all data of Extras                                                  ║%reset%
 echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
 echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
 echo.
@@ -1444,29 +1216,82 @@ if /i "%confirmation%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda environment 'extras'...
     call conda remove --name extras --all -y
 
+    REM Remove the folder SillyTavern-extras
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern-extras directory...
+    cd /d "%~dp0"
+    rmdir /s /q "%~dp0SillyTavern-extras"
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller
+)
+
+
+:uninstall_xtts
+title SillyTavern [UNINSTALL XTTS]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of XTTS                                                    ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda environment 'xtts'...
     call conda remove --name xtts --all -y
 
-    REM Remove the folder SillyTavern-extras
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern-extras directory...
-    rmdir /s /q "%~dp0SillyTavern-extras"
-
     REM Remove the folder SillyTavern
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts directory...
+    cd /d "%~dp0"
     rmdir /s /q "%~dp0xtts"
 
-    REM Remove the folder SillyTavern
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern directory...
-    rmdir /s /q "%~dp0SillyTavern"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern + Extras has been uninstalled successfully.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS has been uninstalled successfully.%reset%
     pause
-    goto :home
+    goto :app_uninstaller
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
     pause
-    goto :home
+    goto :app_uninstaller
+)
+
+
+:uninstall_st
+title SillyTavern [UNINSTALL ST]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of SillyTavern                                             ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the folder SillyTavern
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern directory...
+    cd /d "%~dp0"
+    rmdir /s /q "%~dp0SillyTavern"
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller
 )
 
 REM Support menu - Frontend

@@ -142,10 +142,11 @@ cls
 echo %blue_fg_strong%/ Installer%reset%
 echo -------------------------------------
 echo What would you like to do?
-echo 1. Install SillyTavern + Extras
+echo 1. Install SillyTavern + Extras + XTTS
 echo 2. Install SillyTavern
 echo 3. Install Extras
-echo 4. Support
+echo 4. Install XTTS
+echo 5. Support
 echo 0. Exit
 
 set "choice="
@@ -162,6 +163,8 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="3" (
     call :install_extras
 ) else if "%choice%"=="4" (
+    call :install_xtts
+) else if "%choice%"=="5" (
     call :support
 ) else if "%choice%"=="0" (
     exit
@@ -173,7 +176,7 @@ if "%choice%"=="1" (
 
 
 :install_st_extras
-title SillyTavern [INSTALL ST + EXTRAS]
+title SillyTavern [INSTALL ST + EXTRAS + XTTS]
 cls
 echo %blue_fg_strong%/ Installer / SillyTavern + Extras%reset%
 echo ---------------------------------------------------------------
@@ -280,15 +283,15 @@ if /i "%install_xtts_requirements%"=="Y" (
     if "%GPU_CHOICE%"=="1" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch for xtts...
         pip install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
-        goto :install_xtts
+        goto :install_st_xtts
     ) else if "%GPU_CHOICE%"=="2" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch for xtts...
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-        goto :install_xtts
+        goto :install_st_xtts
     ) else if "%GPU_CHOICE%"=="3" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch for xtts...
         pip install torch torchvision torchaudio
-        goto :install_xtts
+        goto :install_st_xtts
     )
 
     REM Install pip requirements
@@ -297,7 +300,7 @@ if /i "%install_xtts_requirements%"=="Y" (
     pip install pydub
     pip install stream2sentence
 
-    :install_xtts
+    :install_st_xtts
     REM Create folders for xtts
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
     mkdir "%~dp0xtts"
@@ -563,18 +566,18 @@ if /i "%install_xtts_requirements%"=="Y" (
     if "%GPU_CHOICE%"=="1" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch for xtts...
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-        goto :install_xtts
+        goto :install_st_xtts
     ) else if "%GPU_CHOICE%"=="2" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch for xtts...
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-        goto :install_xtts
+        goto :install_st_xtts
     ) else if "%GPU_CHOICE%"=="3" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch for xtts...
         pip install torch torchvision torchaudio
-        goto :install_xtts
+        goto :install_st_xtts
     )
 
-    :install_xtts
+    :install_st_xtts
     REM Create folders for xtts
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
     mkdir "%~dp0xtts"
@@ -674,6 +677,118 @@ if /i "%start_launcher%"=="Y" (
 )
 goto :installer
 
+
+:install_xtts
+title SillyTavern [INSTALL XTTS]
+cls
+echo %blue_fg_strong%/ Installer / XTTS%reset%
+echo ---------------------------------------------------------------
+
+REM GPU menu - Frontend
+echo What is your GPU?
+echo 1. NVIDIA
+echo 2. AMD
+echo 3. None (CPU-only mode)
+echo 0. Cancel install
+
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+REM Get GPU information
+for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+    set "gpu_info=!gpu_info! %%i"
+)
+
+echo.
+echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
+echo.
+
+endlocal
+set /p gpu_choice=Enter number corresponding to your GPU: 
+
+REM GPU menu - Backend
+REM Set the GPU choice in an environment variable for choise callback
+set "GPU_CHOICE=%gpu_choice%"
+
+REM Check the user's response
+if "%gpu_choice%"=="1" (
+    REM Install pip requirements
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
+    goto :install_xtts_pre
+) else if "%gpu_choice%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
+    goto :install_xtts_pre
+) else if "%gpu_choice%"=="3" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
+    goto :install_xtts_pre
+) else if "%gpu_choice%"=="0" (
+    goto :installer
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
+    pause
+    goto :install_xtts
+)
+
+:install_xtts_pre
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
+
+REM Activate the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named xtts
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment xtts...
+call conda create -n xtts python=3.10 git -y
+
+REM Activate the xtts environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment xtts...
+call conda activate xtts
+
+REM Use the GPU choice made earlier to set the correct PyTorch index-url
+if "%GPU_CHOICE%"=="1" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch for xtts...
+    pip install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+    goto :install_xtts
+) else if "%GPU_CHOICE%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch for xtts...
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+    goto :install_xtts
+) else if "%GPU_CHOICE%"=="3" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch for xtts...
+    pip install torch torchvision torchaudio
+    goto :install_xtts
+)
+
+REM Install pip requirements
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
+pip install xtts-api-server
+pip install pydub
+pip install stream2sentence
+
+:install_xtts
+REM Create folders for xtts
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
+mkdir "%~dp0xtts"
+mkdir "%~dp0xtts\speakers"
+mkdir "%~dp0xtts\output"
+
+REM Clone the xtts-api-server repository for voice examples
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
+git clone https://github.com/daswer123/xtts-api-server.git
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
+xcopy "%~dp0xtts-api-server\example\*" "%~dp0xtts\speakers\" /y /e
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
+rmdir /s /q "%~dp0xtts-api-server"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
+pause
+goto :installer
+
+
 REM Support menu - Frontend
 :support
 title SillyTavern [SUPPORT]
@@ -714,3 +829,4 @@ goto :support
 :discord
 start "" "https://discord.gg/sillytavern"
 goto :support
+
