@@ -3,7 +3,7 @@ REM SillyTavern Launcher
 REM Created by: Deffcolony
 REM
 REM Description:
-REM This script can launch, backup and reinstall sillytavern + extras 
+REM This script can launch, backup and uninstall apps
 REM
 REM This script is intended for use on Windows systems.
 REM report any issues or bugs on the GitHub repository.
@@ -175,7 +175,9 @@ set "update_status=%green_fg_strong%Up to Date%reset%"
 :found_update
 
 
-REM Home - frontend
+REM ############################################################
+REM ################## HOME - FRONTEND #########################
+REM ############################################################
 :home
 title SillyTavern [HOME]
 cls
@@ -197,7 +199,7 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo Launcher: V1.0.6
+echo Launcher: V1.0.7
 echo =================================
 
 set "choice="
@@ -218,7 +220,7 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="5" (
     call :backup_menu
 ) else if "%choice%"=="6" (
-    call :switchbrance_menu
+    call :switch_brance
 ) else if "%choice%"=="7" (
     call :toolbox
 ) else if "%choice%"=="8" (
@@ -237,9 +239,9 @@ if "%choice%"=="1" (
 REM Check if Node.js is installed
 node --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %red_fg_strong%[ERROR] node command not found in PATH%reset%
-    echo %red_bg%Please make sure Node.js is installed and added to your PATH.%reset%
-    echo %blue_bg%To install Node.js go to Toolbox%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] node command not found in PATH.%reset%
+    echo %red_fg_strong%Node.js is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install Node.js go to:%reset% %blue_bg%/ Toolbox / App Installer / Install Node.js%reset%
     pause
     goto :home
 )
@@ -270,7 +272,7 @@ for /F "tokens=*" %%a in ('findstr /I "start_command=" "%modules_path%"') do (
 
 if not defined start_command (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
-    echo %red_bg%Please make sure you enabled at least one of the modules from Edit Extras Modules.%reset%
+    echo %red_bg%Please make sure at least one of the modules are enabled from Edit Extras Modules.%reset%
     echo.
     echo %blue_bg%We will redirect you to the Edit Extras Modules menu.%reset%
     pause
@@ -314,9 +316,9 @@ goto :home
 REM Check if Node.js is installed
 node --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] node command not found in PATH%reset%
-    echo %red_bg%Please make sure Node.js is installed and added to your PATH.%reset%
-    echo %red_bg%To install Node.js go to Toolbox%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] node command not found in PATH.%reset%
+    echo %red_fg_strong%Node.js is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install Node.js go to:%reset% %blue_bg%/ Toolbox / App Installer / Install Node.js%reset%
     pause
     goto :home
 )
@@ -437,8 +439,10 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTT
 pause
 goto :home
 
-REM Switch Brance - frontend
-:switchbrance_menu
+REM ############################################################
+REM ############## SWITCH BRANCE - FRONTEND ####################
+REM ############################################################
+:switch_brance
 title SillyTavern [SWITCH-BRANCE]
 cls
 echo %blue_fg_strong%/ Home / Switch Branch%reset%
@@ -457,45 +461,46 @@ set /p brance_choice=Choose Your Destiny:
 
 REM Switch Brance - backend
 if "%brance_choice%"=="1" (
-    call :switch_release_st
+    call :switch_brance_release_st
 ) else if "%brance_choice%"=="2" (
-    call :switch_staging_st
+    call :switch_brance_staging_st
 ) else if "%brance_choice%"=="0" (
     goto :home
 ) else (
     color 6
     echo WARNING: Invalid number. Please insert a valid number.
     pause
-    goto :switchbrance_menu
+    goto :switch_brance
 )
 
 
-:switch_release_st
+:switch_brance_release_st
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to release branch...
 cd /d "%~dp0SillyTavern"
 git switch release
 pause
-goto :switchbrance_menu
+goto :switch_brance
 
 
-:switch_staging_st
+:switch_brance_staging_st
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to staging branch...
 cd /d "%~dp0SillyTavern"
 git switch staging
 pause
-goto :switchbrance_menu
+goto :switch_brance
 
 
-
-REM Backup - Frontend
+REM ############################################################
+REM ################# BACKUP - FRONTEND ########################
+REM ############################################################
 :backup_menu
 title SillyTavern [BACKUP]
 REM Check if 7-Zip is installed
 7z > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH%reset%
-    echo %red_bg%Please make sure 7-Zip is installed and added to your PATH.%reset%
-    echo %red_bg%To install 7-Zip go to Toolbox%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
+    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Install 7-Zip%reset%
     pause
     goto :home
 )
@@ -503,14 +508,13 @@ cls
 echo %blue_fg_strong%/ Home / Backup%reset%
 echo -------------------------------------
 echo What would you like to do?
-REM color 7
 echo 1. Create Backup
 echo 2. Restore Backup
 echo 0. Back to Home
 
 set /p backup_choice=Choose Your Destiny: 
 
-REM Backup - Backend
+REM ################# BACKUP - BACKEND ########################
 if "%backup_choice%"=="1" (
     call :create_backup
 ) else if "%backup_choice%"=="2" (
@@ -621,7 +625,9 @@ pause
 goto :backup_menu
 
 
-REM Toolbox - Frontend
+REM ############################################################
+REM ################# TOOLBOX - FRONTEND #######################
+REM ############################################################
 :toolbox
 title SillyTavern [TOOLBOX]
 cls
@@ -631,27 +637,21 @@ echo What would you like to do?
 REM color 7
 echo 1. App Installer
 echo 2. App Uninstaller
-echo 3. Edit Extras Modules
-echo 4. Edit XTTS Modules
-echo 5. Edit Environment Variables
-echo 6. Remove node_modules folder
+echo 3. Editor
+echo 4. Troubleshooting
 echo 0. Back to Home
 
 set /p toolbox_choice=Choose Your Destiny: 
 
-REM Toolbox - Backend
+REM ################# TOOLBOX - BACKEND #######################
 if "%toolbox_choice%"=="1" (
     call :app_installer
 ) else if "%toolbox_choice%"=="2" (
     call :app_uninstaller
 ) else if "%toolbox_choice%"=="3" (
-    call :edit_extras_modules
+    call :editor
 ) else if "%toolbox_choice%"=="4" (
-    call :edit_xtts_modules
-) else if "%toolbox_choice%"=="5" (
-    call :edit_environment_var
-) else if "%toolbox_choice%"=="6" (
-    call :remove_node_modules
+    call :troubleshooting
 ) else if "%toolbox_choice%"=="0" (
     goto :home
 ) else (
@@ -661,12 +661,15 @@ if "%toolbox_choice%"=="1" (
     goto :toolbox
 )
 
-REM App Installer - Frontend
+
+REM ############################################################
+REM ############## APP INSTALLER - FRONTEND ####################
+REM ############################################################
 :app_installer
 title SillyTavern [APP INSTALLER]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / App Installer%reset%
-echo ------------------------------------------------
+echo -------------------------------------
 echo What would you like to do?
 REM color 7
 echo 1. Install 7-Zip
@@ -676,7 +679,7 @@ echo 0. Back to Toolbox
 
 set /p app_installer_choice=Choose Your Destiny: 
 
-REM App Installer - Backend
+REM ############## APP INSTALLER - BACKEND ####################
 if "%app_installer_choice%"=="1" (
     call :install_7zip
 ) else if "%app_installer_choice%"=="2" (
@@ -695,7 +698,7 @@ if "%app_installer_choice%"=="1" (
 
 :install_7zip
 title SillyTavern [INSTALL-7Z]
-echo %blue_fg_strong%[INFO]%reset% Installing 7-Zip...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing 7-Zip...
 winget install -e --id 7zip.7zip
 
 rem Get the current PATH value from the registry
@@ -738,11 +741,11 @@ title SillyTavern [INSTALL-FFMPEG]
 REM Check if 7-Zip is installed
 7z > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH%reset%
-    echo %red_bg%Please make sure 7-Zip is installed and added to your PATH.%reset%
-    echo %red_bg%To install 7-Zip go to Toolbox%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
+    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Install 7-Zip%reset%
     pause
-    goto :toolbox
+    goto :app_installer
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading FFmpeg archive...
@@ -809,71 +812,38 @@ pause
 exit
 
 
+REM ############################################################
+REM ################# EDITOR - FRONTEND ########################
+REM ############################################################
+:editor
+title SillyTavern [EDITOR]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Editor%reset%
+echo -------------------------------------
+echo What would you like to do?
+echo 1. Edit Extras Modules
+echo 2. Edit XTTS Modules
+echo 3. Edit Environment Variables
+echo 0. Back to Toolbox
 
+set /p editor_choice=Choose Your Destiny: 
 
-
-:edit_environment_var
-rundll32.exe sysdm.cpl,EditEnvironmentVariables
-goto :toolbox
-
-:reinstall_sillytavern
-title SillyTavern [REINSTALL-ST]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-REM Define the names of items to be excluded
-set "script_name=%~nx0"
-set "excluded_folders=backups"
-set "excluded_files=!script_name!"
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data in the current branch except the Backups.                  ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-echo Are you sure you want to proceed? [Y/N] 
-set /p "confirmation="
-if /i "!confirmation!"=="Y" (
-    cd /d "%~dp0SillyTavern"
-    REM Remove non-excluded folders
-    for /d %%D in (*) do (
-        set "exclude_folder="
-        for %%E in (!excluded_folders!) do (
-            if "%%D"=="%%E" set "exclude_folder=true"
-        )
-        if not defined exclude_folder (
-            rmdir /s /q "%%D" 2>nul
-        )
-    )
-
-    REM Remove non-excluded files
-    for %%F in (*) do (
-        set "exclude_file="
-        for %%E in (!excluded_files!) do (
-            if "%%F"=="%%E" set "exclude_file=true"
-        )
-        if not defined exclude_file (
-            del /f /q "%%F" 2>nul
-        )
-    )
-
-    REM Clone repo into %temp% folder
-    git clone https://github.com/SillyTavern/SillyTavern.git "%temp%\SillyTavern-TEMP"
-
-    REM Move the contents of the temporary folder to the current directory
-    xcopy /e /y "%temp%\SillyTavern-TEMP\*" .
-
-    REM Clean up the temporary folder
-    rmdir /s /q "%temp%\SillyTavern-TEMP"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern reinstalled successfully.%reset%
+REM ################# EDITOR - BACKEND ########################
+if "%editor_choice%"=="1" (
+    call :edit_extras_modules
+) else if "%editor_choice%"=="2" (
+    call :edit_xtts_modules
+) else if "%editor_choice%"=="3" (
+    call :edit_environment_var
+) else if "%editor_choice%"=="0" (
+    goto :toolbox
 ) else (
-    echo Reinstall canceled.
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :editor
 )
-endlocal
-pause
-goto :toolbox
+
 
 
 REM Function to print module options with color based on their status
@@ -885,14 +855,16 @@ if "%2"=="true" (
 )
 exit /b
 
+
+REM ############################################################
+REM ############## EDIT EXTRAS MODULES - FRONTEND ##############
+REM ############################################################
 :edit_extras_modules
-title SillyTavern [EXTRAS-MODULES]
-REM Edit Extras Modules - Frontend
+title SillyTavern [EDIT-EXTRAS-MODULES]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Edit Extras Modules%reset%
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit Extras Modules%reset%
 echo -------------------------------------
 echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Cuda, RVC, and Caption)
-REM color 7
 
 REM Display module options with colors based on their status
 call :printModule "1. Cuda (--cuda)" %cuda_trigger%
@@ -903,7 +875,7 @@ call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger
 call :printModule "6. listen (--listen)" %listen_trigger%
 call :printModule "7. whisper (--enable-modules=whisper-stt)" %whisper_trigger%
 call :printModule "8. Edge-tts (--enable-modules=edge-tts)" %edge_tts_trigger%
-echo 0. Back to Toolbox
+echo 0. Back to Editor
 
 set "python_command="
 
@@ -967,7 +939,7 @@ for %%i in (%module_choices%) do (
         )
         REM set "python_command= --enable-modules=edge-tts"
     ) else if "%%i"=="0" (
-        goto :toolbox
+        goto :editor
     )
 )
 
@@ -1040,14 +1012,16 @@ if "%2"=="true" (
 )
 exit /b
 
+
+REM ############################################################
+REM ############## EDIT XTTS MODULES - FRONTEND ################
+REM ############################################################
 :edit_xtts_modules
-title SillyTavern [XTTS-MODULES]
-REM Edit XTTS Modules - Frontend
+title SillyTavern [EDIT-XTTS-MODULES]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Edit XTTS Modules%reset%
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit XTTS Modules%reset%
 echo -------------------------------------
 echo Choose XTTS modules to enable or disable (e.g., "1 2 4" to enable Cuda, hs, and cache)
-REM color 7
 
 REM Display module options with colors based on their status
 call :printModule "1. cuda (--device cuda)" %xtts_cuda_trigger%
@@ -1056,7 +1030,7 @@ call :printModule "3. deepspeed (--deepspeed)" %xtts_deepspeed_trigger%
 call :printModule "4. cache (--use-cache)" %xtts_cache_trigger%
 call :printModule "5. listen (--listen)" %xtts_listen_trigger%
 call :printModule "6. model (--model-source local)" %xtts_model_trigger%
-echo 0. Back to Toolbox
+echo 0. Back to Editor
 
 set "python_command="
 
@@ -1106,7 +1080,7 @@ for %%i in (%xtts_module_choices%) do (
         )
         REM set "python_command= --model-source local"
     ) else if "%%i"=="0" (
-        goto :toolbox
+        goto :editor
     )
 )
 
@@ -1158,16 +1132,64 @@ echo xtts_start_command=%python_command%>>"%~dp0modules-xtts.txt"
 goto :edit_xtts_modules
 
 
+:edit_environment_var
+rundll32.exe sysdm.cpl,EditEnvironmentVariables
+goto :toolbox
+
+
+REM ############################################################
+REM ############## TROUBLESHOOTING - FRONTEND ##################
+REM ############################################################
+:troubleshooting
+title SillyTavern [TROUBLESHOOTING]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Troubleshooting%reset%
+echo -------------------------------------
+echo What would you like to do?
+echo 1. Remove node_modules folder
+echo 2. Fix unresolved conflicts or unmerged files [SillyTavern]
+echo 0. Back to Home
+
+set /p troubleshooting_choice=Choose Your Destiny: 
+
+REM ############## TROUBLESHOOTING - BACKEND ##################
+if "%troubleshooting_choice%"=="1" (
+    call :remove_node_modules
+) else if "%troubleshooting_choice%"=="2" (
+    call :unresolved_unmerged
+) else if "%troubleshooting_choice%"=="0" (
+    goto :toolbox
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :troubleshooting
+)
+
+
 :remove_node_modules
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing node_modules folder...
 cd /d "%~dp0SillyTavern"
 rmdir /s /q "node_modules"
-goto :toolbox
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% node_modules successfully removed.
+pause
+goto :troubleshooting
 
 
+:unresolved_unmerged
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Trying to resolve unresolved conflicts in the working directory or unmerged files...
+cd /d "%~dp0SillyTavern"
+git merge --abort
+git reset --hard
+git pull --rebase --autostash
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Done.
+pause
+goto :troubleshooting
 
-:app_uninstaller
-REM App Uninstaller - Frontend
+
+REM ############################################################
+REM ############## APP UNINSTALLER - FRONTEND ##################
+REM ############################################################
 :app_uninstaller
 title SillyTavern [APP UNINSTALLER]
 cls
@@ -1177,17 +1199,26 @@ echo What would you like to do?
 echo 1. UNINSTALL Extras
 echo 2. UNINSTALL XTTS
 echo 3. UNINSTALL SillyTavern
+echo 4. UNINSTALL 7-Zip
+echo 5. UNINSTALL FFmpeg
+echo 6. UNINSTALL Node.js
 echo 0. Back to Toolbox
 
 set /p app_uninstaller_choice=Choose Your Destiny: 
 
-REM App Uninstaller - Backend
+REM ############## APP UNINSTALLER - BACKEND ##################
 if "%app_uninstaller_choice%"=="1" (
     call :uninstall_extras
 ) else if "%app_uninstaller_choice%"=="2" (
     call :uninstall_xtts
 ) else if "%app_uninstaller_choice%"=="3" (
     call :uninstall_st
+) else if "%app_uninstaller_choice%"=="4" (
+    call :uninstall_7zip
+) else if "%app_uninstaller_choice%"=="5" (
+    call :uninstall_ffmpeg
+) else if "%app_uninstaller_choice%"=="6" (
+    call :uninstall_nodejs
 ) else if "%app_uninstaller_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -1196,6 +1227,8 @@ if "%app_uninstaller_choice%"=="1" (
     pause
     goto :app_uninstaller
 )
+
+
 
 :uninstall_extras
 title SillyTavern [UNINSTALL EXTRAS]
@@ -1294,7 +1327,34 @@ if /i "%confirmation%"=="Y" (
     goto :app_uninstaller
 )
 
-REM Support menu - Frontend
+:uninstall_7zip
+title SillyTavern [UNINSTALL-7ZIP]
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling 7-Zip...
+winget uninstall --id 7zip.7zip
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%7-Zip has been uninstalled successfully.%reset%
+pause
+goto :app_uninstaller
+
+:uninstall_ffmpeg
+title SillyTavern [UNINSTALL-FFMPEG]
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling ffmpeg...
+rmdir /s /q "%ffextract_path%"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg has been uninstalled successfully.%reset%
+pause
+goto :app_uninstaller
+
+:uninstall_nodejs
+title SillyTavern [UNINSTALL-NODEJS]
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling Node.js...
+winget uninstall --id OpenJS.NodeJS
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js has been uninstalled successfully.%reset%
+pause
+goto :app_uninstaller
+
+
+REM ############################################################
+REM ############## SUPPORT - FRONTEND ##########################
+REM ############################################################
 :support
 title SillyTavern [SUPPORT]
 cls
@@ -1308,7 +1368,7 @@ echo 0. Back to Home
 
 set /p support_choice=Choose Your Destiny: 
 
-REM Support menu - Backend
+REM ############## SUPPORT - BACKEND ##########################
 if "%support_choice%"=="1" (
     call :issue_report
 ) else if "%support_choice%"=="2" (
