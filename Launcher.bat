@@ -199,7 +199,7 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo Launcher: V1.0.7
+echo Launcher: V1.0.8
 echo =================================
 
 set "choice="
@@ -1134,7 +1134,7 @@ goto :edit_xtts_modules
 
 :edit_environment_var
 rundll32.exe sysdm.cpl,EditEnvironmentVariables
-goto :toolbox
+goto :editor
 
 
 REM ############################################################
@@ -1148,6 +1148,8 @@ echo -------------------------------------
 echo What would you like to do?
 echo 1. Remove node_modules folder
 echo 2. Fix unresolved conflicts or unmerged files [SillyTavern]
+echo 3. Export dxdiag info
+echo 4. Find what app is using port
 echo 0. Back to Home
 
 set /p troubleshooting_choice=Choose Your Destiny: 
@@ -1157,6 +1159,10 @@ if "%troubleshooting_choice%"=="1" (
     call :remove_node_modules
 ) else if "%troubleshooting_choice%"=="2" (
     call :unresolved_unmerged
+) else if "%troubleshooting_choice%"=="3" (
+    call :export_dxdiag
+) else if "%troubleshooting_choice%"=="4" (
+    call :find_app_port
 ) else if "%troubleshooting_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -1185,6 +1191,58 @@ git pull --rebase --autostash
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Done.
 pause
 goto :troubleshooting
+
+
+:export_dxdiag
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Exporting DirectX Diagnostic Tool information...
+dxdiag /t "%~dp0dxdiag_info.txt"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%You can find the dxdiag_info.txt at: "%~dp0dxdiag_info.txt"%reset%
+pause
+goto :troubleshooting
+
+
+REM Function to find and display the application using the specified port
+:find_app_port
+cls
+setlocal EnableDelayedExpansion
+set /p port="Insert port number: "
+
+REM Check if the input is a number
+set "valid=true"
+for /f "delims=0123456789" %%i in ("!port!") do set "valid=false"
+if "!valid!"=="false" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input: Not a number.%reset%
+    pause
+    goto :troubleshooting
+)
+
+REM Check if the port is within range
+if !port! gtr 65535 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Port out of range. There are only 65,535 possible port numbers.%reset%
+    echo [0-1023]: These ports are reserved for system services or commonly used protocols.
+    echo [1024-49151]: These ports can be used by user processes or applications.
+    echo [49152-65535]: These ports are available for use by any application or service on the system.
+    pause
+    goto :troubleshooting
+)
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Searching for application using port: !port!...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr /r "\<!port!\>"') do (
+    set pid=%%a
+)
+
+if defined pid (
+    for /f "tokens=2*" %%b in ('tasklist /fi "PID eq !pid!" /fo list ^| find "Image Name"') do (
+        echo Application Name: %cyan_fg_strong%%%c%reset%
+        echo PID of Port !port!: %cyan_fg_strong%!pid!%reset%
+    )
+) else (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN]%reset% Port: !port! not found.
+)
+endlocal
+pause
+goto :troubleshooting
+
 
 
 REM ############################################################
