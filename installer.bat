@@ -140,7 +140,7 @@ REM Installer menu - Frontend
 title SillyTavern [INSTALLER]
 cls
 echo %blue_fg_strong%/ Installer%reset%
-echo -------------------------------------
+echo ---------------------------------------------------------------
 echo What would you like to do?
 echo 1. Install SillyTavern + Extras + XTTS
 echo 2. Install SillyTavern
@@ -176,9 +176,9 @@ if "%choice%"=="1" (
 
 
 :install_st_extras
-title SillyTavern [INSTALL ST + EXTRAS + XTTS]
+title SillyTavern [INSTALL SILLYTAVERN + EXTRAS + XTTS]
 cls
-echo %blue_fg_strong%/ Installer / SillyTavern + Extras%reset%
+echo %blue_fg_strong%/ Installer / Install SillyTavern + Extras + XTTS%reset%
 echo ---------------------------------------------------------------
 
 REM GPU menu - Frontend
@@ -230,7 +230,7 @@ if "%gpu_choice%"=="1" (
 )
 
 :install_st_extras_pre
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern + Extras...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern + Extras + XTTS...
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
 
 set max_retries=3
@@ -256,15 +256,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Extras...
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern-extras repository...
 git clone https://github.com/SillyTavern/SillyTavern-extras.git
 
-REM Provide a link to the XTTS
-echo %blue_fg_strong%[INFO] Feeling excited to give your robotic waifu/husbando a new shiny voice modulator?%reset%
-echo %blue_fg_strong%To learn more about XTTS, visit:%reset% https://coqui.ai/blog/tts/open_xtts
-
-REM Ask the user if they want to install XTTS
-set /p install_xtts_requirements=Install XTTS? [Y/N] 
-
-REM Check the user's response
-if /i "%install_xtts_requirements%"=="Y" (
+REM Install script for XTTS 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
 
     REM Activate the Miniconda installation
@@ -272,30 +264,30 @@ if /i "%install_xtts_requirements%"=="Y" (
     call "%miniconda_path%\Scripts\activate.bat"
 
     REM Create a Conda environment named xtts
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment xtts...
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%xtts%reset%
     call conda create -n xtts python=3.10 git -y
 
-    REM Activate the xtts environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment xtts...
+    REM Activate the conda environment named xtts 
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%xtts%reset%
     call conda activate xtts
 
     REM Use the GPU choice made earlier to set the correct PyTorch index-url
     if "%GPU_CHOICE%"=="1" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch for xtts...
+        echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
         pip install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
         goto :install_st_xtts
     ) else if "%GPU_CHOICE%"=="2" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch for xtts...
+        echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
         pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
         goto :install_st_xtts
     ) else if "%GPU_CHOICE%"=="3" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch for xtts...
+        echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
         pip install torch torchvision torchaudio
         goto :install_st_xtts
     )
 
     REM Install pip requirements
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements in conda enviroment: %cyan_fg_strong%xtts%reset%
     pip install xtts-api-server
     pip install pydub
     pip install stream2sentence
@@ -317,16 +309,15 @@ if /i "%install_xtts_requirements%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
     rmdir /s /q "%~dp0xtts-api-server"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
-)
+REM End of install script for XTTS
+
 
 REM Create a Conda environment named extras
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%extras%reset%
 call conda create -n extras python=3.11 git -y
 
-REM Activate the extras environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
+REM Activate the conda environment named extras
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%extras%reset%
 call conda activate extras
 
 REM Navigate to the SillyTavern-extras directory
@@ -334,22 +325,22 @@ cd "%~dp0SillyTavern-extras"
 
 REM Use the GPU choice made earlier to install requirements for extras
 if "%GPU_CHOICE%"=="1" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for NVIDIA from requirements.txt in extras
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for NVIDIA from requirements.txt in conda enviroment: %cyan_fg_strong%extras%reset% 
     call conda install -c conda-forge faiss-gpu -y
     pip install -r requirements.txt
     goto :install_st_extras_post
 ) else if "%GPU_CHOICE%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for AMD from requirements-rocm.txt in extras
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for AMD from requirements-rocm.txt in conda enviroment: %cyan_fg_strong%extras%reset% 
     pip install -r requirements-rocm.txt
     goto :install_st_extras_post
 ) else if "%GPU_CHOICE%"=="3" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for CPU from requirements-silicon.txt in extras
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for CPU from requirements-silicon.txt in conda enviroment: %cyan_fg_strong%extras%reset% 
     pip install -r requirements-silicon.txt
     goto :install_st_extras_post
 )
 
 :install_st_extras_post
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
+echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements from requirements-rvc.txt in conda enviroment: %cyan_fg_strong%extras%reset% 
 pip install -r requirements-rvc.txt
 pip install tensorboardX
 
@@ -404,9 +395,9 @@ goto :installer
 
 
 :install_sillytavern
-title SillyTavern [INSTALL ST]
+title SillyTavern [INSTALL SILLYTAVERN]
 cls
-echo %blue_fg_strong%/ Installer / SillyTavern%reset%
+echo %blue_fg_strong%/ Installer / Install SillyTavern%reset%
 echo ---------------------------------------------------------------
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
 
@@ -461,7 +452,7 @@ goto :installer
 :install_extras
 title SillyTavern [INSTALL EXTRAS]
 cls
-echo %blue_fg_strong%/ Installer / Extras%reset%
+echo %blue_fg_strong%/ Installer / Install Extras%reset%
 echo ---------------------------------------------------------------
 
 REM GPU menu - Frontend
@@ -533,76 +524,12 @@ if %errorlevel% neq 0 (
 )
 
 
-REM Provide a link to the XTTS
-echo %blue_fg_strong%[INFO] Feeling excited to give your robotic waifu/husbando a new shiny voice modulator?%reset%
-echo %blue_fg_strong%To learn more about XTTS, visit:%reset% https://coqui.ai/blog/tts/open_xtts
-
-REM Ask the user if they want to install XTTS
-set /p install_xtts_requirements=Install XTTS? [Y/N] 
-
-REM Check the user's response
-if /i "%install_xtts_requirements%"=="Y" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
-
-    REM Activate the Miniconda installation
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-    call "%miniconda_path%\Scripts\activate.bat"
-
-    REM Create a Conda environment named xtts
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment xtts...
-    call conda create -n xtts python=3.10 git -y
-
-    REM Activate the xtts environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment xtts...
-    call conda activate xtts
-
-    REM Install pip requirements
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
-    pip install xtts-api-server
-    pip install pydub
-    pip install stream2sentence
-    
-    REM Use the GPU choice made earlier to set the correct PyTorch index-url
-    if "%GPU_CHOICE%"=="1" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch for xtts...
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-        goto :install_st_xtts
-    ) else if "%GPU_CHOICE%"=="2" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch for xtts...
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-        goto :install_st_xtts
-    ) else if "%GPU_CHOICE%"=="3" (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch for xtts...
-        pip install torch torchvision torchaudio
-        goto :install_st_xtts
-    )
-
-    :install_st_xtts
-    REM Create folders for xtts
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
-    mkdir "%~dp0xtts"
-    mkdir "%~dp0xtts\speakers"
-    mkdir "%~dp0xtts\output"
-
-    REM Clone the xtts-api-server repository for voice examples
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
-    git clone https://github.com/daswer123/xtts-api-server.git
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
-    xcopy "%~dp0xtts-api-server\example\*" "%~dp0xtts\speakers\" /y /e
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
-    rmdir /s /q "%~dp0xtts-api-server"
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] XTTS installation skipped.%reset% 
-)
-
 REM Create a Conda environment named extras
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment extras...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%extras%reset%
 call conda create -n extras python=3.11 git -y
 
-REM Activate the extras environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment extras...
+REM Activate the conda environment named extras
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%extras%reset%
 call conda activate extras
 
 REM Navigate to the SillyTavern-extras directory
@@ -610,22 +537,22 @@ cd "%~dp0SillyTavern-extras"
 
 REM Use the GPU choice made earlier to install requirements for extras
 if "%GPU_CHOICE%"=="1" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for NVIDIA from requirements.txt in extras
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for NVIDIA from requirements.txt in conda enviroment: %cyan_fg_strong%extras%reset%
     call conda install -c conda-forge faiss-gpu -y
     pip install -r requirements.txt
     goto :install_extras_post
 ) else if "%GPU_CHOICE%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for AMD from requirements-rocm.txt in extras
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for AMD from requirements-rocm.txt in conda enviroment: %cyan_fg_strong%extras%reset%
     pip install -r requirements-rocm.txt
     goto :install_extras_post
 ) else if "%GPU_CHOICE%"=="3" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for CPU from requirements-silicon.txt in extras
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for CPU from requirements-silicon.txt in conda enviroment: %cyan_fg_strong%extras%reset%
     pip install -r requirements-silicon.txt
     goto :install_extras_post
 )
 
 :install_extras_post
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements-rvc in extras environment...
+echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements from requirements-rvc.txt in conda enviroment: %cyan_fg_strong%extras%reset%
 pip install -r requirements-rvc.txt
 pip install tensorboardX
 
@@ -681,7 +608,7 @@ goto :installer
 :install_xtts
 title SillyTavern [INSTALL XTTS]
 cls
-echo %blue_fg_strong%/ Installer / XTTS%reset%
+echo %blue_fg_strong%/ Installer / Install XTTS%reset%
 echo ---------------------------------------------------------------
 
 REM GPU menu - Frontend
@@ -740,30 +667,30 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda
 call "%miniconda_path%\Scripts\activate.bat"
 
 REM Create a Conda environment named xtts
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment xtts...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%xtts%reset%
 call conda create -n xtts python=3.10 git -y
 
 REM Activate the xtts environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment xtts...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%xtts%reset%
 call conda activate xtts
 
 REM Use the GPU choice made earlier to set the correct PyTorch index-url
 if "%GPU_CHOICE%"=="1" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch for xtts...
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
     pip install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
     goto :install_xtts
 ) else if "%GPU_CHOICE%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch for xtts...
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
     goto :install_xtts
 ) else if "%GPU_CHOICE%"=="3" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch for xtts...
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
     pip install torch torchvision torchaudio
     goto :install_xtts
 )
 
 REM Install pip requirements
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements for xtts...
+echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements in conda enviroment: %cyan_fg_strong%xtts%reset%
 pip install xtts-api-server
 pip install pydub
 pip install stream2sentence
@@ -794,7 +721,7 @@ REM Support menu - Frontend
 title SillyTavern [SUPPORT]
 cls
 echo %blue_fg_strong%/ Installer / Support%reset%
-echo -------------------------------------
+echo ---------------------------------------------------------------
 echo What would you like to do?
 echo 1. I want to report a issue
 echo 2. Documentation
