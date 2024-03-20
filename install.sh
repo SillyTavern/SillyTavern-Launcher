@@ -365,6 +365,7 @@ install_st_extras_pre() {
     git clone https://github.com/SillyTavern/SillyTavern-extras.git
 
     # Download the Miniconda installer script
+    rm /tmp/$miniconda_installer
     wget https://repo.anaconda.com/miniconda/$miniconda_installer -P /tmp
     chmod +x /tmp/$miniconda_installer
 
