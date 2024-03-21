@@ -146,7 +146,9 @@ if [[ "$(git rev-list HEAD...origin/$current_branch)" ]]; then
   update_status="Update Available"
 fi
 
-# Home Menu - Frontend
+############################################################
+################## HOME - FRONTEND #########################
+############################################################
 home() {
     echo -e "\033]0;SillyTavern [HOME]\007"
     clear
@@ -166,7 +168,7 @@ home() {
     echo "======== VERSION STATUS ========"
     echo -e "SillyTavern branch: ${cyan_fg_strong}$current_branch${reset}"
     echo -e "Sillytavern: $update_status"
-    echo -e "Launcher: V1.0.4"
+    echo -e "Launcher: V1.0.8"
     echo "================================"
 
     read -p "Choose Your Destiny: " home_choice
@@ -176,7 +178,7 @@ home() {
       home_choice=1
     fi
 
-    # Home Menu - Backend
+################## HOME - BACKEND #########################
     case $home_choice in
         1) start_st ;;
         2) start_extras ;;
@@ -336,20 +338,40 @@ start_xtts() {
 # Function to update
 update() {
     echo -e "\033]0;SillyTavern [UPDATE]\007"
-    log_message "INFO" "Updating SillyTavern..."
-    cd "$(dirname "$0")./SillyTavern" || exit 1
+    log_message "INFO" "Updating SillyTavern-Launcher..."
+    cd "$(dirname "$0")"
+    git pull --rebase --autostash
 
-    # Check if Git is installed
-    if git --version > /dev/null 2>&1; then
+    # Update SillyTavern if directory exists
+    if [ -d "$(dirname "$0")/SillyTavern" ]; then
+        log_message "INFO" "Updating SillyTavern..."
+        cd "$(dirname "$0")./SillyTavern"
         git pull --rebase --autostash
-        if [ $? -ne 0 ]; then
-            # In case there are errors while updating
-            echo "There were errors while updating. Please download the latest version manually."
-        fi
+        log_message "INFO" "SillyTavern updated successfully."
     else
-        echo -e "${red_fg_strong}[ERROR] git command not found in PATH. Skipping update.${reset}"
-        echo -e "${red_bg}Please make sure Git is installed and added to your PATH.${reset}"
-        echo -e "${blue_bg}To install Git, go to Toolbox.${reset}"
+        log_message "WARN" "SillyTavern directory not found. Skipping SillyTavern update."
+    fi
+
+    # Update Extras if directory exists
+    if [ -d "$(dirname "$0")/SillyTavern-extras" ]; then
+        log_message "INFO" "Updating SillyTavern-extras..."
+        cd "$(dirname "$0")./SillyTavern-extras"
+        git pull --rebase --autostash
+        log_message "INFO" "SillyTavern-extras updated successfully."
+    else
+        log_message "WARN" "SillyTavern-extras directory not found. Skipping SillyTavern-extras update."
+    fi
+
+    # Update XTTS if directory exists
+    if [ -d "$(dirname "$0")/xtts" ]; then
+        log_message "INFO" "Updating XTTS..."
+        cd "$(dirname "$0")./xtts"
+        source activate xtts
+        pip install --upgrade xtts-api-server
+        conda deactivate
+        log_message "INFO" "XTTS updated successfully."
+    else
+        log_message "WARN" "xtts directory not found. Skipping XTTS update."
     fi
 
     read -p "Press Enter to continue..."
@@ -434,7 +456,9 @@ restore_backup() {
     backup_menu
 }
 
-# Backup Menu - Frontend
+############################################################
+################# BACKUP - FRONTEND ########################
+############################################################
 backup_menu() {
     echo -e "\033]0;SillyTavern [BACKUP]\007"
     clear
@@ -447,7 +471,7 @@ backup_menu() {
 
     read -p "Choose Your Destiny: " backup_choice
 
-    # Backup Menu - Backend
+################# BACKUP - BACKEND ########################
     case $backup_choice in
         1) create_backup ;;
         2) restore_backup ;;
@@ -475,7 +499,10 @@ switch_staging_st() {
     switch_branch_menu
 }
 
-# Switch Brance Menu - Frontend
+
+############################################################
+############## SWITCH BRANCE - FRONTEND ####################
+############################################################
 switch_branch_menu() {
     echo -e "\033]0;SillyTavern [SWITCH-BRANCE]\007"
     clear
@@ -494,7 +521,7 @@ switch_branch_menu() {
 
     read -p "Choose Your Destiny: " branch_choice
 
-    # Switch Branch Menu - Backend
+################# SWITCH BRANCE - BACKEND ########################
     case $branch_choice in
         1) switch_release_st ;;
         2) switch_staging_st ;;
@@ -505,26 +532,407 @@ switch_branch_menu() {
     esac
 }
 
-# Function to edit environment variables
-edit_environment() {
-    # Open the environment variables file for editing
-    if [ -f ~/.bashrc ]; then
-        # Use your preferred text editor (e.g., nano, vim, or gedit)
-        nano ~/.bashrc
+
+
+# Function to install p7zip (7-Zip)
+install_p7zip() {
+    if ! command -v 7z &> /dev/null; then
+        log_message "WARN" "${yellow_fg_strong}p7zip (7-Zip) is not installed on this system${reset}"
+
+        if command -v apt-get &>/dev/null; then
+            # Debian/Ubuntu-based system
+            log_message "INFO" "Installing p7zip (7-Zip) using apt..."
+            sudo apt-get update
+            sudo apt-get install -y p7zip-full
+        elif command -v yum &>/dev/null; then
+            # Red Hat/Fedora-based system
+            log_message "INFO" "Installing p7zip (7-Zip) using yum..."
+            sudo yum install -y p7zip p7zip-plugins
+        elif command -v apk &>/dev/null; then
+            # Alpine Linux-based system
+            log_message "INFO" "Installing p7zip (7-Zip) using apk..."
+            sudo apk add p7zip
+        elif command -v pacman &>/dev/null; then
+            # Arch Linux-based system
+            log_message "INFO" "Installing p7zip (7-Zip) using pacman..."
+            sudo pacman -Sy --noconfirm p7zip
+        elif command -v emerge &>/dev/null; then
+            # Gentoo Linux-based system
+            log_message "INFO" "Installing p7zip (7-Zip) using emerge..."
+            sudo emerge --ask app-arch/p7zip
+        else
+            log_message "ERROR" "${red_fg_strong}Unsupported Linux distribution.${reset}"
+            exit 1
+        fi
+
+        log_message "INFO" "${green_fg_strong}p7zip (7-Zip) is installed.${reset}"
     else
-        echo "Environment file not found. Create or specify the correct file path."
-    fi
-
-    # Provide instructions to the user
-    echo "Edit your environment variables. Save and exit the editor when done."
-
-    # Optionally, ask the user to reload the environment
-    read -p "Do you want to reload the environment? (Y/N): " reload
-    if [ "$reload" = "Y" ] || [ "$reload" = "y" ]; then
-        source ~/.bashrc  # Reload the environment (may vary based on your shell)
-        echo "Environment reloaded."
+        log_message "INFO" "${blue_fg_strong}p7zip (7-Zip) is already installed.${reset}"
     fi
 }
+
+# Function to install FFmpeg
+install_ffmpeg() {
+    if ! command -v ffmpeg &> /dev/null; then
+        log_message "WARN" "${yellow_fg_strong}FFmpeg is not installed on this system${reset}"
+
+        if command -v apt-get &>/dev/null; then
+            # Debian/Ubuntu-based system
+            log_message "INFO" "Installing FFmpeg using apt..."
+            sudo apt-get update
+            sudo apt-get install -y ffmpeg
+        elif command -v yum &>/dev/null; then
+            # Red Hat/Fedora-based system
+            log_message "INFO" "Installing FFmpeg using yum..."
+            sudo yum install -y ffmpeg
+        elif command -v apk &>/dev/null; then
+            # Alpine Linux-based system
+            log_message "INFO" "Installing FFmpeg using apk..."
+            sudo apk add ffmpeg
+        elif command -v pacman &>/dev/null; then
+            # Arch Linux-based system
+            log_message "INFO" "Installing FFmpeg using pacman..."
+            sudo pacman -Sy --noconfirm ffmpeg
+        elif command -v emerge &>/dev/null; then
+            # Gentoo Linux-based system
+            log_message "INFO" "Installing FFmpeg using emerge..."
+            sudo emerge --ask media-video/ffmpeg
+        else
+            log_message "ERROR" "${red_fg_strong}Unsupported Linux distribution.${reset}"
+            exit 1
+        fi
+
+        log_message "INFO" "${green_fg_strong}FFmpeg is installed.${reset}"
+    else
+        log_message "INFO" "${blue_fg_strong}FFmpeg is already installed.${reset}"
+    fi
+}
+
+# Function to install Node.js
+install_nodejs() {
+    if ! command -v node &> /dev/null; then
+        log_message "WARN" "${yellow_fg_strong}Node.js is not installed on this system${reset}"
+
+        if command -v apt-get &>/dev/null; then
+            # Debian/Ubuntu-based system
+            log_message "INFO" "Installing Node.js using apt..."
+            curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+        elif command -v yum &>/dev/null; then
+            # Red Hat/Fedora-based system
+            log_message "INFO" "Installing Node.js using yum..."
+            curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
+            sudo yum install -y nodejs
+        elif command -v apk &>/dev/null; then
+            # Alpine Linux-based system
+            log_message "INFO" "Installing Node.js using apk..."
+            sudo apk add nodejs npm
+        elif command -v pacman &>/dev/null; then
+            # Arch Linux-based system
+            log_message "INFO" "Installing Node.js using pacman..."
+            sudo pacman -Sy --noconfirm nodejs npm
+        elif command -v emerge &>/dev/null; then
+            # Gentoo Linux-based system
+            log_message "INFO" "Installing Node.js using emerge..."
+            sudo emerge --ask nodejs
+        else
+            log_message "ERROR" "${red_fg_strong}Unsupported Linux distribution.${reset}"
+            exit 1
+        fi
+
+        log_message "INFO" "${green_fg_strong}Node.js is installed.${reset}"
+    else
+        log_message "INFO" "${blue_fg_strong}Node.js is already installed.${reset}"
+    fi
+}
+
+
+############################################################
+############## APP INSTALLER - FRONTEND ####################
+############################################################
+app_installer() {
+    echo -e "\033]0;SillyTavern [APP INSTALLER]\007"
+    clear
+    echo -e "${blue_fg_strong}/ Home / Toolbox / App Installer${reset}"
+    echo "------------------------------------------------"
+    echo "What would you like to do?"
+    echo "1. Install 7-Zip"
+    echo "2. Install FFmpeg"
+    echo "3. Install Node.js"
+    echo "0. Back to Toolbox"
+
+    read -p "Choose Your Destiny: " app_installer_choice
+
+################# APP INSTALLER - BACKEND #######################
+    case $app_installer_choice in
+        1) install_p7zip ;;
+        2) install_ffmpeg ;;
+        3) install_nodejs ;;
+        0) toolbox ;;
+        *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
+           read -p "Press Enter to continue..."
+           app_installer ;;
+    esac
+}
+
+# Function to uninstall Extras
+uninstall_extras() {
+    echo
+    echo -e "${red_bg}╔════ DANGER ZONE ═══════════════════════════════════════════════════════════════════╗${reset}"
+    echo -e "${red_bg}║ WARNING: This will delete all data in Extras                                       ║${reset}"
+    echo -e "${red_bg}║ If you want to keep any data, make sure to create a backup before proceeding.      ║${reset}"
+    echo -e "${red_bg}╚════════════════════════════════════════════════════════════════════════════════════╝${reset}"
+    echo
+    echo -n "Are you sure you want to proceed? [Y/N]: "
+    read confirmation
+
+    if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
+        cd "$(dirname "$0")"
+        log_message "INFO" "Removing the SillyTavern-extras directory..."
+        rm -rf SillyTavern-extras
+        log_message "INFO" "Removing the Conda environment: extras"
+        conda remove --name extras --all -y
+
+        log_message "INFO" "${green_fg_strong}Extras uninstalled successfully.${reset}"
+    else
+        echo "Uninstall canceled."
+    fi
+    pause
+    app_uninstaller
+}
+
+# Function to uninstall XTTS
+uninstall_xtts() {
+    echo
+    echo -e "${red_bg}╔════ DANGER ZONE ═══════════════════════════════════════════════════════════════════╗${reset}"
+    echo -e "${red_bg}║ WARNING: This will delete all data in XTTS                                         ║${reset}"
+    echo -e "${red_bg}║ If you want to keep any data, make sure to create a backup before proceeding.      ║${reset}"
+    echo -e "${red_bg}╚════════════════════════════════════════════════════════════════════════════════════╝${reset}"
+    echo
+    echo -n "Are you sure you want to proceed? [Y/N]: "
+    read confirmation
+
+    if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
+        cd "$(dirname "$0")"
+        log_message "INFO" "Removing the xtts directory..."
+        rm -rf xtts
+        log_message "INFO" "Removing the Conda environment: xtts"
+        conda remove --name xtts --all -y
+
+        log_message "INFO" "${green_fg_strong}XTTS uninstalled successfully.${reset}"
+    else
+        echo "Uninstall canceled."
+    fi
+    pause
+    app_uninstaller
+    
+}
+
+
+# Function to uninstall SillyTavern
+uninstall_st() {
+    echo
+    echo -e "${red_bg}╔════ DANGER ZONE ═══════════════════════════════════════════════════════════════════╗${reset}"
+    echo -e "${red_bg}║ WARNING: This will delete all data in SillyTavern                                  ║${reset}"
+    echo -e "${red_bg}║ If you want to keep any data, make sure to create a backup before proceeding.      ║${reset}"
+    echo -e "${red_bg}╚════════════════════════════════════════════════════════════════════════════════════╝${reset}"
+    echo
+    echo -n "Are you sure you want to proceed? [Y/N]: "
+    read confirmation
+
+    if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
+        cd "$(dirname "$0")"
+        log_message "INFO" "Removing the SillyTavern directory..."
+        rm -rf SillyTavern
+        log_message "INFO" "${green_fg_strong}SillyTavern uninstalled successfully.${reset}"
+    else
+        echo "Uninstall canceled."
+    fi
+    pause
+    app_uninstaller
+}
+
+
+# Function to uninstall p7zip (7-Zip)
+uninstall_p7zip() {
+    if command -v 7z &> /dev/null; then
+        log_message "WARN" "${yellow_fg_strong}p7zip (7-Zip) is installed on this system${reset}"
+
+        if command -v apt-get &>/dev/null; then
+            # Debian/Ubuntu-based system
+            log_message "INFO" "Uninstalling p7zip (7-Zip) using apt..."
+            sudo apt-get remove --purge -y p7zip p7zip-full
+        elif command -v yum &>/dev/null; then
+            # Red Hat/Fedora-based system
+            log_message "INFO" "Uninstalling p7zip (7-Zip) using yum..."
+            sudo yum remove -y p7zip p7zip-plugins
+        elif command -v apk &>/dev/null; then
+            # Alpine Linux-based system
+            log_message "INFO" "Uninstalling p7zip (7-Zip) using apk..."
+            sudo apk del p7zip
+        elif command -v pacman &>/dev/null; then
+            # Arch Linux-based system
+            log_message "INFO" "Uninstalling p7zip (7-Zip) using pacman..."
+            sudo pacman -Rns --noconfirm p7zip
+        elif command -v emerge &>/dev/null; then
+            # Gentoo Linux-based system
+            log_message "INFO" "Uninstalling p7zip (7-Zip) using emerge..."
+            sudo emerge --unmerge p7zip
+        else
+            log_message "ERROR" "${red_fg_strong}Unsupported Linux distribution.${reset}"
+            exit 1
+        fi
+
+        log_message "INFO" "${green_fg_strong}p7zip (7-Zip) is uninstalled.${reset}"
+    else
+        log_message "INFO" "${blue_fg_strong}p7zip (7-Zip) is not installed.${reset}"
+    fi
+}
+
+# Function to uninstall FFmpeg
+uninstall_ffmpeg() {
+    if command -v ffmpeg &> /dev/null; then
+        log_message "WARN" "${yellow_fg_strong}FFmpeg is installed on this system${reset}"
+
+        if command -v apt-get &>/dev/null; then
+            # Debian/Ubuntu-based system
+            log_message "INFO" "Uninstalling FFmpeg using apt..."
+            sudo apt-get remove --purge -y ffmpeg
+        elif command -v yum &>/dev/null; then
+            # Red Hat/Fedora-based system
+            log_message "INFO" "Uninstalling FFmpeg using yum..."
+            sudo yum remove -y ffmpeg
+        elif command -v apk &>/dev/null; then
+            # Alpine Linux-based system
+            log_message "INFO" "Uninstalling FFmpeg using apk..."
+            sudo apk del ffmpeg
+        elif command -v pacman &>/dev/null; then
+            # Arch Linux-based system
+            log_message "INFO" "Uninstalling FFmpeg using pacman..."
+            sudo pacman -Rns --noconfirm ffmpeg
+        elif command -v emerge &>/dev/null; then
+            # Gentoo Linux-based system
+            log_message "INFO" "Uninstalling FFmpeg using emerge..."
+            sudo emerge --unmerge ffmpeg
+        else
+            log_message "ERROR" "${red_fg_strong}Unsupported Linux distribution.${reset}"
+            exit 1
+        fi
+
+        log_message "INFO" "${green_fg_strong}FFmpeg is uninstalled.${reset}"
+    else
+        log_message "INFO" "${blue_fg_strong}FFmpeg is not installed.${reset}"
+    fi
+}
+
+
+# Function to uninstall Node.js and npm
+uninstall_nodejs() {
+    if command -v node &> /dev/null; then
+        log_message "WARN" "${yellow_fg_strong}Node.js is installed on this system${reset}"
+
+        if command -v apt-get &>/dev/null; then
+            # Debian/Ubuntu-based system
+            log_message "INFO" "Uninstalling Node.js using apt..."
+            sudo apt-get remove --purge -y nodejs npm
+        elif command -v yum &>/dev/null; then
+            # Red Hat/Fedora-based system
+            log_message "INFO" "Uninstalling Node.js using yum..."
+            sudo yum remove -y nodejs npm
+        elif command -v apk &>/dev/null; then
+            # Alpine Linux-based system
+            log_message "INFO" "Uninstalling Node.js using apk..."
+            sudo apk del nodejs npm
+        elif command -v pacman &>/dev/null; then
+            # Arch Linux-based system
+            log_message "INFO" "Uninstalling Node.js using pacman..."
+            sudo pacman -Rns --noconfirm nodejs npm
+        elif command -v emerge &>/dev/null; then
+            # Gentoo Linux-based system
+            log_message "INFO" "Uninstalling Node.js using emerge..."
+            sudo emerge --unmerge nodejs
+        else
+            log_message "ERROR" "${red_fg_strong}Unsupported Linux distribution.${reset}"
+            exit 1
+        fi
+
+        log_message "INFO" "${green_fg_strong}Node.js and npm are uninstalled.${reset}"
+    else
+        log_message "INFO" "${blue_fg_strong}Node.js is not installed.${reset}"
+    fi
+}
+
+# Function to uninstall Git
+uninstall_git() {
+    if command -v git &> /dev/null; then
+        log_message "WARN" "${yellow_fg_strong}Git is installed on this system${reset}"
+
+        if command -v apt-get &>/dev/null; then
+            # Debian/Ubuntu-based system
+            log_message "INFO" "Uninstalling Git using apt..."
+            sudo apt-get remove --purge -y git
+        elif command -v yum &>/dev/null; then
+            # Red Hat/Fedora-based system
+            log_message "INFO" "Uninstalling Git using yum..."
+            sudo yum remove -y git
+        elif command -v apk &>/dev/null; then
+            # Alpine Linux-based system
+            log_message "INFO" "Uninstalling Git using apk..."
+            sudo apk del git
+        elif command -v pacman &>/dev/null; then
+            # Arch Linux-based system
+            log_message "INFO" "Uninstalling Git using pacman..."
+            sudo pacman -Rns --noconfirm git
+        elif command -v emerge &>/dev/null; then
+            # Gentoo Linux-based system
+            log_message "INFO" "Uninstalling Git using emerge..."
+            sudo emerge --unmerge dev-vcs/git
+        else
+            log_message "ERROR" "${red_fg_strong}Unsupported Linux distribution.${reset}"
+            exit 1
+        fi
+
+        log_message "INFO" "${green_fg_strong}Git is uninstalled.${reset}"
+    else
+        log_message "INFO" "${blue_fg_strong}Git is not installed.${reset}"
+    fi
+}
+############################################################
+############## APP UNINSTALLER - FRONTEND ##################
+############################################################
+app_uninstaller() {
+    echo -e "\033]0;SillyTavern [APP UNINSTALLER]\007"
+    clear
+    echo -e "${blue_fg_strong}/ Home / Toolbox / App Uninstaller${reset}"
+    echo "------------------------------------------------"
+    echo "What would you like to do?"
+    echo "1. UNINSTALL Extras"
+    echo "2. UNINSTALL XTTS"
+    echo "3. UNINSTALL SillyTavern"
+    echo "4. UNINSTALL 7-Zip"
+    echo "5. UNINSTALL FFmpeg"
+    echo "6. UNINSTALL Node.js"
+    echo "7. UNINSTALL git"
+    echo "0. Back to Toolbox"
+
+    read -p "Choose Your Destiny: " app_uninstaller_choice
+
+################# APP UNINSTALLER - BACKEND #######################
+    case $app_uninstaller_choice in
+        1) uninstall_extras ;;
+        2) uninstall_xtts ;;
+        3) uninstall_st ;;
+        4) uninstall_p7zip ;;
+        5) uninstall_ffmpeg ;;
+        6) uninstall_nodejs ;;
+        7) uninstall_git ;;
+        0) toolbox ;;
+        *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
+           read -p "Press Enter to continue..."
+           app_uninstaller ;;
+    esac
+}
+
 
 # Function to print module options with color based on their status
 printModule() {
@@ -539,7 +947,7 @@ printModule() {
 edit_extras_modules() {
     echo -e "\033]0;SillyTavern [EDIT-MODULES]\007"
     clear
-    echo -e "${blue_fg_strong}/ Home / Toolbox / Edit Extras Modules${reset}"
+    echo -e "${blue_fg_strong}/ Home / Toolbox / Editor / Edit Extras Modules${reset}"
     echo "-------------------------------------"
     echo "Choose extras modules to enable or disable (e.g., \"1 2 4\" to enable Cuda, RVC, and Caption)"
 
@@ -600,6 +1008,127 @@ edit_extras_modules() {
     edit_extras_modules
 }
 
+# Function to edit XTTS modules
+edit_xtts_modules() {
+    echo -e "\033]0;SillyTavern [EDIT-XTTS-MODULES]\007"
+    clear
+    echo -e "${blue_fg_strong}/ Home / Toolbox / Editor / Edit XTTS Modules${reset}"
+    echo "-------------------------------------"
+    echo "Choose XTTS modules to enable or disable (e.g., "1 2 4" to enable Cuda, hs, and cache)"
+
+    # Display module options with colors based on their status
+    printModule "1. cuda (--device cuda)" "$xtts_cuda_trigger"
+    printModule "2. hs (-hs 0.0.0.0)" "$xtts_hs_trigger"
+    printModule "3. deepspeed (--deepspeed)" "$xtts_deepspeed_trigger"
+    printModule "4. cache (--use-cache)" "$xtts_cache_trigger"
+    printModule "5. listen (--listen)" "$xtts_listen_trigger"
+    printModule "6. model (--model-source local)" "$xtts_model_trigger"
+    echo "0. Back to Editor"s
+
+    set "python_command="
+
+    read -p "Choose modules to enable/disable (1-6): " module_choices
+
+    # Handle the user's module choices and construct the Python command
+    for i in $module_choices; do
+        case $i in
+            1) [ "$xtts_cuda_trigger" == "true" ] && xtts_cuda_trigger=false || xtts_cuda_trigger=true ;;
+            2) [ "$xtts_hs_trigger" == "true" ] && xtts_hs_trigger=false || xtts_hs_trigger=true ;;
+            3) [ "$xtts_deepspeed_trigger" == "true" ] && xtts_deepspeed_trigger=false || xtts_deepspeed_trigger=true ;;
+            4) [ "$xtts_cache_trigger" == "true" ] && xtts_cache_trigger=false || xtts_cache_trigger=true ;;
+            5) [ "$xtts_listen_trigger" == "true" ] && xtts_listen_trigger=false || xtts_listen_trigger=true ;;
+            6) [ "$xtts_model_trigger" == "true" ] && xtts_model_trigger=false || xtts_model_trigger=true ;;
+            0) editor ;;
+        esac
+    done
+
+    # Save the module flags to modules-xtts.txt
+    modules_file="$(dirname "$0")/modules-xtts.txt"
+    echo "xtts_cuda_trigger=$xtts_cuda_trigger" > "$modules_file"
+    echo "xtts_hs_trigger=$xtts_hs_trigger" >> "$modules_file"
+    echo "xtts_deepspeed_trigger=$xtts_deepspeed_trigger" >> "$modules_file"
+    echo "xtts_cache_trigger=$xtts_cache_trigger" >> "$modules_file"
+    echo "xtts_listen_trigger=$xtts_listen_trigger" >> "$modules_file"
+    echo "xtts_model_trigger=$xtts_model_trigger" >> "$modules_file"
+
+    # Compile the Python command
+    python_command="python server.py"
+    [ "$xtts_cuda_trigger" == "true" ] && python_command+=" --device cuda"
+    [ "$xtts_hs_trigger" == "true" ] && python_command+=" -hs 0.0.0.0"
+    [ "$xtts_deepspeed_trigger" == "true" ] && python_command+=" --deepspeed"
+    [ "$xtts_cache_trigger" == "true" ] && python_command+=" --use-cache"
+    [ "$xtts_listen_trigger" == "true" ] && python_command+=" --listen"
+    [ "$xtts_model_trigger" == "true" ] && python_command+=" --model-source local"
+
+    # Save the constructed Python command to modules.txt for testing
+    echo "start_command=$python_command" >> "$modules_file"
+    edit_xtts_modules
+}
+
+
+# Function to edit environment variables
+edit_environment_var() {
+    # Open the environment variables file for editing
+    if [ -f ~/.bashrc ]; then
+        # Use your preferred text editor (e.g., nano, vim, or gedit)
+        nano ~/.bashrc
+    else
+        echo "Environment file not found. Create or specify the correct file path."
+    fi
+
+    # Provide instructions to the user
+    echo "Edit your environment variables. Save and exit the editor when done."
+
+    # Optionally, ask the user to reload the environment
+    read -p "Do you want to reload the environment? (Y/N): " reload
+    if [ "$reload" = "Y" ] || [ "$reload" = "y" ]; then
+        source ~/.bashrc  # Reload the environment (may vary based on your shell)
+        echo "Environment reloaded."
+    fi
+}
+
+
+edit_st_config() {
+    # Check if nano is available
+    if ! command -v nano &>/dev/null; then
+        echo "Error: Nano is not installed. Please install Nano to edit config.yaml"
+        exit 1
+    fi
+    # Open config.yaml file in nano
+    nano "$(dirname "$0")/SillyTavern/config.yaml"
+}
+
+############################################################
+############## EDITOR - FRONTEND ###########################
+############################################################
+editor() {
+    echo -e "\033]0;SillyTavern [EDITOR]\007"
+    clear
+    echo -e "${blue_fg_strong}/ Home / Toolbox / Editor${reset}"
+    echo "------------------------------------------------"
+    echo "What would you like to do?"
+    echo "1. Edit Extras Modules"
+    echo "2. Edit XTTS Modules"
+    echo "3. Edit Environment Variables"
+    echo "4. Edit SillyTavern config.yaml"
+    echo "0. Back to Toolbox"
+
+    read -p "Choose Your Destiny: " editor_choice
+
+################# EDITOR - BACKEND #########################
+    case $editor_choice in
+        1) edit_extras_modules ;;
+        2) edit_xtts_modules ;;
+        3) edit_environment_var ;;
+        4) edit_st_config ;;
+        0) toolbox ;;
+        *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
+           read -p "Press Enter to continue..."
+           editor ;;
+    esac
+}
+
+
 # Function to remove node modules folder
 remove_node_modules() {
     log_message "INFO" "Removing node_modules folder..."
@@ -609,233 +1138,60 @@ remove_node_modules() {
     toolbox
 }
 
-# Function to reinstall SillyTavern
-reinstall_sillytavern() {
-    local script_name=$(basename "$0")
-    local excluded_folders="backups"
-    local excluded_files="$script_name"
+############################################################
+############## TROUBLESHOOTING - FRONTEND ##################
+############################################################
+troubleshooting() {
+    echo -e "\033]0;SillyTavern [TROUBLESHOOTING]\007"
+    clear
+    echo -e "${blue_fg_strong}/ Home / Toolbox / Troubleshooting${reset}"
+    echo "------------------------------------------------"
+    echo "What would you like to do?"
+    echo "1. Remove node_modules folder"
+    echo "2. Fix unresolved conflicts or unmerged files [SillyTavern]"
+    echo "3. Export system info"
+    echo "4. Find what app is using port"
+    echo "0. Back to Toolbox"
 
-    echo
-    echo -e "${red_bg}╔════ DANGER ZONE ═══════════════════════════════════════════════════════════════╗${reset}"
-    echo -e "${red_bg}║ WARNING: This will delete all data in the current branch except the Backups.   ║${reset}"
-    echo -e "${red_bg}║ If you want to keep any data, make sure to create a backup before proceeding.  ║${reset}"
-    echo -e "${red_bg}╚════════════════════════════════════════════════════════════════════════════════╝${reset}"
-    echo
-    echo -n "Are you sure you want to proceed? [Y/N]: "
-    read confirmation
+    read -p "Choose Your Destiny: " troubleshooting_choice
 
-    if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
-        cd "$(dirname "$0")./SillyTavern"
-
-        # Remove non-excluded folders
-        for dir in *; do
-            exclude_folder=false
-            for excluded_folder in $excluded_folders; do
-                if [ "$dir" = "$excluded_folder" ]; then
-                    exclude_folder=true
-                    break
-                fi
-            done
-            if [ "$exclude_folder" = "false" ]; then
-                rm -r "$dir" 2>/dev/null
-            fi
-        done
-
-        # Remove non-excluded files
-        for file in *; do
-            exclude_file=false
-            for excluded_file in $excluded_files; do
-                if [ "$file" = "$excluded_file" ]; then
-                    exclude_file=true
-                    break
-                fi
-            done
-            if [ "$exclude_file" = "false" ]; then
-                rm -f "$file" 2>/dev/null
-            fi
-        done
-
-        # Clone repo into a temporary folder
-        git clone https://github.com/SillyTavern/SillyTavern.git "/tmp/SillyTavern-TEMP"
-
-        # Move the contents of the temporary folder to the current directory
-        cp -r /tmp/SillyTavern-TEMP/* .
-
-        # Clean up the temporary folder
-        rm -r /tmp/SillyTavern-TEMP
-
-        echo -e "${green_fg_strong}SillyTavern reinstalled successfully!${reset}"
-    else
-        echo "Reinstall canceled."
-    fi
-
-    pause
-    toolbox
+################# TROUBLESHOOTING - BACKEND ################
+    case $troubleshooting_choice in
+        1) remove_node_modules ;;
+        2) unresolved_unmerged ;;
+        3) export_system_info ;;
+        4) find_app_port ;;
+        0) toolbox ;;
+        *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
+           read -p "Press Enter to continue..."
+           troubleshooting ;;
+    esac
 }
 
-# Function to reinstall SillyTavern Extras
-reinstall_extras() {
-    local script_name=$(basename "$0")
-    local excluded_folders="backups"
-    local excluded_files="$script_name"
 
-    echo
-    echo -e "${red_bg}╔════ DANGER ZONE ═══════════════════════════════════════════════════════════════════╗${reset}"
-    echo -e "${red_bg}║ WARNING: This will delete all data in Sillytavern-extras                           ║${reset}"
-    echo -e "${red_bg}║ If you want to keep any data, make sure to create a backup before proceeding.      ║${reset}"
-    echo -e "${red_bg}╚════════════════════════════════════════════════════════════════════════════════════╝${reset}"
-    echo
-    echo -n "Are you sure you want to proceed? [Y/N]: "
-    read confirmation
-
-    if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
-        cd "$(dirname "$0")./SillyTavern-extras"
-
-        # Remove non-excluded folders
-        for dir in *; do
-            exclude_folder=false
-            for excluded_folder in $excluded_folders; do
-                if [ "$dir" = "$excluded_folder" ]; then
-                    exclude_folder=true
-                    break
-                fi
-            done
-            if [ "$exclude_folder" = "false" ]; then
-                rm -r "$dir" 2>/dev/null
-            fi
-        done
-
-        # Remove non-excluded files
-        for file in *; do
-            exclude_file=false
-            for excluded_file in $excluded_files; do
-                if [ "$file" = "$excluded_file" ]; then
-                    exclude_file=true
-                    break
-                fi
-            done
-            if [ "$exclude_file" = "false" ]; then
-                rm -f "$file" 2>/dev/null
-            fi
-        done
-
-        # Clone the SillyTavern Extras repository
-        git clone https://github.com/SillyTavern/SillyTavern-extras
-
-        echo -e "${green_fg_strong}SillyTavern Extras${reset}"
-        echo "---------------------------------------------------------------"
-        echo -e "${cyan_fg_strong}This may take a while. Please be patient.${reset}"
-        log_message "INFO" "Installing SillyTavern Extras..."
-
-        # Update PATH to include Miniconda
-        export PATH="$miniconda_path/bin:$PATH"
-
-        # Activate Conda environment
-        log_message "INFO" "Activating Miniconda environment..."
-        source $miniconda_path/etc/profile.d/conda.sh
-
-        # Create and activate the Conda environment
-        log_message "INFO" "Disabling conda auto activate..."
-        conda config --set auto_activate_base false
-        conda init bash
-
-        log_message "INFO" "Creating Conda environment extras..."
-        conda create -n extras -y
-
-        log_message "INFO" "Activating Conda environment extras..."
-        conda activate extras
-
-        log_message "INFO" "Installing Python and Git in the Conda environment..."
-        conda install python=3.11 git -y
-
-        log_message "INFO" "Cloning SillyTavern-extras repository..."
-        git clone https://github.com/SillyTavern/SillyTavern-extras.git
-
-        cd SillyTavern-extras
-
-        log_message "INFO" "Installing modules from requirements.txt..."
-        pip3 install -r requirements.txt
-
-        log_message "DISCLAIMER" "The installation of Coqui requirements is not recommended unless you have a specific use case. It may conflict with additional dependencies and functionalities to your environment."
-        log_message "INFO" "To learn more about Coqui, visit: https://docs.sillytavern.app/extras/installation/#decide-which-module-to-use"
-
-        read -p "Do you want to install Coqui TTS? [Y/N] " install_coqui_requirements
-
-        if [[ "$install_coqui_requirements" == [Yy] ]]; then
-            log_message "INFO" "Installing pip3 requirements-coqui..."
-            pip3 install -r requirements-coqui.txt
-        else
-            log_message "INFO" "Coqui requirements installation skipped."
-        fi
-
-        log_message "INFO" "Installing pip3 requirements-rvc..."
-        pip3 install -r requirements-rvc.txt
-
-        log_message "INFO" "${green_fg_strong}SillyTavern Extras reinstalled successfully.${reset}"
-    else
-        echo "Reinstall canceled."
-    fi
-    pause
-    toolbox
-}
-
-# Function to uninstall SillyTavern + Extras
-uninstall_st_extras() {
-    echo
-    echo -e "${red_bg}╔════ DANGER ZONE ═══════════════════════════════════════════════════════════════════╗${reset}"
-    echo -e "${red_bg}║ WARNING: This will delete all data in Sillytavern + Extras                         ║${reset}"
-    echo -e "${red_bg}║ If you want to keep any data, make sure to create a backup before proceeding.      ║${reset}"
-    echo -e "${red_bg}╚════════════════════════════════════════════════════════════════════════════════════╝${reset}"
-    echo
-    echo -n "Are you sure you want to proceed? [Y/N]: "
-    read confirmation
-
-    if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
-        cd "$(dirname "$0")"
-        log_message "INFO" "Removing the SillyTavern + Sillytavern-extras directory..."
-        rm -rf SillyTavern SillyTavern-extras
-        log_message "INFO" "Removing the Conda environment 'extras'..."
-        conda remove --name extras --all -y
-
-        log_message "INFO" "${green_fg_strong}SillyTavern + Extras uninstalled successfully.${reset}"
-    else
-        echo "Uninstall canceled."
-    fi
-    pause
-    toolbox
-}
-
-# Toolbox Menu - Frontend
+############################################################
+################# TOOLBOX - FRONTEND #######################
+############################################################
 toolbox() {
     echo -e "\033]0;SillyTavern [TOOLBOX]\007"
     clear
     echo -e "${blue_fg_strong}/ Home / Toolbox${reset}"
-    echo "-------------------------------------"
+    echo "------------------------------------------------"
     echo "What would you like to do?"
-    echo "1. Install 7-Zip"
-    echo "2. Install FFmpeg"
-    echo "3. Install Node.js"
-    echo "4. Edit Environment"
-    echo "5. Edit Extras Modules"
-    echo "6. Remove node_modules folder"
-    echo "7. Reinstall SillyTavern"
-    echo "8. Reinstall Extras"
-    echo "9. Uninstall SillyTavern + Extras"
+    echo "1. App Installer"
+    echo "2. App Uninstaller"
+    echo "3. Editor"
+    echo "4. Troubleshooting"
     echo "0. Back to Home"
 
     read -p "Choose Your Destiny: " toolbox_choice
 
-    # Toolbox Menu - Backend
+################# TOOLBOX - BACKEND #######################
     case $toolbox_choice in
-        1) install_7zip ;;
-        2) install_ffmpeg ;;
-        3) install_nodejs ;;
-        4) edit_environment ;;
-        5) edit_extras_modules ;;
-        6) remove_node_modules ;;
-        7) reinstall_sillytavern ;;
-        8) reinstall_extras ;;
-        9) uninstall_st_extras ;;
+        1) app_installer ;;
+        2) app_uninstaller ;;
+        3) editor ;;
+        4) troubleshooting ;;
         0) home ;;
         *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
            read -p "Press Enter to continue..."
@@ -843,7 +1199,7 @@ toolbox() {
     esac
 }
 
-# Functions for Support Menu - Backend
+
 issue_report() {
     if [ "$EUID" -eq 0 ]; then
         log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
@@ -887,7 +1243,9 @@ discord() {
 }
 
 
-# Support Menu - Frontend
+############################################################
+############## SUPPORT - FRONTEND ##########################
+############################################################
 support() {
     echo -e "\033]0;SillyTavern [SUPPORT]\007"
     clear
@@ -897,16 +1255,16 @@ support() {
     echo "1. I want to report an issue"
     echo "2. Documentation"
     echo "3. Discord"
-    echo "0. Back to installer"
+    echo "0. Back to Home"
 
     read -p "Choose Your Destiny: " support_choice
 
-    # Support Menu - Backend
+############## SUPPORT - BACKEND ##########################
     case $support_choice in
         1) issue_report ;;
         2) documentation ;;
         3) discord ;;
-        0) installer ;;
+        0) home ;;
         *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
            read -p "Press Enter to continue..."
            support ;;
@@ -923,38 +1281,38 @@ if [ -n "$IS_MACOS" ]; then
     log_message "INFO" "${blue_fg_strong}Detected macOS system.${reset}"
     # macOS
     install_git
-    install_nodejs_npm
+    install_nodejs
     home
 # Detect the package manager and execute the appropriate installation
 elif command -v apt-get &>/dev/null; then
     log_message "INFO" "Detected Debian/Ubuntu-based system.${reset}"
     # Debian/Ubuntu
     install_git
-    install_nodejs_npm
+    install_nodejs
     home
 elif command -v yum &>/dev/null; then
     log_message "INFO" "Detected Red Hat/Fedora-based system.${reset}"
     # Red Hat/Fedora
     install_git
-    install_nodejs_npm
+    install_nodejs
     home
 elif command -v apk &>/dev/null; then
     log_message "INFO" "Detected Alpine Linux-based system.${reset}"
     # Alpine Linux
     install_git
-    install_nodejs_npm
+    install_nodejs
     home
 elif command -v pacman &>/dev/null; then
     log_message "INFO" "Detected Arch Linux-based system.${reset}"
     # Arch Linux
     install_git
-    install_nodejs_npm
+    install_nodejs
     home
 elif command -v emerge &>/dev/null; then
     log_message "INFO" "Detected Gentoo Linux-based system. Now you are the real CHAD${reset}"
     # Gentoo Linux
     install_git
-    install_nodejs_npm
+    install_nodejs
     home
 else
     log_message "ERROR" "${red_fg_strong}Unsupported package manager. Cannot detect Linux distribution.${reset}"

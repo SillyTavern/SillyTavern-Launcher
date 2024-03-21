@@ -208,7 +208,7 @@ set /p "choice=Choose Your Destiny (default is 1): "
 REM Default to choice 1 if no input is provided
 if not defined choice set "choice=1"
 
-REM Home - backend
+REM ################## HOME - BACKEND #########################
 if "%choice%"=="1" (
     call :start_st
 ) else if "%choice%"=="2" (
@@ -459,7 +459,7 @@ echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo =================================
 set /p brance_choice=Choose Your Destiny: 
 
-REM Switch Brance - backend
+REM ################# SWITCH BRANCE - BACKEND ########################
 if "%brance_choice%"=="1" (
     call :switch_brance_release_st
 ) else if "%brance_choice%"=="2" (
@@ -824,6 +824,7 @@ echo What would you like to do?
 echo 1. Edit Extras Modules
 echo 2. Edit XTTS Modules
 echo 3. Edit Environment Variables
+echo 4. Edit SillyTavern config.yaml
 echo 0. Back to Toolbox
 
 set /p editor_choice=Choose Your Destiny: 
@@ -835,6 +836,8 @@ if "%editor_choice%"=="1" (
     call :edit_xtts_modules
 ) else if "%editor_choice%"=="3" (
     call :edit_environment_var
+) else if "%editor_choice%"=="4" (
+    call :edit_st_config
 ) else if "%editor_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -1134,6 +1137,11 @@ goto :edit_xtts_modules
 
 :edit_environment_var
 rundll32.exe sysdm.cpl,EditEnvironmentVariables
+goto :editor
+
+
+:edit_st_config
+start "" "%~dp0SillyTavern\config.yaml"
 goto :editor
 
 

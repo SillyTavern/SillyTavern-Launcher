@@ -157,9 +157,9 @@ if not defined choice set "choice=1"
 
 REM Installer menu - Backend
 if "%choice%"=="1" (
-    call :install_st_extras
+    call :install_all
 ) else if "%choice%"=="2" (
-    call :install_sillytavern 
+    call :install_sillytavern
 ) else if "%choice%"=="3" (
     call :install_extras
 ) else if "%choice%"=="4" (
@@ -175,7 +175,7 @@ if "%choice%"=="1" (
 )
 
 
-:install_st_extras
+:install_all
 title SillyTavern [INSTALL SILLYTAVERN + EXTRAS + XTTS]
 cls
 echo %blue_fg_strong%/ Installer / Install SillyTavern + Extras + XTTS%reset%
@@ -214,22 +214,22 @@ REM Check the user's response
 if "%gpu_choice%"=="1" (
     REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
-    goto :install_st_extras_pre
+    goto :install_all_pre
 ) else if "%gpu_choice%"=="2" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
-    goto :install_st_extras_pre
+    goto :install_all_pre
 ) else if "%gpu_choice%"=="3" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
-    goto :install_st_extras_pre
+    goto :install_all_pre
 ) else if "%gpu_choice%"=="0" (
     goto :installer
 ) else (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
     pause
-    goto :install_st_extras
+    goto :install_all
 )
 
-:install_st_extras_pre
+:install_all_pre
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern + Extras + XTTS...
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing SillyTavern...
 
@@ -271,7 +271,7 @@ REM Install script for XTTS
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%xtts%reset%
     call conda activate xtts
 
-    REM Use the GPU choice made earlier to set the correct PyTorch index-url
+    REM Use the GPU choice made earlier to install requirements for XTTS
     if "%GPU_CHOICE%"=="1" (
         echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
         pip install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
@@ -286,13 +286,13 @@ REM Install script for XTTS
         goto :install_st_xtts
     )
 
+    :install_st_xtts
     REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements in conda enviroment: %cyan_fg_strong%xtts%reset%
     pip install xtts-api-server
     pip install pydub
     pip install stream2sentence
 
-    :install_st_xtts
     REM Create folders for xtts
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
     mkdir "%~dp0xtts"
@@ -328,18 +328,18 @@ if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for NVIDIA from requirements.txt in conda enviroment: %cyan_fg_strong%extras%reset% 
     call conda install -c conda-forge faiss-gpu -y
     pip install -r requirements.txt
-    goto :install_st_extras_post
+    goto :install_all_post
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for AMD from requirements-rocm.txt in conda enviroment: %cyan_fg_strong%extras%reset% 
     pip install -r requirements-rocm.txt
-    goto :install_st_extras_post
+    goto :install_all_post
 ) else if "%GPU_CHOICE%"=="3" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing modules for CPU from requirements-silicon.txt in conda enviroment: %cyan_fg_strong%extras%reset% 
     pip install -r requirements-silicon.txt
-    goto :install_st_extras_post
+    goto :install_all_post
 )
 
-:install_st_extras_post
+:install_all_post
 echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements from requirements-rvc.txt in conda enviroment: %cyan_fg_strong%extras%reset% 
 pip install -r requirements-rvc.txt
 pip install tensorboardX
@@ -674,7 +674,7 @@ REM Activate the xtts environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%xtts%reset%
 call conda activate xtts
 
-REM Use the GPU choice made earlier to set the correct PyTorch index-url
+REM Use the GPU choice made earlier to install requirements for XTTS
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
     pip install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
