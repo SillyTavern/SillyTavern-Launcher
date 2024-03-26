@@ -39,12 +39,11 @@ blue_bg="\033[44m"
 yellow_bg="\033[43m"
 
 
-function find_conda {
+# Function to find Miniconda installation directory
+find_conda() {
     local paths=(
         "$HOME/miniconda3"
         "$HOME/miniconda"
-        "$HOME/opt/miniconda3"
-        "$HOME/opt/miniconda"
         "/opt/miniconda3"
         "/opt/miniconda"
         "/usr/local/miniconda3"
@@ -53,8 +52,6 @@ function find_conda {
         "/usr/miniconda"
         "$HOME/anaconda3"
         "$HOME/anaconda"
-        "$HOME/opt/anaconda3"
-        "$HOME/opt/anaconda"
         "/opt/anaconda3"
         "/opt/anaconda"
         "/usr/local/anaconda3"
@@ -63,11 +60,6 @@ function find_conda {
         "/usr/anaconda"
     )
 
-    if [ "$(uname)" == "Darwin" ]; then
-        paths+=("/opt/homebrew-cask/Caskroom/miniconda")
-        paths+=("/usr/local/Caskroom/miniconda/base")
-    fi
-
     for path in "${paths[@]}"; do
         if [ -d "$path" ]; then
             echo "$path"
@@ -75,43 +67,59 @@ function find_conda {
         fi
     done
 
-    echo "ERROR: Could not find miniconda installation" >&2
     return 1
 }
 
-if [ -n "$CONDA_PATH" ]; then
-    CONDA_PATH="$(find_conda)"
-fi
+# Function to install Miniconda
+install_miniconda() {
+    # Check if Miniconda is already installed
+    if command -v conda &>/dev/null; then
+        echo "Miniconda is already installed. Skipping installation."
+        installer
+        return 0  # Exit the function with success status
+    fi
 
-# miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
-os_name="$(uname -s)"
-arch="$(uname -m)"
-if [ "$os_name" == "Linux" ]; then
-    if [ "$arch" == "x86_64" ]; then
-        miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
-    elif [ "$arch" == "aarch64" ]; then
-        miniconda_installer="Miniconda3-latest-Linux-aarch64.sh"
-    else
-        echo "ERROR: Unsupported architecture: $arch" >&2
-        exit 1
-    fi
-elif [ "$os_name" == "Darwin" ]; then
-    if [ "$arch" == "x86_64" ]; then
-        miniconda_installer="Miniconda3-latest-MacOSX-x86_64.sh"
-    else
-        miniconda_installer="Miniconda3-latest-MacOSX-arm64.sh"
-    fi
-else
-    echo "ERROR: Unsupported operating system: $os_name, using the linux installer (on $arch)" >&2
-    if [ "$arch" == "x86_64" ]; then
-        miniconda_installer="Miniconda3-latest-Linux-x86_64.sh"
-    elif [ "$arch" == "aarch64" ]; then
-        miniconda_installer="Miniconda3-latest-Linux-aarch64.sh"
-    else
-        echo "ERROR: Unsupported architecture: $arch" >&2
-        exit 1
-    fi
-fi
+    # Determine Miniconda installer based on OS and architecture
+    os_name="$(uname -s)"
+    arch="$(uname -m)"
+    case "$os_name" in
+        Linux)
+            case "$arch" in
+                x86_64) miniconda_installer="Miniconda3-latest-Linux-x86_64.sh" ;;
+                aarch64) miniconda_installer="Miniconda3-latest-Linux-aarch64.sh" ;;
+                *) echo "ERROR: Unsupported architecture: $arch" >&2; return 1 ;;
+            esac
+            ;;
+        Darwin)
+            case "$arch" in
+                x86_64) miniconda_installer="Miniconda3-latest-MacOSX-x86_64.sh" ;;
+                arm64) miniconda_installer="Miniconda3-latest-MacOSX-arm64.sh" ;;
+                *) echo "ERROR: Unsupported architecture: $arch" >&2; return 1 ;;
+            esac
+            ;;
+        *)
+            echo "ERROR: Unsupported operating system: $os_name" >&2
+            return 1
+            ;;
+    esac
+
+    # Download the Miniconda installer script
+    wget "https://repo.anaconda.com/miniconda/$miniconda_installer" -O /tmp/miniconda_installer.sh
+
+    # Run the installer script
+    bash /tmp/miniconda_installer.sh -b -p "$HOME/miniconda"
+
+    # Add Miniconda to PATH
+    export PATH="$HOME/miniconda/bin:$PATH"
+
+    # Activate Conda environment
+    source "$HOME/miniconda/etc/profile.d/conda.sh"
+
+    # Clean up the Downloaded file
+    rm /tmp/miniconda_installer.sh
+
+    echo "Miniconda installed successfully in $HOME/miniconda"
+}
 
 # Define the paths and filenames for the shortcut creation
 script_path="$(realpath "$(dirname "$0")")/launcher.sh"
@@ -297,37 +305,6 @@ install_nodejs_npm() {
     fi
 }
 
-# Function to install Miniconda
-install_miniconda() {
-    # Check if Miniconda is already installed
-    if command -v conda &>/dev/null; then
-        log_message "INFO" "Miniconda is already installed. Skipping installation."
-        return 0  # Exit the function with success status
-    fi
-    # Download the Miniconda installer script
-    wget https://repo.anaconda.com/miniconda/$miniconda_installer -P /tmp
-    chmod +x /tmp/$miniconda_installer
-
-    # Run the installer script
-    bash /tmp/$miniconda_installer -b -u -p $CONDA_PATH
-
-    # Update PATH to include Miniconda
-    export PATH="$CONDA_PATH/bin:$PATH"
-
-    # Activate Conda environment
-    log_message "INFO" "Activating Miniconda environment..."
-    source $CONDA_PATH/etc/profile.d/conda.sh
-
-    # Create and activate the Conda environment
-    log_message "INFO" "Disabling conda auto activate..."
-    conda config --set auto_activate_base false
-    conda init bash
-
-    # Clean up the Downloaded file
-    rm -rf /tmp/$miniconda_installer
-
-    log_message "INFO" "Miniconda installed successfully."
-}
 
 # Function to install SillyTavern + Extras + XTTS
 install_all() {
@@ -413,14 +390,17 @@ install_all_pre() {
 
     # Check if xtts activation was successful
     if [ $? -eq 0 ]; then
-        log_message "INFO" "Successfully activated Conda environment: xtts ."
+        log_message "INFO" "Successfully activated Conda environment: xtts"
+        install_all_pre_successful
     else
         log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: xtts${reset}"
         log_message "INFO" "Press Enter to try again otherwise close the installer and restart."
         read -p "Press Enter to try again..."
-        install_xtts
+        install_all_pre
     fi
+}
 
+install_all_pre_successful() {
     # Create folders for xtts
     log_message "INFO" "Creating xtts folders..."
     mkdir "$PWD/xtts"
@@ -472,41 +452,40 @@ install_all_post() {
 
     # Check if extras activation was successful
     if [ $? -eq 0 ]; then
-        log_message "INFO" "Conda environment extras activated successfully."
+        log_message "INFO" "Successfully activated Conda environment: extras"
+        install_all_post_successful
     else
         log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: extras${reset}"
         log_message "INFO" "Press Enter to try again otherwise close the installer and restart."
         read -p "Press Enter to try again..."
-        install_all_pre
+        install_all_post
     fi
+}
 
-    # Activate the extras environment
-    log_message "INFO" "Activating Conda environment extras..."
-    conda activate extras
-
+install_all_post_successful() {
     # Navigate to the SillyTavern-extras directory
     cd "$PWD/SillyTavern-extras"
 
-
-    log_message "INFO" "Installing pip requirements from requirements-rvc.txt in conda enviroment: extras"
+    log_message "INFO" "Installing pip requirements from requirements-rvc.txt in Conda enviroment: ${cyan_fg_strong}extras${reset}"
     pip3 install -r requirements-rvc.txt
     pip3 install tensorboardX
-    log_message "INFO" "${green_fg_strong}SillyTavern + Extras successfully installed.${reset}"
-
 
     # Use the GPU choice made earlier to install requirements for extras
     if [ "$GPU_CHOICE" == "1" ]; then
         log_message "INFO" "Installing modules for NVIDIA from requirements.txt in extras"
         pip3 install -r requirements.txt
         conda install -c conda-forge faiss-gpu -y
+        log_message "INFO" "${green_fg_strong}SillyTavern + Extras + XTTS successfully installed.${reset}"
         install_all_final
     elif [ "$GPU_CHOICE" == "2" ]; then
         log_message "INFO" "Installing modules for AMD from requirements-rocm.txt in extras"
         pip3 install -r requirements-rocm.txt
+        log_message "INFO" "${green_fg_strong}SillyTavern + Extras + XTTS successfully installed.${reset}"
         install_all_final
     elif [ "$GPU_CHOICE" == "3" ]; then
         log_message "INFO" "Installing modules for CPU from requirements-silicon.txt in extras"
         pip3 install -r requirements-silicon.txt
+        log_message "INFO" "${green_fg_strong}SillyTavern + Extras + XTTS successfully installed.${reset}"
         install_all_final
     fi
 }
@@ -652,74 +631,51 @@ install_extras_pre() {
     git clone https://github.com/SillyTavern/SillyTavern-extras.git
 
 
-    log_message "INFO" "Creating Conda environment extras..."
+    log_message "INFO" "Creating Conda environment: ${cyan_fg_strong}extras${reset}"
     conda create -n extras python=3.11 git -y
 
-    log_message "INFO" "Activating Conda environment extras..."
+    log_message "INFO" "Activating Conda environment: ${cyan_fg_strong}extras${reset}"
+    conda init bash
     conda activate extras
 
     # Check if extras activation was successful
     if [ $? -eq 0 ]; then
-        log_message "INFO" "Conda environment extras activated successfully."
+        log_message "INFO" "Successfully activated Conda environment: extras"
+        install_extras_successful
     else
         log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: extras${reset}"
         log_message "INFO" "Press Enter to try again otherwise close the installer and restart."
         read -p "Press Enter to try again..."
         install_extras_pre
     fi
-
-    # Use the GPU choice made earlier to install requirements for XTTS
-    if [ "$GPU_CHOICE" == "1" ]; then
-        log_message "INFO" "Installing NVIDIA version of PyTorch"
-        pip3 install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
-        install_extras_post
-    elif [ "$GPU_CHOICE" == "2" ]; then
-        log_message "INFO" "Installing AMD version of PyTorch"
-        pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-        install_extras_post
-    elif [ "$GPU_CHOICE" == "3" ]; then
-        log_message "INFO" "Installing CPU-only version of PyTorch"
-        pip3 install torch torchvision torchaudio
-        install_extras_post
-    fi
 }
 
-
-install_extras_post() {
-    # Activate the extras environment
-    log_message "INFO" "Activating Conda environment extras..."
-    conda activate extras
-
+install_extras_successful() {
     # Navigate to the SillyTavern-extras directory
     cd "$PWD/SillyTavern-extras"
 
-    # Use the GPU choice made earlier to install requirements for extras
-    if [ "$GPU_CHOICE" == "1" ]; then
-        log_message "INFO" "Installing modules for NVIDIA from requirements.txt in extras"
-        pip3 install -r requirements.txt
-        conda install -c conda-forge faiss-gpu -y
-        install_extras_post
-    elif [ "$GPU_CHOICE" == "2" ]; then
-        log_message "INFO" "Installing modules for AMD from requirements-rocm.txt in extras"
-        pip3 install -r requirements-rocm.txt
-        install_extras_post
-    elif [ "$GPU_CHOICE" == "3" ]; then
-        log_message "INFO" "Installing modules for CPU from requirements-silicon.txt in extras"
-        pip3 install -r requirements-silicon.txt
-        install_extras_post
-    fi
-
-    # Install Python 3.11 and Git in the extras environment
-    log_message "INFO" "Installing Python and Git in the Conda environment..."
-    conda install python=3.11 git -y
-
-    log_message "INFO" "Installing pip3 requirements-rvc in extras environment..."
+    log_message "INFO" "Installing pip3 requirements-rvc in Conda environment: ${cyan_fg_strong}extras${reset}"
     pip3 install -r requirements-rvc.txt
     pip3 install tensorboardX
 
-    log_message "INFO" "${green_fg_strong}SillyTavern + Extras successfully installed.${reset}"
-
-    installer
+    # Use the GPU choice made earlier to install requirements in the Conda environment extras
+    if [ "$GPU_CHOICE" == "1" ]; then
+        log_message "INFO" "Installing modules for NVIDIA from requirements.txt in Conda environment: ${cyan_fg_strong}extras${reset}"
+        pip3 install -r requirements.txt
+        conda install -c conda-forge faiss-gpu -y
+        log_message "INFO" "${green_fg_strong}Extras successfully installed.${reset}"
+        installer
+    elif [ "$GPU_CHOICE" == "2" ]; then
+        log_message "INFO" "Installing modules for AMD from requirements-rocm.txt in Conda environment: ${cyan_fg_strong}extras${reset}"
+        pip3 install -r requirements-rocm.txt
+        log_message "INFO" "${green_fg_strong}Extras successfully installed.${reset}"
+        installer
+    elif [ "$GPU_CHOICE" == "3" ]; then
+        log_message "INFO" "Installing modules for CPU from requirements-silicon.txt in Conda environment: ${cyan_fg_strong}extras${reset}"
+        pip3 install -r requirements-silicon.txt
+        log_message "INFO" "${green_fg_strong}Extras successfully installed.${reset}"
+        installer
+    fi
 }
 
 
@@ -732,16 +688,16 @@ install_xtts() {
     source "$miniconda_path/bin/activate"
 
     # Create a Conda environment named xtts
-    log_message "INFO" "Creating Conda environment xtts..."
+    log_message "INFO" "Creating Conda environment: xtts"
     conda create -n xtts python=3.10 git -y
 
     # Activate the xtts environment
-    log_message "INFO" "Activating Conda environment xtts..."
+    log_message "INFO" "Activating Conda environment: xtts"
     conda activate xtts
 
     # Check if activation was successful
     if [ $? -eq 0 ]; then
-        log_message "INFO" "Conda environment xtts activated successfully."
+        log_message "INFO" "Successfully activated Conda environment: xtts"
     else
         log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: xtts${reset}"
         log_message "INFO" "Press Enter to try again otherwise close the installer and restart."

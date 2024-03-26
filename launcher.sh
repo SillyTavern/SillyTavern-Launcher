@@ -153,7 +153,7 @@ home() {
     echo -e "\033]0;SillyTavern [HOME]\007"
     clear
     echo -e "${blue_fg_strong}/ Home${reset}"
-    echo "-------------------------------------"
+    echo "------------------------------------------------"
     echo "What would you like to do?"
     echo "1. Start SillyTavern"
     echo "2. Start Extras"
@@ -463,7 +463,7 @@ backup_menu() {
     echo -e "\033]0;SillyTavern [BACKUP]\007"
     clear
     echo -e "${blue_fg_strong}/ Home / Backup${reset}"
-    echo "-------------------------------------"
+    echo "------------------------------------------------"
     echo "What would you like to do?"
     echo "1. Create Backup"
     echo "2. Restore Backup"
@@ -507,7 +507,7 @@ switch_branch_menu() {
     echo -e "\033]0;SillyTavern [SWITCH-BRANCE]\007"
     clear
     echo -e "${blue_fg_strong}/ Home / Switch Branch${reset}"
-    echo "-------------------------------------"
+    echo "------------------------------------------------"
     echo "What would you like to do?"
     echo "1. Switch to Release - SillyTavern"
     echo "2. Switch to Staging - SillyTavern"
@@ -1133,9 +1133,81 @@ editor() {
 remove_node_modules() {
     log_message "INFO" "Removing node_modules folder..."
     cd "$(dirname "$0")./SillyTavern"
-    rm -rf node_modules
+    rm -rf node_modules package-lock.json
+    npm cache clean --force
+    log_message "INFO" "node_modules successfully removed."
+    read -p "Press Enter to continue..."
+    troubleshooting
+}
 
-    toolbox
+unresolved_unmerged() {
+    log_message "INFO" "Trying to resolve unresolved conflicts in the working directory or unmerged files..."
+    cd "$(dirname "$0")./SillyTavern"
+    git merge --abort
+    git reset --hard
+    git pull --rebase --autostash
+    read -p "Press Enter to continue..."
+    troubleshooting
+}
+
+export_system_info() {
+    log_message "INFO" "Exporting system information..."
+    lshw > "$(dirname "$0")/system_info.txt"
+    log_message "INFO" "You can find the system_info.txt at: $(dirname "$0")/system_info.txt"
+    read -p "Press Enter to continue..."
+    troubleshooting
+}
+
+# Function to find and display the application using the specified port
+find_app_port() {
+    clear
+    read -p "Insert port number: " port
+
+    # Check if the input is a number
+    if ! [[ "$port" =~ ^[0-9]+$ ]]; then
+        log_message "ERROR" "Invalid input: Not a number."
+        read -p "Press Enter to continue..."
+        find_app_port
+    fi
+
+    # Check if the port is within range
+    if (( port > 65535 )); then
+        log_message "ERROR" "Port out of range. There are only 65,535 possible port numbers."
+        echo "[0-1023]: These ports are reserved for system services or commonly used protocols."
+        echo "[1024-49151]: These ports can be used by user processes or applications."
+        echo "[49152-65535]: These ports are available for use by any application or service on the system."
+        read -p "Press Enter to continue..."
+        find_app_port
+    fi
+
+    log_message "INFO" "Searching for application using port: $port..."
+    pid=$(netstat -tuln | awk '{print $4}' | grep ":$port" | awk -F'/' '{print $NF}')
+
+    if [[ -n "$pid" ]]; then
+        app_name=$(ps -p $pid -o comm=)
+        echo -e "Application Name: \e[36;1m$app_name\e[0m"
+        echo -e "PID of Port $port: \e[36;1m$pid\e[0m"
+    else
+        log_message "WARN" "Port: $port not found."
+        read -p "Press Enter to continue..."
+        find_app_port
+    fi
+
+    read -p "Press Enter to continue..."
+    troubleshooting
+}
+
+onboarding_flow() {
+    read -p "Enter new value for Onboarding Flow (true/false): " onboarding_flow_value
+    if [[ "$onboarding_flow_value" != "true" && "$onboarding_flow_value" != "false" ]]; then
+        log_message "WARN" "Invalid input. Please enter 'true' or 'false'."
+        read -p "Press Enter to continue..."
+        onboarding_flow
+    fi
+    sed -i "s/\"firstRun\": .*/\"firstRun\": $onboarding_flow_value,/" "$PWD/SillyTavern/public/settings.json"
+    log_message "INFO" "Value of 'firstRun' in settings.json has been updated to $onboarding_flow_value."
+    read -p "Press Enter to continue..."
+    troubleshooting
 }
 
 ############################################################
@@ -1151,6 +1223,7 @@ troubleshooting() {
     echo "2. Fix unresolved conflicts or unmerged files [SillyTavern]"
     echo "3. Export system info"
     echo "4. Find what app is using port"
+    echo "5. Set Onboarding Flow"
     echo "0. Back to Toolbox"
 
     read -p "Choose Your Destiny: " troubleshooting_choice
@@ -1161,6 +1234,7 @@ troubleshooting() {
         2) unresolved_unmerged ;;
         3) export_system_info ;;
         4) find_app_port ;;
+        5) onboarding_flow ;;
         0) toolbox ;;
         *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
            read -p "Press Enter to continue..."
@@ -1250,7 +1324,7 @@ support() {
     echo -e "\033]0;SillyTavern [SUPPORT]\007"
     clear
     echo -e "${blue_fg_strong}/ Home / Support${reset}"
-    echo "-------------------------------------"
+    echo "------------------------------------------------"
     echo "What would you like to do?"
     echo "1. I want to report an issue"
     echo "2. Documentation"

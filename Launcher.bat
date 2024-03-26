@@ -675,6 +675,7 @@ REM color 7
 echo 1. Install 7-Zip
 echo 2. Install FFmpeg
 echo 3. Install Node.js
+echo 4. Install yq
 echo 0. Back to Toolbox
 
 set /p app_installer_choice=Choose Your Destiny: 
@@ -686,6 +687,8 @@ if "%app_installer_choice%"=="1" (
     call :install_ffmpeg
 ) else if "%app_installer_choice%"=="3" (
     call :install_nodejs
+) else if "%app_installer_choice%"=="4" (
+    call :install_yq
 ) else if "%app_installer_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -808,6 +811,14 @@ title SillyTavern [INSTALL-NODEJS]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Node.js...
 winget install -e --id OpenJS.NodeJS
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js is installed. Please restart the Launcher.%reset%
+pause
+exit
+
+:install_yq
+title SillyTavern [INSTALL-YQ]
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing yq...
+winget install -e --id MikeFarah.yq
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%yq is installed. Please restart the Launcher.%reset%
 pause
 exit
 
@@ -1158,6 +1169,7 @@ echo 1. Remove node_modules folder
 echo 2. Fix unresolved conflicts or unmerged files [SillyTavern]
 echo 3. Export dxdiag info
 echo 4. Find what app is using port
+echo 5. Set Onboarding Flow
 echo 0. Back to Home
 
 set /p troubleshooting_choice=Choose Your Destiny: 
@@ -1171,6 +1183,8 @@ if "%troubleshooting_choice%"=="1" (
     call :export_dxdiag
 ) else if "%troubleshooting_choice%"=="4" (
     call :find_app_port
+) else if "%troubleshooting_choice%"=="5" (
+    call :onboarding_flow
 ) else if "%troubleshooting_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -1253,6 +1267,12 @@ endlocal
 pause
 goto :troubleshooting
 
+
+:onboarding_flow
+set ONBOARDING_FLOW_VALUE=
+set /p ONBOARDING_FLOW_VALUE="Enter new value for Onboarding Flow (true/false): "
+yq eval -i ".firstRun = %ONBOARDING_FLOW_VALUE%" "%~dp0SillyTavern\public\settings.json"
+goto :troubleshooting
 
 
 REM ############################################################
