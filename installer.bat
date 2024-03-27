@@ -33,8 +33,12 @@ set "yellow_bg=[43m"
 REM Environment Variables (winget)
 set "winget_path=%userprofile%\AppData\Local\Microsoft\WindowsApps"
 
-REM Environment Variables (TOOLBOX Install Extras)
+REM Environment Variables (miniconda3)
 set "miniconda_path=%userprofile%\miniconda3"
+set "miniconda_path_mingw=%userprofile%\miniconda3\Library\mingw-w64\bin"
+set "miniconda_path_usrbin=%userprofile%\miniconda3\Library\usr\bin"
+set "miniconda_path_bin=%userprofile%\miniconda3\Library\bin"
+set "miniconda_path_scripts=%userprofile%\miniconda3\Scripts"
 
 REM Define the paths and filenames for the shortcut creation
 set "shortcutTarget=%~dp0launcher.bat"
@@ -101,6 +105,36 @@ if %errorlevel% neq 0 (
     exit
 ) else (
     echo %blue_fg_strong%[INFO] Git is already installed.%reset%
+)
+
+REM Get the current PATH value from the registry
+for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
+
+REM Check if the paths are already in the current PATH
+echo %current_path% | find /i "%miniconda_path%" > nul
+set "ff_path_exists=%errorlevel%"
+
+setlocal enabledelayedexpansion
+
+REM Append the new paths to the current PATH only if they don't exist
+if %ff_path_exists% neq 0 (
+    set "new_path=%current_path%;%miniconda_path%;%miniconda_path_mingw%;%miniconda_path_usrbin%;%miniconda_path_bin%;%miniconda_path_scripts%"
+    echo.
+    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
+    echo.
+    echo [DEBUG] "miniconda_path is:%cyan_fg_strong% %miniconda_path%%reset%"
+    echo.
+    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
+
+    REM Update the PATH value in the registry
+    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
+
+    REM Update the PATH value for the current session
+    setx PATH "!new_path!" > nul
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%miniconda3 added to PATH.%reset%
+) else (
+    set "new_path=%current_path%"
+    echo %blue_fg_strong%[INFO] miniconda3 already exists in PATH.%reset%
 )
 
 REM Check if Miniconda3 is installed if not then install Miniconda3

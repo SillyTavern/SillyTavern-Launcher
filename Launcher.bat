@@ -1170,7 +1170,7 @@ echo 2. Fix unresolved conflicts or unmerged files [SillyTavern]
 echo 3. Export dxdiag info
 echo 4. Find what app is using port
 echo 5. Set Onboarding Flow
-echo 0. Back to Home
+echo 0. Back to Toolbox
 
 set /p troubleshooting_choice=Choose Your Destiny: 
 
