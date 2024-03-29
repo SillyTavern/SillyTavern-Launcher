@@ -600,7 +600,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildT
 curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
 
 if %errorlevel% neq 0 (
-  echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Download failed. Please restart the installer%reset%
+  echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to download vs_BuildTools.exe Please restart the installer%reset%
   pause
   goto :installer
 ) else (

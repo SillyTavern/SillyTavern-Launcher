@@ -9,10 +9,11 @@ body:
       label: Environment
       description: What OS are you running the file from?
       options:
-        - Windows 
-        - Linux
-        - Android (Termux)
-        - Mac
+        - 🪟 Windows
+        - 🐧 Linux
+        - 📱 Termux
+        - 🐋 Docker
+        - 🍎 Mac
     validations:
       required: true
 
