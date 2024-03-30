@@ -723,13 +723,14 @@ if "%GPU_CHOICE%"=="1" (
     goto :install_xtts
 )
 
+
+:install_xtts
 REM Install pip requirements
 echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements in conda enviroment: %cyan_fg_strong%xtts%reset%
 pip install xtts-api-server
 pip install pydub
 pip install stream2sentence
 
-:install_xtts
 REM Create folders for xtts
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
 mkdir "%~dp0xtts"
