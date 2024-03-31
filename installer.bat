@@ -308,7 +308,7 @@ REM Install script for XTTS
     REM Use the GPU choice made earlier to install requirements for XTTS
     if "%GPU_CHOICE%"=="1" (
         echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
-        pip install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+        pip install torch==2.1.1+cu118 torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
         goto :install_st_xtts
     ) else if "%GPU_CHOICE%"=="2" (
         echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
@@ -702,7 +702,7 @@ call "%miniconda_path%\Scripts\activate.bat"
 
 REM Create a Conda environment named xtts
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%xtts%reset%
-call conda create -n xtts python=3.10 git -y
+call conda create -n xtts python=3.10 -y
 
 REM Activate the xtts environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%xtts%reset%
@@ -711,7 +711,7 @@ call conda activate xtts
 REM Use the GPU choice made earlier to install requirements for XTTS
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
-    pip install torch==2.1.1+cu118 torchvision torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+    pip install torch==2.1.1+cu118 torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
     goto :install_xtts
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
@@ -725,21 +725,24 @@ if "%GPU_CHOICE%"=="1" (
 
 
 :install_xtts
+REM Clone the xtts-api-server repository for voice examples
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
+git clone https://github.com/daswer123/xtts-api-server.git
+cd /d "%~dp0xtts-api-server"
+
 REM Install pip requirements
 echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements in conda enviroment: %cyan_fg_strong%xtts%reset%
+pip install -r requirements.txt
 pip install xtts-api-server
 pip install pydub
 pip install stream2sentence
 
 REM Create folders for xtts
+cd /d "%~dp0"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
 mkdir "%~dp0xtts"
 mkdir "%~dp0xtts\speakers"
 mkdir "%~dp0xtts\output"
-
-REM Clone the xtts-api-server repository for voice examples
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
-git clone https://github.com/daswer123/xtts-api-server.git
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
 xcopy "%~dp0xtts-api-server\example\*" "%~dp0xtts\speakers\" /y /e

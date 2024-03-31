@@ -15,7 +15,7 @@ body:
         - 'No'
         - 'Yes'
     validations:
-      required: false
+      required: true
 
   # Field 2 - Is it bug-related
   - type: textarea
