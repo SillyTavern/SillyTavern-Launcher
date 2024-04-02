@@ -1,5 +1,5 @@
 @echo off
-REM SillyTavern Launcher
+REM SillyTavern Launcher (STL)
 REM Created by: Deffcolony
 REM
 REM Description:
@@ -10,7 +10,7 @@ REM report any issues or bugs on the GitHub repository.
 REM
 REM GitHub: https://github.com/SillyTavern/SillyTavern-Launcher
 REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
-title SillyTavern Launcher
+title STL
 setlocal
 
 REM ANSI Escape Code for Colors
@@ -30,25 +30,34 @@ set "red_bg=[41m"
 set "blue_bg=[44m"
 set "yellow_bg=[43m"
 
-REM Environment Variables (TOOLBOX 7-Zip)
+REM Environment Variables (7-Zip)
 set "zip7version=7z2301-x64"
 set "zip7_install_path=%ProgramFiles%\7-Zip"
 set "zip7_download_path=%TEMP%\%zip7version%.exe"
 
-REM Environment Variables (TOOLBOX FFmpeg)
+REM Environment Variables (FFmpeg)
 set "ffmpeg_url=https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z"
 set "ffdownload_path=%~dp0ffmpeg.7z"
 set "ffextract_path=C:\ffmpeg"
-set "bin_path=%ffextract_path%\bin"
+set "ffmpeg_path_bin=%ffextract_path%\bin"
 
-REM Environment Variables (TOOLBOX Node.js)
+REM Environment Variables (Node.js)
 set "node_installer_path=%temp%\NodejsInstaller.msi"
 
 REM Environment Variables (winget)
 set "winget_path=%userprofile%\AppData\Local\Microsoft\WindowsApps"
 
-REM Environment Variables (TOOLBOX Install Extras)
+REM Environment Variables (miniconda3)
 set "miniconda_path=%userprofile%\miniconda3"
+set "miniconda_path_mingw=%userprofile%\miniconda3\Library\mingw-w64\bin"
+set "miniconda_path_usrbin=%userprofile%\miniconda3\Library\usr\bin"
+set "miniconda_path_bin=%userprofile%\miniconda3\Library\bin"
+set "miniconda_path_scripts=%userprofile%\miniconda3\Scripts"
+
+REM Environment Variables (w64devkit)
+set "w64devkit_path=C:\w64devkit"
+set "w64devkit_path_bin=%w64devkit_path%\bin"
+
 
 REM Define variables to track module status
 set "modules_path=%~dp0modules.txt"
@@ -179,10 +188,10 @@ REM ############################################################
 REM ################## HOME - FRONTEND #########################
 REM ############################################################
 :home
-title SillyTavern [HOME]
+title STL [HOME]
 cls
 echo %blue_fg_strong%/ Home%reset%
-echo -------------------------------------
+echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. Start SillyTavern
 echo 2. Start Extras
@@ -199,7 +208,7 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo Launcher: V1.0.8
+echo Launcher: V1.1.0
 echo =================================
 
 set "choice="
@@ -241,7 +250,7 @@ node --version > nul 2>&1
 if %errorlevel% neq 0 (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] node command not found in PATH.%reset%
     echo %red_fg_strong%Node.js is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install Node.js go to:%reset% %blue_bg%/ Toolbox / App Installer / Install Node.js%reset%
+    echo %red_fg_strong%To install Node.js go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install Node.js%reset%
     pause
     goto :home
 )
@@ -318,7 +327,7 @@ node --version > nul 2>&1
 if %errorlevel% neq 0 (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] node command not found in PATH.%reset%
     echo %red_fg_strong%Node.js is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install Node.js go to:%reset% %blue_bg%/ Toolbox / App Installer / Install Node.js%reset%
+    echo %red_fg_strong%To install Node.js go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install Node.js%reset%
     pause
     goto :home
 )
@@ -361,7 +370,7 @@ goto :home
 
 
 :update
-title SillyTavern [UPDATE]
+title STL [UPDATE]
 REM Update SillyTavern-Launcher
 set max_retries=3
 set retry_count=0
@@ -443,10 +452,10 @@ REM ############################################################
 REM ############## SWITCH BRANCE - FRONTEND ####################
 REM ############################################################
 :switch_brance
-title SillyTavern [SWITCH-BRANCE]
+title STL [SWITCH-BRANCE]
 cls
 echo %blue_fg_strong%/ Home / Switch Branch%reset%
-echo -------------------------------------
+echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. Switch to Release - SillyTavern
 echo 2. Switch to Staging - SillyTavern
@@ -494,19 +503,19 @@ REM ############################################################
 REM ################# BACKUP - FRONTEND ########################
 REM ############################################################
 :backup_menu
-title SillyTavern [BACKUP]
+title STL [BACKUP]
 REM Check if 7-Zip is installed
 7z > nul 2>&1
 if %errorlevel% neq 0 (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
     echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Install 7-Zip%reset%
+    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
     pause
     goto :home
 )
 cls
 echo %blue_fg_strong%/ Home / Backup%reset%
-echo -------------------------------------
+echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. Create Backup
 echo 2. Restore Backup
@@ -529,7 +538,7 @@ if "%backup_choice%"=="1" (
 )
 
 :create_backup
-title SillyTavern [CREATE-BACKUP]
+title STL [CREATE-BACKUP]
 REM Create a backup using 7zip
 7z a "%~dp0SillyTavern-backups\backup_.7z" ^
     "public\assets\*" ^
@@ -587,7 +596,7 @@ goto :backup_menu
 
 
 :restore_backup
-title SillyTavern [RESTORE-BACKUP]
+title STL [RESTORE-BACKUP]
 
 echo List of available backups:
 echo =========================
@@ -629,28 +638,31 @@ REM ############################################################
 REM ################# TOOLBOX - FRONTEND #######################
 REM ############################################################
 :toolbox
-title SillyTavern [TOOLBOX]
+title STL [TOOLBOX]
 cls
 echo %blue_fg_strong%/ Home / Toolbox%reset%
-echo -------------------------------------
+echo -------------------------------------------------------------
 echo What would you like to do?
 REM color 7
-echo 1. App Installer
-echo 2. App Uninstaller
-echo 3. Editor
-echo 4. Troubleshooting
+echo 1. App Launcher
+echo 2. App Installer
+echo 3. App Uninstaller
+echo 4. Editor
+echo 5. Troubleshooting
 echo 0. Back to Home
 
 set /p toolbox_choice=Choose Your Destiny: 
 
 REM ################# TOOLBOX - BACKEND #######################
 if "%toolbox_choice%"=="1" (
-    call :app_installer
+    call :app_launcher
 ) else if "%toolbox_choice%"=="2" (
-    call :app_uninstaller
+    call :app_installer
 ) else if "%toolbox_choice%"=="3" (
-    call :editor
+    call :app_uninstaller
 ) else if "%toolbox_choice%"=="4" (
+    call :editor
+) else if "%toolbox_choice%"=="5" (
     call :troubleshooting
 ) else if "%toolbox_choice%"=="0" (
     goto :home
@@ -663,32 +675,90 @@ if "%toolbox_choice%"=="1" (
 
 
 REM ############################################################
+REM ################# APP LAUNCHER - FRONTEND ##################
+REM ############################################################
+:app_launcher
+title STL [APP LAUNCHER]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Launcher%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Start Text generation web UI (oobabooga)
+echo 2. Start koboldcpp
+echo 3. Start TabbyAPI
+echo 0. Back to Toolbox
+
+set /p app_launcher_choice=Choose Your Destiny: 
+
+REM ################# APP LAUNCHER - BACKEND ##################
+if "%app_launcher_choice%"=="1" (
+    call :start_ooba
+) else if "%app_launcher_choice%"=="2" (
+    call :start_koboldcpp
+) else if "%app_launcher_choice%"=="3" (
+    call :start_tabbyapi
+) else if "%app_launcher_choice%"=="0" (
+    goto :toolbox
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :app_launcher
+)
+
+:start_ooba
+REM Start Text generation web UI (oobabooga) with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Text generation web UI oobabooga launched in a new window.
+
+cd /d "%~dp0text-completion\text-generation-webui"
+start "" "start_windows.bat"
+
+
+:start_koboldcpp
+REM Start koboldcpp with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% koboldcpp launched in a new window.
+
+cd /d "%~dp0text-completion\dev-koboldcpp"
+start "" "koboldcpp.exe"
+goto :app_launcher
+
+
+:start_tabbyapi
+REM Run conda activate from the Miniconda installation
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the extras environment
+call conda activate tabbyapi
+
+REM Start TabbyAPI with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% TabbyAPI launched in a new window.
+
+start cmd /k "title TabbyAPI && cd /d %~dp0text-completion\tabbyAPI && python start.py"
+goto :app_launcher
+
+
+REM ############################################################
 REM ############## APP INSTALLER - FRONTEND ####################
 REM ############################################################
 :app_installer
-title SillyTavern [APP INSTALLER]
+title STL [APP INSTALLER]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / App Installer%reset%
-echo -------------------------------------
+echo -------------------------------------------------------------
 echo What would you like to do?
-REM color 7
-echo 1. Install 7-Zip
-echo 2. Install FFmpeg
-echo 3. Install Node.js
-echo 4. Install yq
+
+echo 1. Text Completion
+echo 2. Core Utilities
 echo 0. Back to Toolbox
 
 set /p app_installer_choice=Choose Your Destiny: 
 
 REM ############## APP INSTALLER - BACKEND ####################
 if "%app_installer_choice%"=="1" (
-    call :install_7zip
+    call :app_installer_text_completion
 ) else if "%app_installer_choice%"=="2" (
-    call :install_ffmpeg
-) else if "%app_installer_choice%"=="3" (
-    call :install_nodejs
-) else if "%app_installer_choice%"=="4" (
-    call :install_yq
+    call :app_installer_core_utilities
 ) else if "%app_installer_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -698,9 +768,432 @@ if "%app_installer_choice%"=="1" (
     goto :app_installer
 )
 
+REM ############################################################
+REM ######## APP INSTALLER TEXT COMPLETION - FRONTEND ##########
+REM ############################################################
+:app_installer_text_completion
+title STL [APP INSTALLER TEXT COMPLETION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Install Text generation web UI (oobabooga)
+echo 2. Install koboldcpp
+echo 3. Install TabbyAPI
+echo 0. Back
+
+set /p app_installer_txt_comp_choice=Choose Your Destiny: 
+
+REM ######## APP INSTALLER TEXT COMPLETION - BACKEND ##########
+if "%app_installer_txt_comp_choice%"=="1" (
+    call :install_ooba
+) else if "%app_installer_txt_comp_choice%"=="2" (
+    call :install_koboldcpp_menu
+) else if "%app_installer_txt_comp_choice%"=="3" (
+    call :install_tabbyapi
+) else if "%app_installer_txt_comp_choice%"=="0" (
+    goto :app_installer
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :app_installer_text_completion
+)
+
+
+:install_ooba
+title STL [INSTALL OOBABOOGA]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install oobabooga%reset%
+echo -------------------------------------------------------------
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% installing Text generation web UI oobabooga...
+
+REM Check if the folder exists
+if not exist "%~dp0text-completion" (
+    mkdir "%~dp0text-completion"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
+)
+cd /d "%~dp0text-completion"
+
+
+set max_retries=3
+set retry_count=0
+
+:retry_install_ooba
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the text-generation-webui repository...
+git clone https://github.com/oobabooga/text-generation-webui.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_ooba
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :app_installer_text_completion
+)
+
+cd /d "text-generation-webui"
+start "" "start_windows.bat"
+echo When the installation is finished:
+pause
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Text generation web UI oobabooga Installed Successfully.%reset%
+goto :app_installer_text_completion
+
+
+
+REM ############################################################
+REM ######## APP INSTALLER KOBOLDCPP - FRONTEND ################
+REM ############################################################
+:install_koboldcpp_menu
+title STL [APP INSTALLER KOBOLDCPP]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / koboldcpp%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Install koboldcpp from prebuild .exe [Recommended]
+echo 2. Build dll files and compile the .exe installer [Advanced]
+echo 0. Back
+
+set /p app_installer_koboldcpp_choice=Choose Your Destiny: 
+
+REM ######## APP INSTALLER KOBOLDCPP - BACKEND ##########
+if "%app_installer_koboldcpp_choice%"=="1" (
+    call :install_koboldcpp
+) else if "%app_installer_koboldcpp_choice%"=="2" (
+    call :install_koboldcpp_raw
+) else if "%app_installer_koboldcpp_choice%"=="0" (
+    goto :app_installer_text_completion
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :install_koboldcpp_menu
+)
+
+
+:install_koboldcpp
+title STL [INSTALL KOBOLDCPP]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install koboldcpp%reset%
+echo -------------------------------------------------------------
+REM Check if the folder exists
+if not exist "%~dp0text-completion" (
+    mkdir "%~dp0text-completion"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
+)
+
+cd /d "text-completion"
+REM Check if the folder exists
+if not exist "dev-koboldcpp" (
+    mkdir "dev-koboldcpp"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-koboldcpp"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-koboldcpp" folder already exists.%reset%
+)
+cd /d "dev-koboldcpp"
+
+REM Download koboldcpp.exe
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp...
+curl -L -o "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/download/v1.61.2/koboldcpp.exe"
+start "" "koboldcpp.exe"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed koboldcpp%reset%
+pause
+goto :app_installer_text_completion
+
+:install_koboldcpp_raw
+title STL [INSTALL KOBOLDCPP RAW]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install koboldcpp RAW%reset%
+echo -------------------------------------------------------------
+
+REM Check if 7-Zip is installed
+7z > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
+    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
+    pause
+    goto :app_installer_core_utilities
+)
+
+REM Activate the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named koboldcpp
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%koboldcpp%reset%
+call conda create -n koboldcpp python=3.11 -y
+
+REM Activate the conda environment named koboldcpp 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%koboldcpp%reset%
+call conda activate koboldcpp
+
+REM Install the pip requirements
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements
+pip install pyinstaller
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing koboldcpp...
+cd /d "%~dp0"
+
+REM Check if the folder exists
+if not exist "%~dp0text-completion" (
+    mkdir "%~dp0text-completion"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
+)
+
+cd /d "text-completion"
+REM Check if the folder exists
+if not exist "dev-koboldcpp" (
+    mkdir "dev-koboldcpp"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-koboldcpp"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-koboldcpp" folder already exists.%reset%
+)
+cd /d "dev-koboldcpp"
+
+REM Check if file exists
+if not exist "make.sh" (
+    echo make -C "${1}" > "make.sh"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created new file: "make.sh"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "make.sh" already exists.%reset%
+)
+
+set max_retries=3
+set retry_count=0
+
+:retry_install_koboldcpp
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the koboldcpp repository...
+git clone https://github.com/LostRuins/koboldcpp.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_koboldcpp
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :app_installer_text_completion
+)
+
+REM Add new lines to CMakeLists.txt
+cd /d "koboldcpp"
+echo add_compile_options("$<$<C_COMPILER_ID:MSVC>:-utf-8>")>> CMakeLists.txt
+echo add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:-utf-8>")>> CMakeLists.txt
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% successfully added new lines to: CMakeLists.txt
+
+REM Download w64devkit zip archive
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading w64devkit...
+curl -L -o "%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0.zip" "https://github.com/skeeto/w64devkit/releases/download/v1.21.0/w64devkit-1.21.0.zip"
+
+REM Extract w64devkit zip archive
+7z x "%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0.zip" -o"%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0"
+
+REM Move w64devkit to root of C
+move /Y "%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0\w64devkit" "C:\w64devkit"
+
+REM Remove leftovers
+del "%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0.zip"
+rd /S /Q "%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0"
+
+REM Get the current PATH value from the registry
+for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
+
+REM Check if the paths are already in the current PATH
+echo %current_path% | find /i "%w64devkit_path_bin%" > nul
+set "ff_path_exists=%errorlevel%"
+
+setlocal enabledelayedexpansion
+
+REM Append the new paths to the current PATH only if they don't exist
+if %ff_path_exists% neq 0 (
+    set "new_path=%current_path%;%w64devkit_path_bin%"
+    echo.
+    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
+    echo.
+    echo [DEBUG] "w64devkit_path_bin is:%cyan_fg_strong% %w64devkit_path_bin%%reset%"
+    echo.
+    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
+
+    REM Update the PATH value in the registry
+    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
+
+    REM Update the PATH value for the current session
+    setx PATH "!new_path!" > nul
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit added to PATH.%reset%
+) else (
+    set "new_path=%current_path%"
+    echo %blue_fg_strong%[INFO] w64devkit already exists in PATH.%reset%
+)
+
+make
+PyInstaller --noconfirm --onefile --clean --console --collect-all customtkinter --icon "./niko.ico" --add-data "./winclinfo.exe;." --add-data "./OpenCL.dll;." --add-data "./klite.embd;." --add-data "./kcpp_docs.embd;." --add-data "./koboldcpp_default.dll;." --add-data "./koboldcpp_openblas.dll;." --add-data "./koboldcpp_failsafe.dll;." --add-data "./koboldcpp_noavx2.dll;." --add-data "./libopenblas.dll;." --add-data "./koboldcpp_clblast.dll;." --add-data "./koboldcpp_clblast_noavx2.dll;." --add-data "./koboldcpp_vulkan_noavx2.dll;." --add-data "./clblast.dll;." --add-data "./koboldcpp_vulkan.dll;." --add-data "./vulkan-1.dll;." --add-data "./rwkv_vocab.embd;." --add-data "./rwkv_world_vocab.embd;." "./koboldcpp.py" -n "koboldcpp.exe"
+start "" "koboldcpp.exe"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed koboldcpp%reset%
+pause
+goto :app_installer_text_completion
+
+:install_tabbyapi
+title STL [INSTALL TABBYAPI]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install TabbyAPI%reset%
+echo -------------------------------------------------------------
+REM GPU menu - Frontend
+echo What is your GPU?
+echo 1. NVIDIA
+echo 2. AMD
+echo 0. Cancel install
+
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+REM Get GPU information
+for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+    set "gpu_info=!gpu_info! %%i"
+)
+
+echo.
+echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
+echo.
+
+endlocal
+set /p gpu_choice=Enter number corresponding to your GPU: 
+
+REM GPU menu - Backend
+REM Set the GPU choice in an environment variable for choise callback
+set "GPU_CHOICE=%gpu_choice%"
+
+REM Check the user's response
+if "%gpu_choice%"=="1" (
+    REM Install pip requirements
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
+    goto :install_tabbyapi_pre
+) else if "%gpu_choice%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
+    goto :install_tabbyapi_pre
+) else if "%gpu_choice%"=="0" (
+    goto :app_installer_text_completion
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
+    pause
+    goto :install_tabbyapi
+)
+
+:install_tabbyapi_pre
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing TabbyAPI...
+
+REM Check if the folder exists
+if not exist "%~dp0text-completion" (
+    mkdir "%~dp0text-completion"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
+)
+cd /d "%~dp0text-completion"
+
+set max_retries=3
+set retry_count=0
+
+:retry_install_tabbyapi
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the tabbyAPI repository...
+git clone https://github.com/theroyallab/tabbyAPI.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_tabbyapi
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :app_installer_text_completion
+)
+
+REM Activate the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named tabbyapi
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%tabbyapi%reset%
+call conda create -n tabbyapi python=3.11 -y
+
+REM Activate the conda environment named tabbyapi 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%tabbyapi%reset%
+call conda activate tabbyapi
+
+cd /d "tabbyAPI"
+REM Use the GPU choice made earlier to install requirements for tabbyapi
+if "%GPU_CHOICE%"=="1" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[tabbyapi]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%tabbyapi%reset%
+    echo cu121 > "gpu_lib.txt" 
+    pip install torch==2.1.1+cu121 torchaudio==2.1.1+cu121 --index-url https://download.pytorch.org/whl/cu121
+    goto :install_tabbyapi_final
+) else if "%GPU_CHOICE%"=="2" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[tabbyapi]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%tabbyapi%reset%
+    echo amd > "gpu_lib.txt" 
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+    goto :install_tabbyapi_final
+)
+
+:install_tabbyapi_final
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been installed successfully.%reset%
+pause
+goto :app_installer_text_completion
+
+
+REM ############################################################
+REM ######## APP INSTALLER CORE UTILITIES - FRONTEND ###########
+REM ############################################################
+:app_installer_core_utilities
+title STL [APP INSTALLER CORE UTILITIES]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Core Utilities%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Install 7-Zip
+echo 2. Install FFmpeg
+echo 3. Install Node.js
+echo 4. Install yq
+echo 5. Install Visual Studio BuildTools
+echo 6. Install CUDA Toolkit
+echo 0. Back to App Installer
+
+set /p app_installer_core_util_choice=Choose Your Destiny: 
+
+REM ######## APP INSTALLER CORE UTILITIES - BACKEND ###########
+if "%app_installer_core_util_choice%"=="1" (
+    call :install_7zip
+) else if "%app_installer_core_util_choice%"=="2" (
+    call :install_ffmpeg
+) else if "%app_installer_core_util_choice%"=="3" (
+    call :install_nodejs
+) else if "%app_installer_core_util_choice%"=="4" (
+    call :install_yq
+) else if "%app_installer_core_util_choice%"=="5" (
+    call :install_vsbuildtools
+) else if "%app_installer_core_util_choice%"=="6" (
+    call :install_cudatoolkit
+) else if "%app_installer_core_util_choice%"=="0" (
+    goto :app_installer
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :app_installer_core_utilities
+)
+
 
 :install_7zip
-title SillyTavern [INSTALL-7Z]
+title STL [INSTALL-7Z]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing 7-Zip...
 winget install -e --id 7zip.7zip
 
@@ -740,15 +1233,15 @@ exit
 
 
 :install_ffmpeg
-title SillyTavern [INSTALL-FFMPEG]
+title STL [INSTALL-FFMPEG]
 REM Check if 7-Zip is installed
 7z > nul 2>&1
 if %errorlevel% neq 0 (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
     echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Install 7-Zip%reset%
+    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
     pause
-    goto :app_installer
+    goto :app_installer_core_utilities
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading FFmpeg archive...
@@ -775,18 +1268,18 @@ rem Get the current PATH value from the registry
 for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
 
 rem Check if the paths are already in the current PATH
-echo %current_path% | find /i "%bin_path%" > nul
+echo %current_path% | find /i "%ffmpeg_path_bin%" > nul
 set "ff_path_exists=%errorlevel%"
 
 setlocal enabledelayedexpansion
 
 REM Append the new paths to the current PATH only if they don't exist
 if %ff_path_exists% neq 0 (
-    set "new_path=%current_path%;%bin_path%"
+    set "new_path=%current_path%;%ffmpeg_path_bin%"
     echo.
     echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
     echo.
-    echo [DEBUG] "bin_path is:%cyan_fg_strong% %bin_path%%reset%"
+    echo [DEBUG] "ffmpeg_path_bin is:%cyan_fg_strong% %ffmpeg_path_bin%%reset%"
     echo.
     echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
 
@@ -807,7 +1300,7 @@ exit
 
 
 :install_nodejs
-title SillyTavern [INSTALL-NODEJS]
+title STL [INSTALL-NODEJS]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Node.js...
 winget install -e --id OpenJS.NodeJS
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js is installed. Please restart the Launcher.%reset%
@@ -815,10 +1308,42 @@ pause
 exit
 
 :install_yq
-title SillyTavern [INSTALL-YQ]
+title STL [INSTALL-YQ]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing yq...
 winget install -e --id MikeFarah.yq
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%yq is installed. Please restart the Launcher.%reset%
+pause
+exit
+
+:install_vsbuildtools
+REM Check if file exists
+if not exist "%temp%\vs_buildtools.exe" (
+    curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "vs_buildtools.exe" file already exists.%reset%
+)
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Visual Studio BuildTools 2022...
+start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%When install is finished please restart the Launcher.%reset%
+pause
+exit
+
+
+:install_cudatoolkit
+REM Check if file exists
+if not exist "%temp%\cuda_12.4.0_windows_network.exe" (
+    curl -L -o "%temp%\cuda_12.4.0_windows_network.exe" "https://developer.download.nvidia.com/compute/cuda/12.4.0/network_installers/cuda_12.4.0_windows_network.exe"
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "cuda_12.4.0_windows_network.exe" file already exists.%reset%
+)
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CUDA Toolkit...
+start "" "%temp%\cuda_12.4.0_windows_network.exe" visual_studio_integration_12.4
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%When install is finished please restart the Launcher.%reset%
+
+REM If CUDA Toolkit fails to install then copy all files from MSBuildExtensions into BuildCustomizations
+REM xcopy /s /i /y "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v12.4\extras\visual_studio_integration\MSBuildExtensions\*" "%ProgramFiles%\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations"
 pause
 exit
 
@@ -827,10 +1352,10 @@ REM ############################################################
 REM ################# EDITOR - FRONTEND ########################
 REM ############################################################
 :editor
-title SillyTavern [EDITOR]
+title STL [EDITOR]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Editor%reset%
-echo -------------------------------------
+echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. Edit Extras Modules
 echo 2. Edit XTTS Modules
@@ -874,10 +1399,10 @@ REM ############################################################
 REM ############## EDIT EXTRAS MODULES - FRONTEND ##############
 REM ############################################################
 :edit_extras_modules
-title SillyTavern [EDIT-EXTRAS-MODULES]
+title STL [EDIT-EXTRAS-MODULES]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit Extras Modules%reset%
-echo -------------------------------------
+echo -------------------------------------------------------------
 echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Cuda, RVC, and Caption)
 
 REM Display module options with colors based on their status
@@ -1031,10 +1556,10 @@ REM ############################################################
 REM ############## EDIT XTTS MODULES - FRONTEND ################
 REM ############################################################
 :edit_xtts_modules
-title SillyTavern [EDIT-XTTS-MODULES]
+title STL [EDIT-XTTS-MODULES]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit XTTS Modules%reset%
-echo -------------------------------------
+echo -------------------------------------------------------------
 echo Choose XTTS modules to enable or disable (e.g., "1 2 4" to enable Cuda, hs, and cache)
 
 REM Display module options with colors based on their status
@@ -1160,10 +1685,10 @@ REM ############################################################
 REM ############## TROUBLESHOOTING - FRONTEND ##################
 REM ############################################################
 :troubleshooting
-title SillyTavern [TROUBLESHOOTING]
+title STL [TROUBLESHOOTING]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Troubleshooting%reset%
-echo -------------------------------------
+echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. Remove node_modules folder
 echo 2. Fix unresolved conflicts or unmerged files [SillyTavern]
@@ -1279,34 +1804,23 @@ REM ############################################################
 REM ############## APP UNINSTALLER - FRONTEND ##################
 REM ############################################################
 :app_uninstaller
-title SillyTavern [APP UNINSTALLER]
+title STL [APP UNINSTALLER]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller%reset%
-echo ------------------------------------------------
+echo -------------------------------------------------------------
 echo What would you like to do?
-echo 1. UNINSTALL Extras
-echo 2. UNINSTALL XTTS
-echo 3. UNINSTALL SillyTavern
-echo 4. UNINSTALL 7-Zip
-echo 5. UNINSTALL FFmpeg
-echo 6. UNINSTALL Node.js
+
+echo 1. Text Completion
+echo 2. Core Utilities
 echo 0. Back to Toolbox
 
 set /p app_uninstaller_choice=Choose Your Destiny: 
 
-REM ############## APP UNINSTALLER - BACKEND ##################
+REM ############## APP UNINSTALLER - BACKEND ####################
 if "%app_uninstaller_choice%"=="1" (
-    call :uninstall_extras
+    call :app_uninstaller_text_completion
 ) else if "%app_uninstaller_choice%"=="2" (
-    call :uninstall_xtts
-) else if "%app_uninstaller_choice%"=="3" (
-    call :uninstall_st
-) else if "%app_uninstaller_choice%"=="4" (
-    call :uninstall_7zip
-) else if "%app_uninstaller_choice%"=="5" (
-    call :uninstall_ffmpeg
-) else if "%app_uninstaller_choice%"=="6" (
-    call :uninstall_nodejs
+    call :app_uninstaller_core_utilities
 ) else if "%app_uninstaller_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -1317,9 +1831,191 @@ if "%app_uninstaller_choice%"=="1" (
 )
 
 
+REM ############################################################
+REM ######## APP UNINSTALLER TEXT COMPLETION - FRONTEND ########
+REM ############################################################
+:app_uninstaller_text_completion
+title STL [APP UNINSTALLER TEXT COMPLETION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller / Text Completion%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. UNINSTALL Text generation web UI (oobabooga)
+echo 2. UNINSTALL koboldcpp
+echo 3. UNINSTALL TabbyAPI
+echo 0. Back to App Uninstaller
+
+set /p app_uninstaller_txt_comp_choice=Choose Your Destiny: 
+
+REM ####### APP UNINSTALLER TEXT COMPLETION - BACKEND ##########
+if "%app_uninstaller_txt_comp_choice%"=="1" (
+    call :uninstall_ooba
+) else if "%app_uninstaller_txt_comp_choice%"=="2" (
+    call :uninstall_koboldcpp
+) else if "%app_uninstaller_txt_comp_choice%"=="3" (
+    call :uninstall_tabbyapi
+) else if "%app_uninstaller_txt_comp_choice%"=="0" (
+    goto :app_uninstaller
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :app_uninstaller_text_completion
+)
+
+
+:uninstall_ooba
+title STL [UNINSTALL OOBABOOGA]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of Text generation web UI oobabooga                        ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the folder text-generation-webui
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the text-generation-webui directory...
+    cd /d "%~dp0text-completion"
+    rmdir /s /q "text-generation-webui"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Text generation web UI oobabooga has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_text_completion
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_text_completion
+)
+
+
+:uninstall_koboldcpp
+title STL [UNINSTALL KOBOLDCPP]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of koboldcpp                                               ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%koboldcpp%reset%
+    call conda remove --name koboldcpp --all -y
+
+    REM Remove the folder koboldcpp
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the koboldcpp directory...
+    cd /d "%~dp0text-completion"
+    rmdir /s /q "dev-koboldcpp"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the w64devkit directory...
+    rmdir /s /q "%w64devkit_path%" 
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_text_completion
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_text_completion
+)
+
+
+:uninstall_tabbyapi
+title STL [UNINSTALL TABBYAPI]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of TabbyAPI                                                ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%tabbyapi%reset%
+    call conda remove --name tabbyapi --all -y
+
+    REM Remove the folder tabbyAPI
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the tabbyAPI directory...
+    cd /d "%~dp0text-completion"
+    rmdir /s /q "tabbyAPI"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_text_completion
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_text_completion
+)
+
+
+
+REM ############################################################
+REM ######## APP UNINSTALLER CORE UTILITIES - FRONTEND #########
+REM ############################################################
+:app_uninstaller_core_utilities
+title STL [APP UNINSTALLER CORE UTILITIES]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller / Core Utilities%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+echo 1. UNINSTALL Extras
+echo 2. UNINSTALL XTTS
+echo 3. UNINSTALL SillyTavern
+echo 4. UNINSTALL 7-Zip
+echo 5. UNINSTALL FFmpeg
+echo 6. UNINSTALL Node.js
+echo 7. UNINSTALL yq
+echo 8. UNINSTALL CUDA Toolkit
+echo 9. UNINSTALL Visual Studio BuildTools
+echo 0. Back to App Uninstaller
+
+set /p app_uninstaller_core_util_choice=Choose Your Destiny: 
+
+REM ######## APP UNINSTALLER CORE UTILITIES - BACKEND #########
+if "%app_uninstaller_core_util_choice%"=="1" (
+    call :uninstall_extras
+) else if "%app_uninstaller_core_util_choice%"=="2" (
+    call :uninstall_xtts
+) else if "%app_uninstaller_core_util_choice%"=="3" (
+    call :uninstall_st
+) else if "%app_uninstaller_core_util_choice%"=="4" (
+    call :uninstall_7zip
+) else if "%app_uninstaller_core_util_choice%"=="5" (
+    call :uninstall_ffmpeg
+) else if "%app_uninstaller_core_util_choice%"=="6" (
+    call :uninstall_nodejs
+) else if "%app_uninstaller_core_util_choice%"=="7" (
+    call :uninstall_yq
+) else if "%app_uninstaller_core_util_choice%"=="8" (
+    call :uninstall_cudatoolkit
+) else if "%app_uninstaller_core_util_choice%"=="9" (
+    call :uninstall_vsbuildtools
+) else if "%app_uninstaller_core_util_choice%"=="0" (
+    goto :app_uninstaller
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :app_uninstaller_core_utilities
+)
+
 
 :uninstall_extras
-title SillyTavern [UNINSTALL EXTRAS]
+title STL [UNINSTALL EXTRAS]
 setlocal enabledelayedexpansion
 chcp 65001 > nul
 
@@ -1334,7 +2030,7 @@ set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
 if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda environment 'extras'...
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%extras%reset%
     call conda remove --name extras --all -y
 
     REM Remove the folder SillyTavern-extras
@@ -1344,16 +2040,16 @@ if /i "%confirmation%"=="Y" (
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras has been uninstalled successfully.%reset%
     pause
-    goto :app_uninstaller
+    goto :app_uninstaller_core_utilities
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
     pause
-    goto :app_uninstaller
+    goto :app_uninstaller_core_utilities
 )
 
 
 :uninstall_xtts
-title SillyTavern [UNINSTALL XTTS]
+title STL [UNINSTALL XTTS]
 setlocal enabledelayedexpansion
 chcp 65001 > nul
 
@@ -1368,7 +2064,7 @@ set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
 if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda environment 'xtts'...
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%xtts%reset%
     call conda remove --name xtts --all -y
 
     REM Remove the folder SillyTavern
@@ -1378,16 +2074,16 @@ if /i "%confirmation%"=="Y" (
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS has been uninstalled successfully.%reset%
     pause
-    goto :app_uninstaller
+    goto :app_uninstaller_core_utilities
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
     pause
-    goto :app_uninstaller
+    goto :app_uninstaller_core_utilities
 )
 
 
 :uninstall_st
-title SillyTavern [UNINSTALL ST]
+title STL [UNINSTALL ST]
 setlocal enabledelayedexpansion
 chcp 65001 > nul
 
@@ -1408,46 +2104,71 @@ if /i "%confirmation%"=="Y" (
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern has been uninstalled successfully.%reset%
     pause
-    goto :app_uninstaller
+    goto :app_uninstaller_core_utilities
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
     pause
-    goto :app_uninstaller
+    goto :app_uninstaller_core_utilities
 )
 
 :uninstall_7zip
-title SillyTavern [UNINSTALL-7ZIP]
+title STL [UNINSTALL-7ZIP]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling 7-Zip...
 winget uninstall --id 7zip.7zip
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%7-Zip has been uninstalled successfully.%reset%
 pause
-goto :app_uninstaller
+goto :app_uninstaller_core_utilities
 
 :uninstall_ffmpeg
-title SillyTavern [UNINSTALL-FFMPEG]
+title STL [UNINSTALL-FFMPEG]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling ffmpeg...
 rmdir /s /q "%ffextract_path%"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg has been uninstalled successfully.%reset%
 pause
-goto :app_uninstaller
+goto :app_uninstaller_core_utilities
 
 :uninstall_nodejs
-title SillyTavern [UNINSTALL-NODEJS]
+title STL [UNINSTALL-NODEJS]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling Node.js...
 winget uninstall --id OpenJS.NodeJS
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js has been uninstalled successfully.%reset%
 pause
-goto :app_uninstaller
+goto :app_uninstaller_core_utilities
 
+
+:uninstall_yq
+title STL [UNINSTALL-YQ]
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling yq...
+winget uninstall --id MikeFarah.yq
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%yq has been uninstalled successfully.%reset%
+pause
+goto :app_uninstaller_core_utilities
+
+
+:uninstall_cudatoolkit
+title STL [UNINSTALL-CUDATOOLKIT]
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling CUDA Toolkit...
+winget uninstall --id Nvidia.CUDA
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%CUDA Toolkit has been uninstalled successfully.%reset%
+pause
+goto :app_uninstaller_core_utilities
+
+:uninstall_vsbuildtools
+title STL [UNINSTALL-VSBUILDTOOLS]
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling Visual Studio BuildTools 2022...
+winget uninstall --id Microsoft.VisualStudio.2022.BuildTools
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Visual Studio BuildTools 2022 has been uninstalled successfully.%reset%
+pause
+goto :app_uninstaller_core_utilities
 
 REM ############################################################
 REM ############## SUPPORT - FRONTEND ##########################
 REM ############################################################
 :support
-title SillyTavern [SUPPORT]
+title STL [SUPPORT]
 cls
 echo %blue_fg_strong%/ Home / Support%reset%
-echo -------------------------------------
+echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. I want to report a issue
 echo 2. Documentation
