@@ -194,13 +194,12 @@ echo %blue_fg_strong%/ Home%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. Start SillyTavern
-echo 2. Start Extras
-echo 3. Start XTTS
-echo 4. Update
-echo 5. Backup
-echo 6. Switch branch
-echo 7. Toolbox
-echo 8. Support
+echo 2. Start SillyTavern + Remote Link
+echo 3. Start Extras
+echo 4. Start XTTS
+echo 5. Update
+echo 6. Toolbox
+echo 7. Support
 echo 0. Exit
 
 REM Get the current Git branch
@@ -221,18 +220,16 @@ REM ################## HOME - BACKEND #########################
 if "%choice%"=="1" (
     call :start_st
 ) else if "%choice%"=="2" (
-    call :start_extras
+    call :start_st_rl
 ) else if "%choice%"=="3" (
-    call :start_xtts
+    call :start_extras
 ) else if "%choice%"=="4" (
-    call :update
+    call :start_xtts
 ) else if "%choice%"=="5" (
-    call :backup_menu
+    call :update
 ) else if "%choice%"=="6" (
-    call :switch_brance
-) else if "%choice%"=="7" (
     call :toolbox
-) else if "%choice%"=="8" (
+) else if "%choice%"=="7" (
     call :support
 ) else if "%choice%"=="0" (
     exit
@@ -258,6 +255,20 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched
 start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
 goto :home
 
+:start_st_rl
+REM Check if Node.js is installed
+node --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] node command not found in PATH.%reset%
+    echo %red_fg_strong%Node.js is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install Node.js go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install Node.js%reset%
+    pause
+    goto :home
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
+start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
+start "" "%~dp0SillyTavern\Remote-Link.cmd"
+goto :home
 
 :start_extras
 REM Run conda activate from the Miniconda installation
@@ -448,190 +459,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTT
 pause
 goto :home
 
-REM ############################################################
-REM ############## SWITCH BRANCE - FRONTEND ####################
-REM ############################################################
-:switch_brance
-title STL [SWITCH-BRANCE]
-cls
-echo %blue_fg_strong%/ Home / Switch Branch%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. Switch to Release - SillyTavern
-echo 2. Switch to Staging - SillyTavern
-echo 0. Back to Home
 
-REM Get the current Git branch
-for /f %%i in ('git branch --show-current') do set current_branch=%%i
-echo ======== VERSION STATUS =========
-echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
-echo =================================
-set /p brance_choice=Choose Your Destiny: 
-
-REM ################# SWITCH BRANCE - BACKEND ########################
-if "%brance_choice%"=="1" (
-    call :switch_brance_release_st
-) else if "%brance_choice%"=="2" (
-    call :switch_brance_staging_st
-) else if "%brance_choice%"=="0" (
-    goto :home
-) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
-    pause
-    goto :switch_brance
-)
-
-
-:switch_brance_release_st
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to release branch...
-cd /d "%~dp0SillyTavern"
-git switch release
-pause
-goto :switch_brance
-
-
-:switch_brance_staging_st
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to staging branch...
-cd /d "%~dp0SillyTavern"
-git switch staging
-pause
-goto :switch_brance
-
-
-REM ############################################################
-REM ################# BACKUP - FRONTEND ########################
-REM ############################################################
-:backup_menu
-title STL [BACKUP]
-REM Check if 7-Zip is installed
-7z > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
-    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
-    pause
-    goto :home
-)
-cls
-echo %blue_fg_strong%/ Home / Backup%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. Create Backup
-echo 2. Restore Backup
-echo 0. Back to Home
-
-set /p backup_choice=Choose Your Destiny: 
-
-REM ################# BACKUP - BACKEND ########################
-if "%backup_choice%"=="1" (
-    call :create_backup
-) else if "%backup_choice%"=="2" (
-    call :restore_backup
-) else if "%backup_choice%"=="0" (
-    goto :home
-) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
-    pause
-    goto :backup_menu
-)
-
-:create_backup
-title STL [CREATE-BACKUP]
-REM Create a backup using 7zip
-7z a "%~dp0SillyTavern-backups\backup_.7z" ^
-    "public\assets\*" ^
-    "public\Backgrounds\*" ^
-    "public\Characters\*" ^
-    "public\Chats\*" ^
-    "public\context\*" ^
-    "public\Group chats\*" ^
-    "public\Groups\*" ^
-    "public\instruct\*" ^
-    "public\KoboldAI Settings\*" ^
-    "public\movingUI\*" ^
-    "public\NovelAI Settings\*" ^
-    "public\OpenAI Settings\*" ^
-    "public\QuickReplies\*" ^
-    "public\TextGen Settings\*" ^
-    "public\themes\*" ^
-    "public\User Avatars\*" ^
-    "public\user\*" ^
-    "public\worlds\*" ^
-    "public\settings.json" ^
-    "secrets.json"
-
-REM Get current date and time components
-for /f "tokens=1-3 delims=/- " %%d in ("%date%") do (
-    set "day=%%d"
-    set "month=%%e"
-    set "year=%%f"
-)
-
-for /f "tokens=1-2 delims=:." %%h in ("%time%") do (
-    set "hour=%%h"
-    set "minute=%%i"
-)
-
-REM Pad single digits with leading zeros
-setlocal enabledelayedexpansion
-set "day=0!day!"
-set "month=0!month!"
-set "hour=0!hour!"
-set "minute=0!minute!"
-
-set "formatted_date=%month:~-2%-%day:~-2%-%year%_%hour:~-2%%minute:~-2%"
-
-REM Rename the backup file with the formatted date and time
-rename "%~dp0SillyTavern-backups\backup_.7z" "backup_%formatted_date%.7z"
-
-endlocal
-
-
-echo %green_fg_strong%Backup created at %~dp0SillyTavern-backups%reset%
-pause
-endlocal
-goto :backup_menu
-
-
-:restore_backup
-title STL [RESTORE-BACKUP]
-
-echo List of available backups:
-echo =========================
-
-setlocal enabledelayedexpansion
-set "backup_count=0"
-
-for %%F in ("%~dp0SillyTavern-backups\backup_*.7z") do (
-    set /a "backup_count+=1"
-    set "backup_files[!backup_count!]=%%~nF"
-    echo !backup_count!. %cyan_fg_strong%%%~nF%reset%
-)
-
-echo =========================
-set /p "restore_choice=Enter number of backup to restore: "
-
-if "%restore_choice%" geq "1" (
-    if "%restore_choice%" leq "%backup_count%" (
-        set "selected_backup=!backup_files[%restore_choice%]!"
-        echo Restoring backup !selected_backup!...
-        REM Extract the contents of the "public" folder directly into the existing "public" folder
-        7z x "%~dp0SillyTavern-backups\!selected_backup!.7z" -o"temp" -aoa
-        xcopy /y /e "temp\public\*" "public\"
-        rmdir /s /q "temp"
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%!selected_backup! restored successfully.%reset%
-    ) else (
-        color 6
-        echo WARNING: Invalid backup number. Please insert a valid number.
-    )
-) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
-)
-pause
-goto :backup_menu
 
 
 REM ############################################################
@@ -647,9 +475,11 @@ REM color 7
 echo 1. App Launcher
 echo 2. App Installer
 echo 3. App Uninstaller
-echo 4. Editor
-echo 5. Troubleshooting
-echo 0. Back to Home
+echo 4. Backup
+echo 5. Switch branch
+echo 6. Editor
+echo 7. Troubleshooting
+echo 0. Back
 
 set /p toolbox_choice=Choose Your Destiny: 
 
@@ -661,8 +491,12 @@ if "%toolbox_choice%"=="1" (
 ) else if "%toolbox_choice%"=="3" (
     call :app_uninstaller
 ) else if "%toolbox_choice%"=="4" (
-    call :editor
+    call :backup_menu
 ) else if "%toolbox_choice%"=="5" (
+    call :switch_brance
+) else if "%toolbox_choice%"=="6" (
+    call :editor
+) else if "%toolbox_choice%"=="7" (
     call :troubleshooting
 ) else if "%toolbox_choice%"=="0" (
     goto :home
@@ -687,7 +521,7 @@ echo What would you like to do?
 echo 1. Start Text generation web UI (oobabooga)
 echo 2. Start koboldcpp
 echo 3. Start TabbyAPI
-echo 0. Back to Toolbox
+echo 0. Back
 
 set /p app_launcher_choice=Choose Your Destiny: 
 
@@ -750,7 +584,7 @@ echo What would you like to do?
 
 echo 1. Text Completion
 echo 2. Core Utilities
-echo 0. Back to Toolbox
+echo 0. Back
 
 set /p app_installer_choice=Choose Your Destiny: 
 
@@ -888,15 +722,15 @@ if not exist "%~dp0text-completion" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
 )
 
-cd /d "text-completion"
+cd /d "%~dp0text-completion"
 REM Check if the folder exists
-if not exist "dev-koboldcpp" (
-    mkdir "dev-koboldcpp"
+if not exist "%~dp0text-completion\dev-koboldcpp" (
+    mkdir "%~dp0text-completion\dev-koboldcpp"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-koboldcpp"  
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-koboldcpp" folder already exists.%reset%
 )
-cd /d "dev-koboldcpp"
+cd /d "%~dp0text-completion\dev-koboldcpp"
 
 REM Download koboldcpp.exe
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp...
@@ -1049,7 +883,7 @@ REM GPU menu - Frontend
 echo What is your GPU?
 echo 1. NVIDIA
 echo 2. AMD
-echo 0. Cancel install
+echo 0. Cancel
 
 setlocal enabledelayedexpansion
 chcp 65001 > nul
@@ -1165,7 +999,7 @@ echo 3. Install Node.js
 echo 4. Install yq
 echo 5. Install Visual Studio BuildTools
 echo 6. Install CUDA Toolkit
-echo 0. Back to App Installer
+echo 0. Back
 
 set /p app_installer_core_util_choice=Choose Your Destiny: 
 
@@ -1349,458 +1183,6 @@ exit
 
 
 REM ############################################################
-REM ################# EDITOR - FRONTEND ########################
-REM ############################################################
-:editor
-title STL [EDITOR]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. Edit Extras Modules
-echo 2. Edit XTTS Modules
-echo 3. Edit Environment Variables
-echo 4. Edit SillyTavern config.yaml
-echo 0. Back to Toolbox
-
-set /p editor_choice=Choose Your Destiny: 
-
-REM ################# EDITOR - BACKEND ########################
-if "%editor_choice%"=="1" (
-    call :edit_extras_modules
-) else if "%editor_choice%"=="2" (
-    call :edit_xtts_modules
-) else if "%editor_choice%"=="3" (
-    call :edit_environment_var
-) else if "%editor_choice%"=="4" (
-    call :edit_st_config
-) else if "%editor_choice%"=="0" (
-    goto :toolbox
-) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
-    pause
-    goto :editor
-)
-
-
-
-REM Function to print module options with color based on their status
-:printModule
-if "%2"=="true" (
-    echo %green_fg_strong%%1 [Enabled]%reset%
-) else (
-    echo %red_fg_strong%%1 [Disabled]%reset%
-)
-exit /b
-
-
-REM ############################################################
-REM ############## EDIT EXTRAS MODULES - FRONTEND ##############
-REM ############################################################
-:edit_extras_modules
-title STL [EDIT-EXTRAS-MODULES]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit Extras Modules%reset%
-echo -------------------------------------------------------------
-echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Cuda, RVC, and Caption)
-
-REM Display module options with colors based on their status
-call :printModule "1. Cuda (--cuda)" %cuda_trigger%
-call :printModule "2. RVC (--enable-modules=rvc --rvc-save-file --max-content-length=1000)" %rvc_trigger%
-call :printModule "3. talkinghead (--enable-modules=talkinghead --talkinghead-gpu)" %talkinghead_trigger%
-call :printModule "4. caption (--enable-modules=caption)" %caption_trigger%
-call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger%
-call :printModule "6. listen (--listen)" %listen_trigger%
-call :printModule "7. whisper (--enable-modules=whisper-stt)" %whisper_trigger%
-call :printModule "8. Edge-tts (--enable-modules=edge-tts)" %edge_tts_trigger%
-echo 0. Back to Editor
-
-set "python_command="
-
-set /p module_choices=Choose modules to enable/disable (1-6): 
-
-REM Handle the user's module choices and construct the Python command
-for %%i in (%module_choices%) do (
-    if "%%i"=="1" (
-        if "%cuda_trigger%"=="true" (
-            set "cuda_trigger=false"
-        ) else (
-            set "cuda_trigger=true"
-        )
-        REM set "python_command= --gpu 0 --cuda-device=0"
-    ) else if "%%i"=="2" (
-        if "%rvc_trigger%"=="true" (
-            set "rvc_trigger=false"
-        ) else (
-            set "rvc_trigger=true"
-        )
-        REM set "python_command= --enable-modules=rvc --rvc-save-file --max-content-length=1000"
-    ) else if "%%i"=="3" (
-        if "%talkinghead_trigger%"=="true" (
-            set "talkinghead_trigger=false"
-        ) else (
-            set "talkinghead_trigger=true"
-        )
-        REM set "python_command= --enable-modules=talkinghead"
-    ) else if "%%i"=="4" (
-        if "%caption_trigger%"=="true" (
-            set "caption_trigger=false"
-        ) else (
-            set "caption_trigger=true"
-        )
-        REM set "python_command= --enable-modules=caption"
-    ) else if "%%i"=="5" (
-        if "%summarize_trigger%"=="true" (
-            set "summarize_trigger=false"
-        ) else (
-            set "summarize_trigger=true"
-        )
-    ) else if "%%i"=="6" (
-        if "%listen_trigger%"=="true" (
-            set "listen_trigger=false"
-        ) else (
-            set "listen_trigger=true"
-        )
-        REM set "python_command= --listen"
-    ) else if "%%i"=="7" (
-        if "%whisper_trigger%"=="true" (
-            set "whisper_trigger=false"
-        ) else (
-            set "whisper_trigger=true"
-        )
-        REM set "python_command= --enable-modules=whisper-stt"
-    ) else if "%%i"=="8" (
-        if "%edge_tts_trigger%"=="true" (
-            set "edge_tts_trigger=false"
-        ) else (
-            set "edge_tts_trigger=true"
-        )
-        REM set "python_command= --enable-modules=edge-tts"
-    ) else if "%%i"=="0" (
-        goto :editor
-    )
-)
-
-
-REM Save the module flags to modules.txt
-echo cuda_trigger=%cuda_trigger%>"%~dp0modules.txt"
-echo rvc_trigger=%rvc_trigger%>>"%~dp0modules.txt"
-echo talkinghead_trigger=%talkinghead_trigger%>>"%~dp0modules.txt"
-echo caption_trigger=%caption_trigger%>>"%~dp0modules.txt"
-echo summarize_trigger=%summarize_trigger%>>"%~dp0modules.txt"
-echo listen_trigger=%listen_trigger%>>"%~dp0modules.txt"
-echo whisper_trigger=%whisper_trigger%>>"%~dp0modules.txt"
-echo edge_tts_trigger=%edge_tts_trigger%>>"%~dp0modules.txt"
-
-REM remove modules_enable
-set "modules_enable="
-
-REM Compile the Python command
-set "python_command=python server.py"
-if "%listen_trigger%"=="true" (
-    set "python_command=%python_command% --listen"
-)
-if "%cuda_trigger%"=="true" (
-    set "python_command=%python_command% --cuda"
-)
-if "%rvc_trigger%"=="true" (
-    set "python_command=%python_command% --rvc-save-file --max-content-length=1000"
-    set "modules_enable=%modules_enable%rvc,"
-)
-if "%talkinghead_trigger%"=="true" (
-    set "python_command=%python_command% --talkinghead-gpu"
-    set "modules_enable=%modules_enable%talkinghead,"
-)
-if "%caption_trigger%"=="true" (
-    set "modules_enable=%modules_enable%caption,"
-)
-if "%summarize_trigger%"=="true" (
-    set "modules_enable=%modules_enable%summarize,"
-)
-if "%whisper_trigger%"=="true" (
-    set "modules_enable=%modules_enable%whisper-stt,"
-)
-if "%edge_tts_trigger%"=="true" (
-    set "modules_enable=%modules_enable%edge-tts,"
-)
-
-REM is modules_enable empty?
-if defined modules_enable (
-    REM remove last comma
-    set "modules_enable=%modules_enable:~0,-1%"
-)
-
-REM command completed
-if defined modules_enable (
-    set "python_command=%python_command% --enable-modules=%modules_enable%"
-)
-
-REM Save the constructed Python command to modules.txt for testing
-echo start_command=%python_command%>>"%~dp0modules.txt"
-goto :edit_extras_modules
-
-REM ==================================================================================================================================================
-
-REM Function to print module options with color based on their status
-:printModule
-if "%2"=="true" (
-    echo %green_fg_strong%%1 [Enabled]%reset%
-) else (
-    echo %red_fg_strong%%1 [Disabled]%reset%
-)
-exit /b
-
-
-REM ############################################################
-REM ############## EDIT XTTS MODULES - FRONTEND ################
-REM ############################################################
-:edit_xtts_modules
-title STL [EDIT-XTTS-MODULES]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit XTTS Modules%reset%
-echo -------------------------------------------------------------
-echo Choose XTTS modules to enable or disable (e.g., "1 2 4" to enable Cuda, hs, and cache)
-
-REM Display module options with colors based on their status
-call :printModule "1. cuda (--device cuda)" %xtts_cuda_trigger%
-call :printModule "2. hs (-hs 0.0.0.0)" %xtts_hs_trigger%
-call :printModule "3. deepspeed (--deepspeed)" %xtts_deepspeed_trigger%
-call :printModule "4. cache (--use-cache)" %xtts_cache_trigger%
-call :printModule "5. listen (--listen)" %xtts_listen_trigger%
-call :printModule "6. model (--model-source local)" %xtts_model_trigger%
-echo 0. Back to Editor
-
-set "python_command="
-
-set /p xtts_module_choices=Choose modules to enable/disable (1-6): 
-
-REM Handle the user's module choices and construct the Python command
-for %%i in (%xtts_module_choices%) do (
-    if "%%i"=="1" (
-        if "%xtts_cuda_trigger%"=="true" (
-            set "xtts_cuda_trigger=false"
-        ) else (
-            set "xtts_cuda_trigger=true"
-        )
-        REM set "python_command= --device cuda"
-    ) else if "%%i"=="2" (
-        if "%xtts_hs_trigger%"=="true" (
-            set "xtts_hs_trigger=false"
-        ) else (
-            set "xtts_hs_trigger=true"
-        )
-        REM set "python_command= -hs 0.0.0.0"
-    ) else if "%%i"=="3" (
-        if "%xtts_deepspeed_trigger%"=="true" (
-            set "xtts_deepspeed_trigger=false"
-        ) else (
-            set "xtts_deepspeed_trigger=true"
-        )
-        REM set "python_command= --deepspeed"
-    ) else if "%%i"=="4" (
-        if "%xtts_cache_trigger%"=="true" (
-            set "xtts_cache_trigger=false"
-        ) else (
-            set "xtts_cache_trigger=true"
-        )
-        REM set "python_command= --use-cache"
-    ) else if "%%i"=="5" (
-        if "%xtts_listen_trigger%"=="true" (
-            set "xtts_listen_trigger=false"
-        ) else (
-            set "xtts_listen_trigger=true"
-        )
-    ) else if "%%i"=="6" (
-        if "%xtts_model_trigger%"=="true" (
-            set "xtts_model_trigger=false"
-        ) else (
-            set "xtts_model_trigger=true"
-        )
-        REM set "python_command= --model-source local"
-    ) else if "%%i"=="0" (
-        goto :editor
-    )
-)
-
-REM Save the module flags to modules-xtts.txt
-echo xtts_cuda_trigger=%xtts_cuda_trigger%>"%~dp0modules-xtts.txt"
-echo xtts_hs_trigger=%xtts_hs_trigger%>>"%~dp0modules-xtts.txt"
-echo xtts_deepspeed_trigger=%xtts_deepspeed_trigger%>>"%~dp0modules-xtts.txt"
-echo xtts_cache_trigger=%xtts_cache_trigger%>>"%~dp0modules-xtts.txt"
-echo xtts_listen_trigger=%xtts_listen_trigger%>>"%~dp0modules-xtts.txt"
-echo xtts_model_trigger=%xtts_model_trigger%>>"%~dp0modules-xtts.txt"
-
-REM remove modules_enable
-set "modules_enable="
-
-REM Compile the Python command
-set "python_command=python -m xtts_api_server"
-if "%xtts_cuda_trigger%"=="true" (
-    set "python_command=%python_command% --device cuda"
-)
-if "%xtts_hs_trigger%"=="true" (
-    set "python_command=%python_command% -hs 0.0.0.0"
-)
-if "%xtts_deepspeed_trigger%"=="true" (
-    set "python_command=%python_command% --deepspeed"
-)
-if "%xtts_cache_trigger%"=="true" (
-    set "python_command=%python_command% --use-cache"
-)
-if "%xtts_listen_trigger%"=="true" (
-    set "python_command=%python_command% --listen"
-)
-if "%xtts_model_trigger%"=="true" (
-    set "python_command=%python_command% --model-source local"
-)
-
-REM is modules_enable empty?
-if defined modules_enable (
-    REM remove last comma
-    set "modules_enable=%modules_enable:~0,-1%"
-)
-
-REM command completed
-if defined modules_enable (
-    set "python_command=%python_command% --enable-modules=%modules_enable%"
-)
-
-REM Save the constructed Python command to modules-xtts.txt for testing
-echo xtts_start_command=%python_command%>>"%~dp0modules-xtts.txt"
-goto :edit_xtts_modules
-
-
-:edit_environment_var
-rundll32.exe sysdm.cpl,EditEnvironmentVariables
-goto :editor
-
-
-:edit_st_config
-start "" "%~dp0SillyTavern\config.yaml"
-goto :editor
-
-
-REM ############################################################
-REM ############## TROUBLESHOOTING - FRONTEND ##################
-REM ############################################################
-:troubleshooting
-title STL [TROUBLESHOOTING]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / Troubleshooting%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. Remove node_modules folder
-echo 2. Fix unresolved conflicts or unmerged files [SillyTavern]
-echo 3. Export dxdiag info
-echo 4. Find what app is using port
-echo 5. Set Onboarding Flow
-echo 0. Back to Toolbox
-
-set /p troubleshooting_choice=Choose Your Destiny: 
-
-REM ############## TROUBLESHOOTING - BACKEND ##################
-if "%troubleshooting_choice%"=="1" (
-    call :remove_node_modules
-) else if "%troubleshooting_choice%"=="2" (
-    call :unresolved_unmerged
-) else if "%troubleshooting_choice%"=="3" (
-    call :export_dxdiag
-) else if "%troubleshooting_choice%"=="4" (
-    call :find_app_port
-) else if "%troubleshooting_choice%"=="5" (
-    call :onboarding_flow
-) else if "%troubleshooting_choice%"=="0" (
-    goto :toolbox
-) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
-    pause
-    goto :troubleshooting
-)
-
-
-:remove_node_modules
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing node_modules folder...
-cd /d "%~dp0SillyTavern"
-rmdir /s /q "node_modules"
-del package-lock.json
-call npm cache clean --force
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% node_modules successfully removed.
-pause
-goto :troubleshooting
-
-
-:unresolved_unmerged
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Trying to resolve unresolved conflicts in the working directory or unmerged files...
-cd /d "%~dp0SillyTavern"
-git merge --abort
-git reset --hard
-git pull --rebase --autostash
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Done.
-pause
-goto :troubleshooting
-
-
-:export_dxdiag
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Exporting DirectX Diagnostic Tool information...
-dxdiag /t "%~dp0dxdiag_info.txt"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%You can find the dxdiag_info.txt at: "%~dp0dxdiag_info.txt"%reset%
-pause
-goto :troubleshooting
-
-
-REM Function to find and display the application using the specified port
-:find_app_port
-cls
-setlocal EnableDelayedExpansion
-set /p port="Insert port number: "
-
-REM Check if the input is a number
-set "valid=true"
-for /f "delims=0123456789" %%i in ("!port!") do set "valid=false"
-if "!valid!"=="false" (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input: Not a number.%reset%
-    pause
-    goto :troubleshooting
-)
-
-REM Check if the port is within range
-if !port! gtr 65535 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Port out of range. There are only 65,535 possible port numbers.%reset%
-    echo [0-1023]: These ports are reserved for system services or commonly used protocols.
-    echo [1024-49151]: These ports can be used by user processes or applications.
-    echo [49152-65535]: These ports are available for use by any application or service on the system.
-    pause
-    goto :troubleshooting
-)
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Searching for application using port: !port!...
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr /r "\<!port!\>"') do (
-    set pid=%%a
-)
-
-if defined pid (
-    for /f "tokens=2*" %%b in ('tasklist /fi "PID eq !pid!" /fo list ^| find "Image Name"') do (
-        echo Application Name: %cyan_fg_strong%%%c%reset%
-        echo PID of Port !port!: %cyan_fg_strong%!pid!%reset%
-    )
-) else (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN]%reset% Port: !port! not found.
-)
-endlocal
-pause
-goto :troubleshooting
-
-
-:onboarding_flow
-set ONBOARDING_FLOW_VALUE=
-set /p ONBOARDING_FLOW_VALUE="Enter new value for Onboarding Flow (true/false): "
-yq eval -i ".firstRun = %ONBOARDING_FLOW_VALUE%" "%~dp0SillyTavern\public\settings.json"
-goto :troubleshooting
-
-
-REM ############################################################
 REM ############## APP UNINSTALLER - FRONTEND ##################
 REM ############################################################
 :app_uninstaller
@@ -1812,7 +1194,7 @@ echo What would you like to do?
 
 echo 1. Text Completion
 echo 2. Core Utilities
-echo 0. Back to Toolbox
+echo 0. Back
 
 set /p app_uninstaller_choice=Choose Your Destiny: 
 
@@ -1844,7 +1226,7 @@ echo What would you like to do?
 echo 1. UNINSTALL Text generation web UI (oobabooga)
 echo 2. UNINSTALL koboldcpp
 echo 3. UNINSTALL TabbyAPI
-echo 0. Back to App Uninstaller
+echo 0. Back
 
 set /p app_uninstaller_txt_comp_choice=Choose Your Destiny: 
 
@@ -1981,7 +1363,7 @@ echo 6. UNINSTALL Node.js
 echo 7. UNINSTALL yq
 echo 8. UNINSTALL CUDA Toolkit
 echo 9. UNINSTALL Visual Studio BuildTools
-echo 0. Back to App Uninstaller
+echo 0. Back
 
 set /p app_uninstaller_core_util_choice=Choose Your Destiny: 
 
@@ -2161,6 +1543,648 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Vis
 pause
 goto :app_uninstaller_core_utilities
 
+
+REM ############################################################
+REM ################# EDITOR - FRONTEND ########################
+REM ############################################################
+:editor
+title STL [EDITOR]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Editor%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+echo 1. Edit Extras Modules
+echo 2. Edit XTTS Modules
+echo 3. Edit Environment Variables
+echo 4. Edit SillyTavern config.yaml
+echo 0. Back
+
+set /p editor_choice=Choose Your Destiny: 
+
+REM ################# EDITOR - BACKEND ########################
+if "%editor_choice%"=="1" (
+    call :edit_extras_modules
+) else if "%editor_choice%"=="2" (
+    call :edit_xtts_modules
+) else if "%editor_choice%"=="3" (
+    call :edit_environment_var
+) else if "%editor_choice%"=="4" (
+    call :edit_st_config
+) else if "%editor_choice%"=="0" (
+    goto :toolbox
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :editor
+)
+
+
+
+REM Function to print module options with color based on their status
+:printModule
+if "%2"=="true" (
+    echo %green_fg_strong%%1 [Enabled]%reset%
+) else (
+    echo %red_fg_strong%%1 [Disabled]%reset%
+)
+exit /b
+
+
+REM ############################################################
+REM ############## EDIT EXTRAS MODULES - FRONTEND ##############
+REM ############################################################
+:edit_extras_modules
+title STL [EDIT-EXTRAS-MODULES]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit Extras Modules%reset%
+echo -------------------------------------------------------------
+echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Cuda, RVC, and Caption)
+
+REM Display module options with colors based on their status
+call :printModule "1. Cuda (--cuda)" %cuda_trigger%
+call :printModule "2. RVC (--enable-modules=rvc --rvc-save-file --max-content-length=1000)" %rvc_trigger%
+call :printModule "3. talkinghead (--enable-modules=talkinghead --talkinghead-gpu)" %talkinghead_trigger%
+call :printModule "4. caption (--enable-modules=caption)" %caption_trigger%
+call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger%
+call :printModule "6. listen (--listen)" %listen_trigger%
+call :printModule "7. whisper (--enable-modules=whisper-stt)" %whisper_trigger%
+call :printModule "8. Edge-tts (--enable-modules=edge-tts)" %edge_tts_trigger%
+echo 0. Back
+
+set "python_command="
+
+set /p module_choices=Choose modules to enable/disable (1-6): 
+
+REM Handle the user's module choices and construct the Python command
+for %%i in (%module_choices%) do (
+    if "%%i"=="1" (
+        if "%cuda_trigger%"=="true" (
+            set "cuda_trigger=false"
+        ) else (
+            set "cuda_trigger=true"
+        )
+        REM set "python_command= --gpu 0 --cuda-device=0"
+    ) else if "%%i"=="2" (
+        if "%rvc_trigger%"=="true" (
+            set "rvc_trigger=false"
+        ) else (
+            set "rvc_trigger=true"
+        )
+        REM set "python_command= --enable-modules=rvc --rvc-save-file --max-content-length=1000"
+    ) else if "%%i"=="3" (
+        if "%talkinghead_trigger%"=="true" (
+            set "talkinghead_trigger=false"
+        ) else (
+            set "talkinghead_trigger=true"
+        )
+        REM set "python_command= --enable-modules=talkinghead"
+    ) else if "%%i"=="4" (
+        if "%caption_trigger%"=="true" (
+            set "caption_trigger=false"
+        ) else (
+            set "caption_trigger=true"
+        )
+        REM set "python_command= --enable-modules=caption"
+    ) else if "%%i"=="5" (
+        if "%summarize_trigger%"=="true" (
+            set "summarize_trigger=false"
+        ) else (
+            set "summarize_trigger=true"
+        )
+    ) else if "%%i"=="6" (
+        if "%listen_trigger%"=="true" (
+            set "listen_trigger=false"
+        ) else (
+            set "listen_trigger=true"
+        )
+        REM set "python_command= --listen"
+    ) else if "%%i"=="7" (
+        if "%whisper_trigger%"=="true" (
+            set "whisper_trigger=false"
+        ) else (
+            set "whisper_trigger=true"
+        )
+        REM set "python_command= --enable-modules=whisper-stt"
+    ) else if "%%i"=="8" (
+        if "%edge_tts_trigger%"=="true" (
+            set "edge_tts_trigger=false"
+        ) else (
+            set "edge_tts_trigger=true"
+        )
+        REM set "python_command= --enable-modules=edge-tts"
+    ) else if "%%i"=="0" (
+        goto :editor
+    )
+)
+
+
+REM Save the module flags to modules.txt
+echo cuda_trigger=%cuda_trigger%>"%~dp0modules.txt"
+echo rvc_trigger=%rvc_trigger%>>"%~dp0modules.txt"
+echo talkinghead_trigger=%talkinghead_trigger%>>"%~dp0modules.txt"
+echo caption_trigger=%caption_trigger%>>"%~dp0modules.txt"
+echo summarize_trigger=%summarize_trigger%>>"%~dp0modules.txt"
+echo listen_trigger=%listen_trigger%>>"%~dp0modules.txt"
+echo whisper_trigger=%whisper_trigger%>>"%~dp0modules.txt"
+echo edge_tts_trigger=%edge_tts_trigger%>>"%~dp0modules.txt"
+
+REM remove modules_enable
+set "modules_enable="
+
+REM Compile the Python command
+set "python_command=python server.py"
+if "%listen_trigger%"=="true" (
+    set "python_command=%python_command% --listen"
+)
+if "%cuda_trigger%"=="true" (
+    set "python_command=%python_command% --cuda"
+)
+if "%rvc_trigger%"=="true" (
+    set "python_command=%python_command% --rvc-save-file --max-content-length=1000"
+    set "modules_enable=%modules_enable%rvc,"
+)
+if "%talkinghead_trigger%"=="true" (
+    set "python_command=%python_command% --talkinghead-gpu"
+    set "modules_enable=%modules_enable%talkinghead,"
+)
+if "%caption_trigger%"=="true" (
+    set "modules_enable=%modules_enable%caption,"
+)
+if "%summarize_trigger%"=="true" (
+    set "modules_enable=%modules_enable%summarize,"
+)
+if "%whisper_trigger%"=="true" (
+    set "modules_enable=%modules_enable%whisper-stt,"
+)
+if "%edge_tts_trigger%"=="true" (
+    set "modules_enable=%modules_enable%edge-tts,"
+)
+
+REM is modules_enable empty?
+if defined modules_enable (
+    REM remove last comma
+    set "modules_enable=%modules_enable:~0,-1%"
+)
+
+REM command completed
+if defined modules_enable (
+    set "python_command=%python_command% --enable-modules=%modules_enable%"
+)
+
+REM Save the constructed Python command to modules.txt for testing
+echo start_command=%python_command%>>"%~dp0modules.txt"
+goto :edit_extras_modules
+
+REM ==================================================================================================================================================
+
+REM Function to print module options with color based on their status
+:printModule
+if "%2"=="true" (
+    echo %green_fg_strong%%1 [Enabled]%reset%
+) else (
+    echo %red_fg_strong%%1 [Disabled]%reset%
+)
+exit /b
+
+
+REM ############################################################
+REM ############## EDIT XTTS MODULES - FRONTEND ################
+REM ############################################################
+:edit_xtts_modules
+title STL [EDIT-XTTS-MODULES]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit XTTS Modules%reset%
+echo -------------------------------------------------------------
+echo Choose XTTS modules to enable or disable (e.g., "1 2 4" to enable Cuda, hs, and cache)
+
+REM Display module options with colors based on their status
+call :printModule "1. cuda (--device cuda)" %xtts_cuda_trigger%
+call :printModule "2. hs (-hs 0.0.0.0)" %xtts_hs_trigger%
+call :printModule "3. deepspeed (--deepspeed)" %xtts_deepspeed_trigger%
+call :printModule "4. cache (--use-cache)" %xtts_cache_trigger%
+call :printModule "5. listen (--listen)" %xtts_listen_trigger%
+call :printModule "6. model (--model-source local)" %xtts_model_trigger%
+echo 0. Back
+
+set "python_command="
+
+set /p xtts_module_choices=Choose modules to enable/disable (1-6): 
+
+REM Handle the user's module choices and construct the Python command
+for %%i in (%xtts_module_choices%) do (
+    if "%%i"=="1" (
+        if "%xtts_cuda_trigger%"=="true" (
+            set "xtts_cuda_trigger=false"
+        ) else (
+            set "xtts_cuda_trigger=true"
+        )
+        REM set "python_command= --device cuda"
+    ) else if "%%i"=="2" (
+        if "%xtts_hs_trigger%"=="true" (
+            set "xtts_hs_trigger=false"
+        ) else (
+            set "xtts_hs_trigger=true"
+        )
+        REM set "python_command= -hs 0.0.0.0"
+    ) else if "%%i"=="3" (
+        if "%xtts_deepspeed_trigger%"=="true" (
+            set "xtts_deepspeed_trigger=false"
+        ) else (
+            set "xtts_deepspeed_trigger=true"
+        )
+        REM set "python_command= --deepspeed"
+    ) else if "%%i"=="4" (
+        if "%xtts_cache_trigger%"=="true" (
+            set "xtts_cache_trigger=false"
+        ) else (
+            set "xtts_cache_trigger=true"
+        )
+        REM set "python_command= --use-cache"
+    ) else if "%%i"=="5" (
+        if "%xtts_listen_trigger%"=="true" (
+            set "xtts_listen_trigger=false"
+        ) else (
+            set "xtts_listen_trigger=true"
+        )
+    ) else if "%%i"=="6" (
+        if "%xtts_model_trigger%"=="true" (
+            set "xtts_model_trigger=false"
+        ) else (
+            set "xtts_model_trigger=true"
+        )
+        REM set "python_command= --model-source local"
+    ) else if "%%i"=="0" (
+        goto :editor
+    )
+)
+
+REM Save the module flags to modules-xtts.txt
+echo xtts_cuda_trigger=%xtts_cuda_trigger%>"%~dp0modules-xtts.txt"
+echo xtts_hs_trigger=%xtts_hs_trigger%>>"%~dp0modules-xtts.txt"
+echo xtts_deepspeed_trigger=%xtts_deepspeed_trigger%>>"%~dp0modules-xtts.txt"
+echo xtts_cache_trigger=%xtts_cache_trigger%>>"%~dp0modules-xtts.txt"
+echo xtts_listen_trigger=%xtts_listen_trigger%>>"%~dp0modules-xtts.txt"
+echo xtts_model_trigger=%xtts_model_trigger%>>"%~dp0modules-xtts.txt"
+
+REM remove modules_enable
+set "modules_enable="
+
+REM Compile the Python command
+set "python_command=python -m xtts_api_server"
+if "%xtts_cuda_trigger%"=="true" (
+    set "python_command=%python_command% --device cuda"
+)
+if "%xtts_hs_trigger%"=="true" (
+    set "python_command=%python_command% -hs 0.0.0.0"
+)
+if "%xtts_deepspeed_trigger%"=="true" (
+    set "python_command=%python_command% --deepspeed"
+)
+if "%xtts_cache_trigger%"=="true" (
+    set "python_command=%python_command% --use-cache"
+)
+if "%xtts_listen_trigger%"=="true" (
+    set "python_command=%python_command% --listen"
+)
+if "%xtts_model_trigger%"=="true" (
+    set "python_command=%python_command% --model-source local"
+)
+
+REM is modules_enable empty?
+if defined modules_enable (
+    REM remove last comma
+    set "modules_enable=%modules_enable:~0,-1%"
+)
+
+REM command completed
+if defined modules_enable (
+    set "python_command=%python_command% --enable-modules=%modules_enable%"
+)
+
+REM Save the constructed Python command to modules-xtts.txt for testing
+echo xtts_start_command=%python_command%>>"%~dp0modules-xtts.txt"
+goto :edit_xtts_modules
+
+
+:edit_environment_var
+rundll32.exe sysdm.cpl,EditEnvironmentVariables
+goto :editor
+
+
+:edit_st_config
+start "" "%~dp0SillyTavern\config.yaml"
+goto :editor
+
+
+REM ############################################################
+REM ############## TROUBLESHOOTING - FRONTEND ##################
+REM ############################################################
+:troubleshooting
+title STL [TROUBLESHOOTING]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Troubleshooting%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+echo 1. Remove node_modules folder
+echo 2. Fix unresolved conflicts or unmerged files [SillyTavern]
+echo 3. Export dxdiag info
+echo 4. Find what app is using port
+echo 5. Set Onboarding Flow
+echo 0. Back
+
+set /p troubleshooting_choice=Choose Your Destiny: 
+
+REM ############## TROUBLESHOOTING - BACKEND ##################
+if "%troubleshooting_choice%"=="1" (
+    call :remove_node_modules
+) else if "%troubleshooting_choice%"=="2" (
+    call :unresolved_unmerged
+) else if "%troubleshooting_choice%"=="3" (
+    call :export_dxdiag
+) else if "%troubleshooting_choice%"=="4" (
+    call :find_app_port
+) else if "%troubleshooting_choice%"=="5" (
+    call :onboarding_flow
+) else if "%troubleshooting_choice%"=="0" (
+    goto :toolbox
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :troubleshooting
+)
+
+
+:remove_node_modules
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing node_modules folder...
+cd /d "%~dp0SillyTavern"
+rmdir /s /q "node_modules"
+del package-lock.json
+call npm cache clean --force
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% node_modules successfully removed.
+pause
+goto :troubleshooting
+
+
+:unresolved_unmerged
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Trying to resolve unresolved conflicts in the working directory or unmerged files...
+cd /d "%~dp0SillyTavern"
+git merge --abort
+git reset --hard
+git pull --rebase --autostash
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Done.
+pause
+goto :troubleshooting
+
+
+:export_dxdiag
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Exporting DirectX Diagnostic Tool information...
+dxdiag /t "%~dp0dxdiag_info.txt"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%You can find the dxdiag_info.txt at: "%~dp0dxdiag_info.txt"%reset%
+pause
+goto :troubleshooting
+
+
+REM Function to find and display the application using the specified port
+:find_app_port
+cls
+setlocal EnableDelayedExpansion
+set /p port="Insert port number: "
+
+REM Check if the input is a number
+set "valid=true"
+for /f "delims=0123456789" %%i in ("!port!") do set "valid=false"
+if "!valid!"=="false" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input: Not a number.%reset%
+    pause
+    goto :troubleshooting
+)
+
+REM Check if the port is within range
+if !port! gtr 65535 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Port out of range. There are only 65,535 possible port numbers.%reset%
+    echo [0-1023]: These ports are reserved for system services or commonly used protocols.
+    echo [1024-49151]: These ports can be used by user processes or applications.
+    echo [49152-65535]: These ports are available for use by any application or service on the system.
+    pause
+    goto :troubleshooting
+)
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Searching for application using port: !port!...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr /r "\<!port!\>"') do (
+    set pid=%%a
+)
+
+if defined pid (
+    for /f "tokens=2*" %%b in ('tasklist /fi "PID eq !pid!" /fo list ^| find "Image Name"') do (
+        echo Application Name: %cyan_fg_strong%%%c%reset%
+        echo PID of Port !port!: %cyan_fg_strong%!pid!%reset%
+    )
+) else (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN]%reset% Port: !port! not found.
+)
+endlocal
+pause
+goto :troubleshooting
+
+
+:onboarding_flow
+set ONBOARDING_FLOW_VALUE=
+set /p ONBOARDING_FLOW_VALUE="Enter new value for Onboarding Flow (true/false): "
+yq eval -i ".firstRun = %ONBOARDING_FLOW_VALUE%" "%~dp0SillyTavern\public\settings.json"
+goto :troubleshooting
+
+
+
+
+
+REM ############################################################
+REM ############## SWITCH BRANCE - FRONTEND ####################
+REM ############################################################
+:switch_brance
+title STL [SWITCH-BRANCE]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Switch Branch%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+echo 1. Switch to Release - SillyTavern
+echo 2. Switch to Staging - SillyTavern
+echo 0. Back
+
+REM Get the current Git branch
+for /f %%i in ('git branch --show-current') do set current_branch=%%i
+echo ======== VERSION STATUS =========
+echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
+echo =================================
+set /p brance_choice=Choose Your Destiny: 
+
+REM ################# SWITCH BRANCE - BACKEND ########################
+if "%brance_choice%"=="1" (
+    call :switch_brance_release_st
+) else if "%brance_choice%"=="2" (
+    call :switch_brance_staging_st
+) else if "%brance_choice%"=="0" (
+    goto :toolbox
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :switch_brance
+)
+
+
+:switch_brance_release_st
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to release branch...
+cd /d "%~dp0SillyTavern"
+git switch release
+pause
+goto :switch_brance
+
+
+:switch_brance_staging_st
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to staging branch...
+cd /d "%~dp0SillyTavern"
+git switch staging
+pause
+goto :switch_brance
+
+
+REM ############################################################
+REM ################# BACKUP - FRONTEND ########################
+REM ############################################################
+:backup_menu
+title STL [BACKUP]
+REM Check if 7-Zip is installed
+7z > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
+    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
+    pause
+    goto :home
+)
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Backup%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+echo 1. Create Backup
+echo 2. Restore Backup
+echo 0. Back
+
+set /p backup_choice=Choose Your Destiny: 
+
+REM ################# BACKUP - BACKEND ########################
+if "%backup_choice%"=="1" (
+    call :create_backup
+) else if "%backup_choice%"=="2" (
+    call :restore_backup
+) else if "%backup_choice%"=="0" (
+    goto :toolbox
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+    pause
+    goto :backup_menu
+)
+
+:create_backup
+title STL [CREATE-BACKUP]
+REM Create a backup using 7zip
+7z a "%~dp0SillyTavern-backups\backup_.7z" ^
+    "public\assets\*" ^
+    "public\Backgrounds\*" ^
+    "public\Characters\*" ^
+    "public\Chats\*" ^
+    "public\context\*" ^
+    "public\Group chats\*" ^
+    "public\Groups\*" ^
+    "public\instruct\*" ^
+    "public\KoboldAI Settings\*" ^
+    "public\movingUI\*" ^
+    "public\NovelAI Settings\*" ^
+    "public\OpenAI Settings\*" ^
+    "public\QuickReplies\*" ^
+    "public\TextGen Settings\*" ^
+    "public\themes\*" ^
+    "public\User Avatars\*" ^
+    "public\user\*" ^
+    "public\worlds\*" ^
+    "public\settings.json" ^
+    "secrets.json"
+
+REM Get current date and time components
+for /f "tokens=1-3 delims=/- " %%d in ("%date%") do (
+    set "day=%%d"
+    set "month=%%e"
+    set "year=%%f"
+)
+
+for /f "tokens=1-2 delims=:." %%h in ("%time%") do (
+    set "hour=%%h"
+    set "minute=%%i"
+)
+
+REM Pad single digits with leading zeros
+setlocal enabledelayedexpansion
+set "day=0!day!"
+set "month=0!month!"
+set "hour=0!hour!"
+set "minute=0!minute!"
+
+set "formatted_date=%month:~-2%-%day:~-2%-%year%_%hour:~-2%%minute:~-2%"
+
+REM Rename the backup file with the formatted date and time
+rename "%~dp0SillyTavern-backups\backup_.7z" "backup_%formatted_date%.7z"
+
+endlocal
+
+
+echo %green_fg_strong%Backup created at %~dp0SillyTavern-backups%reset%
+pause
+endlocal
+goto :backup_menu
+
+
+:restore_backup
+title STL [RESTORE-BACKUP]
+
+echo List of available backups:
+echo =========================
+
+setlocal enabledelayedexpansion
+set "backup_count=0"
+
+for %%F in ("%~dp0SillyTavern-backups\backup_*.7z") do (
+    set /a "backup_count+=1"
+    set "backup_files[!backup_count!]=%%~nF"
+    echo !backup_count!. %cyan_fg_strong%%%~nF%reset%
+)
+
+echo =========================
+set /p "restore_choice=Enter number of backup to restore: "
+
+if "%restore_choice%" geq "1" (
+    if "%restore_choice%" leq "%backup_count%" (
+        set "selected_backup=!backup_files[%restore_choice%]!"
+        echo Restoring backup !selected_backup!...
+        REM Extract the contents of the "public" folder directly into the existing "public" folder
+        7z x "%~dp0SillyTavern-backups\!selected_backup!.7z" -o"temp" -aoa
+        xcopy /y /e "temp\public\*" "public\"
+        rmdir /s /q "temp"
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%!selected_backup! restored successfully.%reset%
+    ) else (
+        color 6
+        echo WARNING: Invalid backup number. Please insert a valid number.
+    )
+) else (
+    color 6
+    echo WARNING: Invalid number. Please insert a valid number.
+)
+pause
+goto :backup_menu
+
+
 REM ############################################################
 REM ############## SUPPORT - FRONTEND ##########################
 REM ############################################################
@@ -2173,7 +2197,7 @@ echo What would you like to do?
 echo 1. I want to report a issue
 echo 2. Documentation
 echo 3. Discord
-echo 0. Back to Home
+echo 0. Back
 
 set /p support_choice=Choose Your Destiny: 
 
