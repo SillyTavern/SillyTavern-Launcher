@@ -133,9 +133,16 @@ REM Check if Winget is installed; if not, then install it
 winget --version > nul 2>&1
 if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Winget is not installed on this system.%reset%
+    REM Check if the folder exists
+    if not exist "%~dp0bin" (
+        mkdir "%~dp0bin"
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "bin"  
+    ) else (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "bin" folder already exists.%reset%
+    )
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Winget...
-    curl -L -o "%temp%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "https://github.com/microsoft/winget-cli/releases/download/v1.7.10661/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    start "" "%temp%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+    curl -L -o "%~dp0bin\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+    start "" "%~dp0bin\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Winget installed successfully. Please restart the Launcher.%reset%
     pause
     exit
@@ -745,7 +752,6 @@ set "GPU_CHOICE=%gpu_choice%"
 
 REM Check the user's response
 if "%gpu_choice%"=="1" (
-    REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
     goto :install_koboldcpp_pre
 ) else if "%gpu_choice%"=="2" (
@@ -780,12 +786,12 @@ cd /d "%~dp0text-completion\dev-koboldcpp"
 REM Use the GPU choice made earlier to install koboldcpp
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
-    curl -o "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" -L "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
+    curl -L -o "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
     start "" "koboldcpp.exe"
     goto :install_koboldcpp_final
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp_rocm.exe for: %cyan_fg_strong%AMD%reset% 
-    curl -o "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe" -L "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
+    curl -L -o "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
     start "" "koboldcpp_rocm.exe"
     goto :install_koboldcpp_final
 )
@@ -1206,14 +1212,23 @@ exit
 
 :install_vsbuildtools
 REM Check if file exists
-if not exist "%temp%\vs_buildtools.exe" (
-    curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
+if not exist "%~dp0bin\vs_buildtools.exe" (
+    REM Check if the folder exists
+    if not exist "%~dp0bin" (
+        mkdir "%~dp0bin"
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "bin"  
+    ) else (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "bin" folder already exists.%reset%
+    )
+    curl -L -o "%~dp0bin\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
 ) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "vs_buildtools.exe" file already exists.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "vs_buildtools.exe" file already exists. Downloading latest version...%reset%
+    del "%~dp0bin\vs_buildtools.exe"
+    curl -L -o "%~dp0bin\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Visual Studio BuildTools 2022...
-start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
+start "" "%~dp0bin\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%When install is finished please restart the Launcher.%reset%
 pause
 exit
