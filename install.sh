@@ -103,8 +103,11 @@ install_miniconda() {
             ;;
     esac
 
+    # Clean existing Miniconda installer script
+    #rm -f /tmp/miniconda_installer.sh
+    
     # Download the Miniconda installer script
-    wget "https://repo.anaconda.com/miniconda/$miniconda_installer" -O /tmp/miniconda_installer.sh
+    wget -c "https://repo.anaconda.com/miniconda/$miniconda_installer" -O /tmp/miniconda_installer.sh
 
     # Run the installer script
     bash /tmp/miniconda_installer.sh -b -p "$HOME/miniconda"
@@ -116,7 +119,7 @@ install_miniconda() {
     source "$HOME/miniconda/etc/profile.d/conda.sh"
 
     # Clean up the Downloaded file
-    rm /tmp/miniconda_installer.sh
+    #rm -f /tmp/miniconda_installer.sh
 
     echo "Miniconda installed successfully in $HOME/miniconda"
 }
