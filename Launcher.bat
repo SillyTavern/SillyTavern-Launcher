@@ -207,7 +207,7 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo Launcher: V1.1.0
+echo Launcher: V1.1.1
 echo =================================
 
 set "choice="
@@ -547,7 +547,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Text generation web 
 
 cd /d "%~dp0text-completion\text-generation-webui"
 start "" "start_windows.bat"
-
+goto :app_launcher
 
 :start_koboldcpp
 REM Start koboldcpp with desired configurations
@@ -714,7 +714,53 @@ title STL [INSTALL KOBOLDCPP]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install koboldcpp%reset%
 echo -------------------------------------------------------------
-REM Check if the folder exists
+
+REM GPU menu - Frontend
+echo What is your GPU?
+echo 1. NVIDIA
+echo 2. AMD
+echo 0. Cancel
+
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+REM Get GPU information
+for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+    set "gpu_info=!gpu_info! %%i"
+)
+
+echo.
+echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
+echo.
+
+endlocal
+set /p gpu_choice=Enter number corresponding to your GPU: 
+
+REM GPU menu - Backend
+REM Set the GPU choice in an environment variable for choise callback
+set "GPU_CHOICE=%gpu_choice%"
+
+REM Check the user's response
+if "%gpu_choice%"=="1" (
+    REM Install pip requirements
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
+    goto :install_koboldcpp_pre
+) else if "%gpu_choice%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
+    goto :install_koboldcpp_pre
+) else if "%gpu_choice%"=="0" (
+    goto :install_koboldcpp_menu
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
+    pause
+    goto :install_koboldcpp
+)
+
+:install_koboldcpp_pre
+REM Check if text-completion folder exists
 if not exist "%~dp0text-completion" (
     mkdir "%~dp0text-completion"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
@@ -722,8 +768,7 @@ if not exist "%~dp0text-completion" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
 )
 
-cd /d "%~dp0text-completion"
-REM Check if the folder exists
+REM Check if dev-koboldcpp folder exists
 if not exist "%~dp0text-completion\dev-koboldcpp" (
     mkdir "%~dp0text-completion\dev-koboldcpp"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-koboldcpp"  
@@ -732,10 +777,20 @@ if not exist "%~dp0text-completion\dev-koboldcpp" (
 )
 cd /d "%~dp0text-completion\dev-koboldcpp"
 
-REM Download koboldcpp.exe
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp...
-curl -L -o "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/download/v1.61.2/koboldcpp.exe"
-start "" "koboldcpp.exe"
+REM Use the GPU choice made earlier to install koboldcpp
+if "%GPU_CHOICE%"=="1" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
+    curl -o "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" -L "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
+    start "" "koboldcpp.exe"
+    goto :install_koboldcpp_final
+) else if "%GPU_CHOICE%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp_rocm.exe for: %cyan_fg_strong%AMD%reset% 
+    curl -o "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe" -L "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
+    start "" "koboldcpp_rocm.exe"
+    goto :install_koboldcpp_final
+)
+
+:install_koboldcpp_final
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed koboldcpp%reset%
 pause
 goto :app_installer_text_completion
