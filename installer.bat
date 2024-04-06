@@ -10,7 +10,7 @@ REM report any issues or bugs on the GitHub repository.
 REM
 REM GitHub: https://github.com/SillyTavern/SillyTavern-Launcher
 REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
-title SillyTavern Installer
+title STL Installer [STARTUP CHECK]
 setlocal
 
 REM ANSI Escape Code for Colors
@@ -178,7 +178,7 @@ if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\python3.exe" (
 
 REM Installer menu - Frontend
 :installer
-title SillyTavern [INSTALLER]
+title STL [INSTALLER]
 cls
 echo %blue_fg_strong%/ Installer%reset%
 echo ---------------------------------------------------------------
@@ -210,14 +210,14 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="0" (
     exit
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :installer
 )
 
 
 :install_all
-title SillyTavern [INSTALL SILLYTAVERN + EXTRAS + XTTS]
+title STL [INSTALL SILLYTAVERN + EXTRAS + XTTS]
 cls
 echo %blue_fg_strong%/ Installer / Install SillyTavern + Extras + XTTS%reset%
 echo ---------------------------------------------------------------
@@ -265,7 +265,7 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="0" (
     goto :installer
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :install_all
 )
@@ -438,7 +438,7 @@ goto :installer
 
 
 :install_sillytavern
-title SillyTavern [INSTALL SILLYTAVERN]
+title STL [INSTALL SILLYTAVERN]
 cls
 echo %blue_fg_strong%/ Installer / Install SillyTavern%reset%
 echo ---------------------------------------------------------------
@@ -493,7 +493,7 @@ goto :installer
 
 
 :install_extras
-title SillyTavern [INSTALL EXTRAS]
+title STL [INSTALL EXTRAS]
 cls
 echo %blue_fg_strong%/ Installer / Install Extras%reset%
 echo ---------------------------------------------------------------
@@ -541,7 +541,7 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="0" (
     goto :installer
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :install_extras
 )
@@ -648,7 +648,7 @@ goto :installer
 
 
 :install_xtts
-title SillyTavern [INSTALL XTTS]
+title STL [INSTALL XTTS]
 cls
 echo %blue_fg_strong%/ Installer / Install XTTS%reset%
 echo ---------------------------------------------------------------
@@ -696,7 +696,7 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="0" (
     goto :installer
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :install_xtts
 )
@@ -764,7 +764,7 @@ goto :installer
 
 REM Support menu - Frontend
 :support
-title SillyTavern [SUPPORT]
+title STL [SUPPORT]
 cls
 echo %blue_fg_strong%/ Installer / Support%reset%
 echo ---------------------------------------------------------------
@@ -786,7 +786,7 @@ if "%support_choice%"=="1" (
 ) else if "%support_choice%"=="0" (
     goto :installer
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :support
 )

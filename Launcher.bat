@@ -10,7 +10,7 @@ REM report any issues or bugs on the GitHub repository.
 REM
 REM GitHub: https://github.com/SillyTavern/SillyTavern-Launcher
 REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
-title STL
+title STL [STARTUP CHECK]
 setlocal
 
 REM ANSI Escape Code for Colors
@@ -214,7 +214,7 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo Launcher: V1.1.1
+echo Launcher: V1.1.2
 echo =================================
 
 set "choice="
@@ -241,8 +241,7 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="0" (
     exit
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :home
 )
@@ -508,15 +507,14 @@ if "%toolbox_choice%"=="1" (
 ) else if "%toolbox_choice%"=="0" (
     goto :home
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :toolbox
 )
 
 
 REM ############################################################
-REM ################# APP LAUNCHER - FRONTEND ##################
+REM ############## APP LAUNCHER - FRONTEND ####################
 REM ############################################################
 :app_launcher
 title STL [APP LAUNCHER]
@@ -525,31 +523,60 @@ echo %blue_fg_strong%/ Home / Toolbox / App Launcher%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 
+echo 1. Text Completion
+echo 2. Image Generation
+echo 0. Back
+
+set /p app_launcher_choice=Choose Your Destiny: 
+
+REM ############## APP INSTALLER - BACKEND ####################
+if "%app_launcher_choice%"=="1" (
+    call :app_launcher_text_completion
+) else if "%app_launcher_choice%"=="2" (
+    call :app_launcher_image_generation
+) else if "%app_launcher_choice%"=="0" (
+    goto :toolbox
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :app_launcher
+)
+
+
+REM ############################################################
+REM ########## APP LAUNCHER TEXT COMPLETION - FRONTEND #########
+REM ############################################################
+:app_launcher_text_completion
+title STL [APP LAUNCHER TEXT COMPLETION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Launcher / Text Completion%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
 echo 1. Start Text generation web UI (oobabooga)
 echo 2. Start koboldcpp
 echo 3. Start TabbyAPI
 echo 0. Back
 
-set /p app_launcher_choice=Choose Your Destiny: 
+set /p app_launcher_txt_comp_choice=Choose Your Destiny: 
 
-REM ################# APP LAUNCHER - BACKEND ##################
-if "%app_launcher_choice%"=="1" (
+REM ########## APP LAUNCHER TEXT COMPLETION - BACKEND #########
+if "%app_launcher_txt_comp_choice%"=="1" (
     call :start_ooba
-) else if "%app_launcher_choice%"=="2" (
+) else if "%app_launcher_txt_comp_choice%"=="2" (
     call :start_koboldcpp
-) else if "%app_launcher_choice%"=="3" (
+) else if "%app_launcher_txt_comp_choice%"=="3" (
     call :start_tabbyapi
-) else if "%app_launcher_choice%"=="0" (
-    goto :toolbox
-) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
-    pause
+) else if "%app_launcher_txt_comp_choice%"=="0" (
     goto :app_launcher
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :app_launcher_text_completion
 )
 
 :start_ooba
-REM Start Text generation web UI (oobabooga) with desired configurations
+REM Start Text generation web UI oobabooga with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Text generation web UI oobabooga launched in a new window.
 
 cd /d "%~dp0text-completion\text-generation-webui"
@@ -580,6 +607,88 @@ goto :app_launcher
 
 
 REM ############################################################
+REM ######## APP LAUNCHER IMAGE GENERATION - FRONTEND #########
+REM ############################################################
+:app_launcher_image_generation
+title STL [APP LAUNCHER IMAGE GENERATION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Launcher / Image Generation%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Start Stable Diffusion web UI
+echo 2. Start Stable Diffusion web UI Forge
+echo 3. Start ComfyUI
+echo 4. Start Fooocus
+echo 0. Back
+
+set /p app_launcher_img_gen_choice=Choose Your Destiny: 
+
+REM ######## APP LAUNCHER IMAGE GENERATION - BACKEND #########
+if "%app_launcher_img_gen_choice%"=="1" (
+    call :start_sdwebui
+) else if "%app_launcher_img_gen_choice%"=="2" (
+    goto :start_sdwebuiforge
+) else if "%app_launcher_img_gen_choice%"=="3" (
+    goto :start_comfyui
+) else if "%app_launcher_img_gen_choice%"=="4" (
+    goto :start_fooocus
+) else if "%app_launcher_img_gen_choice%"=="0" (
+    goto :app_launcher
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :app_launcher_image_generation
+)
+
+
+:start_sdwebui
+cd /d "%~dp0image-generation\stable-diffusion-webui"
+
+REM Start Stable Diffusion WebUI with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI launched in a new window.
+start "" "webui-user.bat"
+goto :app_launcher_image_generation
+
+:start_sdwebuiforge
+cd /d "%~dp0image-generation\stable-diffusion-webui-forge"
+
+REM Start Stable Diffusion WebUI Forge with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI Forge launched in a new window.
+start "" "webui-user.bat"
+goto :app_launcher_image_generation
+
+:start_comfyui
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the comfyui environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment comfyui...
+call conda activate comfyui
+
+REM Start ComfyUI with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% ComfyUI launched in a new window.
+start cmd /k "title ComfyUI && cd /d %~dp0image-generation\ComfyUI && python main.py --auto-launch --listen --port 7901"
+goto :app_launcher_image_generation
+
+
+:start_fooocus
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the fooocus environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment fooocus...
+call conda activate fooocus
+
+REM Start Fooocus with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Fooocus launched in a new window.
+start cmd /k "title Fooocus && cd /d %~dp0image-generation\fooocus && python entry_with_update.py"
+goto :app_launcher_image_generation
+
+
+REM ############################################################
 REM ############## APP INSTALLER - FRONTEND ####################
 REM ############################################################
 :app_installer
@@ -590,7 +699,8 @@ echo -------------------------------------------------------------
 echo What would you like to do?
 
 echo 1. Text Completion
-echo 2. Core Utilities
+echo 2. Image Generation
+echo 3. Core Utilities
 echo 0. Back
 
 set /p app_installer_choice=Choose Your Destiny: 
@@ -599,15 +709,17 @@ REM ############## APP INSTALLER - BACKEND ####################
 if "%app_installer_choice%"=="1" (
     call :app_installer_text_completion
 ) else if "%app_installer_choice%"=="2" (
+    call :app_installer_image_generation
+) else if "%app_installer_choice%"=="3" (
     call :app_installer_core_utilities
 ) else if "%app_installer_choice%"=="0" (
     goto :toolbox
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :app_installer
 )
+
 
 REM ############################################################
 REM ######## APP INSTALLER TEXT COMPLETION - FRONTEND ##########
@@ -619,8 +731,8 @@ echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 
-echo 1. Install Text generation web UI (oobabooga)
-echo 2. Install koboldcpp
+echo 1. Install Text generation web UI oobabooga
+echo 2. koboldcpp [Install options]
 echo 3. Install TabbyAPI
 echo 0. Back
 
@@ -636,8 +748,7 @@ if "%app_installer_txt_comp_choice%"=="1" (
 ) else if "%app_installer_txt_comp_choice%"=="0" (
     goto :app_installer
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :app_installer_text_completion
 )
@@ -691,7 +802,7 @@ REM ############################################################
 :install_koboldcpp_menu
 title STL [APP INSTALLER KOBOLDCPP]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / koboldcpp%reset%
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / koboldcpp%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 
@@ -709,8 +820,7 @@ if "%app_installer_koboldcpp_choice%"=="1" (
 ) else if "%app_installer_koboldcpp_choice%"=="0" (
     goto :app_installer_text_completion
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :install_koboldcpp_menu
 )
@@ -760,7 +870,7 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="0" (
     goto :install_koboldcpp_menu
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :install_koboldcpp
 )
@@ -829,7 +939,7 @@ REM Activate the conda environment named koboldcpp
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%koboldcpp%reset%
 call conda activate koboldcpp
 
-REM Install the pip requirements
+REM Install pip requirements
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements
 pip install pyinstaller
 
@@ -979,7 +1089,7 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="0" (
     goto :app_installer_text_completion
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid number. Please enter a valid number.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :install_tabbyapi
 )
@@ -1045,6 +1155,637 @@ goto :app_installer_text_completion
 
 
 REM ############################################################
+REM ######## APP INSTALLER IMAGE GENERATION - FRONTEND #########
+REM ############################################################
+:app_installer_image_generation
+title STL [APP INSTALLER IMAGE GENERATION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Stable Diffusion web UI [Install options]
+echo 2. Stable Diffusion web UI Forge [Install options]
+echo 3. Install ComfyUI
+echo 4. Install Fooocus
+echo 0. Back
+
+set /p app_installer_img_gen_choice=Choose Your Destiny: 
+
+REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
+if "%app_installer_img_gen_choice%"=="1" (
+    call :install_sdwebui_menu
+) else if "%app_installer_img_gen_choice%"=="2" (
+    goto :install_sdwebuiforge_menu
+) else if "%app_installer_img_gen_choice%"=="3" (
+    goto :install_comfyui
+) else if "%app_installer_img_gen_choice%"=="4" (
+    goto :install_fooocus
+) else if "%app_installer_img_gen_choice%"=="0" (
+    goto :app_installer
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :app_installer_image_generation
+)
+
+
+REM ############################################################
+REM ##### APP INSTALLER STABLE DIFUSSION WEBUI - FRONTEND ######
+REM ############################################################
+:install_sdwebui_menu
+title STL [APP INSTALLER STABLE DIFUSSION WEBUI]
+
+REM Check if the folder exists
+if exist "%~dp0image-generation\stable-diffusion-webui" (
+    REM Activate the sdwebui environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment: %cyan_fg_strong%sdwebui%reset%
+    call conda deactivate
+)
+
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Stable Diffusion web UI %reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Install Stable Diffusion web UI
+echo 2. Install Extensions
+echo 3. Models [Install Options]
+echo 0. Back
+
+set /p app_installer_sdwebui_choice=Choose Your Destiny: 
+
+REM ##### APP INSTALLER STABLE DIFUSSION WEBUI - BACKEND ######
+if "%app_installer_sdwebui_choice%"=="1" (
+    call :install_sdwebui
+) else if "%app_installer_sdwebui_choice%"=="2" (
+    goto :install_sdwebui_extensions
+) else if "%app_installer_sdwebui_choice%"=="3" (
+    goto :install_sdwebui_model_menu
+) else if "%app_installer_sdwebui_choice%"=="0" (
+    goto :app_installer_image_generation
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :install_sdwebui_menu
+)
+
+
+:install_sdwebui
+title STL [INSTALL STABLE DIFFUSION WEBUI]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install Stable Diffusion web UI%reset%
+echo -------------------------------------------------------------
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Stable Diffusion web UI...
+
+REM Check if the folder exists
+if not exist "%~dp0image-generation" (
+    mkdir "%~dp0image-generation"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "image-generation"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "image-generation" folder already exists.%reset%
+)
+cd /d "%~dp0image-generation"
+
+
+set max_retries=3
+set retry_count=0
+:retry_install_sdwebui
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the stable-diffusion-webui repository...
+git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_sdwebui
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :app_installer_image_generation
+)
+cd /d "stable-diffusion-webui"
+
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named sdwebui
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%sdwebui%reset%
+call conda create -n sdwebui python=3.11 -y
+
+REM Activate the sdwebui environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebui%reset%
+call conda activate sdwebui
+
+REM Install pip requirements
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements
+pip install civitdl
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Stable Diffusion web UI installed Successfully.%reset%
+pause
+goto :install_sdwebui_menu
+
+
+:install_sdwebui_extensions
+REM Check if the folder exists
+if not exist "%~dp0image-generation\stable-diffusion-webui" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion Webui is not installed. Please install it first.%reset%
+    pause
+    goto :install_sdwebui_menu
+)
+
+REM Clone extensions for stable-diffusion-webui
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for stable-diffusion-webui...
+cd /d "%~dp0image-generation\stable-diffusion-webui\extensions"
+git clone https://github.com/alemelis/sd-webui-ar.git
+git clone https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper.git
+git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git
+git clone https://github.com/EnsignMK/danbooru-prompt.git
+git clone https://github.com/fkunn1326/openpose-editor.git
+git clone https://github.com/Mikubill/sd-webui-controlnet.git
+git clone https://github.com/ashen-sensored/sd_webui_SAG.git
+git clone https://github.com/NoCrypt/sd-fast-pnginfo.git
+git clone https://github.com/Bing-su/adetailer.git
+git clone https://github.com/hako-mikan/sd-webui-supermerger.git
+git clone https://github.com/AlUlkesh/stable-diffusion-webui-images-browser.git
+git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git
+git clone https://github.com/Gourieff/sd-webui-reactor.git
+git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git
+
+REM Installs better upscaler models
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Better Upscaler models...
+cd /d "%~dp0image-generation\stable-diffusion-webui\models"
+mkdir ESRGAN && cd ESRGAN
+curl -o 4x-AnimeSharp.pth https://huggingface.co/konohashinobi4/4xAnimesharp/resolve/main/4x-AnimeSharp.pth
+curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
+pause
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extensions for Stable Diffusion web UI installed Successfully.%reset%
+goto :install_sdwebui_menu
+
+
+REM ############################################################
+REM ##### APP INSTALLER SDWEBUI Models - FRONTEND ##############
+REM ############################################################
+:install_sdwebui_model_menu
+title STL [APP INSTALLER SDWEBUI MODELS]
+
+REM Check if the folder exists
+if not exist "%~dp0image-generation\stable-diffusion-webui" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion Webui is not installed. Please install it first.%reset%
+    pause
+    goto :install_sdwebui_menu
+)
+
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the sdwebui environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebui%reset%
+call conda activate sdwebui
+
+cd /d "%~dp0image-generation\stable-diffusion-webui"
+
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / SDWEBUI Models%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Install Hassaku [ANIME MODEL]
+echo 2. Install YiffyMix [FURRY MODEL]
+echo 3. Install Perfect World [REALISM MODEL]
+echo 4. Install a custom model
+echo 0. Back
+
+set /p app_installer_sdwebui_model_choice=Choose Your Destiny: 
+
+REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
+if "%app_installer_sdwebui_model_choice%"=="1" (
+    call :install_sdwebui_model_hassaku
+) else if "%app_installer_sdwebui_model_choice%"=="2" (
+    goto :install_sdwebui_model_yiffymix
+) else if "%app_installer_sdwebui_model_choice%"=="3" (
+    goto :install_sdwebui_model_perfectworld
+) else if "%app_installer_sdwebui_model_choice%"=="4" (
+    goto :install_sdwebui_model_custom
+) else if "%app_installer_sdwebui_model_choice%"=="0" (
+    goto :install_sdwebui_menu
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :install_sdwebui_model_menu
+)
+
+:install_sdwebui_model_hassaku
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku Model...
+civitdl 2583 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebui_model_menu
+
+
+:install_sdwebui_model_yiffymix
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Model...
+civitdl 3671 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Config...
+civitdl 3671 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix VAE...
+civitdl 3671 -s basic "models\VAE"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%~dp0image-generation\stable-diffusion-webui\models\VAE"%reset%
+pause
+goto :install_sdwebui_model_menu
+
+
+:install_sdwebui_model_perfectworld
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+civitdl 8281 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebui_model_menu
+
+
+:install_sdwebui_model_custom
+cls
+set /p civitaimodelid="(0 to cancel)Insert Model ID: "
+
+if "%civitaimodelid%"=="0" goto :install_sdwebui_model_menu
+
+REM Check if the input is a valid number
+echo %civitaimodelid%| findstr /R "^[0-9]*$" > nul
+if errorlevel 1 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :install_sdwebui_model_custom
+)
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Downloading...
+civitdl %civitaimodelid% -s basic "models\Stable-diffusion"
+
+pause
+goto :install_sdwebui_model_menu
+
+
+REM ############################################################
+REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE - FRONTEND ###
+REM ############################################################
+:install_sdwebuiforge_menu
+title STL [APP INSTALLER STABLE DIFUSSION WEBUI FORGE]
+
+REM Check if the folder exists
+if exist "%~dp0image-generation\stable-diffusion-webui-forge" (
+    REM Activate the sdwebuiforge environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment: %cyan_fg_strong%sdwebui%reset%
+    call conda deactivate
+)
+
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Stable Diffusion web UI Forge %reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Install Stable Diffusion web UI Forge
+echo 2. Install Extensions
+echo 3. Models [Install Options]
+echo 0. Back
+
+set /p app_installer_sdwebuiforge_choice=Choose Your Destiny: 
+
+REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE - BACKEND ###
+if "%app_installer_sdwebuiforge_choice%"=="1" (
+    call :install_sdwebuiforge
+) else if "%app_installer_sdwebuiforge_choice%"=="2" (
+    goto :install_sdwebuiforge_extensions
+) else if "%app_installer_sdwebuiforge_choice%"=="3" (
+    goto :install_sdwebuiforge_model_menu
+) else if "%app_installer_sdwebuiforge_choice%"=="0" (
+    goto :app_installer_image_generation
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :install_sdwebuiforge_menu
+)
+
+
+:install_sdwebuiforge
+title STL [INSTALL STABLE DIFFUSION WEBUI]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install Stable Diffusion web UI Forge%reset%
+echo -------------------------------------------------------------
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Stable Diffusion web UI Forge...
+
+REM Check if the folder exists
+if not exist "%~dp0image-generation" (
+    mkdir "%~dp0image-generation"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "image-generation"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "image-generation" folder already exists.%reset%
+)
+cd /d "%~dp0image-generation"
+
+
+set max_retries=3
+set retry_count=0
+:retry_install_sdwebuiforge
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the stable-diffusion-webui-forge repository...
+git clone https://github.com/lllyasviel/stable-diffusion-webui-forge.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_sdwebuiforge
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :app_installer_image_generation
+)
+cd /d "stable-diffusion-webui-forge"
+
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named sdwebuiforge
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
+call conda create -n sdwebuiforge python=3.11 -y
+
+REM Activate the sdwebuiforge environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
+call conda activate sdwebuiforge
+
+REM Install pip requirements
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements
+pip install civitdl
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Stable Diffusion WebUI Forge installed Successfully.%reset%
+pause
+goto :install_sdwebuiforge_menu
+
+
+:install_sdwebuiforge_extensions
+REM Check if the folder exists
+if not exist "%~dp0image-generation\stable-diffusion-webui-forge" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion WebUI Forge is not installed. Please install it first.%reset%
+    pause
+    goto :install_sdwebuiforge_menu
+)
+
+REM Clone extensions for stable-diffusion-webui-forge
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for stable-diffusion-webui-forge...
+cd /d "%~dp0image-generation\stable-diffusion-webui-forge\extensions"
+git clone https://github.com/alemelis/sd-webui-ar.git
+git clone https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper.git
+git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git
+git clone https://github.com/EnsignMK/danbooru-prompt.git
+git clone https://github.com/fkunn1326/openpose-editor.git
+git clone https://github.com/Mikubill/sd-webui-controlnet.git
+git clone https://github.com/ashen-sensored/sd_webui_SAG.git
+git clone https://github.com/NoCrypt/sd-fast-pnginfo.git
+git clone https://github.com/Bing-su/adetailer.git
+git clone https://github.com/hako-mikan/sd-webui-supermerger.git
+git clone https://github.com/AlUlkesh/stable-diffusion-webui-images-browser.git
+git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git
+git clone https://github.com/Gourieff/sd-webui-reactor.git
+git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git
+
+REM Installs better upscaler models
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Better Upscaler models...
+cd /d "%~dp0image-generation\stable-diffusion-webui-forge\models"
+mkdir ESRGAN && cd ESRGAN
+curl -o 4x-AnimeSharp.pth https://huggingface.co/konohashinobi4/4xAnimesharp/resolve/main/4x-AnimeSharp.pth
+curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
+pause
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extensions for Stable Diffusion WebUI Forge installed Successfully.%reset%
+goto :install_sdwebuiforge_menu
+
+
+REM ############################################################
+REM ##### APP INSTALLER SDWEBUI Models - FRONTEND ##############
+REM ############################################################
+:install_sdwebuiforge_model_menu
+title STL [APP INSTALLER SDWEBUIFORGE MODELS]
+
+REM Check if the folder exists
+if not exist "%~dp0image-generation\stable-diffusion-webui-forge" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion WebUI Forge is not installed. Please install it first.%reset%
+    pause
+    goto :install_sdwebuiforge_menu
+)
+
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the sdwebuiforge environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
+call conda activate sdwebuiforge
+
+cd /d "%~dp0image-generation\stable-diffusion-webui-forge"
+
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / SDWEBUIFORGE Models%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Install Hassaku [ANIME MODEL]
+echo 2. Install YiffyMix [FURRY MODEL]
+echo 3. Install Perfect World [REALISM MODEL]
+echo 4. Install a custom model
+echo 0. Back
+
+set /p app_installer_sdwebuiforge_model_choice=Choose Your Destiny: 
+
+REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
+if "%app_installer_sdwebuiforge_model_choice%"=="1" (
+    call :install_sdwebuiforge_model_hassaku
+) else if "%app_installer_sdwebuiforge_model_choice%"=="2" (
+    goto :install_sdwebuiforge_model_yiffymix
+) else if "%app_installer_sdwebuiforge_model_choice%"=="3" (
+    goto :install_sdwebuiforge_model_perfectworld
+) else if "%app_installer_sdwebuiforge_model_choice%"=="4" (
+    goto :install_sdwebuiforge_model_custom
+) else if "%app_installer_sdwebuiforge_model_choice%"=="0" (
+    goto :install_sdwebuiforge_menu
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :install_sdwebuiforge_model_menu
+)
+
+:install_sdwebuiforge_model_hassaku
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku Model...
+civitdl 2583 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
+
+
+:install_sdwebuiforge_model_yiffymix
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Model...
+civitdl 3671 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Config...
+civitdl 3671 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix VAE...
+civitdl 3671 -s basic "models\VAE"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%~dp0image-generation\stable-diffusion-webui\models\VAE"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
+
+
+:install_sdwebuiforge_model_perfectworld
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+civitdl 8281 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
+
+
+:install_sdwebuiforge_model_custom
+cls
+set /p civitaimodelid="(0 to cancel)Insert Model ID: "
+
+if "%civitaimodelid%"=="0" goto :install_sdwebuiforge_model_menu
+
+REM Check if the input is a valid number
+echo %civitaimodelid%| findstr /R "^[0-9]*$" > nul
+if errorlevel 1 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :install_sdwebuiforge_model_custom
+)
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Downloading...
+civitdl %civitaimodelid% -s basic "models\Stable-diffusion"
+
+pause
+goto :install_sdwebuiforge_model_menu
+
+
+:install_comfyui
+title STL [INSTALL COMFYUI]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation / Install ComfyUI%reset%
+echo -------------------------------------------------------------
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing ComfyUI...
+
+REM Check if the folder exists
+if not exist "%~dp0image-generation" (
+    mkdir "%~dp0image-generation"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "image-generation"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "image-generation" folder already exists.%reset%
+)
+cd /d "%~dp0image-generation"
+
+
+set max_retries=3
+set retry_count=0
+:retry_install_comfyui
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the ComfyUI repository...
+git clone https://github.com/comfyanonymous/ComfyUI.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_comfyui
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :app_installer_image_generation
+)
+cd /d "ComfyUI"
+
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named comfyui
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%comfyui%reset%
+call conda create -n comfyui python=3.11 -y
+
+REM Activate the comfyui environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment comfyui...
+call conda activate comfyui
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
+pip install -r requirements.txt
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu121
+
+REM Clone extensions for ComfyUI
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for ComfyUI...
+cd /d "%~dp0image-generation/ComfyUI/custom_nodes"
+git clone https://github.com/ltdrdata/ComfyUI-Manager.git
+
+REM Installs better upscaler models
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Better Upscaler models...
+cd /d "%~dp0image-generation/ComfyUI/models"
+mkdir ESRGAN && cd ESRGAN
+curl -o 4x-AnimeSharp.pth https://huggingface.co/konohashinobi4/4xAnimesharp/resolve/main/4x-AnimeSharp.pth
+curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
+
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ComfyUI successfully installed.%reset%
+pause
+goto :app_installer_image_generation
+
+
+:install_fooocus
+title STL [INSTALL FOOOCUS]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation / Install Fooocus%reset%
+echo -------------------------------------------------------------
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Fooocus...
+
+REM Check if the folder exists
+if not exist "%~dp0image-generation" (
+    mkdir "%~dp0image-generation"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "image-generation"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "image-generation" folder already exists.%reset%
+)
+cd /d "%~dp0image-generation"
+
+set max_retries=3
+set retry_count=0
+:retry_install_fooocus
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the Fooocus repository...
+git clone https://github.com/lllyasviel/Fooocus.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_fooocus
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :app_installer_image_generation
+)
+cd /d "Fooocus"
+
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named fooocus
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%fooocus%reset%
+call conda create -n fooocus python=3.10 -y
+
+REM Activate the fooocus environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment fooocus...
+call conda activate fooocus
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
+pip install -r requirements_versions.txt
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Fooocus successfully installed.%reset%
+pause
+goto :app_installer_image_generation
+
+
+REM ############################################################
 REM ######## APP INSTALLER CORE UTILITIES - FRONTEND ###########
 REM ############################################################
 :app_installer_core_utilities
@@ -1080,8 +1821,7 @@ if "%app_installer_core_util_choice%"=="1" (
 ) else if "%app_installer_core_util_choice%"=="0" (
     goto :app_installer
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :app_installer_core_utilities
 )
@@ -1263,7 +2003,8 @@ echo -------------------------------------------------------------
 echo What would you like to do?
 
 echo 1. Text Completion
-echo 2. Core Utilities
+echo 2. Image Generation 
+echo 3. Core Utilities
 echo 0. Back
 
 set /p app_uninstaller_choice=Choose Your Destiny: 
@@ -1272,12 +2013,13 @@ REM ############## APP UNINSTALLER - BACKEND ####################
 if "%app_uninstaller_choice%"=="1" (
     call :app_uninstaller_text_completion
 ) else if "%app_uninstaller_choice%"=="2" (
+    call :app_uninstaller_image_generation
+) else if "%app_uninstaller_choice%"=="3" (
     call :app_uninstaller_core_utilities
 ) else if "%app_uninstaller_choice%"=="0" (
     goto :toolbox
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :app_uninstaller
 )
@@ -1293,7 +2035,7 @@ echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller / Text Completion%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 
-echo 1. UNINSTALL Text generation web UI (oobabooga)
+echo 1. UNINSTALL Text generation web UI oobabooga
 echo 2. UNINSTALL koboldcpp
 echo 3. UNINSTALL TabbyAPI
 echo 0. Back
@@ -1310,8 +2052,7 @@ if "%app_uninstaller_txt_comp_choice%"=="1" (
 ) else if "%app_uninstaller_txt_comp_choice%"=="0" (
     goto :app_uninstaller
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :app_uninstaller_text_completion
 )
@@ -1364,6 +2105,7 @@ if /i "%confirmation%"=="Y" (
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%koboldcpp%reset%
     call conda remove --name koboldcpp --all -y
+    call conda clean -a -y
 
     REM Remove the folder koboldcpp
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the koboldcpp directory...
@@ -1399,6 +2141,7 @@ if /i "%confirmation%"=="Y" (
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%tabbyapi%reset%
     call conda remove --name tabbyapi --all -y
+    call conda clean -a -y
 
     REM Remove the folder tabbyAPI
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the tabbyAPI directory...
@@ -1413,6 +2156,181 @@ if /i "%confirmation%"=="Y" (
     goto :app_uninstaller_text_completion
 )
 
+
+REM ############################################################
+REM ######## APP UNINSTALLER IMAGE GENERATION - FRONTEND #######
+REM ############################################################
+:app_uninstaller_image_generation
+title STL [APP UNINSTALLER IMAGE GENERATION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller / Image Generation%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. UNINSTALL Stable Diffusion web UI
+echo 2. UNINSTALL Stable Diffusion web UI Forge
+echo 3. UNINSTALL ComfyUI
+echo 4. UNINSTALL Fooocus
+echo 0. Back
+
+set /p app_uninstaller_img_gen_choice=Choose Your Destiny: 
+
+REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
+if "%app_uninstaller_img_gen_choice%"=="1" (
+    call :uninstall_sdwebui
+) else if "%app_uninstaller_img_gen_choice%"=="2" (
+    goto :uninstall_sdwebuiforge
+) else if "%app_uninstaller_img_gen_choice%"=="3" (
+    goto :uninstall_comfyui
+) else if "%app_uninstaller_img_gen_choice%"=="4" (
+    goto :uninstall_fooocus
+) else if "%app_uninstaller_img_gen_choice%"=="0" (
+    goto :app_uninstaller
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :app_uninstaller_image_generation
+)
+
+
+:uninstall_sdwebui
+title STL [UNINSTALL STABLE DIFUSSION WEBUI]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of Stable Diffusion web UI                                 ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%sdwebui%reset%
+    call conda remove --name sdwebui --all -y
+    call conda clean -a -y
+
+    REM Remove the folder stable-diffusion-webui
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the stable-diffusion-webui directory...
+    cd /d "%~dp0image-generation"
+    rmdir /s /q "stable-diffusion-webui"
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Stable Diffusion web UI has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_image_generation
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_image_generation
+)
+
+
+:uninstall_sdwebuiforge
+title STL [UNINSTALL STABLE DIFUSSION WEBUI FORGE]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of Stable Diffusion web UI Forge                           ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%sdwebuiforge%reset%
+    call conda remove --name sdwebuiforge --all -y
+    call conda clean -a -y
+
+    REM Remove the folder stable-diffusion-webui
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the stable-diffusion-webui-forge directory...
+    cd /d "%~dp0image-generation"
+    rmdir /s /q "stable-diffusion-webui-forge"
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Stable Diffusion web UI Forge has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_image_generation
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_image_generation
+)
+
+
+:uninstall_comfyui
+title STL [UNINSTALL COMFYUI]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of ComfyUI                                                 ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%comfyui%reset%
+    call conda remove --name comfyui --all -y
+    call conda clean -a -y
+
+    REM Remove the folder ComfyUI
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the ComfyUI directory...
+    cd /d "%~dp0image-generation"
+    rmdir /s /q "ComfyUI"
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ComfyUI has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_image_generation
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_image_generation
+)
+
+
+:uninstall_fooocus
+title STL [UNINSTALL FOOOCUS]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of Fooocus                                                 ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%fooocus%reset%
+    call conda remove --name fooocus --all -y
+    call conda clean -a -y
+
+    REM Remove the folder Fooocus
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Fooocus directory...
+    cd /d "%~dp0image-generation"
+    rmdir /s /q "Fooocus"
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Fooocus has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_image_generation
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_image_generation
+)
 
 
 REM ############################################################
@@ -1459,8 +2377,7 @@ if "%app_uninstaller_core_util_choice%"=="1" (
 ) else if "%app_uninstaller_core_util_choice%"=="0" (
     goto :app_uninstaller
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :app_uninstaller_core_utilities
 )
@@ -1484,6 +2401,7 @@ if /i "%confirmation%"=="Y" (
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%extras%reset%
     call conda remove --name extras --all -y
+    call conda clean -a -y
 
     REM Remove the folder SillyTavern-extras
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern-extras directory...
@@ -1518,6 +2436,7 @@ if /i "%confirmation%"=="Y" (
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%xtts%reset%
     call conda remove --name xtts --all -y
+    call conda clean -a -y
 
     REM Remove the folder SillyTavern
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts directory...
@@ -1643,8 +2562,7 @@ if "%editor_choice%"=="1" (
 ) else if "%editor_choice%"=="0" (
     goto :toolbox
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :editor
 )
@@ -1979,8 +2897,7 @@ if "%troubleshooting_choice%"=="1" (
 ) else if "%troubleshooting_choice%"=="0" (
     goto :toolbox
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :troubleshooting
 )
@@ -2020,11 +2937,13 @@ REM Function to find and display the application using the specified port
 :find_app_port
 cls
 setlocal EnableDelayedExpansion
-set /p port="Insert port number: "
+set /p port_choice="(0 to cancel)Insert port number: "
+
+if "%port_choice%"=="0" goto :troubleshooting
 
 REM Check if the input is a number
 set "valid=true"
-for /f "delims=0123456789" %%i in ("!port!") do set "valid=false"
+for /f "delims=0123456789" %%i in ("!port_choice!") do set "valid=false"
 if "!valid!"=="false" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input: Not a number.%reset%
     pause
@@ -2032,7 +2951,7 @@ if "!valid!"=="false" (
 )
 
 REM Check if the port is within range
-if !port! gtr 65535 (
+if !port_choice! gtr 65535 (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Port out of range. There are only 65,535 possible port numbers.%reset%
     echo [0-1023]: These ports are reserved for system services or commonly used protocols.
     echo [1024-49151]: These ports can be used by user processes or applications.
@@ -2041,18 +2960,18 @@ if !port! gtr 65535 (
     goto :troubleshooting
 )
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Searching for application using port: !port!...
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr /r "\<!port!\>"') do (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Searching for application using port: !port_choice!...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr /r "\<!port_choice!\>"') do (
     set pid=%%a
 )
 
 if defined pid (
     for /f "tokens=2*" %%b in ('tasklist /fi "PID eq !pid!" /fo list ^| find "Image Name"') do (
         echo Application Name: %cyan_fg_strong%%%c%reset%
-        echo PID of Port !port!: %cyan_fg_strong%!pid!%reset%
+        echo PID of Port !port_choice!: %cyan_fg_strong%!pid!%reset%
     )
 ) else (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN]%reset% Port: !port! not found.
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN]%reset% Port: !port_choice! not found.
 )
 endlocal
 pause
@@ -2097,8 +3016,7 @@ if "%brance_choice%"=="1" (
 ) else if "%brance_choice%"=="0" (
     goto :toolbox
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :switch_brance
 )
@@ -2152,8 +3070,7 @@ if "%backup_choice%"=="1" (
 ) else if "%backup_choice%"=="0" (
     goto :toolbox
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :backup_menu
 )
@@ -2180,8 +3097,7 @@ REM Create a backup using 7zip
     "public\User Avatars\*" ^
     "public\user\*" ^
     "public\worlds\*" ^
-    "public\settings.json" ^
-    "secrets.json"
+    "public\settings.json"
 
 REM Get current date and time components
 for /f "tokens=1-3 delims=/- " %%d in ("%date%") do (
@@ -2232,7 +3148,9 @@ for %%F in ("%~dp0SillyTavern-backups\backup_*.7z") do (
 )
 
 echo =========================
-set /p "restore_choice=Enter number of backup to restore: "
+set /p "restore_choice=(0 to cancel)Enter number of backup to restore: "
+
+if "%restore_choice%"=="0" goto :backup_menu
 
 if "%restore_choice%" geq "1" (
     if "%restore_choice%" leq "%backup_count%" (
@@ -2244,13 +3162,12 @@ if "%restore_choice%" geq "1" (
         rmdir /s /q "temp"
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%!selected_backup! restored successfully.%reset%
     ) else (
-        color 6
-        echo WARNING: Invalid backup number. Please insert a valid number.
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     )
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
 )
+
 pause
 goto :backup_menu
 
@@ -2281,8 +3198,7 @@ if "%support_choice%"=="1" (
 ) else if "%support_choice%"=="0" (
     goto :home
 ) else (
-    color 6
-    echo WARNING: Invalid number. Please insert a valid number.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
     goto :support
 )
