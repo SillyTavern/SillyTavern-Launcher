@@ -17,19 +17,21 @@
 
 ## 🔧 Installation
 ### 🪟 Windows
- 1. Install [Git for Windows](https://gitforwindows.org/)
- 2. Open Windows Explorer (`Win+E`) and make or choose a folder where you wanna install the launcher to
- 3. Open a Command Prompt inside that folder by clicking in the 'Address Bar' at the top, typing `cmd`, and pressing Enter.
- 4. When you see a black box, insert the following command: `git clone https://github.com/SillyTavern/SillyTavern-Launcher.git`
- 5. double click on `installer.bat` and choose what you wanna install
- 6. After installation double click on `launcher.bat`
+1.  On your keyboard: press **`WINDOWS + R`** to open Run dialog box. Then, run the following command to install git:
+```shell
+cmd /c winget install -e --id Git.Git
+```
+
+2. On your keyboard: press **`WINDOWS + E`** to open File Explorer, then navigate to the folder where you want to install the launcher. Once in the desired folder, type `cmd` into the address bar and press enter. Then, run the following command:
+```shell
+git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher && start installer.bat
+```
 
 ### 🐧 Linux
 1. Open your favorite terminal and install git
-2. Download Sillytavern Launcher with: `git clone https://github.com/SillyTavern/SillyTavern-Launcher.git`
-3. Navigate to the SillyTavern-Launcher with: `cd SillyTavern-Launcher`
-4. Start the install launcher with: `chmod +x install.sh && ./install.sh` and choose what you wanna install
-5. After installation start the launcher with: `chmod +x launcher.sh && ./launcher.sh`
+2. Download Sillytavern Launcher with: `git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher`
+3. Start the installer with: `chmod +x install.sh && ./install.sh` and choose what you wanna install
+4. After installation start the launcher with: `chmod +x launcher.sh && ./launcher.sh`
 
 ### 🍎 Mac
 1. Open a terminal and install brew with: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
@@ -40,10 +42,28 @@
 6. After installation start the launcher with: `chmod +x launcher.sh && ./launcher.sh`
 
 ## ✨ Features
-* Automatic installation of the following:
-  * SillyTavern
-  * Extras
-  * XTTS
+* Ability to automatically install Core apps with optional apps:
+  * SillyTavern,
+  * Extras,
+  * XTTS,
+  * 7-Zip,
+  * FFmpeg,
+  * Node.js,
+  * yq,
+  * Visual Studio BuildTools,
+  * CUDA Toolkit
+
+* Ability to automaticly install Text Completion apps:
+  * Text generation web UI oobabooga
+  * koboldcpp
+  * TabbyAPI
+
+* Ability to automaticly install Image Generation apps:
+  * Stable Diffusion web UI
+  * Stable Diffusion web UI Forge
+  * ComfyUI
+  * Fooocus
+
 * Auto update all apps
 * Backup and Restore SillyTavern
 * Switch branch
@@ -51,11 +71,24 @@
 * App installer & uninstaller to manage applications
 * Troubleshooting menu to fix most common problems
 
-Installer:
+# Questions or suggestions?
 
-![image](https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/91db3d97-65a6-45be-a2f3-6c90a99963d0)
+| [![][discord-shield-badge]][discord-link] | [Join our Discord community!](https://discord.gg/sillytavern) Get support, share characters and prompts. |
+| :---------------------------------------- | :------------------------------------------------------------------------------------------------------- |
 
-Launcher:
+# Screenshots
+<img width="400" alt="image" src="https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/43c7a111-c221-4f03-b641-bc06887a8df0">
+<img width="400" alt="image" src="https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/25c5fdb6-e07b-4c84-ace7-637ac56c3d6b">
 
-![image](https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/24bced5e-da74-4e8c-94f6-f1366ef8e871)
+<div align="right">
 
+[![][back-to-top]](#readme-top)
+    
+</div>
+
+
+<!-- LINK GROUP -->
+[back-to-top]: https://img.shields.io/badge/-BACK_TO_TOP-151515?style=flat-square
+[discord-link]: https://discord.gg/sillytavern
+[discord-shield]: https://img.shields.io/discord/1100685673633153084?color=5865F2&label=discord&labelColor=black&logo=discord&logoColor=white&style=flat-square
+[discord-shield-badge]: https://img.shields.io/discord/1100685673633153084?color=5865F2&label=discord&labelColor=black&logo=discord&logoColor=white&style=for-the-badge
