@@ -59,8 +59,8 @@ set "w64devkit_path=C:\w64devkit"
 set "w64devkit_path_bin=%w64devkit_path%\bin"
 
 
-REM Define variables to track module status
-set "modules_path=%~dp0modules.txt"
+REM Define variables to track module status (EXTRAS)
+set "extras_modules_path=%~dp0bin\settings\modules-extras.txt"
 set "cuda_trigger=false"
 set "rvc_trigger=false"
 set "talkinghead_trigger=false"
@@ -71,7 +71,7 @@ set "whisper_trigger=false"
 set "edge_tts_trigger=false"
 
 REM Define variables to track module status (XTTS)
-set "modules_path=%~dp0modules-xtts.txt"
+set "xtts_modules_path=%~dp0bin\settings\modules-xtts.txt"
 set "xtts_cuda_trigger=false"
 set "xtts_hs_trigger=false"
 set "xtts_deepspeed_trigger=false"
@@ -79,24 +79,58 @@ set "xtts_cache_trigger=false"
 set "xtts_listen_trigger=false"
 set "xtts_model_trigger=false"
 
+REM Define variables to track module status (STABLE DIFUSSION WEBUI)
+set "sdwebui_modules_path=%~dp0bin\settings\modules-sdwebui.txt"
+set "sdwebui_autolaunch_trigger=false"
+set "sdwebui_api_trigger=false"
+set "sdwebui_listen_trigger=false"
+set "sdwebui_port_trigger=false"
+set "sdwebui_optsdpattention_trigger=false"
+set "sdwebui_themedark_trigger=false"
+set "sdwebui_skiptorchcudatest_trigger=false"
+set "sdwebui_lowvram_trigger=false"
 
-REM Create modules.txt if it doesn't exist
-if not exist modules.txt (
-    type nul > modules.txt
+
+REM Define variables for logging
+set "log_path=%~dp0bin\logs.log"
+set "log_invalidinput=[ERROR] Invalid input. Please enter a valid number."
+set "echo_invalidinput=%red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%"
+
+REM Check if the folder exists
+if not exist "%~dp0bin" (
+    mkdir "%~dp0bin"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "bin"  
 )
 
-REM Load module flags from modules.txt
-for /f "tokens=*" %%a in (modules.txt) do set "%%a"
-
-
-REM Create modules-xtts.txt if it doesn't exist
-if not exist modules-xtts.txt (
-    type nul > modules-xtts.txt
+REM Check if the folder exists
+if not exist "%~dp0bin\settings" (
+    mkdir "%~dp0bin\settings"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "settings"  
 )
 
-REM Load module flags from modules-xtts.txt
-for /f "tokens=*" %%a in (modules-xtts.txt) do set "%%a"
 
+REM Create modules-extras if it doesn't exist
+if not exist %extras_modules_path% (
+    type nul > %extras_modules_path%
+)
+REM Load modules-extras flags from modules
+for /f "tokens=*" %%a in (%extras_modules_path%) do set "%%a"
+
+
+REM Create modules-xtts if it doesn't exist
+if not exist %xtts_modules_path% (
+    type nul > %xtts_modules_path%
+)
+REM Load modules-xtts flags from modules-xtts
+for /f "tokens=*" %%a in (%xtts_modules_path%) do set "%%a"
+
+
+REM Create modules-sdwebui if it doesn't exist
+if not exist %sdwebui_modules_path% (
+    type nul > %sdwebui_modules_path%
+)
+REM Load modules-xtts flags from modules-xtts
+for /f "tokens=*" %%a in (%sdwebui_modules_path%) do set "%%a"
 
 
 REM Get the current PATH value from the registry
@@ -241,7 +275,8 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="0" (
     exit
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :home
 )
@@ -286,13 +321,10 @@ call conda activate extras
 REM Start SillyTavern Extras with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
 
-REM Set the path to modules.txt (in the same directory as the script)
-set "modules_path=%~dp0modules.txt"
-
-REM Read modules.txt and find the start_command line
+REM Read modules-extras and find the start_command line
 set "start_command="
 
-for /F "tokens=*" %%a in ('findstr /I "start_command=" "%modules_path%"') do (
+for /F "tokens=*" %%a in ('findstr /I "start_command=" "%extras_modules_path%"') do (
     set "%%a"
 )
 
@@ -316,10 +348,7 @@ call conda activate xtts
 REM Start XTTS
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
 
-REM Set the path to modules.txt (in the same directory as the script)
-set "xtts_modules_path=%~dp0modules-xtts.txt"
-
-REM Read modules.txt and find the xtts_start_command line
+REM Read modules-xtts and find the xtts_start_command line
 set "xtts_start_command="
 
 for /F "tokens=*" %%a in ('findstr /I "xtts_start_command=" "%xtts_modules_path%"') do (
@@ -337,52 +366,6 @@ if not defined xtts_start_command (
 
 set "xtts_start_command=%xtts_start_command:xtts_start_command=%"
 start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && %xtts_start_command%"
-goto :home
-
-REM Check if Node.js is installed
-node --version > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] node command not found in PATH.%reset%
-    echo %red_fg_strong%Node.js is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install Node.js go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install Node.js%reset%
-    pause
-    goto :home
-)
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
-
-
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Activate the extras environment
-call conda activate extras
-
-REM Start SillyTavern Extras with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
-
-REM Set the path to modules.txt (in the same directory as the script)
-set "modules_path=%~dp0modules.txt"
-
-REM Read modules.txt and find the start_command line
-set "start_command="
-
-for /F "tokens=*" %%a in ('findstr /I "start_command=" "%modules_path%"') do (
-    set "%%a"
-)
-
-if not defined start_command (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
-    echo %red_bg%Please make sure you enabled at least one of the modules from Edit Extras Modules.%reset%
-    echo.
-    echo %blue_bg%We will redirect you to the Edit Extras Modules menu.%reset%
-    pause
-    goto :edit_extras_modules
-)
-
-set start_command=%start_command:start_command=%
-start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %start_command%"
 goto :home
 
 
@@ -481,9 +464,9 @@ REM color 7
 echo 1. App Launcher
 echo 2. App Installer
 echo 3. App Uninstaller
-echo 4. Backup
-echo 5. Switch branch
-echo 6. Editor
+echo 4. Editor
+echo 5. Backup
+echo 6. Switch branch
 echo 7. Troubleshooting
 echo 0. Back
 
@@ -497,24 +480,25 @@ if "%toolbox_choice%"=="1" (
 ) else if "%toolbox_choice%"=="3" (
     call :app_uninstaller
 ) else if "%toolbox_choice%"=="4" (
-    call :backup_menu
-) else if "%toolbox_choice%"=="5" (
-    call :switch_brance
-) else if "%toolbox_choice%"=="6" (
     call :editor
+) else if "%toolbox_choice%"=="5" (
+    call :backup
+) else if "%toolbox_choice%"=="6" (
+    call :switch_brance
 ) else if "%toolbox_choice%"=="7" (
     call :troubleshooting
 ) else if "%toolbox_choice%"=="0" (
     goto :home
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :toolbox
 )
 
 
 REM ############################################################
-REM ############## APP LAUNCHER - FRONTEND ####################
+REM ############## APP LAUNCHER - FRONTEND #####################
 REM ############################################################
 :app_launcher
 title STL [APP LAUNCHER]
@@ -537,7 +521,8 @@ if "%app_launcher_choice%"=="1" (
 ) else if "%app_launcher_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_launcher
 )
@@ -570,7 +555,8 @@ if "%app_launcher_txt_comp_choice%"=="1" (
 ) else if "%app_launcher_txt_comp_choice%"=="0" (
     goto :app_launcher
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_launcher_text_completion
 )
@@ -636,7 +622,8 @@ if "%app_launcher_img_gen_choice%"=="1" (
 ) else if "%app_launcher_img_gen_choice%"=="0" (
     goto :app_launcher
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_launcher_image_generation
 )
@@ -645,9 +632,36 @@ if "%app_launcher_img_gen_choice%"=="1" (
 :start_sdwebui
 cd /d "%~dp0image-generation\stable-diffusion-webui"
 
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the sdwebui environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebui%reset%
+call conda activate sdwebui
+
+
+REM Read modules-sdwebui and find the sdwebui_start_command line
+set "sdwebui_start_command="
+
+for /F "tokens=*" %%a in ('findstr /I "sdwebui_start_command=" "%sdwebui_modules_path%"') do (
+    set "%%a"
+)
+
+if not defined sdwebui_start_command (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled.%reset%
+    echo %red_bg%Please make sure you enabled at least one of the modules from Edit SDWEBUI Modules.%reset%
+    echo.
+    echo %blue_bg%We will redirect you to the Edit SDWEBUI Modules menu.%reset%
+    pause
+    goto :edit_sdwebui_modules
+)
+
+set "sdwebui_start_command=%sdwebui_start_command:sdwebui_start_command=%"
+
 REM Start Stable Diffusion WebUI with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI launched in a new window.
-start "" "webui-user.bat"
+start cmd /k "title SDWEBUI && cd /d %~dp0image-generation\stable-diffusion-webui && %sdwebui_start_command%"
 goto :app_launcher_image_generation
 
 :start_sdwebuiforge
@@ -664,7 +678,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda
 call "%miniconda_path%\Scripts\activate.bat"
 
 REM Activate the comfyui environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment comfyui...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%comfyui%reset%
 call conda activate comfyui
 
 REM Start ComfyUI with desired configurations
@@ -679,7 +693,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda
 call "%miniconda_path%\Scripts\activate.bat"
 
 REM Activate the fooocus environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment fooocus...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%fooocus%reset%
 call conda activate fooocus
 
 REM Start Fooocus with desired configurations
@@ -715,7 +729,8 @@ if "%app_installer_choice%"=="1" (
 ) else if "%app_installer_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_installer
 )
@@ -748,7 +763,8 @@ if "%app_installer_txt_comp_choice%"=="1" (
 ) else if "%app_installer_txt_comp_choice%"=="0" (
     goto :app_installer
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_installer_text_completion
 )
@@ -820,7 +836,8 @@ if "%app_installer_koboldcpp_choice%"=="1" (
 ) else if "%app_installer_koboldcpp_choice%"=="0" (
     goto :app_installer_text_completion
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_koboldcpp_menu
 )
@@ -870,7 +887,8 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="0" (
     goto :install_koboldcpp_menu
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_koboldcpp
 )
@@ -1089,7 +1107,8 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="0" (
     goto :app_installer_text_completion
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_tabbyapi
 )
@@ -1184,7 +1203,8 @@ if "%app_installer_img_gen_choice%"=="1" (
 ) else if "%app_installer_img_gen_choice%"=="0" (
     goto :app_installer
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_installer_image_generation
 )
@@ -1225,7 +1245,8 @@ if "%app_installer_sdwebui_choice%"=="1" (
 ) else if "%app_installer_sdwebui_choice%"=="0" (
     goto :app_installer_image_generation
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebui_menu
 )
@@ -1270,7 +1291,7 @@ call "%miniconda_path%\Scripts\activate.bat"
 
 REM Create a Conda environment named sdwebui
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%sdwebui%reset%
-call conda create -n sdwebui python=3.11 -y
+call conda create -n sdwebui python=3.10.6 -y
 
 REM Activate the sdwebui environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebui%reset%
@@ -1315,7 +1336,7 @@ REM Installs better upscaler models
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Better Upscaler models...
 cd /d "%~dp0image-generation\stable-diffusion-webui\models"
 mkdir ESRGAN && cd ESRGAN
-curl -o 4x-AnimeSharp.pth https://huggingface.co/konohashinobi4/4xAnimesharp/resolve/main/4x-AnimeSharp.pth
+curl -o 4x-AnimeSharp.pth https://huggingface.co/Kim2091/AnimeSharp/resolve/main/4x-AnimeSharp.pth
 curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
 pause
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extensions for Stable Diffusion web UI installed Successfully.%reset%
@@ -1354,6 +1375,7 @@ echo 1. Install Hassaku [ANIME MODEL]
 echo 2. Install YiffyMix [FURRY MODEL]
 echo 3. Install Perfect World [REALISM MODEL]
 echo 4. Install a custom model
+echo 5. Add API Key from civitai
 echo 0. Back
 
 set /p app_installer_sdwebui_model_choice=Choose Your Destiny: 
@@ -1367,10 +1389,13 @@ if "%app_installer_sdwebui_model_choice%"=="1" (
     goto :install_sdwebui_model_perfectworld
 ) else if "%app_installer_sdwebui_model_choice%"=="4" (
     goto :install_sdwebui_model_custom
+) else if "%app_installer_sdwebui_model_choice%"=="5" (
+    goto :install_sdwebui_model_apikey
 ) else if "%app_installer_sdwebui_model_choice%"=="0" (
     goto :install_sdwebui_menu
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebui_model_menu
 )
@@ -1416,17 +1441,28 @@ if "%civitaimodelid%"=="0" goto :install_sdwebui_model_menu
 REM Check if the input is a valid number
 echo %civitaimodelid%| findstr /R "^[0-9]*$" > nul
 if errorlevel 1 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebui_model_custom
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Downloading...
 civitdl %civitaimodelid% -s basic "models\Stable-diffusion"
-
 pause
 goto :install_sdwebui_model_menu
 
+
+:install_sdwebui_model_apikey
+cls
+set /p civitaiapikey="(0 to cancel)Insert API key: "
+
+if "%civitaiapikey%"=="0" goto :install_sdwebui_model_menu
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Adding API key...
+civitconfig default --api-key %civitaiapikey%
+pause
+goto :install_sdwebui_model_menu
 
 REM ############################################################
 REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE - FRONTEND ###
@@ -1463,7 +1499,8 @@ if "%app_installer_sdwebuiforge_choice%"=="1" (
 ) else if "%app_installer_sdwebuiforge_choice%"=="0" (
     goto :app_installer_image_generation
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebuiforge_menu
 )
@@ -1608,7 +1645,8 @@ if "%app_installer_sdwebuiforge_model_choice%"=="1" (
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="0" (
     goto :install_sdwebuiforge_menu
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebuiforge_model_menu
 )
@@ -1654,7 +1692,8 @@ if "%civitaimodelid%"=="0" goto :install_sdwebuiforge_model_menu
 REM Check if the input is a valid number
 echo %civitaimodelid%| findstr /R "^[0-9]*$" > nul
 if errorlevel 1 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebuiforge_model_custom
 )
@@ -1708,7 +1747,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda envir
 call conda create -n comfyui python=3.11 -y
 
 REM Activate the comfyui environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment comfyui...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment %cyan_fg_strong%comfyui%reset
 call conda activate comfyui
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
@@ -1774,7 +1813,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda envir
 call conda create -n fooocus python=3.10 -y
 
 REM Activate the fooocus environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment fooocus...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment %cyan_fg_strong%fooocus%reset%
 call conda activate fooocus
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
@@ -1821,7 +1860,8 @@ if "%app_installer_core_util_choice%"=="1" (
 ) else if "%app_installer_core_util_choice%"=="0" (
     goto :app_installer
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_installer_core_utilities
 )
@@ -2019,7 +2059,8 @@ if "%app_uninstaller_choice%"=="1" (
 ) else if "%app_uninstaller_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_uninstaller
 )
@@ -2052,7 +2093,8 @@ if "%app_uninstaller_txt_comp_choice%"=="1" (
 ) else if "%app_uninstaller_txt_comp_choice%"=="0" (
     goto :app_uninstaller
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_uninstaller_text_completion
 )
@@ -2175,7 +2217,7 @@ echo 0. Back
 
 set /p app_uninstaller_img_gen_choice=Choose Your Destiny: 
 
-REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
+REM ######## APP UNINSTALLER IMAGE GENERATION - BACKEND #########
 if "%app_uninstaller_img_gen_choice%"=="1" (
     call :uninstall_sdwebui
 ) else if "%app_uninstaller_img_gen_choice%"=="2" (
@@ -2187,7 +2229,8 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
 ) else if "%app_uninstaller_img_gen_choice%"=="0" (
     goto :app_uninstaller
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_uninstaller_image_generation
 )
@@ -2377,7 +2420,8 @@ if "%app_uninstaller_core_util_choice%"=="1" (
 ) else if "%app_uninstaller_core_util_choice%"=="0" (
     goto :app_uninstaller
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_uninstaller_core_utilities
 )
@@ -2542,30 +2586,333 @@ cls
 echo %blue_fg_strong%/ Home / Toolbox / Editor%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
-echo 1. Edit Extras Modules
-echo 2. Edit XTTS Modules
-echo 3. Edit Environment Variables
-echo 4. Edit SillyTavern config.yaml
+
+echo 1. Text Completion
+echo 2. Image Generation 
+echo 3. Core Utilities
 echo 0. Back
 
 set /p editor_choice=Choose Your Destiny: 
 
 REM ################# EDITOR - BACKEND ########################
 if "%editor_choice%"=="1" (
-    call :edit_extras_modules
+    call :editor_text_completion
 ) else if "%editor_choice%"=="2" (
-    call :edit_xtts_modules
+    call :editor_image_generation
 ) else if "%editor_choice%"=="3" (
-    call :edit_environment_var
-) else if "%editor_choice%"=="4" (
-    call :edit_st_config
+    call :editor_core_utilities
 ) else if "%editor_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :editor
 )
+
+
+REM ############################################################
+REM ######## EDITOR TEXT COMPLETION - FRONTEND #################
+REM ############################################################
+:editor_text_completion
+title STL [EDITOR TEXT COMPLETION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Text Completion%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Edit Text generation web UI oobabooga
+echo 2. Edit koboldcpp
+echo 3. Edit TabbyAPI
+echo 0. Back
+
+set /p editor_txt_comp_choice=Choose Your Destiny: 
+
+REM ####### EDITOR TEXT COMPLETION - BACKEND ##########
+if "%editor_txt_comp_choice%"=="1" (
+    call :edit_ooba
+) else if "%editor_txt_comp_choice%"=="2" (
+    call :edit_koboldcpp
+) else if "%editor_txt_comp_choice%"=="3" (
+    call :edit_tabbyapi
+) else if "%editor_txt_comp_choice%"=="0" (
+    goto :editor
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :editor_text_completion
+)
+
+:edit_ooba
+echo COMMING SOON
+pause
+goto :editor_text_completion
+
+
+:edit_koboldcpp
+echo COMMING SOON
+pause
+goto :editor_text_completion
+
+
+:edit_tabbyapi
+echo COMMING SOON
+pause
+goto :editor_text_completion
+
+
+REM ############################################################
+REM ######## EDITOR IMAGE GENERATION - FRONTEND ################
+REM ############################################################
+:editor_image_generation
+title STL [EDITOR IMAGE GENERATION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Image Generation%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Edit Stable Diffusion web UI
+echo 2. Edit Stable Diffusion web UI Forge
+echo 3. Edit ComfyUI
+echo 4. Edit Fooocus
+echo 0. Back
+
+set /p editor_img_gen_choice=Choose Your Destiny: 
+
+REM ######## EDITOR IMAGE GENERATION - BACKEND #########
+if "%editor_img_gen_choice%"=="1" (
+    call :edit_sdwebui_modules
+) else if "%editor_img_gen_choice%"=="2" (
+    goto :edit_sdwebuiforge
+) else if "%editor_img_gen_choice%"=="3" (
+    goto :edit_comfyui
+) else if "%editor_img_gen_choice%"=="4" (
+    goto :edit_fooocus
+) else if "%editor_img_gen_choice%"=="0" (
+    goto :editor
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :editor_image_generation
+)
+
+
+REM ##################################################################################################################################################
+REM ##################################################################################################################################################
+REM ##################################################################################################################################################
+
+REM Function to print module options with color based on their status
+:printModule
+if "%2"=="true" (
+    echo %green_fg_strong%%1 [Enabled]%reset%
+) else (
+    echo %red_fg_strong%%1 [Disabled]%reset%
+)
+exit /b
+
+REM ############################################################
+REM ############## EDIT SDWEBUI MODULES - FRONTEND #############
+REM ############################################################
+:edit_sdwebui_modules
+title STL [EDIT SDWEBUI MODULES]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Image Generation / Edit SDWEBUI Modules%reset%
+echo -------------------------------------------------------------
+echo Choose SDWEBUI modules to enable or disable (e.g., "1 2 4" to enable autolaunch, api, and opt-sdp-attention)
+
+REM Display module options with colors based on their status
+call :printModule "1. autolaunch (--autolaunch)" %sdwebui_autolaunch_trigger%
+call :printModule "2. api (--api)" %sdwebui_api_trigger%
+call :printModule "3. port (--port 7900)" %sdwebui_port_trigger%
+call :printModule "4. opt-sdp-attention (--opt-sdp-attention)" %sdwebui_optsdpattention_trigger%
+call :printModule "5. listen (--listen)" %sdwebui_listen_trigger%
+call :printModule "6. theme dark (--theme dark)" %sdwebui_themedark_trigger%
+call :printModule "7. skip torchcudatest (--skip-torch-cuda-test)" %sdwebui_skiptorchcudatest_trigger%
+call :printModule "8. low vram (--lowvram)" %sdwebui_lowvram_trigger%
+echo 00. Quick Start Stable Diffusion WebUI
+echo 0. Back
+
+set "python_command="
+
+set /p xtts_module_choices=Choose modules to enable/disable: 
+
+REM Handle the user's module choices and construct the Python command
+for %%i in (%xtts_module_choices%) do (
+    if "%%i"=="1" (
+        if "%sdwebui_autolaunch_trigger%"=="true" (
+            set "sdwebui_autolaunch_trigger=false"
+        ) else (
+            set "sdwebui_autolaunch_trigger=true"
+        )
+
+    ) else if "%%i"=="2" (
+        if "%sdwebui_api_trigger%"=="true" (
+            set "sdwebui_api_trigger=false"
+        ) else (
+            set "sdwebui_api_trigger=true"
+        )
+
+    ) else if "%%i"=="3" (
+        if "%sdwebui_port_trigger%"=="true" (
+            set "sdwebui_port_trigger=false"
+        ) else (
+            set "sdwebui_port_trigger=true"
+        )
+
+    ) else if "%%i"=="4" (
+        if "%sdwebui_optsdpattention_trigger%"=="true" (
+            set "sdwebui_optsdpattention_trigger=false"
+        ) else (
+            set "sdwebui_optsdpattention_trigger=true"
+        )
+
+    ) else if "%%i"=="5" (
+        if "%sdwebui_listen_trigger%"=="true" (
+            set "sdwebui_listen_trigger=false"
+        ) else (
+            set "sdwebui_listen_trigger=true"
+        )
+    ) else if "%%i"=="6" (
+        if "%sdwebui_themedark_trigger%"=="true" (
+            set "sdwebui_themedark_trigger=false"
+        ) else (
+            set "sdwebui_themedark_trigger=true"
+        )
+    ) else if "%%i"=="7" (
+        if "%sdwebui_skiptorchcudatest_trigger%"=="true" (
+            set "sdwebui_skiptorchcudatest_trigger=false"
+        ) else (
+            set "sdwebui_skiptorchcudatest_trigger=true"
+        )
+    ) else if "%%i"=="8" (
+        if "%sdwebui_lowvram_trigger%"=="true" (
+            set "sdwebui_lowvram_trigger=false"
+        ) else (
+            set "sdwebui_lowvram_trigger=true"
+        )
+
+    ) else if "%%i"=="00" (
+        goto :start_sdwebui
+
+    ) else if "%%i"=="0" (
+        goto :editor_image_generation
+    )
+)
+
+REM Save the module flags to modules-sdwebui
+echo sdwebui_autolaunch_trigger=%sdwebui_autolaunch_trigger%>%sdwebui_modules_path%
+echo sdwebui_api_trigger=%sdwebui_api_trigger%>>%sdwebui_modules_path%
+echo sdwebui_port_trigger=%sdwebui_port_trigger%>>%sdwebui_modules_path%
+echo sdwebui_optsdpattention_trigger=%sdwebui_optsdpattention_trigger%>>%sdwebui_modules_path%
+echo sdwebui_listen_trigger=%sdwebui_listen_trigger%>>%sdwebui_modules_path%
+echo sdwebui_themedark_trigger=%sdwebui_themedark_trigger%>>%sdwebui_modules_path%
+echo sdwebui_skiptorchcudatest_trigger=%sdwebui_skiptorchcudatest_trigger%>>%sdwebui_modules_path%
+echo sdwebui_lowvram_trigger=%sdwebui_lowvram_trigger%>>%sdwebui_modules_path%
+
+REM remove modules_enable
+set "modules_enable="
+
+REM Compile the Python command
+set "python_command=python launch.py"
+if "%sdwebui_autolaunch_trigger%"=="true" (
+    set "python_command=%python_command% --autolaunch"
+)
+if "%sdwebui_api_trigger%"=="true" (
+    set "python_command=%python_command% --api"
+)
+if "%sdwebui_port_trigger%"=="true" (
+    set "python_command=%python_command% --port 7900"
+)
+if "%sdwebui_optsdpattention_trigger%"=="true" (
+    set "python_command=%python_command% --opt-sdp-attention"
+)
+if "%sdwebui_listen_trigger%"=="true" (
+    set "python_command=%python_command% --listen"
+)
+if "%sdwebui_themedark_trigger%"=="true" (
+    set "python_command=%python_command% --theme dark"
+)
+if "%sdwebui_skiptorchcudatest_trigger%"=="true" (
+    set "python_command=%python_command% --skip-torch-cuda-test"
+)
+if "%sdwebui_lowvram_trigger%"=="true" (
+    set "python_command=%python_command% --lowvram"
+)
+
+REM is modules_enable empty?
+if defined modules_enable (
+    REM remove last comma
+    set "modules_enable=%modules_enable:~0,-1%"
+)
+
+REM command completed
+if defined modules_enable (
+    set "python_command=%python_command% --enable-modules=%modules_enable%"
+)
+
+REM Save the constructed Python command to modules-sdwebui for testing
+echo sdwebui_start_command=%python_command%>>%sdwebui_modules_path%
+goto :edit_sdwebui_modules
+
+
+:edit_sdwebuiforge
+echo COMMING SOON
+pause
+goto :editor_image_generation
+
+
+:edit_comfyui
+echo COMMING SOON
+pause
+goto :editor_image_generation
+
+
+:edit_fooocus
+echo COMMING SOON
+pause
+goto :editor_image_generation
+
+
+REM ############################################################
+REM ######## EDITOR CORE UTILITIES - FRONTEND ##################
+REM ############################################################
+:editor_core_utilities
+title STL [EDITOR CORE UTILITIES]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Core Utilities%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+echo 1. Edit SillyTavern config.yaml
+echo 2. Edit Extras
+echo 3. Edit XTTS
+echo 4. Edit Environment Variables
+echo 0. Back
+
+set /p editor_core_util_choice=Choose Your Destiny: 
+
+REM ######## EDITOR CORE UTILITIES - FRONTEND ##################
+if "%editor_core_util_choice%"=="1" (
+    call :edit_st_config
+) else if "%editor_core_util_choice%"=="2" (
+    call :edit_extras_modules
+) else if "%editor_core_util_choice%"=="3" (
+    call :edit_xtts_modules
+) else if "%editor_core_util_choice%"=="4" (
+    call :edit_env_var
+) else if "%editor_core_util_choice%"=="0" (
+    goto :editor
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :editor_core_utilities
+)
+
+:edit_st_config
+start "" "%~dp0SillyTavern\config.yaml"
+goto :editor_core_utilities
 
 
 
@@ -2577,7 +2924,6 @@ if "%2"=="true" (
     echo %red_fg_strong%%1 [Disabled]%reset%
 )
 exit /b
-
 
 REM ############################################################
 REM ############## EDIT EXTRAS MODULES - FRONTEND ##############
@@ -2598,11 +2944,12 @@ call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger
 call :printModule "6. listen (--listen)" %listen_trigger%
 call :printModule "7. whisper (--enable-modules=whisper-stt)" %whisper_trigger%
 call :printModule "8. Edge-tts (--enable-modules=edge-tts)" %edge_tts_trigger%
+echo 00. Quick Start Extras
 echo 0. Back
 
 set "python_command="
 
-set /p module_choices=Choose modules to enable/disable (1-6): 
+set /p module_choices=Choose modules to enable/disable: 
 
 REM Handle the user's module choices and construct the Python command
 for %%i in (%module_choices%) do (
@@ -2612,28 +2959,28 @@ for %%i in (%module_choices%) do (
         ) else (
             set "cuda_trigger=true"
         )
-        REM set "python_command= --gpu 0 --cuda-device=0"
+
     ) else if "%%i"=="2" (
         if "%rvc_trigger%"=="true" (
             set "rvc_trigger=false"
         ) else (
             set "rvc_trigger=true"
         )
-        REM set "python_command= --enable-modules=rvc --rvc-save-file --max-content-length=1000"
+
     ) else if "%%i"=="3" (
         if "%talkinghead_trigger%"=="true" (
             set "talkinghead_trigger=false"
         ) else (
             set "talkinghead_trigger=true"
         )
-        REM set "python_command= --enable-modules=talkinghead"
+
     ) else if "%%i"=="4" (
         if "%caption_trigger%"=="true" (
             set "caption_trigger=false"
         ) else (
             set "caption_trigger=true"
         )
-        REM set "python_command= --enable-modules=caption"
+
     ) else if "%%i"=="5" (
         if "%summarize_trigger%"=="true" (
             set "summarize_trigger=false"
@@ -2646,36 +2993,38 @@ for %%i in (%module_choices%) do (
         ) else (
             set "listen_trigger=true"
         )
-        REM set "python_command= --listen"
+
     ) else if "%%i"=="7" (
         if "%whisper_trigger%"=="true" (
             set "whisper_trigger=false"
         ) else (
             set "whisper_trigger=true"
         )
-        REM set "python_command= --enable-modules=whisper-stt"
+
     ) else if "%%i"=="8" (
         if "%edge_tts_trigger%"=="true" (
             set "edge_tts_trigger=false"
         ) else (
             set "edge_tts_trigger=true"
         )
-        REM set "python_command= --enable-modules=edge-tts"
+
+    ) else if "%%i"=="00" (
+        goto :start_extras
+
     ) else if "%%i"=="0" (
-        goto :editor
+        goto :editor_core_utilities
     )
 )
 
-
-REM Save the module flags to modules.txt
-echo cuda_trigger=%cuda_trigger%>"%~dp0modules.txt"
-echo rvc_trigger=%rvc_trigger%>>"%~dp0modules.txt"
-echo talkinghead_trigger=%talkinghead_trigger%>>"%~dp0modules.txt"
-echo caption_trigger=%caption_trigger%>>"%~dp0modules.txt"
-echo summarize_trigger=%summarize_trigger%>>"%~dp0modules.txt"
-echo listen_trigger=%listen_trigger%>>"%~dp0modules.txt"
-echo whisper_trigger=%whisper_trigger%>>"%~dp0modules.txt"
-echo edge_tts_trigger=%edge_tts_trigger%>>"%~dp0modules.txt"
+REM Save the module flags
+echo cuda_trigger=%cuda_trigger%>%extras_modules_path%
+echo rvc_trigger=%rvc_trigger%>>%extras_modules_path%
+echo talkinghead_trigger=%talkinghead_trigger%>>%extras_modules_path%
+echo caption_trigger=%caption_trigger%>>%extras_modules_path%
+echo summarize_trigger=%summarize_trigger%>>%extras_modules_path%
+echo listen_trigger=%listen_trigger%>>%extras_modules_path%
+echo whisper_trigger=%whisper_trigger%>>%extras_modules_path%
+echo edge_tts_trigger=%edge_tts_trigger%>>%extras_modules_path%
 
 REM remove modules_enable
 set "modules_enable="
@@ -2720,11 +3069,13 @@ if defined modules_enable (
     set "python_command=%python_command% --enable-modules=%modules_enable%"
 )
 
-REM Save the constructed Python command to modules.txt for testing
-echo start_command=%python_command%>>"%~dp0modules.txt"
+REM Save the constructed Python command to modules-extras for testing
+echo start_command=%python_command%>>%extras_modules_path%
 goto :edit_extras_modules
 
-REM ==================================================================================================================================================
+REM ##################################################################################################################################################
+REM ##################################################################################################################################################
+REM ##################################################################################################################################################
 
 REM Function to print module options with color based on their status
 :printModule
@@ -2753,11 +3104,12 @@ call :printModule "3. deepspeed (--deepspeed)" %xtts_deepspeed_trigger%
 call :printModule "4. cache (--use-cache)" %xtts_cache_trigger%
 call :printModule "5. listen (--listen)" %xtts_listen_trigger%
 call :printModule "6. model (--model-source local)" %xtts_model_trigger%
+echo 00. Quick Start XTTS
 echo 0. Back
 
 set "python_command="
 
-set /p xtts_module_choices=Choose modules to enable/disable (1-6): 
+set /p xtts_module_choices=Choose modules to enable/disable: 
 
 REM Handle the user's module choices and construct the Python command
 for %%i in (%xtts_module_choices%) do (
@@ -2767,28 +3119,28 @@ for %%i in (%xtts_module_choices%) do (
         ) else (
             set "xtts_cuda_trigger=true"
         )
-        REM set "python_command= --device cuda"
+
     ) else if "%%i"=="2" (
         if "%xtts_hs_trigger%"=="true" (
             set "xtts_hs_trigger=false"
         ) else (
             set "xtts_hs_trigger=true"
         )
-        REM set "python_command= -hs 0.0.0.0"
+
     ) else if "%%i"=="3" (
         if "%xtts_deepspeed_trigger%"=="true" (
             set "xtts_deepspeed_trigger=false"
         ) else (
             set "xtts_deepspeed_trigger=true"
         )
-        REM set "python_command= --deepspeed"
+
     ) else if "%%i"=="4" (
         if "%xtts_cache_trigger%"=="true" (
             set "xtts_cache_trigger=false"
         ) else (
             set "xtts_cache_trigger=true"
         )
-        REM set "python_command= --use-cache"
+
     ) else if "%%i"=="5" (
         if "%xtts_listen_trigger%"=="true" (
             set "xtts_listen_trigger=false"
@@ -2801,19 +3153,22 @@ for %%i in (%xtts_module_choices%) do (
         ) else (
             set "xtts_model_trigger=true"
         )
-        REM set "python_command= --model-source local"
+
+    ) else if "%%i"=="00" (
+        goto :start_xtts
+
     ) else if "%%i"=="0" (
-        goto :editor
+        goto :editor_core_utilities
     )
 )
 
-REM Save the module flags to modules-xtts.txt
-echo xtts_cuda_trigger=%xtts_cuda_trigger%>"%~dp0modules-xtts.txt"
-echo xtts_hs_trigger=%xtts_hs_trigger%>>"%~dp0modules-xtts.txt"
-echo xtts_deepspeed_trigger=%xtts_deepspeed_trigger%>>"%~dp0modules-xtts.txt"
-echo xtts_cache_trigger=%xtts_cache_trigger%>>"%~dp0modules-xtts.txt"
-echo xtts_listen_trigger=%xtts_listen_trigger%>>"%~dp0modules-xtts.txt"
-echo xtts_model_trigger=%xtts_model_trigger%>>"%~dp0modules-xtts.txt"
+REM Save the module flags to modules-xtts
+echo xtts_cuda_trigger=%xtts_cuda_trigger%>%xtts_modules_path%
+echo xtts_hs_trigger=%xtts_hs_trigger%>>%xtts_modules_path%
+echo xtts_deepspeed_trigger=%xtts_deepspeed_trigger%>>%xtts_modules_path%
+echo xtts_cache_trigger=%xtts_cache_trigger%>>%xtts_modules_path%
+echo xtts_listen_trigger=%xtts_listen_trigger%>>%xtts_modules_path%
+echo xtts_model_trigger=%xtts_model_trigger%>>%xtts_modules_path%
 
 REM remove modules_enable
 set "modules_enable="
@@ -2850,19 +3205,14 @@ if defined modules_enable (
     set "python_command=%python_command% --enable-modules=%modules_enable%"
 )
 
-REM Save the constructed Python command to modules-xtts.txt for testing
-echo xtts_start_command=%python_command%>>"%~dp0modules-xtts.txt"
+REM Save the constructed Python command to modules-xtts for testing
+echo xtts_start_command=%python_command%>>%xtts_modules_path%
 goto :edit_xtts_modules
 
 
-:edit_environment_var
+:edit_env_var
 rundll32.exe sysdm.cpl,EditEnvironmentVariables
-goto :editor
-
-
-:edit_st_config
-start "" "%~dp0SillyTavern\config.yaml"
-goto :editor
+goto :editor_core_utilities
 
 
 REM ############################################################
@@ -2897,7 +3247,8 @@ if "%troubleshooting_choice%"=="1" (
 ) else if "%troubleshooting_choice%"=="0" (
     goto :toolbox
 ) else (
-     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :troubleshooting
 )
@@ -3016,7 +3367,8 @@ if "%brance_choice%"=="1" (
 ) else if "%brance_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :switch_brance
 )
@@ -3041,7 +3393,7 @@ goto :switch_brance
 REM ############################################################
 REM ################# BACKUP - FRONTEND ########################
 REM ############################################################
-:backup_menu
+:backup
 title STL [BACKUP]
 REM Check if 7-Zip is installed
 7z > nul 2>&1
@@ -3070,9 +3422,10 @@ if "%backup_choice%"=="1" (
 ) else if "%backup_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
-    goto :backup_menu
+    goto :backup
 )
 
 :create_backup
@@ -3129,7 +3482,7 @@ endlocal
 echo %green_fg_strong%Backup created at %~dp0SillyTavern-backups%reset%
 pause
 endlocal
-goto :backup_menu
+goto :backup
 
 
 :restore_backup
@@ -3150,7 +3503,7 @@ for %%F in ("%~dp0SillyTavern-backups\backup_*.7z") do (
 echo =========================
 set /p "restore_choice=(0 to cancel)Enter number of backup to restore: "
 
-if "%restore_choice%"=="0" goto :backup_menu
+if "%restore_choice%"=="0" goto :backup
 
 if "%restore_choice%" geq "1" (
     if "%restore_choice%" leq "%backup_count%" (
@@ -3162,14 +3515,16 @@ if "%restore_choice%" geq "1" (
         rmdir /s /q "temp"
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%!selected_backup! restored successfully.%reset%
     ) else (
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+        echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+        echo %red_bg%[%time%]%reset% %echo_invalidinput%
     )
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
 )
 
 pause
-goto :backup_menu
+goto :backup
 
 
 REM ############################################################
@@ -3198,7 +3553,8 @@ if "%support_choice%"=="1" (
 ) else if "%support_choice%"=="0" (
     goto :home
 ) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :support
 )
