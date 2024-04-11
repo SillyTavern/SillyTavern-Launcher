@@ -50,7 +50,7 @@ set "stl_comment=SillyTavern Launcher"
 
 REM Define the paths and filenames for the shortcut creation (start.bat)
 set "st_shortcutTarget=%~dp0SillyTavern\start.bat"
-set "st_iconFile=%~dp0SillyTavern\public\st.ico"
+set "st_iconFile=%~dp0st.ico"
 set "st_desktopPath=%userprofile%\Desktop"
 set "st_shortcutName=SillyTavern.lnk"
 set "st_startIn=%~dp0"
