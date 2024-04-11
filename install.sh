@@ -698,13 +698,16 @@ install_xtts() {
     # Check if activation was successful
     if [ $? -eq 0 ]; then
         log_message "INFO" "Successfully activated Conda environment: xtts"
+        install_xtts_successful
     else
         log_message "ERROR" "${red_fg_strong}Failed to activate Conda environment: xtts${reset}"
         log_message "INFO" "Press Enter to try again otherwise close the installer and restart."
         read -p "Press Enter to try again..."
         install_xtts
     fi
+}
 
+install_xtts_successful() {
     # Create folders for xtts
     log_message "INFO" "Creating xtts folders..."
     mkdir "$PWD/xtts"

@@ -89,6 +89,17 @@ set "sdwebui_optsdpattention_trigger=false"
 set "sdwebui_themedark_trigger=false"
 set "sdwebui_skiptorchcudatest_trigger=false"
 set "sdwebui_lowvram_trigger=false"
+set "sdwebui_medvram_trigger=false"
+
+REM Define variables to track module status (TEXT GENERATION WEBUI OOBABOOGA)
+set "ooba_modules_path=%~dp0bin\settings\modules-ooba.txt"
+set "ooba_autolaunch_trigger=false"
+set "ooba_extopenai_trigger=false"
+set "ooba_listen_trigger=false"
+set "ooba_listenport_trigger=false"
+set "ooba_apiport_trigger=false"
+set "ooba_verbose_trigger=false"
+
 
 
 REM Define variables for logging
@@ -131,6 +142,14 @@ if not exist %sdwebui_modules_path% (
 )
 REM Load modules-xtts flags from modules-xtts
 for /f "tokens=*" %%a in (%sdwebui_modules_path%) do set "%%a"
+
+
+REM Create modules-ooba if it doesn't exist
+if not exist %ooba_modules_path% (
+    type nul > %ooba_modules_path%
+)
+REM Load modules-ooba flags from modules-ooba
+for /f "tokens=*" %%a in (%ooba_modules_path%) do set "%%a"
 
 
 REM Get the current PATH value from the registry
@@ -321,14 +340,14 @@ call conda activate extras
 REM Start SillyTavern Extras with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
 
-REM Read modules-extras and find the start_command line
-set "start_command="
+REM Read modules-extras and find the extras_start_command line
+set "extras_start_command="
 
-for /F "tokens=*" %%a in ('findstr /I "start_command=" "%extras_modules_path%"') do (
+for /F "tokens=*" %%a in ('findstr /I "extras_start_command=" "%extras_modules_path%"') do (
     set "%%a"
 )
 
-if not defined start_command (
+if not defined extras_start_command (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
     echo %red_bg%Please make sure at least one of the modules are enabled from Edit Extras Modules.%reset%
     echo.
@@ -337,8 +356,8 @@ if not defined start_command (
     goto :edit_extras_modules
 )
 
-set "start_command=%start_command:start_command=%"
-start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %start_command%"
+set "extras_start_command=%extras_start_command:extras_start_command=%"
+start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %extras_start_command%"
 goto :home
 
 :start_xtts
@@ -565,9 +584,29 @@ if "%app_launcher_txt_comp_choice%"=="1" (
 REM Start Text generation web UI oobabooga with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Text generation web UI oobabooga launched in a new window.
 
-cd /d "%~dp0text-completion\text-generation-webui"
-start "" "start_windows.bat"
-goto :app_launcher
+REM Read modules-ooba and find the ooba_start_command line
+set "ooba_start_command="
+
+for /F "tokens=*" %%a in ('findstr /I "ooba_start_command=" "%ooba_modules_path%"') do (
+    set "%%a"
+)
+
+if not defined ooba_start_command (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled.%reset%
+    echo %red_bg%Please make sure you enabled at least one of the modules from Edit OOBA Modules.%reset%
+    echo.
+    echo %blue_bg%We will redirect you to the Edit OOBA Modules menu.%reset%
+    pause
+    goto :edit_ooba_modules
+)
+
+set "ooba_start_command=%ooba_start_command:ooba_start_command=%"
+
+REM Start Text generation web UI oobabooga with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Text generation web UI oobabooga launched in a new window.
+start cmd /k "title OOBA && cd /d %~dp0text-completion\text-generation-webui && %ooba_start_command%"
+goto :app_launcher_text_completion
+
 
 :start_koboldcpp
 REM Start koboldcpp with desired configurations
@@ -575,7 +614,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% koboldcpp launched i
 
 cd /d "%~dp0text-completion\dev-koboldcpp"
 start "" "koboldcpp.exe"
-goto :app_launcher
+goto :app_launcher_text_completion
 
 
 :start_tabbyapi
@@ -589,7 +628,7 @@ REM Start TabbyAPI with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% TabbyAPI launched in a new window.
 
 start cmd /k "title TabbyAPI && cd /d %~dp0text-completion\tabbyAPI && python start.py"
-goto :app_launcher
+goto :app_launcher_text_completion
 
 
 REM ############################################################
@@ -2630,7 +2669,7 @@ set /p editor_txt_comp_choice=Choose Your Destiny:
 
 REM ####### EDITOR TEXT COMPLETION - BACKEND ##########
 if "%editor_txt_comp_choice%"=="1" (
-    call :edit_ooba
+    call :edit_ooba_modules
 ) else if "%editor_txt_comp_choice%"=="2" (
     call :edit_koboldcpp
 ) else if "%editor_txt_comp_choice%"=="3" (
@@ -2644,10 +2683,144 @@ if "%editor_txt_comp_choice%"=="1" (
     goto :editor_text_completion
 )
 
-:edit_ooba
-echo COMMING SOON
-pause
-goto :editor_text_completion
+REM ##################################################################################################################################################
+REM ##################################################################################################################################################
+REM ##################################################################################################################################################
+
+
+REM Function to print module options with color based on their status
+:printModule
+if "%2"=="true" (
+    echo %green_fg_strong%%1 [Enabled]%reset%
+) else (
+    echo %red_fg_strong%%1 [Disabled]%reset%
+)
+exit /b
+
+REM ############################################################
+REM ############## EDIT OOBA MODULES - FRONTEND ################
+REM ############################################################
+:edit_ooba_modules
+title STL [EDIT OOBA MODULES]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Text Completion / Edit OOBA Modules%reset%
+echo -------------------------------------------------------------
+echo Choose OOBA modules to enable or disable (e.g., "1 2 4" to enable extensions openai, listen, and api-port)
+
+REM Display module options with colors based on their status
+call :printModule "1. extensions openai (--extensions openai)" %ooba_extopenai_trigger%
+call :printModule "2. listen (--listen)" %ooba_listen_trigger%
+call :printModule "3. listen-port (--listen-port 7910)" %ooba_listenport_trigger%
+call :printModule "4. api-port (--api-port 7911)" %ooba_apiport_trigger%
+call :printModule "5. autolaunch (--autolaunch)" %ooba_autolaunch_trigger%
+call :printModule "6. verbose (--verbose)" %ooba_verbose_trigger%
+
+echo 00. Quick Start Text generation web UI oobabooga
+echo 0. Back
+
+set "python_command="
+
+set /p ooba_module_choices=Choose modules to enable/disable: 
+
+REM Handle the user's module choices and construct the Python command
+for %%i in (%ooba_module_choices%) do (
+    if "%%i"=="1" (
+        if "%ooba_extopenai_trigger%"=="true" (
+            set "ooba_extopenai_trigger=false"
+        ) else (
+            set "ooba_extopenai_trigger=true"
+        )
+
+    ) else if "%%i"=="2" (
+        if "%ooba_listen_trigger%"=="true" (
+            set "ooba_listen_trigger=false"
+        ) else (
+            set "ooba_listen_trigger=true"
+        )
+
+    ) else if "%%i"=="3" (
+        if "%ooba_listenport_trigger%"=="true" (
+            set "ooba_listenport_trigger=false"
+        ) else (
+            set "ooba_listenport_trigger=true"
+        )
+
+    ) else if "%%i"=="4" (
+        if "%ooba_apiport_trigger%"=="true" (
+            set "ooba_apiport_trigger=false"
+        ) else (
+            set "ooba_apiport_trigger=true"
+        )
+
+    ) else if "%%i"=="5" (
+        if "%ooba_autolaunch_trigger%"=="true" (
+            set "ooba_autolaunch_trigger=false"
+        ) else (
+            set "ooba_autolaunch_trigger=true"
+        )
+    ) else if "%%i"=="6" (
+        if "%ooba_verbose_trigger%"=="true" (
+            set "ooba_verbose_trigger=false"
+        ) else (
+            set "ooba_verbose_trigger=true"
+        )
+
+    ) else if "%%i"=="00" (
+        goto :start_ooba
+
+    ) else if "%%i"=="0" (
+        goto :editor_text_completion
+    )
+)
+
+REM Save the module flags to modules-ooba
+echo ooba_extopenai_trigger=%ooba_extopenai_trigger%>%ooba_modules_path%
+echo ooba_listen_trigger=%ooba_listen_trigger%>>%ooba_modules_path%
+echo ooba_listenport_trigger=%ooba_listenport_trigger%>>%ooba_modules_path%
+echo ooba_apiport_trigger=%ooba_apiport_trigger%>>%ooba_modules_path%
+echo ooba_autolaunch_trigger=%ooba_autolaunch_trigger%>>%ooba_modules_path%
+echo ooba_verbose_trigger=%ooba_verbose_trigger%>>%ooba_modules_path%
+
+
+REM remove modules_enable
+set "modules_enable="
+
+REM Compile the Python command
+set "python_command=start start_windows.bat"
+if "%ooba_extopenai_trigger%"=="true" (
+    set "python_command=%python_command% --extensions openai"
+)
+if "%ooba_listen_trigger%"=="true" (
+    set "python_command=%python_command% --listen"
+)
+if "%ooba_listenport_trigger%"=="true" (
+    set "python_command=%python_command% --listen-port 7910"
+)
+if "%ooba_apiport_trigger%"=="true" (
+    set "python_command=%python_command% --api-port 7911"
+)
+if "%ooba_autolaunch_trigger%"=="true" (
+    set "python_command=%python_command% --auto-launch"
+)
+if "%ooba_verbose_trigger%"=="true" (
+    set "python_command=%python_command% --verbose"
+)
+
+
+REM is modules_enable empty?
+if defined modules_enable (
+    REM remove last comma
+    set "modules_enable=%modules_enable:~0,-1%"
+)
+
+REM command completed
+if defined modules_enable (
+    set "python_command=%python_command% --enable-modules=%modules_enable%"
+)
+
+REM Save the constructed Python command to modules-ooba for testing
+echo ooba_start_command=%python_command%>>%ooba_modules_path%
+goto :edit_ooba_modules
 
 
 :edit_koboldcpp
@@ -2731,6 +2904,7 @@ call :printModule "5. listen (--listen)" %sdwebui_listen_trigger%
 call :printModule "6. theme dark (--theme dark)" %sdwebui_themedark_trigger%
 call :printModule "7. skip torchcudatest (--skip-torch-cuda-test)" %sdwebui_skiptorchcudatest_trigger%
 call :printModule "8. low vram (--lowvram)" %sdwebui_lowvram_trigger%
+call :printModule "9. med vram (--medvram)" %sdwebui_medvram_trigger%
 echo 00. Quick Start Stable Diffusion WebUI
 echo 0. Back
 
@@ -2792,6 +2966,12 @@ for %%i in (%xtts_module_choices%) do (
         ) else (
             set "sdwebui_lowvram_trigger=true"
         )
+    ) else if "%%i"=="9" (
+        if "%sdwebui_medvram_trigger%"=="true" (
+            set "sdwebui_medvram_trigger=false"
+        ) else (
+            set "sdwebui_medvram_trigger=true"
+        )
 
     ) else if "%%i"=="00" (
         goto :start_sdwebui
@@ -2810,6 +2990,7 @@ echo sdwebui_listen_trigger=%sdwebui_listen_trigger%>>%sdwebui_modules_path%
 echo sdwebui_themedark_trigger=%sdwebui_themedark_trigger%>>%sdwebui_modules_path%
 echo sdwebui_skiptorchcudatest_trigger=%sdwebui_skiptorchcudatest_trigger%>>%sdwebui_modules_path%
 echo sdwebui_lowvram_trigger=%sdwebui_lowvram_trigger%>>%sdwebui_modules_path%
+echo sdwebui_medvram_trigger=%sdwebui_medvram_trigger%>>%sdwebui_modules_path%
 
 REM remove modules_enable
 set "modules_enable="
@@ -2840,6 +3021,9 @@ if "%sdwebui_skiptorchcudatest_trigger%"=="true" (
 if "%sdwebui_lowvram_trigger%"=="true" (
     set "python_command=%python_command% --lowvram"
 )
+if "%sdwebui_medvram_trigger%"=="true" (
+    set "python_command=%python_command% --medvram"
+)
 
 REM is modules_enable empty?
 if defined modules_enable (
@@ -2855,6 +3039,10 @@ if defined modules_enable (
 REM Save the constructed Python command to modules-sdwebui for testing
 echo sdwebui_start_command=%python_command%>>%sdwebui_modules_path%
 goto :edit_sdwebui_modules
+
+REM ##################################################################################################################################################
+REM ##################################################################################################################################################
+REM ##################################################################################################################################################
 
 
 :edit_sdwebuiforge
@@ -2929,7 +3117,7 @@ REM ############################################################
 REM ############## EDIT EXTRAS MODULES - FRONTEND ##############
 REM ############################################################
 :edit_extras_modules
-title STL [EDIT-EXTRAS-MODULES]
+title STL [EDIT EXTRAS MODULES]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit Extras Modules%reset%
 echo -------------------------------------------------------------
@@ -3070,7 +3258,7 @@ if defined modules_enable (
 )
 
 REM Save the constructed Python command to modules-extras for testing
-echo start_command=%python_command%>>%extras_modules_path%
+echo extras_start_command=%python_command%>>%extras_modules_path%
 goto :edit_extras_modules
 
 REM ##################################################################################################################################################
@@ -3091,7 +3279,7 @@ REM ############################################################
 REM ############## EDIT XTTS MODULES - FRONTEND ################
 REM ############################################################
 :edit_xtts_modules
-title STL [EDIT-XTTS-MODULES]
+title STL [EDIT XTTS MODULES]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit XTTS Modules%reset%
 echo -------------------------------------------------------------
@@ -3208,6 +3396,10 @@ if defined modules_enable (
 REM Save the constructed Python command to modules-xtts for testing
 echo xtts_start_command=%python_command%>>%xtts_modules_path%
 goto :edit_xtts_modules
+
+REM ##################################################################################################################################################
+REM ##################################################################################################################################################
+REM ##################################################################################################################################################
 
 
 :edit_env_var

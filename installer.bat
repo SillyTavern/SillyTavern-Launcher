@@ -40,13 +40,21 @@ set "miniconda_path_usrbin=%userprofile%\miniconda3\Library\usr\bin"
 set "miniconda_path_bin=%userprofile%\miniconda3\Library\bin"
 set "miniconda_path_scripts=%userprofile%\miniconda3\Scripts"
 
-REM Define the paths and filenames for the shortcut creation
-set "shortcutTarget=%~dp0launcher.bat"
-set "iconFile=%~dp0SillyTavern\public\st-launcher.ico"
-set "desktopPath=%userprofile%\Desktop"
-set "shortcutName=ST-Launcher.lnk"
-set "startIn=%~dp0"
-set "comment=SillyTavern Launcher"
+REM Define the paths and filenames for the shortcut creation (launcher.bat)
+set "stl_shortcutTarget=%~dp0launcher.bat"
+set "stl_iconFile=%~dp0st-launcher.ico"
+set "stl_desktopPath=%userprofile%\Desktop"
+set "stl_shortcutName=ST-Launcher.lnk"
+set "stl_startIn=%~dp0"
+set "stl_comment=SillyTavern Launcher"
+
+REM Define the paths and filenames for the shortcut creation (start.bat)
+set "st_shortcutTarget=%~dp0SillyTavern\start.bat"
+set "st_iconFile=%~dp0SillyTavern\public\st.ico"
+set "st_desktopPath=%userprofile%\Desktop"
+set "st_shortcutName=SillyTavern.lnk"
+set "st_startIn=%~dp0"
+set "st_comment=SillyTavern"
 
 
 REM Get the current PATH value from the registry
@@ -411,15 +419,27 @@ REM Ask if the user wants to create a shortcut
 set /p create_shortcut=Do you want to create a shortcut on the desktop? [Y/n] 
 if /i "%create_shortcut%"=="Y" (
 
-    REM Create the shortcut
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating shortcut...
+    REM Create the shortcut (launcher.bat)
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating shortcut for ST-Launcher...
     %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command ^
         "$WshShell = New-Object -ComObject WScript.Shell; " ^
-        "$Shortcut = $WshShell.CreateShortcut('%desktopPath%\%shortcutName%'); " ^
-        "$Shortcut.TargetPath = '%shortcutTarget%'; " ^
-        "$Shortcut.IconLocation = '%iconFile%'; " ^
-        "$Shortcut.WorkingDirectory = '%startIn%'; " ^
-        "$Shortcut.Description = '%comment%'; " ^
+        "$Shortcut = $WshShell.CreateShortcut('%stl_desktopPath%\%stl_shortcutName%'); " ^
+        "$Shortcut.TargetPath = '%stl_shortcutTarget%'; " ^
+        "$Shortcut.IconLocation = '%stl_iconFile%'; " ^
+        "$Shortcut.WorkingDirectory = '%stl_startIn%'; " ^
+        "$Shortcut.Description = '%stl_comment%'; " ^
+        "$Shortcut.Save()"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
+
+    REM Create the shortcut (start.bat)
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating shortcut for SillyTavern...
+    %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command ^
+        "$WshShell = New-Object -ComObject WScript.Shell; " ^
+        "$Shortcut = $WshShell.CreateShortcut('%st_desktopPath%\%st_shortcutName%'); " ^
+        "$Shortcut.TargetPath = '%st_shortcutTarget%'; " ^
+        "$Shortcut.IconLocation = '%st_iconFile%'; " ^
+        "$Shortcut.WorkingDirectory = '%st_startIn%'; " ^
+        "$Shortcut.Description = '%st_comment%'; " ^
         "$Shortcut.Save()"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
 )
@@ -467,14 +487,26 @@ set /p create_shortcut=Do you want to create a shortcut on the desktop? [Y/n]
 if /i "%create_shortcut%"=="Y" (
 
     REM Create the shortcut
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating shortcut...
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating shortcut for ST-Launcher...
     %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command ^
         "$WshShell = New-Object -ComObject WScript.Shell; " ^
-        "$Shortcut = $WshShell.CreateShortcut('%desktopPath%\%shortcutName%'); " ^
-        "$Shortcut.TargetPath = '%shortcutTarget%'; " ^
-        "$Shortcut.IconLocation = '%iconFile%'; " ^
-        "$Shortcut.WorkingDirectory = '%startIn%'; " ^
-        "$Shortcut.Description = '%comment%'; " ^
+        "$Shortcut = $WshShell.CreateShortcut('%stl_desktopPath%\%stl_shortcutName%'); " ^
+        "$Shortcut.TargetPath = '%stl_shortcutTarget%'; " ^
+        "$Shortcut.IconLocation = '%stl_iconFile%'; " ^
+        "$Shortcut.WorkingDirectory = '%stl_startIn%'; " ^
+        "$Shortcut.Description = '%stl_comment%'; " ^
+        "$Shortcut.Save()"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
+
+    REM Create the shortcut (start.bat)
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating shortcut for SillyTavern...
+    %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command ^
+        "$WshShell = New-Object -ComObject WScript.Shell; " ^
+        "$Shortcut = $WshShell.CreateShortcut('%st_desktopPath%\%st_shortcutName%'); " ^
+        "$Shortcut.TargetPath = '%st_shortcutTarget%'; " ^
+        "$Shortcut.IconLocation = '%st_iconFile%'; " ^
+        "$Shortcut.WorkingDirectory = '%st_startIn%'; " ^
+        "$Shortcut.Description = '%st_comment%'; " ^
         "$Shortcut.Save()"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
 )
@@ -616,24 +648,6 @@ start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall 
 
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
-
-REM Ask if the user wants to create a shortcut
-set /p create_shortcut=Do you want to create a shortcut on the desktop? [Y/n] 
-if /i "%create_shortcut%"=="Y" (
-
-    REM Create the shortcut
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating shortcut...
-    %SystemRoot%\system32\WindowsPowerShell\v1.0\powershell.exe -Command ^
-        "$WshShell = New-Object -ComObject WScript.Shell; " ^
-        "$Shortcut = $WshShell.CreateShortcut('%desktopPath%\%shortcutName%'); " ^
-        "$Shortcut.TargetPath = '%shortcutTarget%'; " ^
-        "$Shortcut.IconLocation = '%iconFile%'; " ^
-        "$Shortcut.WorkingDirectory = '%startIn%'; " ^
-        "$Shortcut.Description = '%comment%'; " ^
-        "$Shortcut.Save()"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut created on the desktop.%reset%
-)
-
 
 REM Ask if the user wants to start the launcher.bat
 set /p start_launcher=Start the launcher now? [Y/n] 
