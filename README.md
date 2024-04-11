@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img height="160" src="https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/129e2b39-6c62-4e67-9ba3-79876069b0e4">
+<img height="160" src="st-launcher.ico">
 
 <h1 align="center">SillyTavern Launcher - (STL)</h1>
 
