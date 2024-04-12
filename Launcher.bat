@@ -60,7 +60,7 @@ set "w64devkit_path_bin=%w64devkit_path%\bin"
 
 
 REM Define variables to track module status (EXTRAS)
-set "extras_modules_path=bin\settings\modules-extras.txt"
+set "extras_modules_path=%~dp0bin\settings\modules-extras.txt"
 set "cuda_trigger=false"
 set "rvc_trigger=false"
 set "talkinghead_trigger=false"
@@ -71,7 +71,7 @@ set "whisper_trigger=false"
 set "edge_tts_trigger=false"
 
 REM Define variables to track module status (XTTS)
-set "xtts_modules_path=bin\settings\modules-xtts.txt"
+set "xtts_modules_path=%~dp0bin\settings\modules-xtts.txt"
 set "xtts_cuda_trigger=false"
 set "xtts_hs_trigger=false"
 set "xtts_deepspeed_trigger=false"
@@ -80,7 +80,7 @@ set "xtts_listen_trigger=false"
 set "xtts_model_trigger=false"
 
 REM Define variables to track module status (STABLE DIFUSSION WEBUI)
-set "sdwebui_modules_path=bin\settings\modules-sdwebui.txt"
+set "sdwebui_modules_path=%~dp0bin\settings\modules-sdwebui.txt"
 set "sdwebui_autolaunch_trigger=false"
 set "sdwebui_api_trigger=false"
 set "sdwebui_listen_trigger=false"
@@ -92,7 +92,7 @@ set "sdwebui_lowvram_trigger=false"
 set "sdwebui_medvram_trigger=false"
 
 REM Define variables to track module status (TEXT GENERATION WEBUI OOBABOOGA)
-set "ooba_modules_path=bin\settings\modules-ooba.txt"
+set "ooba_modules_path=%~dp0bin\settings\modules-ooba.txt"
 set "ooba_autolaunch_trigger=false"
 set "ooba_extopenai_trigger=false"
 set "ooba_listen_trigger=false"
@@ -102,21 +102,23 @@ set "ooba_verbose_trigger=false"
 
 
 REM Define variables for logging
-set "log_path=bin\logs.log"
+set "log_path=%~dp0bin\logs.log"
 set "log_invalidinput=[ERROR] Invalid input. Please enter a valid number."
 set "echo_invalidinput=%red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%"
 
 cd /d "%~dp0"
 
+echo "%CD%"| findstr /C:" " >nul && echo %red_fg_strong%[ERROR] The path you installed SillyTavern-Launcher in has spaces. Please remove or replace spaces with -%reset% && pause
+
 REM Check if the folder exists
-if not exist "bin" (
-    mkdir "bin"
+if not exist "%~dp0bin" (
+    mkdir "%~dp0bin"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "bin"  
 )
 
 REM Check if the folder exists
-if not exist "bin\settings" (
-    mkdir "bin\settings"
+if not exist "%~dp0bin\settings" (
+    mkdir "%~dp0bin\settings"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "settings"  
 )
 
@@ -236,14 +238,14 @@ cd /d "%~dp0SillyTavern"
 REM Check for updates
 git fetch origin
 
-for /f %%i in ('git rev-list HEAD...origin/%current_branch%') do (
+REM Get the list of commits between local and remote branch
+for /f %%i in ('git rev-list HEAD..%current_branch%@{upstream}') do (
     set "update_status=%yellow_fg_strong%Update Available%reset%"
     goto :found_update
 )
 
 set "update_status=%green_fg_strong%Up to Date%reset%"
 :found_update
-
 
 REM ############################################################
 REM ################## HOME - FRONTEND #########################
