@@ -100,11 +100,17 @@ set "ooba_listenport_trigger=false"
 set "ooba_apiport_trigger=false"
 set "ooba_verbose_trigger=false"
 
-
 REM Define variables for logging
 set "log_path=%~dp0bin\logs.log"
 set "log_invalidinput=[ERROR] Invalid input. Please enter a valid number."
 set "echo_invalidinput=%red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%"
+
+
+REM Run PowerShell command to retrieve VRAM size and divide by 1GB
+for /f "usebackq tokens=*" %%i in (`powershell -Command "$qwMemorySize = (Get-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*' -Name HardwareInformation.qwMemorySize -ErrorAction SilentlyContinue).'HardwareInformation.qwMemorySize'; [math]::Round($qwMemorySize/1GB)"`) do (
+    set "VRAM=%%i"
+)
+
 
 cd /d "%~dp0"
 
@@ -263,6 +269,7 @@ echo 4. Start XTTS
 echo 5. Update
 echo 6. Toolbox
 echo 7. Support
+echo 8. More info about LLM models your GPU can run.
 echo 0. Exit
 
 REM Get the current Git branch
@@ -270,7 +277,8 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo Launcher: V1.1.3
+echo SillyTavern-Launcher: V1.1.3
+echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 echo =================================
 
 set "choice="
@@ -294,6 +302,8 @@ if "%choice%"=="1" (
     call :toolbox
 ) else if "%choice%"=="7" (
     call :support
+) else if "%choice%"=="8" (
+    call :vraminfo
 ) else if "%choice%"=="0" (
     exit
 ) else (
@@ -302,7 +312,6 @@ if "%choice%"=="1" (
     pause
     goto :home
 )
-
 
 :start_st
 REM Check if Node.js is installed
@@ -607,7 +616,7 @@ set "ooba_start_command=%ooba_start_command:ooba_start_command=%"
 
 REM Start Text generation web UI oobabooga with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Text generation web UI oobabooga launched in a new window.
-start cmd /k "title OOBA && cd /d %~dp0text-completion\text-generation-webui && %ooba_start_command%"
+cd /d "%~dp0text-completion\text-generation-webui" && %ooba_start_command%
 goto :app_launcher_text_completion
 
 
@@ -791,6 +800,7 @@ echo What would you like to do?
 echo 1. Install Text generation web UI oobabooga
 echo 2. koboldcpp [Install options]
 echo 3. Install TabbyAPI
+echo 4. Install llamacpp
 echo 0. Back
 
 set /p app_installer_txt_comp_choice=Choose Your Destiny: 
@@ -802,6 +812,8 @@ if "%app_installer_txt_comp_choice%"=="1" (
     call :install_koboldcpp_menu
 ) else if "%app_installer_txt_comp_choice%"=="3" (
     call :install_tabbyapi
+) else if "%app_installer_txt_comp_choice%"=="4" (
+    call :install_llamacpp
 ) else if "%app_installer_txt_comp_choice%"=="0" (
     goto :app_installer
 ) else (
@@ -1211,6 +1223,111 @@ if "%GPU_CHOICE%"=="1" (
 
 :install_tabbyapi_final
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been installed successfully.%reset%
+pause
+goto :app_installer_text_completion
+
+
+:install_llamacpp
+title STL [INSTALL LLAMACPP]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install llamacpp%reset%
+echo -------------------------------------------------------------
+
+REM Check if 7-Zip is installed
+7z > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
+    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
+    pause
+    goto :app_installer_core_utilities
+)
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing llamacpp...
+cd /d "%~dp0"
+
+REM Check if the folder exists
+if not exist "%~dp0text-completion" (
+    mkdir "%~dp0text-completion"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
+)
+
+cd /d "text-completion"
+REM Check if the folder exists
+if not exist "dev-llamacpp" (
+    mkdir "dev-llamacpp"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-llamacpp"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-llamacpp" folder already exists.%reset%
+)
+cd /d "dev-llamacpp"
+
+set max_retries=3
+set retry_count=0
+
+:retry_install_llamacpp
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the llamacpp repository...
+git clone https://github.com/ggerganov/llama.cpp.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_llamacpp
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :app_installer_text_completion
+)
+
+REM Download w64devkit zip archive
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading w64devkit...
+curl -L -o "%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0.zip" "https://github.com/skeeto/w64devkit/releases/download/v1.21.0/w64devkit-1.21.0.zip"
+
+REM Extract w64devkit zip archive
+7z x "%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0.zip" -o"%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0"
+
+REM Move w64devkit to root of C
+move /Y "%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0\w64devkit" "C:\w64devkit"
+
+REM Remove leftovers
+del "%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0.zip"
+rd /S /Q "%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0"
+
+REM Get the current PATH value from the registry
+for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
+
+REM Check if the paths are already in the current PATH
+echo %current_path% | find /i "%w64devkit_path_bin%" > nul
+set "ff_path_exists=%errorlevel%"
+
+setlocal enabledelayedexpansion
+
+REM Append the new paths to the current PATH only if they don't exist
+if %ff_path_exists% neq 0 (
+    set "new_path=%current_path%;%w64devkit_path_bin%"
+    echo.
+    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
+    echo.
+    echo [DEBUG] "w64devkit_path_bin is:%cyan_fg_strong% %w64devkit_path_bin%%reset%"
+    echo.
+    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
+
+    REM Update the PATH value in the registry
+    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
+
+    REM Update the PATH value for the current session
+    setx PATH "!new_path!" > nul
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit added to PATH.%reset%
+) else (
+    set "new_path=%current_path%"
+    echo %blue_fg_strong%[INFO] w64devkit already exists in PATH.%reset%
+)
+
+cd /d "llama.cpp"
+
+make
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed llamacpp%reset%
 pause
 goto :app_installer_text_completion
 
@@ -2121,6 +2238,7 @@ echo What would you like to do?
 echo 1. UNINSTALL Text generation web UI oobabooga
 echo 2. UNINSTALL koboldcpp
 echo 3. UNINSTALL TabbyAPI
+echo 4. UNINSTALL llamacpp
 echo 0. Back
 
 set /p app_uninstaller_txt_comp_choice=Choose Your Destiny: 
@@ -2132,6 +2250,8 @@ if "%app_uninstaller_txt_comp_choice%"=="1" (
     call :uninstall_koboldcpp
 ) else if "%app_uninstaller_txt_comp_choice%"=="3" (
     call :uninstall_tabbyapi
+) else if "%app_uninstaller_txt_comp_choice%"=="4" (
+    call :uninstall_llamacpp
 ) else if "%app_uninstaller_txt_comp_choice%"=="0" (
     goto :app_uninstaller
 ) else (
@@ -2188,6 +2308,7 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%koboldcpp%reset%
+    call conda deactivate
     call conda remove --name koboldcpp --all -y
     call conda clean -a -y
 
@@ -2224,6 +2345,7 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%tabbyapi%reset%
+    call conda deactivate
     call conda remove --name tabbyapi --all -y
     call conda clean -a -y
 
@@ -2232,6 +2354,35 @@ if /i "%confirmation%"=="Y" (
     cd /d "%~dp0text-completion"
     rmdir /s /q "tabbyAPI"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_text_completion
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_text_completion
+)
+
+
+:uninstall_llamacpp
+title STL [UNINSTALL LLAMACPP]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of llamacpp                                                ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the folder llamacpp
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the llamacpp directory...
+    cd /d "%~dp0text-completion"
+    rmdir /s /q "llama.cpp"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%llamacpp has been uninstalled successfully.%reset%
     pause
     goto :app_uninstaller_text_completion
 ) else (
@@ -2295,6 +2446,7 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%sdwebui%reset%
+    call conda deactivate
     call conda remove --name sdwebui --all -y
     call conda clean -a -y
 
@@ -2330,6 +2482,7 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%sdwebuiforge%reset%
+    call conda deactivate
     call conda remove --name sdwebuiforge --all -y
     call conda clean -a -y
 
@@ -2365,6 +2518,7 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%comfyui%reset%
+    call conda deactivate
     call conda remove --name comfyui --all -y
     call conda clean -a -y
 
@@ -2400,6 +2554,7 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%fooocus%reset%
+    call conda deactivate
     call conda remove --name fooocus --all -y
     call conda clean -a -y
 
@@ -2486,6 +2641,7 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%extras%reset%
+    call conda deactivate
     call conda remove --name extras --all -y
     call conda clean -a -y
 
@@ -2521,6 +2677,7 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the Conda environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%xtts%reset%
+    call conda deactivate
     call conda remove --name xtts --all -y
     call conda clean -a -y
 
@@ -3765,3 +3922,38 @@ goto :support
 :discord
 start "" "https://discord.gg/sillytavern"
 goto :support
+
+
+:vraminfo
+title STL [VRAM INFO]
+cls
+echo %blue_fg_strong%/ Home / VRAM Info%reset%
+echo -------------------------------------------------------------
+REM Recommendations Based on VRAM Size
+if %VRAM% lss 8 (
+    echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+    echo %cyan_fg_strong%%VRAM% GB%reset% - It's recommended to stick with APIs like OpenAI or OpenRouter for LLM usage, as local models might not perform well.
+    pause
+    goto :home
+) else if %VRAM% lss 12 (
+    echo %cyan_fg_strong%%VRAM% GB%reset% - Capable of running efficient 7B models. However, APIs like OpenAI or OpenRouter will likely perform much better.
+    pause
+    goto :home
+) else if %VRAM% lss 22 (
+    echo %cyan_fg_strong%%VRAM% GB%reset% - Suitable for 7B and some efficient 13B models, but APIs like OpenAI or OpenRouter are still recommended for much better performance.
+    pause
+    goto :home
+) else if %VRAM% lss 25 (
+    echo %cyan_fg_strong%%VRAM% GB%reset% - Good for 7B, 13B, 30B, and some efficient 70B models. Powerful local models will run well but APIs like OpenAI or Claude will still perform better than many local models.
+    pause
+    goto :home
+) else if %VRAM% gtr 25 (
+    echo %cyan_fg_strong%%VRAM% GB%reset% - Suitable for most models, including larger LLMs. You likely have the necessary expertise to pick your own model if you possess more than 25GB of VRAM.
+    pause
+    goto :home
+) else (
+    echo An unexpected amount of VRAM detected or unable to detect VRAM. Check your system specifications.
+    pause
+    goto :home
+)
+
