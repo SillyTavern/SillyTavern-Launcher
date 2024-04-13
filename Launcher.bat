@@ -3702,6 +3702,7 @@ echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. Switch to Release - SillyTavern
 echo 2. Switch to Staging - SillyTavern
+echo 3. Switch to neo-server - SillyTavern
 echo 0. Back
 
 REM Get the current Git branch
@@ -3716,6 +3717,8 @@ if "%brance_choice%"=="1" (
     call :switch_brance_release_st
 ) else if "%brance_choice%"=="2" (
     call :switch_brance_staging_st
+) else if "%brance_choice%"=="3" (
+    call :switch_brance_neoserver_st
 ) else if "%brance_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -3740,6 +3743,15 @@ cd /d "%~dp0SillyTavern"
 git switch staging
 pause
 goto :switch_brance
+
+
+:switch_brance_neoserver_st
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to neo-server branch...
+cd /d "%~dp0SillyTavern"
+git switch neo-server
+pause
+goto :switch_brance
+
 
 
 REM ############################################################
