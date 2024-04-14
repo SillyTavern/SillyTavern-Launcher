@@ -30,8 +30,8 @@ set "red_bg=[41m"
 set "blue_bg=[44m"
 set "yellow_bg=[43m"
 
-REM Environment Variables (winget)
-set "winget_path=%userprofile%\AppData\Local\Microsoft\WindowsApps"
+REM Environment Variables (get)
+set "git_path=%userprofile%\AppData\Local"
 
 REM Environment Variables (miniconda3)
 set "miniconda_path=%userprofile%\miniconda3"
@@ -60,67 +60,20 @@ set "st_comment=SillyTavern"
 REM Get the current PATH value from the registry
 for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
 
-REM Check if the paths are already in the current PATH
-echo %current_path% | find /i "%winget_path%" > nul
-set "ff_path_exists=%errorlevel%"
 
 setlocal enabledelayedexpansion
 
-REM Append the new paths to the current PATH only if they don't exist
-if %ff_path_exists% neq 0 (
-    set "new_path=%current_path%;%winget_path%"
-    echo.
-    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
-    echo.
-    echo [DEBUG] "winget_path is:%cyan_fg_strong% %winget_path%%reset%"
-    echo.
-    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
 
-    REM Update the PATH value in the registry
-    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
 
-    REM Update the PATH value for the current session
-    setx PATH "!new_path!" > nul
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%winget added to PATH.%reset%
-) else (
-    set "new_path=%current_path%"
-    echo %blue_fg_strong%[INFO] winget already exists in PATH.%reset%
-)
 
-REM Check if Winget is installed; if not, then install it
-winget --version > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Winget is not installed on this system.%reset%
-    REM Check if the folder exists
-    if not exist "%~dp0bin" (
-        mkdir "%~dp0bin"
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "bin"  
-    ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "bin" folder already exists.%reset%
-    )
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Winget...
-    curl -L -o "%~dp0bin\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    start "" "%~dp0bin\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Winget installed successfully. Please restart the Launcher.%reset%
-    pause
-    exit
-) else (
-    echo %blue_fg_strong%[INFO] Winget is already installed.%reset%
-)
 endlocal
 
 REM Check if Git is installed if not then install git
-git --version > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Git is not installed on this system.%reset%
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Git using Winget...
-    winget install -e --id Git.Git
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Git installed successfully. Please restart the Installer.%reset%
-    pause
-    exit
-) else (
-    echo %blue_fg_strong%[INFO] Git is already installed.%reset%
+if "%startIn%\PortableGit" neq 0 (
+curl -LJO https://github.com/git-for-windows/git/releases/download/v2.44.0.windows.1/PortableGit-2.44.0-32-bit.7z.exe
+PortableGit-2.44.0-32-bit.7z.exe -o  "%startIn%\PortableGit" -y 
 )
+
 
 REM Get the current PATH value from the registry
 for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
@@ -156,8 +109,9 @@ REM Check if Miniconda3 is installed if not then install Miniconda3
 call conda --version > nul 2>&1
 if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Miniconda3 is not installed on this system.%reset%
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using Winget...
-    winget install -e --id Anaconda.Miniconda3
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using curl...
+    curl -L -o "%temp%\vs_buildtools.exe" "https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe" 
+	Miniconda3-latest-Windows-x86_64.exe" /InstallationType=JustMe /RegisterPython=0 /S /D="%userprofile%\miniconda3" 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Miniconda3 installed successfully. Please restart the Installer.%reset%
     pause
     exit
@@ -397,10 +351,12 @@ pip install -r requirements-rvc.txt
 pip install tensorboardX
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
-winget install -e --id Microsoft.VCRedist.2015+.x64
+powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/c7707d68-d6ce-4479-973e-e2a3dc4341fe/1AD7988C17663CC742B01BEF1A6DF2ED1741173009579AD50A94434E54F56073/VC_redist.x64.exe', 'VC_redist.x64.exe')"
+VC_redist.x64.exe /install /quiet /norestart
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
-winget install -e --id Microsoft.VCRedist.2015+.x86
+powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/71c6392f-8df5-4b61-8d50-dba6a525fb9d/510FC8C2112E2BC544FB29A72191EABCC68D3A5A7468D35D7694493BC8593A79/VC_redist.x86.exe', 'VC_redist.x86.exe')"
+VC_redist.x86.exe /install /quiet /norestart
 
 REM Check if file exists
 if not exist "%temp%\vs_buildtools.exe" (
@@ -632,10 +588,12 @@ pip install -r requirements-rvc.txt
 pip install tensorboardX
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
-winget install -e --id Microsoft.VCRedist.2015+.x64
+powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/c7707d68-d6ce-4479-973e-e2a3dc4341fe/1AD7988C17663CC742B01BEF1A6DF2ED1741173009579AD50A94434E54F56073/VC_redist.x64.exe', 'VC_redist.x64.exe')"
+VC_redist.x64.exe /install /quiet /norestart
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
-winget install -e --id Microsoft.VCRedist.2015+.x86
+powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/71c6392f-8df5-4b61-8d50-dba6a525fb9d/510FC8C2112E2BC544FB29A72191EABCC68D3A5A7468D35D7694493BC8593A79/VC_redist.x86.exe', 'VC_redist.x86.exe')"
+VC_redist.x86.exe /install /quiet /norestart
 
 REM Check if file exists
 if not exist "%temp%\vs_buildtools.exe" (
@@ -816,4 +774,3 @@ goto :support
 :discord
 start "" "https://discord.gg/sillytavern"
 goto :support
-
