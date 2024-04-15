@@ -3875,7 +3875,7 @@ if "%restore_choice%" geq "1" (
         echo Restoring backup !selected_backup!...
         REM Extract the contents of the "public" folder directly into the existing "public" folder
         7z x "%~dp0SillyTavern-backups\!selected_backup!.7z" -o"temp" -aoa
-        xcopy /y /e "temp\public\*" "public\"
+        xcopy /y /e "temp\public\*" "%~dp0SillyTavern\public\"
         rmdir /s /q "temp"
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%!selected_backup! restored successfully.%reset%
     ) else (
