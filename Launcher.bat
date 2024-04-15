@@ -3943,29 +3943,33 @@ echo %blue_fg_strong%/ Home / VRAM Info%reset%
 echo -------------------------------------------------------------
 REM Recommendations Based on VRAM Size
 if %VRAM% lss 8 (
-    echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
-    echo %cyan_fg_strong%%VRAM% GB%reset% - It's recommended to stick with APIs like OpenAI or OpenRouter for LLM usage, as local models might not perform well.
-    pause
-    goto :home
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - It's recommended to stick with APIs like OpenAI or OpenRouter for LLM usage, as local models might not perform well.
 ) else if %VRAM% lss 12 (
-    echo %cyan_fg_strong%%VRAM% GB%reset% - Capable of running efficient 7B models. However, APIs like OpenAI or OpenRouter will likely perform much better.
-    pause
-    goto :home
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Capable of running efficient 7B models. However, APIs like OpenAI or OpenRouter will likely perform much better.
 ) else if %VRAM% lss 22 (
-    echo %cyan_fg_strong%%VRAM% GB%reset% - Suitable for 7B and some efficient 13B models, but APIs like OpenAI or OpenRouter are still recommended for much better performance.
-    pause
-    goto :home
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Suitable for 7B and some efficient 13B models, but APIs like OpenAI or OpenRouter are still recommended for much better performance.
 ) else if %VRAM% lss 25 (
-    echo %cyan_fg_strong%%VRAM% GB%reset% - Good for 7B, 13B, 30B, and some efficient 70B models. Powerful local models will run well but APIs like OpenAI or Claude will still perform better than many local models.
-    pause
-    goto :home
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Good for 7B, 13B, 30B, and some efficient 70B models. Powerful local models will run well but APIs like OpenAI or Claude will still perform better than many local models.
 ) else if %VRAM% gtr 25 (
-    echo %cyan_fg_strong%%VRAM% GB%reset% - Suitable for most models, including larger LLMs. You likely have the necessary expertise to pick your own model if you possess more than 25GB of VRAM.
-    pause
-    goto :home
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Suitable for most models, including larger LLMs. You likely have the necessary expertise to pick your own model if you possess more than 25GB of VRAM.
 ) else (
     echo An unexpected amount of VRAM detected or unable to detect VRAM. Check your system specifications.
-    pause
-    goto :home
 )
+echo.
+echo Would you like to open the VRAM calculator website to check compatible models?
+echo Just hit 'Load Models' after the page loads.
+set /p uservram_choice=Check compatible models? [Y/N] 
+
+REM Check if user input is not empty and is neither "Y" nor "N"
+if not "%uservram_choice%"=="" (
+    if /i not "%uservram_choice%"=="Y" if /i not "%uservram_choice%"=="N" (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter Y for yes or N for no%reset%
+        pause
+        goto :vraminfo
+    )
+)
+
+if /i "%uservram_choice%"=="Y" ( start https://sillytavernai.com/llm-model-vram-calculator/?vram=%VRAM%
+)
+goto :home
 
