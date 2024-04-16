@@ -30,20 +30,6 @@ set "red_bg=[41m"
 set "blue_bg=[44m"
 set "yellow_bg=[43m"
 
-REM Environment Variables (7-Zip)
-set "zip7version=7z2301-x64"
-set "zip7_install_path=%ProgramFiles%\7-Zip"
-set "zip7_download_path=%TEMP%\%zip7version%.exe"
-
-REM Environment Variables (FFmpeg)
-set "ffmpeg_url=https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z"
-set "ffdownload_path=%~dp0ffmpeg.7z"
-set "ffextract_path=C:\ffmpeg"
-set "ffmpeg_path_bin=%ffextract_path%\bin"
-
-REM Environment Variables (Node.js)
-set "node_installer_path=%temp%\NodejsInstaller.msi"
-
 REM Environment Variables (winget)
 set "winget_path=%userprofile%\AppData\Local\Microsoft\WindowsApps"
 
@@ -54,10 +40,25 @@ set "miniconda_path_usrbin=%userprofile%\miniconda3\Library\usr\bin"
 set "miniconda_path_bin=%userprofile%\miniconda3\Library\bin"
 set "miniconda_path_scripts=%userprofile%\miniconda3\Scripts"
 
+REM Environment Variables (7-Zip)
+set "zip7_version=7z2301-x64"
+set "zip7_install_path=%ProgramFiles%\7-Zip"
+set "zip7_download_path=%TEMP%\%zip7_version%.exe"
+
+REM Environment Variables (FFmpeg)
+set "ffmpeg_url=https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z"
+set "ffmpeg_download_path=%~dp0bin\ffmpeg.7z"
+set "ffmpeg_extract_path=C:\ffmpeg"
+set "ffmpeg_path_bin=%ffmpeg_extract_path%\bin"
+
 REM Environment Variables (w64devkit)
+set "w64devkit_download_url=https://github.com/skeeto/w64devkit/releases/download/v1.22.0/w64devkit-1.22.0.zip"
+set "w64devkit_download_path=%~dp0bin\w64devkit-1.22.0.zip"
 set "w64devkit_path=C:\w64devkit"
 set "w64devkit_path_bin=%w64devkit_path%\bin"
 
+REM Environment Variables (Node.js)
+set "node_installer_path=%temp%\NodejsInstaller.msi"
 
 REM Define variables to track module status (EXTRAS)
 set "extras_modules_path=%~dp0bin\settings\modules-extras.txt"
@@ -277,7 +278,7 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo SillyTavern-Launcher: V1.1.3
+echo SillyTavern-Launcher: V1.1.4
 echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 echo =================================
 
@@ -989,12 +990,12 @@ cls
 echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install koboldcpp RAW%reset%
 echo -------------------------------------------------------------
 
-REM Check if 7-Zip is installed
-7z > nul 2>&1
+REM Check if w64devkit is installed
+make > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
-    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 'make' command not found.%reset%
+    echo %red_fg_strong%w64devkit is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install w64devkit go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install w64devkit%reset%
     pause
     goto :app_installer_core_utilities
 )
@@ -1065,50 +1066,6 @@ cd /d "koboldcpp"
 echo add_compile_options("$<$<C_COMPILER_ID:MSVC>:-utf-8>")>> CMakeLists.txt
 echo add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:-utf-8>")>> CMakeLists.txt
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% successfully added new lines to: CMakeLists.txt
-
-REM Download w64devkit zip archive
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading w64devkit...
-curl -L -o "%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0.zip" "https://github.com/skeeto/w64devkit/releases/download/v1.21.0/w64devkit-1.21.0.zip"
-
-REM Extract w64devkit zip archive
-7z x "%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0.zip" -o"%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0"
-
-REM Move w64devkit to root of C
-move /Y "%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0\w64devkit" "C:\w64devkit"
-
-REM Remove leftovers
-del "%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0.zip"
-rd /S /Q "%~dp0text-completion\dev-koboldcpp\w64devkit-1.21.0"
-
-REM Get the current PATH value from the registry
-for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
-
-REM Check if the paths are already in the current PATH
-echo %current_path% | find /i "%w64devkit_path_bin%" > nul
-set "ff_path_exists=%errorlevel%"
-
-setlocal enabledelayedexpansion
-
-REM Append the new paths to the current PATH only if they don't exist
-if %ff_path_exists% neq 0 (
-    set "new_path=%current_path%;%w64devkit_path_bin%"
-    echo.
-    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
-    echo.
-    echo [DEBUG] "w64devkit_path_bin is:%cyan_fg_strong% %w64devkit_path_bin%%reset%"
-    echo.
-    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
-
-    REM Update the PATH value in the registry
-    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
-
-    REM Update the PATH value for the current session
-    setx PATH "!new_path!" > nul
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit added to PATH.%reset%
-) else (
-    set "new_path=%current_path%"
-    echo %blue_fg_strong%[INFO] w64devkit already exists in PATH.%reset%
-)
 
 make
 PyInstaller --noconfirm --onefile --clean --console --collect-all customtkinter --icon "./niko.ico" --add-data "./winclinfo.exe;." --add-data "./OpenCL.dll;." --add-data "./klite.embd;." --add-data "./kcpp_docs.embd;." --add-data "./koboldcpp_default.dll;." --add-data "./koboldcpp_openblas.dll;." --add-data "./koboldcpp_failsafe.dll;." --add-data "./koboldcpp_noavx2.dll;." --add-data "./libopenblas.dll;." --add-data "./koboldcpp_clblast.dll;." --add-data "./koboldcpp_clblast_noavx2.dll;." --add-data "./koboldcpp_vulkan_noavx2.dll;." --add-data "./clblast.dll;." --add-data "./koboldcpp_vulkan.dll;." --add-data "./vulkan-1.dll;." --add-data "./rwkv_vocab.embd;." --add-data "./rwkv_world_vocab.embd;." "./koboldcpp.py" -n "koboldcpp.exe"
@@ -1233,12 +1190,11 @@ cls
 echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install llamacpp%reset%
 echo -------------------------------------------------------------
 
-REM Check if 7-Zip is installed
-7z > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
-    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
+REM Check if the folder exists
+if not exist "c:\w64devkit" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] w64devkit not found.%reset%
+    echo %red_fg_strong%w64devkit is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install w64devkit go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install w64devkit%reset%
     pause
     goto :app_installer_core_utilities
 )
@@ -1278,50 +1234,6 @@ if %errorlevel% neq 0 (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
     pause
     goto :app_installer_text_completion
-)
-
-REM Download w64devkit zip archive
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading w64devkit...
-curl -L -o "%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0.zip" "https://github.com/skeeto/w64devkit/releases/download/v1.21.0/w64devkit-1.21.0.zip"
-
-REM Extract w64devkit zip archive
-7z x "%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0.zip" -o"%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0"
-
-REM Move w64devkit to root of C
-move /Y "%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0\w64devkit" "C:\w64devkit"
-
-REM Remove leftovers
-del "%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0.zip"
-rd /S /Q "%~dp0text-completion\dev-llamacpp\w64devkit-1.21.0"
-
-REM Get the current PATH value from the registry
-for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
-
-REM Check if the paths are already in the current PATH
-echo %current_path% | find /i "%w64devkit_path_bin%" > nul
-set "ff_path_exists=%errorlevel%"
-
-setlocal enabledelayedexpansion
-
-REM Append the new paths to the current PATH only if they don't exist
-if %ff_path_exists% neq 0 (
-    set "new_path=%current_path%;%w64devkit_path_bin%"
-    echo.
-    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
-    echo.
-    echo [DEBUG] "w64devkit_path_bin is:%cyan_fg_strong% %w64devkit_path_bin%%reset%"
-    echo.
-    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
-
-    REM Update the PATH value in the registry
-    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
-
-    REM Update the PATH value for the current session
-    setx PATH "!new_path!" > nul
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit added to PATH.%reset%
-) else (
-    set "new_path=%current_path%"
-    echo %blue_fg_strong%[INFO] w64devkit already exists in PATH.%reset%
 )
 
 cd /d "llama.cpp"
@@ -1999,6 +1911,7 @@ echo 3. Install Node.js
 echo 4. Install yq
 echo 5. Install Visual Studio BuildTools
 echo 6. Install CUDA Toolkit
+echo 7. Install w64devkit
 echo 0. Back
 
 set /p app_installer_core_util_choice=Choose Your Destiny: 
@@ -2016,6 +1929,8 @@ if "%app_installer_core_util_choice%"=="1" (
     call :install_vsbuildtools
 ) else if "%app_installer_core_util_choice%"=="6" (
     call :install_cudatoolkit
+) else if "%app_installer_core_util_choice%"=="7" (
+    call :install_w64devkit
 ) else if "%app_installer_core_util_choice%"=="0" (
     goto :app_installer
 ) else (
@@ -2079,22 +1994,22 @@ if %errorlevel% neq 0 (
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading FFmpeg archive...
-curl -L -o "%ffdownload_path%" "%ffmpeg_url%"
+curl -L -o "%ffmpeg_download_path%" "%ffmpeg_url%"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating ffmpeg directory if it doesn't exist...
-if not exist "%ffextract_path%" (
-    mkdir "%ffextract_path%"
+if not exist "%ffmpeg_extract_path%" (
+    mkdir "%ffmpeg_extract_path%"
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extracting FFmpeg archive...
-7z x "%ffdownload_path%" -o"%ffextract_path%"
+7z x "%ffmpeg_download_path%" -o"%ffmpeg_extract_path%"
 
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving FFmpeg contents to C:\ffmpeg...
-for /d %%i in ("%ffextract_path%\ffmpeg-*-full_build") do (
-    xcopy "%%i\bin" "%ffextract_path%\bin" /E /I /Y
-    xcopy "%%i\doc" "%ffextract_path%\doc" /E /I /Y
-    xcopy "%%i\presets" "%ffextract_path%\presets" /E /I /Y
+for /d %%i in ("%ffmpeg_extract_path%\ffmpeg-*-full_build") do (
+    xcopy "%%i\bin" "%ffmpeg_extract_path%\bin" /E /I /Y
+    xcopy "%%i\doc" "%ffmpeg_extract_path%\doc" /E /I /Y
+    xcopy "%%i\presets" "%ffmpeg_extract_path%\presets" /E /I /Y
     rd "%%i" /S /Q
 )
 
@@ -2127,7 +2042,7 @@ if %ff_path_exists% neq 0 (
     set "new_path=%current_path%"
     echo %blue_fg_strong%[INFO] ffmpeg already exists in PATH.%reset%
 )
-del "%ffdownload_path%"
+del "%ffmpeg_download_path%"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg installed successfully. Please restart the Launcher.%reset%
 pause
 exit
@@ -2187,6 +2102,67 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Whe
 
 REM If CUDA Toolkit fails to install then copy all files from MSBuildExtensions into BuildCustomizations
 REM xcopy /s /i /y "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v12.4\extras\visual_studio_integration\MSBuildExtensions\*" "%ProgramFiles%\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations"
+pause
+exit
+
+:install_w64devkit
+REM Check if 7-Zip is installed
+7z > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
+    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
+    pause
+    goto :app_installer_core_utilities
+)
+
+REM Check if the folder exists
+if exist "C:\w64devkit" (
+    REM Remove w64devkit folder if it already exist
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing w64devkit installation...
+    rmdir /s /q "C:\w64devkit"
+)
+
+REM Download w64devkit zip archive
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading w64devkit...
+curl -L -o "%w64devkit_download_path%" "%w64devkit_download_url%"
+
+REM Extract w64devkit zip archive
+7z x "%w64devkit_download_path%" -o"C:\"
+
+REM Remove leftovers
+del "%w64devkit_download_path%"
+
+REM Get the current PATH value from the registry
+for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
+
+REM Check if the paths are already in the current PATH
+echo %current_path% | find /i "%w64devkit_path_bin%" > nul
+set "ff_path_exists=%errorlevel%"
+
+setlocal enabledelayedexpansion
+
+REM Append the new paths to the current PATH only if they don't exist
+if %ff_path_exists% neq 0 (
+    set "new_path=%current_path%;%w64devkit_path_bin%"
+    echo.
+    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
+    echo.
+    echo [DEBUG] "w64devkit_path_bin is:%cyan_fg_strong% %w64devkit_path_bin%%reset%"
+    echo.
+    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
+
+    REM Update the PATH value in the registry
+    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
+
+    REM Update the PATH value for the current session
+    setx PATH "!new_path!" > nul
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit added to PATH.%reset%
+) else (
+    set "new_path=%current_path%"
+    echo %blue_fg_strong%[INFO] w64devkit already exists in PATH.%reset%
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit is installed. Please restart the Launcher.%reset%
 pause
 exit
 
@@ -2378,10 +2354,10 @@ echo.
 set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
 if /i "%confirmation%"=="Y" (
 
-    REM Remove the folder llamacpp
+    REM Remove the folder
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the llamacpp directory...
     cd /d "%~dp0text-completion"
-    rmdir /s /q "llama.cpp"
+    rmdir /s /q "dev-llamacpp"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%llamacpp has been uninstalled successfully.%reset%
     pause
     goto :app_uninstaller_text_completion
@@ -2736,7 +2712,7 @@ goto :app_uninstaller_core_utilities
 :uninstall_ffmpeg
 title STL [UNINSTALL-FFMPEG]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling ffmpeg...
-rmdir /s /q "%ffextract_path%"
+rmdir /s /q "%ffmpeg_extract_path%"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg has been uninstalled successfully.%reset%
 pause
 goto :app_uninstaller_core_utilities
@@ -3957,7 +3933,6 @@ if %VRAM% lss 8 (
 )
 echo.
 echo Would you like to open the VRAM calculator website to check compatible models?
-echo Just hit 'Load Models' after the page loads.
 set /p uservram_choice=Check compatible models? [Y/N] 
 
 REM Check if user input is not empty and is neither "Y" nor "N"
