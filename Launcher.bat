@@ -990,10 +990,9 @@ cls
 echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install koboldcpp RAW%reset%
 echo -------------------------------------------------------------
 
-REM Check if w64devkit is installed
-make > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 'make' command not found.%reset%
+REM Check if the folder exists
+if not exist "c:\w64devkit" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] w64devkit not found.%reset%
     echo %red_fg_strong%w64devkit is not installed or not found in the system PATH.%reset%
     echo %red_fg_strong%To install w64devkit go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install w64devkit%reset%
     pause
