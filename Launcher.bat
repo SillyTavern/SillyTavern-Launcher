@@ -1166,14 +1166,12 @@ call conda activate tabbyapi
 cd /d "tabbyAPI"
 REM Use the GPU choice made earlier to install requirements for tabbyapi
 if "%GPU_CHOICE%"=="1" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[tabbyapi]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%tabbyapi%reset%
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[tabbyapi]%reset% %blue_fg_strong%[INFO]%reset% Setting TabbyAPI to use NVIDIA GPUs: %cyan_fg_strong%tabbyapi%reset%
     echo cu121 > "gpu_lib.txt" 
-    pip install torch==2.1.1+cu121 torchaudio==2.1.1+cu121 --index-url https://download.pytorch.org/whl/cu121
     goto :install_tabbyapi_final
 ) else if "%GPU_CHOICE%"=="2" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[tabbyapi]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%tabbyapi%reset%
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[tabbyapi]%reset% %blue_fg_strong%[INFO]%reset% Setting TabbyAPI to use AMD GPUs: %cyan_fg_strong%tabbyapi%reset%
     echo amd > "gpu_lib.txt" 
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
     goto :install_tabbyapi_final
 )
 
