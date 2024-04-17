@@ -226,6 +226,34 @@ if %errorlevel% neq 0 (
     echo %blue_fg_strong%[INFO] Git is already installed.%reset%
 )
 
+REM Get the current PATH value from the registry
+for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
+
+REM Check if the paths are already in the current PATH
+echo %current_path% | find /i "%miniconda_path%" > nul
+set "ff_path_exists=%errorlevel%"
+
+REM Append the new paths to the current PATH only if they don't exist
+if %ff_path_exists% neq 0 (
+    set "new_path=%current_path%;%miniconda_path%;%miniconda_path_mingw%;%miniconda_path_usrbin%;%miniconda_path_bin%;%miniconda_path_scripts%"
+    echo.
+    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
+    echo.
+    echo [DEBUG] "miniconda_path is:%cyan_fg_strong% %miniconda_path%%reset%"
+    echo.
+    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
+
+    REM Update the PATH value in the registry
+    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
+
+    REM Update the PATH value for the current session
+    setx PATH "!new_path!" > nul
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%miniconda3 added to PATH.%reset%
+) else (
+    set "new_path=%current_path%"
+    echo %blue_fg_strong%[INFO] miniconda3 already exists in PATH.%reset%
+)
+
 REM Check if Miniconda3 is installed if not then install Miniconda3
 call conda --version > nul 2>&1
 if %errorlevel% neq 0 (
@@ -278,7 +306,7 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status%
-echo SillyTavern-Launcher: V1.1.4
+echo SillyTavern-Launcher: V1.1.5
 echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 echo =================================
 
@@ -371,33 +399,6 @@ if not defined extras_start_command (
 
 set "extras_start_command=%extras_start_command:extras_start_command=%"
 start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %extras_start_command%"
-goto :home
-
-:start_xtts
-REM Activate the xtts environment
-call conda activate xtts
-
-REM Start XTTS
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
-
-REM Read modules-xtts and find the xtts_start_command line
-set "xtts_start_command="
-
-for /F "tokens=*" %%a in ('findstr /I "xtts_start_command=" "%xtts_modules_path%"') do (
-    set "%%a"
-)
-
-if not defined xtts_start_command (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
-    echo %red_bg%Please make sure you enabled at least one of the modules from Edit XTTS Modules.%reset%
-    echo.
-    echo %blue_bg%We will redirect you to the Edit XTTS Modules menu.%reset%
-    pause
-    goto :edit_xtts_modules
-)
-
-set "xtts_start_command=%xtts_start_command:xtts_start_command=%"
-start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && %xtts_start_command%"
 goto :home
 
 
@@ -540,7 +541,8 @@ echo -------------------------------------------------------------
 echo What would you like to do?
 
 echo 1. Text Completion
-echo 2. Image Generation
+echo 2. Voice Generation
+echo 3. Image Generation
 echo 0. Back
 
 set /p app_launcher_choice=Choose Your Destiny: 
@@ -549,6 +551,8 @@ REM ############## APP INSTALLER - BACKEND ####################
 if "%app_launcher_choice%"=="1" (
     call :app_launcher_text_completion
 ) else if "%app_launcher_choice%"=="2" (
+    call :app_launcher_voice_generation
+) else if "%app_launcher_choice%"=="3" (
     call :app_launcher_image_generation
 ) else if "%app_launcher_choice%"=="0" (
     goto :toolbox
@@ -594,9 +598,6 @@ if "%app_launcher_txt_comp_choice%"=="1" (
 )
 
 :start_ooba
-REM Start Text generation web UI oobabooga with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Text generation web UI oobabooga launched in a new window.
-
 REM Read modules-ooba and find the ooba_start_command line
 set "ooba_start_command="
 
@@ -645,7 +646,89 @@ goto :app_launcher_text_completion
 
 
 REM ############################################################
-REM ######## APP LAUNCHER IMAGE GENERATION - FRONTEND #########
+REM ########## APP LAUNCHER VOICE GENERATION - FRONTEND ########
+REM ############################################################
+:app_launcher_voice_generation
+title STL [APP LAUNCHER VOICE GENERATION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Launcher / Voice Generation%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Start AllTalk
+echo 2. Start XTTS
+echo 3. Start RVC
+echo 0. Back
+
+set /p app_launcher_voice_gen_choice=Choose Your Destiny: 
+
+REM ########## APP LAUNCHER TEXT COMPLETION - BACKEND #########
+if "%app_launcher_voice_gen_choice%"=="1" (
+    call :start_alltalk
+) else if "%app_launcher_voice_gen_choice%"=="2" (
+    call :start_xtts
+) else if "%app_launcher_voice_gen_choice%"=="3" (
+    call :start_rvc
+) else if "%app_launcher_voice_gen_choice%"=="0" (
+    goto :app_launcher
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :app_launcher_voice_generation
+)
+
+
+:start_alltalk
+REM Activate the alltalk environment
+call conda activate alltalk
+
+REM Start AllTalk
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% AllTalk launched in a new window.
+start cmd /k "title AllTalk && cd /d %~dp0voice-generation\alltalk_tts && python script.py"
+goto :app_launcher_voice_generation
+
+
+:start_xtts
+REM Activate the xtts environment
+call conda activate xtts
+
+REM Start XTTS
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
+
+REM Read modules-xtts and find the xtts_start_command line
+set "xtts_start_command="
+
+for /F "tokens=*" %%a in ('findstr /I "xtts_start_command=" "%xtts_modules_path%"') do (
+    set "%%a"
+)
+
+if not defined xtts_start_command (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
+    echo %red_bg%Please make sure you enabled at least one of the modules from Edit XTTS Modules.%reset%
+    echo.
+    echo %blue_bg%We will redirect you to the Edit XTTS Modules menu.%reset%
+    pause
+    goto :edit_xtts_modules
+)
+
+set "xtts_start_command=%xtts_start_command:xtts_start_command=%"
+start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && %xtts_start_command%"
+goto :home
+
+
+:start_rvc
+REM Activate the alltalk environment
+call conda activate rvc
+
+REM Start RVC with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% RVC launched in a new window.
+start cmd /k "title RVC && cd /d %~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI && python infer-web.py --port 7897"
+goto :app_launcher_voice_generation
+
+
+REM ############################################################
+REM ######## APP LAUNCHER IMAGE GENERATION - FRONTEND ##########
 REM ############################################################
 :app_launcher_image_generation
 title STL [APP LAUNCHER IMAGE GENERATION]
@@ -765,8 +848,9 @@ echo -------------------------------------------------------------
 echo What would you like to do?
 
 echo 1. Text Completion
-echo 2. Image Generation
-echo 3. Core Utilities
+echo 2. Voice Generation
+echo 3. Image Generation
+echo 4. Core Utilities
 echo 0. Back
 
 set /p app_installer_choice=Choose Your Destiny: 
@@ -775,8 +859,10 @@ REM ############## APP INSTALLER - BACKEND ####################
 if "%app_installer_choice%"=="1" (
     call :app_installer_text_completion
 ) else if "%app_installer_choice%"=="2" (
-    call :app_installer_image_generation
+    call :app_installer_voice_generation
 ) else if "%app_installer_choice%"=="3" (
+    call :app_installer_image_generation
+) else if "%app_installer_choice%"=="4" (
     call :app_installer_core_utilities
 ) else if "%app_installer_choice%"=="0" (
     goto :toolbox
@@ -903,7 +989,6 @@ title STL [INSTALL KOBOLDCPP]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install koboldcpp%reset%
 echo -------------------------------------------------------------
-
 REM GPU menu - Frontend
 echo What is your GPU?
 echo 1. NVIDIA
@@ -1108,7 +1193,6 @@ set "GPU_CHOICE=%gpu_choice%"
 
 REM Check the user's response
 if "%gpu_choice%"=="1" (
-    REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
     goto :install_tabbyapi_pre
 ) else if "%gpu_choice%"=="2" (
@@ -1176,6 +1260,15 @@ if "%GPU_CHOICE%"=="1" (
 )
 
 :install_tabbyapi_final
+echo Loading solely the API may not be your optimal usecase. 
+echo Therefore, a config.yml exists to tune initial launch parameters and other configuration options.
+echo.
+echo A config.yml file is required for overriding project defaults. 
+echo If you are okay with the defaults, you don't need a config file!
+echo.
+echo If you do want a config file, copy over config_sample.yml to config.yml. All the fields are commented, 
+echo so make sure to read the descriptions and comment out or remove fields that you don't need.
+echo.
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been installed successfully.%reset%
 pause
 goto :app_installer_text_completion
@@ -1239,6 +1332,389 @@ make
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed llamacpp%reset%
 pause
 goto :app_installer_text_completion
+
+
+REM ############################################################
+REM ######## APP INSTALLER VOICE GENERATION - FRONTEND #########
+REM ############################################################
+:app_installer_voice_generation
+title STL [APP INSTALLER VOICE GENERATION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Voice Generation%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Install AllTalk
+echo 2. Install XTTS
+echo 3. Install RVC
+echo 0. Back
+
+set /p app_installer_voice_gen_choice=Choose Your Destiny: 
+
+REM ######## APP INSTALLER VOICE GENERATION - BACKEND #########
+if "%app_installer_voice_gen_choice%"=="1" (
+    call :install_alltalk
+) else if "%app_installer_voice_gen_choice%"=="2" (
+    goto :install_xtts
+) else if "%app_installer_voice_gen_choice%"=="3" (
+    goto :install_rvc
+) else if "%app_installer_voice_gen_choice%"=="0" (
+    goto :app_installer
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :app_installer_voice_generation
+)
+
+
+:install_alltalk
+title STL [INSTALL ALLTALK]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Voice Generation / Install AllTalk%reset%
+echo ---------------------------------------------------------------
+REM GPU menu - Frontend
+echo What is your GPU?
+echo 1. NVIDIA
+echo 2. AMD
+echo 0. Cancel
+
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+REM Get GPU information
+for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+    set "gpu_info=!gpu_info! %%i"
+)
+
+echo.
+echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
+echo.
+
+endlocal
+set /p gpu_choice=Enter number corresponding to your GPU: 
+
+REM GPU menu - Backend
+REM Set the GPU choice in an environment variable for choise callback
+set "GPU_CHOICE=%gpu_choice%"
+
+REM Check the user's response
+if "%gpu_choice%"=="1" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
+    goto :install_alltalk_pre
+) else if "%gpu_choice%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
+    goto :install_alltalk_pre
+) else if "%gpu_choice%"=="0" (
+    goto :app_installer_voice_generation
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :install_alltalk
+)
+:install_alltalk_pre
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AllTalk...
+
+REM Check if the folder exists
+if not exist "%~dp0voice-generation" (
+    mkdir "%~dp0voice-generation"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
+)
+cd /d "%~dp0voice-generation"
+
+set max_retries=3
+set retry_count=0
+
+:retry_install_alltalk
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning alltalk_tts repository...
+git clone https://github.com/erew123/alltalk_tts.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_alltalk
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :home
+)
+cd /d "alltalk_tts"
+
+REM Activate the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named alltalk
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%alltalk%reset%
+call conda create -n alltalk python=3.11.5 -y
+
+REM Activate the alltalk environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%alltalk%reset%
+call conda activate alltalk
+
+REM Use the GPU choice made earlier to install requirements for alltalk
+if "%GPU_CHOICE%"=="1" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%alltalk%reset%
+    pip install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing deepspeed...
+    curl -LO https://github.com/erew123/alltalk_tts/releases/download/DeepSpeed-14.0/deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
+    pip install deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
+    del deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
+    goto :install_alltalk_final
+) else if "%GPU_CHOICE%"=="2" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%alltalk%reset%
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+    goto :install_alltalk_final
+)
+:install_alltalk_final
+echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements from requirements_standalone.txt
+pip install -r system\requirements\requirements_standalone.txt
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%AllTalk installed successfully%reset%
+pause
+goto :app_installer_voice_generation
+
+
+:install_xtts
+title STL [INSTALL XTTS]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Voice Generation / Install XTTS%reset%
+echo ---------------------------------------------------------------
+REM GPU menu - Frontend
+echo What is your GPU?
+echo 1. NVIDIA
+echo 2. AMD
+echo 3. None CPU-only mode
+echo 0. Cancel
+
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+REM Get GPU information
+for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+    set "gpu_info=!gpu_info! %%i"
+)
+
+echo.
+echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
+echo.
+
+endlocal
+set /p gpu_choice=Enter number corresponding to your GPU: 
+
+REM GPU menu - Backend
+REM Set the GPU choice in an environment variable for choise callback
+set "GPU_CHOICE=%gpu_choice%"
+
+REM Check the user's response
+if "%gpu_choice%"=="1" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
+    goto :install_xtts_pre
+) else if "%gpu_choice%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
+    goto :install_xtts_pre
+) else if "%gpu_choice%"=="3" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
+    goto :install_xtts_pre
+) else if "%gpu_choice%"=="0" (
+    goto :installer
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :install_xtts
+)
+:install_xtts_pre
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
+
+REM Activate the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named xtts
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%xtts%reset%
+call conda create -n xtts python=3.10 -y
+
+REM Activate the xtts environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%xtts%reset%
+call conda activate xtts
+
+REM Use the GPU choice made earlier to install requirements for XTTS
+if "%GPU_CHOICE%"=="1" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
+    pip install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
+    goto :install_xtts_final
+) else if "%GPU_CHOICE%"=="2" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+    goto :install_xtts_final
+) else if "%GPU_CHOICE%"=="3" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
+    pip install torch torchvision torchaudio
+    goto :install_xtts_final
+)
+:install_xtts_final
+REM Clone the xtts-api-server repository for voice examples
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
+git clone https://github.com/daswer123/xtts-api-server.git
+cd /d "%~dp0xtts-api-server"
+
+REM Install pip requirements
+echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements in conda enviroment: %cyan_fg_strong%xtts%reset%
+pip install -r requirements.txt
+pip install xtts-api-server
+pip install pydub
+pip install stream2sentence
+
+REM Create folders for xtts
+cd /d "%~dp0"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
+mkdir "%~dp0xtts"
+mkdir "%~dp0xtts\speakers"
+mkdir "%~dp0xtts\output"
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
+xcopy "%~dp0xtts-api-server\example\*" "%~dp0xtts\speakers\" /y /e
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
+rmdir /s /q "%~dp0xtts-api-server"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
+pause
+goto :app_installer_voice_generation
+
+
+:install_rvc
+title STL [INSTALL RVC]
+cls
+echo %blue_fg_strong%/ Home / Install RVC%reset%
+echo ---------------------------------------------------------------
+REM GPU menu - Frontend
+echo What is your GPU?
+echo 1. NVIDIA
+echo 2. AMD
+echo 3. AMD/Intel DirectML
+echo 4. Intel Arc IPEX
+echo 0. Cancel
+
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+REM Get GPU information
+for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+    set "gpu_info=!gpu_info! %%i"
+)
+
+echo.
+echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
+echo.
+
+endlocal
+set /p gpu_choice=Enter number corresponding to your GPU: 
+
+REM GPU menu - Backend
+REM Set the GPU choice in an environment variable for choise callback
+set "GPU_CHOICE=%gpu_choice%"
+
+REM Check the user's response
+if "%gpu_choice%"=="1" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to: NVIDIA
+    goto :install_rvc_pre
+) else if "%gpu_choice%"=="2" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to: AMD
+    goto :install_rvc_pre
+) else if "%gpu_choice%"=="3" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to: AMD/Intel DirectML
+    goto :install_rvc_pre
+) else if "%gpu_choice%"=="4" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to: Intel Arc IPEX
+    goto :install_rvc_pre
+) else if "%gpu_choice%"=="0" (
+    goto :app_installer_voice_generation
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
+    pause
+    goto :install_rvc
+)
+:install_rvc_pre
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing RVC...
+
+REM Check if the folder exists
+if not exist "%~dp0voice-generation" (
+    mkdir "%~dp0voice-generation"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
+)
+cd /d "%~dp0voice-generation"
+
+set max_retries=3
+set retry_count=0
+
+:retry_install_rvc
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the Retrieval-based-Voice-Conversion-WebUI repository...
+git clone https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI.git
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_install_rvc
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
+    pause
+    goto :home
+)
+cd /d "Retrieval-based-Voice-Conversion-WebUI"
+
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named rvc
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%rvc%reset%
+call conda create -n rvc python=3.10.6 -y
+
+REM Activate the rvc environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%rvc%reset%
+call conda activate rvc
+
+REM Use the GPU choice made earlier to install requirements for RVC
+if "%GPU_CHOICE%"=="1" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version from requirements.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
+    pip install -r requirements.txt
+    pip install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
+    goto :install_rvc_final
+) else if "%GPU_CHOICE%"=="2" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version from requirements-amd.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
+    pip install -r requirements-amd.txt
+    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+    goto :install_rvc_final
+) else if "%GPU_CHOICE%"=="3" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD/Intel DirectML version from requirements-dml.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
+    pip install -r requirements-dml.txt
+    goto :install_rvc_final
+) else if "%GPU_CHOICE%"=="4" (
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing Intel Arc IPEX version from  requirements-ipex.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
+    pip install -r requirements-ipex.txt
+    goto :install_rvc_final
+)
+:install_rvc_final
+REM Install pip packages that are not in requirements list
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip modules for GUI
+pip install PySimpleGUI
+pip install sounddevice
+
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%RVC successfully installed.%reset%
+pause
+goto :app_installer_voice_generation
 
 
 REM ############################################################
@@ -2175,8 +2651,9 @@ echo -------------------------------------------------------------
 echo What would you like to do?
 
 echo 1. Text Completion
-echo 2. Image Generation 
-echo 3. Core Utilities
+echo 2. Voice Generation
+echo 3. Image Generation 
+echo 4. Core Utilities
 echo 0. Back
 
 set /p app_uninstaller_choice=Choose Your Destiny: 
@@ -2185,8 +2662,10 @@ REM ############## APP UNINSTALLER - BACKEND ####################
 if "%app_uninstaller_choice%"=="1" (
     call :app_uninstaller_text_completion
 ) else if "%app_uninstaller_choice%"=="2" (
-    call :app_uninstaller_image_generation
+    call :app_uninstaller_voice_generation
 ) else if "%app_uninstaller_choice%"=="3" (
+    call :app_uninstaller_image_generation
+) else if "%app_uninstaller_choice%"=="4" (
     call :app_uninstaller_core_utilities
 ) else if "%app_uninstaller_choice%"=="0" (
     goto :toolbox
@@ -2362,6 +2841,147 @@ if /i "%confirmation%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
     pause
     goto :app_uninstaller_text_completion
+)
+
+
+REM ############################################################
+REM ######## APP UNINSTALLER VOICE GENERATION - FRONTEND #######
+REM ############################################################
+:app_uninstaller_voice_generation
+title STL [APP UNINSTALLER VOICE GENERATION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller / Voice Generation%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. UNINSTALL AllTalk
+echo 2. UNINSTALL XTTS
+echo 3. UNINSTALL rvc
+echo 0. Back
+
+set /p app_uninstaller_voice_gen_choice=Choose Your Destiny: 
+
+REM ######## APP UNINSTALLER VOICE GENERATION - BACKEND #########
+if "%app_uninstaller_voice_gen_choice%"=="1" (
+    call :uninstall_alltalk
+) else if "%app_uninstaller_voice_gen_choice%"=="2" (
+    goto :uninstall_xtts
+) else if "%app_uninstaller_voice_gen_choice%"=="3" (
+    goto :uninstall_rvc
+) else if "%app_uninstaller_voice_gen_choice%"=="0" (
+    goto :app_uninstaller
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :app_uninstaller_voice_generation
+)
+
+:uninstall_alltalk
+title STL [UNINSTALL ALLTALK]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of AllTalk                                                 ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%alltalk%reset%
+    call conda deactivate
+    call conda remove --name alltalk --all -y
+    call conda clean -a -y
+
+    REM Remove the folder
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the alltalk directory...
+    cd /d "%~dp0voice-generation"
+    rmdir /s /q "alltalk_tts"
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%AllTalk has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_voice_generation
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_voice_generation
+)
+
+
+:uninstall_xtts
+title STL [UNINSTALL XTTS]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of XTTS                                                    ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%xtts%reset%
+    call conda deactivate
+    call conda remove --name xtts --all -y
+    call conda clean -a -y
+
+    REM Remove the folder
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts directory...
+    cd /d "%~dp0"
+    rmdir /s /q "%~dp0xtts"
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_voice_generation
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_voice_generation
+)
+
+
+:uninstall_rvc
+title STL [UNINSTALL RVC]
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+
+REM Confirm with the user before proceeding
+echo.
+echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
+echo %red_bg%║ WARNING: This will delete all data of RVC                                                    ║%reset%
+echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
+echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+
+    REM Remove the Conda environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%rvc%reset%
+    call conda deactivate
+    call conda remove --name rvc --all -y
+    call conda clean -a -y
+
+    REM Remove the folder
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Retrieval-based-Voice-Conversion-WebUI directory...
+    cd /d "%~dp0voice-generation"
+    rmdir /s /q "Retrieval-based-Voice-Conversion-WebUI"
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%RVC has been uninstalled successfully.%reset%
+    pause
+    goto :app_uninstaller_voice_generation
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
+    pause
+    goto :app_uninstaller_voice_generation
 )
 
 
@@ -2556,14 +3176,14 @@ echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller / Core Utilities%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. UNINSTALL Extras
-echo 2. UNINSTALL XTTS
-echo 3. UNINSTALL SillyTavern
-echo 4. UNINSTALL 7-Zip
-echo 5. UNINSTALL FFmpeg
-echo 6. UNINSTALL Node.js
-echo 7. UNINSTALL yq
-echo 8. UNINSTALL CUDA Toolkit
-echo 9. UNINSTALL Visual Studio BuildTools
+echo 2. UNINSTALL SillyTavern
+echo 3. UNINSTALL 7-Zip
+echo 4. UNINSTALL FFmpeg
+echo 5. UNINSTALL Node.js
+echo 6. UNINSTALL yq
+echo 7. UNINSTALL CUDA Toolkit
+echo 8. UNINSTALL Visual Studio BuildTools
+echo 9. UNINSTALL w64devkit
 echo 0. Back
 
 set /p app_uninstaller_core_util_choice=Choose Your Destiny: 
@@ -2572,21 +3192,21 @@ REM ######## APP UNINSTALLER CORE UTILITIES - BACKEND #########
 if "%app_uninstaller_core_util_choice%"=="1" (
     call :uninstall_extras
 ) else if "%app_uninstaller_core_util_choice%"=="2" (
-    call :uninstall_xtts
-) else if "%app_uninstaller_core_util_choice%"=="3" (
     call :uninstall_st
-) else if "%app_uninstaller_core_util_choice%"=="4" (
+) else if "%app_uninstaller_core_util_choice%"=="3" (
     call :uninstall_7zip
-) else if "%app_uninstaller_core_util_choice%"=="5" (
+) else if "%app_uninstaller_core_util_choice%"=="4" (
     call :uninstall_ffmpeg
-) else if "%app_uninstaller_core_util_choice%"=="6" (
+) else if "%app_uninstaller_core_util_choice%"=="5" (
     call :uninstall_nodejs
-) else if "%app_uninstaller_core_util_choice%"=="7" (
+) else if "%app_uninstaller_core_util_choice%"=="6" (
     call :uninstall_yq
-) else if "%app_uninstaller_core_util_choice%"=="8" (
+) else if "%app_uninstaller_core_util_choice%"=="7" (
     call :uninstall_cudatoolkit
-) else if "%app_uninstaller_core_util_choice%"=="9" (
+) else if "%app_uninstaller_core_util_choice%"=="8" (
     call :uninstall_vsbuildtools
+) else if "%app_uninstaller_core_util_choice%"=="9" (
+    call :uninstall_w64devkit
 ) else if "%app_uninstaller_core_util_choice%"=="0" (
     goto :app_uninstaller
 ) else (
@@ -2633,42 +3253,6 @@ if /i "%confirmation%"=="Y" (
 )
 
 
-:uninstall_xtts
-title STL [UNINSTALL XTTS]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of XTTS                                                    ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%xtts%reset%
-    call conda deactivate
-    call conda remove --name xtts --all -y
-    call conda clean -a -y
-
-    REM Remove the folder SillyTavern
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%~dp0xtts"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_core_utilities
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_core_utilities
-)
-
-
 :uninstall_st
 title STL [UNINSTALL ST]
 setlocal enabledelayedexpansion
@@ -2698,6 +3282,7 @@ if /i "%confirmation%"=="Y" (
     goto :app_uninstaller_core_utilities
 )
 
+
 :uninstall_7zip
 title STL [UNINSTALL-7ZIP]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling 7-Zip...
@@ -2706,13 +3291,31 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%7-Z
 pause
 goto :app_uninstaller_core_utilities
 
+
 :uninstall_ffmpeg
 title STL [UNINSTALL-FFMPEG]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling ffmpeg...
 rmdir /s /q "%ffmpeg_extract_path%"
+
+setlocal EnableDelayedExpansion
+rem Get the current PATH value from the registry
+for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
+
+rem Remove the path from the current PATH if it exists
+set "new_path=!current_path:%ffmpeg_path_bin%=!"
+
+REM Update the PATH value in the registry
+reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
+
+REM Update the PATH value for the current session
+setx PATH "!new_path!" > nul
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg removed from PATH.%reset%
+endlocal
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg has been uninstalled successfully.%reset%
 pause
 goto :app_uninstaller_core_utilities
+
 
 :uninstall_nodejs
 title STL [UNINSTALL-NODEJS]
@@ -2740,11 +3343,37 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%CUD
 pause
 goto :app_uninstaller_core_utilities
 
+
 :uninstall_vsbuildtools
 title STL [UNINSTALL-VSBUILDTOOLS]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling Visual Studio BuildTools 2022...
 winget uninstall --id Microsoft.VisualStudio.2022.BuildTools
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Visual Studio BuildTools 2022 has been uninstalled successfully.%reset%
+pause
+goto :app_uninstaller_core_utilities
+
+
+:uninstall_w64devkit
+title STL [UNINSTALL-VSBUILDTOOLS]
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling w64devkit...
+rmdir /s /q "C:\w64devkit"
+
+setlocal EnableDelayedExpansion
+REM Get the current PATH value from the registry
+for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
+
+REM Remove the path from the current PATH if it exists
+set "new_path=!current_path:%w64devkit_path_bin%=!"
+
+REM Update the PATH value in the registry
+reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
+
+REM Update the PATH value for the current session
+setx PATH "!new_path!" > nul
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit removed from PATH.%reset%
+endlocal
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit has been uninstalled successfully.%reset%
 pause
 goto :app_uninstaller_core_utilities
 
@@ -2957,13 +3586,13 @@ goto :edit_ooba_modules
 
 
 :edit_koboldcpp
-echo COMMING SOON
+echo COMING SOON
 pause
 goto :editor_text_completion
 
 
 :edit_tabbyapi
-echo COMMING SOON
+echo COMING SOON
 pause
 goto :editor_text_completion
 
@@ -3179,19 +3808,19 @@ REM ############################################################################
 
 
 :edit_sdwebuiforge
-echo COMMING SOON
+echo COMING SOON
 pause
 goto :editor_image_generation
 
 
 :edit_comfyui
-echo COMMING SOON
+echo COMING SOON
 pause
 goto :editor_image_generation
 
 
 :edit_fooocus
-echo COMMING SOON
+echo COMING SOON
 pause
 goto :editor_image_generation
 
@@ -3550,10 +4179,11 @@ echo %blue_fg_strong%/ Home / Toolbox / Troubleshooting%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. Remove node_modules folder
-echo 2. Fix unresolved conflicts or unmerged files [SillyTavern]
-echo 3. Export dxdiag info
-echo 4. Find what app is using port
-echo 5. Set Onboarding Flow
+echo 2. Clear pip cache
+echo 3. Fix unresolved conflicts or unmerged files [SillyTavern]
+echo 4. Export dxdiag info
+echo 5. Find what app is using port
+echo 6. Set Onboarding Flow
 echo 0. Back
 
 set /p troubleshooting_choice=Choose Your Destiny: 
@@ -3562,12 +4192,14 @@ REM ############## TROUBLESHOOTING - BACKEND ##################
 if "%troubleshooting_choice%"=="1" (
     call :remove_node_modules
 ) else if "%troubleshooting_choice%"=="2" (
-    call :unresolved_unmerged
+    call :remove_pip_cache
 ) else if "%troubleshooting_choice%"=="3" (
-    call :export_dxdiag
+    call :unresolved_unmerged
 ) else if "%troubleshooting_choice%"=="4" (
-    call :find_app_port
+    call :export_dxdiag
 ) else if "%troubleshooting_choice%"=="5" (
+    call :find_app_port
+) else if "%troubleshooting_choice%"=="6" (
     call :onboarding_flow
 ) else if "%troubleshooting_choice%"=="0" (
     goto :toolbox
@@ -3590,6 +4222,20 @@ pause
 goto :troubleshooting
 
 
+:remove_pip_cache
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Clearing pip cache...
+pip cache purge
+if %errorlevel% neq 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Could not clear the pip cache.%reset%
+    echo Please try again.
+    pause
+    goto :troubleshooting
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%The pip cache has been cleared successfully.%reset%
+pause
+goto :troubleshooting
+
+
 :unresolved_unmerged
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Trying to resolve unresolved conflicts in the working directory or unmerged files...
 cd /d "%~dp0SillyTavern"
@@ -3603,7 +4249,7 @@ goto :troubleshooting
 
 :export_dxdiag
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Exporting DirectX Diagnostic Tool information...
-dxdiag /t "%~dp0dxdiag_info.txt"
+dxdiag /t "%~dp0bin\dxdiag_info.txt"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%You can find the dxdiag_info.txt at: "%~dp0dxdiag_info.txt"%reset%
 pause
 goto :troubleshooting

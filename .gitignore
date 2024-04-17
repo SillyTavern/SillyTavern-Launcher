@@ -1,7 +1,8 @@
 SillyTavern/
-SillyTavern-extras/
 SillyTavern-backups/
-xtts/
-bin/
+SillyTavern-extras/
 text-completion/
 image-generation/
+voice-generation/
+xtts/
+bin/
