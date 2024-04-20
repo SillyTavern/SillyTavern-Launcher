@@ -140,7 +140,8 @@ echo %blue_fg_strong%[INFO] Launcher already up to date.%reset%
 goto :startupcheck_no_update
 
 :startupcheck_found_update
-echo New update for sillytavern-launcher is available!
+cls
+echo %blue_fg_strong%[INFO]%reset% %cyan_fg_strong%New update for sillytavern-launcher is available!%reset%
 set /p update_choice=Update now? [Y/n] 
 if /i "%update_choice%"=="Y" (
     REM Update the repository
