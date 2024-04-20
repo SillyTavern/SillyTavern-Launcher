@@ -70,6 +70,7 @@ set "summarize_trigger=false"
 set "listen_trigger=false"
 set "whisper_trigger=false"
 set "edge_tts_trigger=false"
+set "websearch_trigger=false"
 
 REM Define variables to track module status (XTTS)
 set "xtts_modules_path=%~dp0bin\settings\modules-xtts.txt"
@@ -4302,6 +4303,7 @@ call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger
 call :printModule "6. listen (--listen)" %listen_trigger%
 call :printModule "7. whisper (--enable-modules=whisper-stt)" %whisper_trigger%
 call :printModule "8. Edge-tts (--enable-modules=edge-tts)" %edge_tts_trigger%
+call :printModule "9. Websearch (--enable-modules=websearch)" %websearch_trigger%
 echo 00. Quick Start Extras
 echo 0. Back
 
@@ -4366,6 +4368,13 @@ for %%i in (%module_choices%) do (
             set "edge_tts_trigger=true"
         )
 
+    ) else if "%%i"=="9" (
+        if "%websearch_trigger%"=="true" (
+            set "websearch_trigger=false"
+        ) else (
+            set "websearch_trigger=true"
+        )
+
     ) else if "%%i"=="00" (
         goto :start_extras
 
@@ -4383,6 +4392,8 @@ echo summarize_trigger=%summarize_trigger%>>%extras_modules_path%
 echo listen_trigger=%listen_trigger%>>%extras_modules_path%
 echo whisper_trigger=%whisper_trigger%>>%extras_modules_path%
 echo edge_tts_trigger=%edge_tts_trigger%>>%extras_modules_path%
+echo websearch_trigger=%websearch_trigger%>>%extras_modules_path%
+
 
 REM remove modules_enable
 set "modules_enable="
@@ -4414,6 +4425,9 @@ if "%whisper_trigger%"=="true" (
 )
 if "%edge_tts_trigger%"=="true" (
     set "modules_enable=%modules_enable%edge-tts,"
+)
+if "%websearch_trigger%"=="true" (
+    set "modules_enable=%modules_enable%websearch,"
 )
 
 REM is modules_enable empty?
