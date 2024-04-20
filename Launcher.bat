@@ -106,23 +106,61 @@ set "log_path=%~dp0bin\logs.log"
 set "log_invalidinput=[ERROR] Invalid input. Please enter a valid number."
 set "echo_invalidinput=%red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%"
 
+cd /d "%~dp0"
 
-REM Run PowerShell command to retrieve VRAM size and divide by 1GB
-for /f "usebackq tokens=*" %%i in (`powershell -Command "$qwMemorySize = (Get-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*' -Name HardwareInformation.qwMemorySize -ErrorAction SilentlyContinue).'HardwareInformation.qwMemorySize'; [math]::Round($qwMemorySize/1GB)"`) do (
-    set "VRAM=%%i"
+REM Check if folder path has no spaces
+echo "%CD%"| findstr /C:" " >nul && (
+    echo %red_fg_strong%[ERROR] Path cannot have spaces! Please remove them or replace with: - %reset%
+    echo Folders containing spaces makes the launcher unstable
+    echo path: %red_bg%%~dp0%reset%
+    pause
+    exit /b 1
+)
+
+REM Check if folder path has no special characters
+echo "%CD%"| findstr /R /C:"[!#\$%&()\*+,;<=>?@\[\]\^`{|}~]" >nul && (
+    echo %red_fg_strong%[ERROR] Path cannot have special characters! Please remove them.%reset%
+    echo Folders containing special characters makes the launcher unstable for the following: "[!#\$%&()\*+,;<=>?@\[\]\^`{|}~]" 
+    echo path: %red_bg%%~dp0%reset%
+    pause
+    exit /b 1
+)
+
+REM Check if launcher has updates
+title STL [UPDATE ST-LAUNCHER]
+git fetch origin
+
+REM Get the list of commits between local and remote branch
+for /f %%i in ('git rev-list HEAD..%current_branch%@{upstream}') do (
+    goto :startupcheck_found_update
+)
+
+REM If no updates are available, skip the update process
+echo %blue_fg_strong%[INFO] Launcher already up to date.%reset%
+goto :startupcheck_no_update
+
+:startupcheck_found_update
+echo New update for sillytavern-launcher is available!
+set /p update_choice=Update now? [Y/n] 
+if /i "%update_choice%"=="Y" (
+    REM Update the repository
+    git pull
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-Launcher updated successfully. Restarting launcher...%reset%
+    timeout /t 10
+    start launcher.bat
+    exit
+) else (
+    goto :startupcheck_no_update
 )
 
 
-cd /d "%~dp0"
-
-echo "%CD%"| findstr /C:" " >nul && echo %red_fg_strong%[ERROR] The path you installed SillyTavern-Launcher in has spaces. Please remove or replace spaces with -%reset% && pause
-
+:startupcheck_no_update
+title STL [STARTUP CHECK]
 REM Check if the folder exists
 if not exist "%~dp0bin" (
     mkdir "%~dp0bin"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "bin"  
 )
-
 REM Check if the folder exists
 if not exist "%~dp0bin\settings" (
     mkdir "%~dp0bin\settings"
@@ -267,6 +305,11 @@ if %errorlevel% neq 0 (
     echo %blue_fg_strong%[INFO] Miniconda3 is already installed.%reset%
 )
 
+REM Run PowerShell command to retrieve VRAM size and divide by 1GB
+for /f "usebackq tokens=*" %%i in (`powershell -Command "$qwMemorySize = (Get-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*' -Name HardwareInformation.qwMemorySize -ErrorAction SilentlyContinue).'HardwareInformation.qwMemorySize'; [math]::Round($qwMemorySize/1GB)"`) do (
+    set "VRAM=%%i"
+)
+
 REM Change the current directory to 'sillytavern' folder
 cd /d "%~dp0SillyTavern"
 
@@ -295,7 +338,7 @@ echo 1. Start SillyTavern
 echo 2. Start SillyTavern + Remote Link
 echo 3. Start Extras
 echo 4. Start XTTS
-echo 5. Update
+echo 5. Update Manager
 echo 6. Toolbox
 echo 7. Support
 echo 8. More info about LLM models your GPU can run.
@@ -326,7 +369,7 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="4" (
     call :start_xtts
 ) else if "%choice%"=="5" (
-    call :update
+    call :update_manager
 ) else if "%choice%"=="6" (
     call :toolbox
 ) else if "%choice%"=="7" (
@@ -402,51 +445,375 @@ start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %extr
 goto :home
 
 
-:update
-title STL [UPDATE]
-REM Update SillyTavern-Launcher
+REM ############################################################
+REM ############## UPDATE MANAGER - FRONTEND ###################
+REM ############################################################
+:update_manager
+title STL [UPDATE MANAGER]
+cls
+echo %blue_fg_strong%/ Home / Update Manager%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Text Completion
+echo 2. Voice Generation
+echo 3. Image Generation
+echo 4. Core Utilities
+echo 0. Back
+
+set /p update_manager_choice=Choose Your Destiny: 
+
+REM ############## UPDATE MANAGER - BACKEND ####################
+if "%update_manager_choice%"=="1" (
+    call :update_manager_text_completion
+) else if "%update_manager_choice%"=="2" (
+    call :update_manager_voice_generation
+) else if "%update_manager_choice%"=="3" (
+    call :update_manager_image_generation
+) else if "%update_manager_choice%"=="4" (
+    call :update_manager_core_utilities
+) else if "%update_manager_choice%"=="0" (
+    goto :home
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :update_manager
+)
+
+
+REM ############################################################
+REM ########## UPDATE MANAGER TEXT COMPLETION - FRONTEND #######
+REM ############################################################
+:update_manager_text_completion
+title STL [UPDATE MANAGER TEXT COMPLETION]
+cls
+echo %blue_fg_strong%/ Home / Update Manager / Text Completion%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Update Text generation web UI (oobabooga)
+echo 2. Update koboldcpp
+echo 3. Update TabbyAPI
+echo 0. Back
+
+set /p update_manager_txt_comp_choice=Choose Your Destiny: 
+
+REM ########## UPDATE MANAGER TEXT COMPLETION - BACKEND #########
+if "%update_manager_txt_comp_choice%"=="1" (
+    call :update_ooba
+) else if "%update_manager_txt_comp_choice%"=="2" (
+    call :update_koboldcpp
+) else if "%update_manager_txt_comp_choice%"=="3" (
+    call :update_tabbyapi
+) else if "%update_manager_txt_comp_choice%"=="0" (
+    goto :update_manager
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :app_launcher_text_completion
+)
+
+:update_ooba
+echo COMING SOON
+pause
+goto :update_manager_text_completion
+
+:update_koboldcpp
+echo COMING SOON
+pause
+goto :update_manager_text_completion
+
+:update_tabbyapi
+echo COMING SOON
+pause
+goto :update_manager_text_completion
+
+
+REM ############################################################
+REM ########## UPDATE MANAGER VOICE GENERATION - FRONTEND ######
+REM ############################################################
+:update_manager_voice_generation
+title STL [UPDATE MANAGER VOICE GENERATION]
+cls
+echo %blue_fg_strong%/ Home / Update Manager / Voice Generation%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Update AllTalk
+echo 2. Update XTTS
+echo 3. Update RVC
+echo 0. Back
+
+set /p update_manager_voice_gen_choice=Choose Your Destiny: 
+
+REM ########## UPDATE MANAGER TEXT COMPLETION - BACKEND ########
+if "%update_manager_voice_gen_choice%"=="1" (
+    call :update_alltalk
+) else if "%update_manager_voice_gen_choice%"=="2" (
+    call :update_xtts
+) else if "%update_manager_voice_gen_choice%"=="3" (
+    call :update_rvc
+) else if "%update_manager_voice_gen_choice%"=="0" (
+    goto :update_manager
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :update_manager_voice_generation
+)
+
+:update_alltalk
+echo COMING SOON
+pause
+goto :update_manager_voice_generation
+
+
+:update_xtts
+REM Check if XTTS directory exists
+if not exist "%~dp0xtts" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] xtts directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_voice_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating XTTS...
+call conda activate xtts
+pip install --upgrade xtts-api-server
+call conda deactivate
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS updated successfully.%reset%
+pause
+goto :update_manager_voice_generation
+
+
+:update_rvc
+REM Check if the folder exists
+if not exist "%~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retrieval-based-Voice-Conversion-WebUI directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_voice_generation
+)
+
+REM Update Retrieval-based-Voice-Conversion-WebUI
 set max_retries=3
 set retry_count=0
 
-:retry_update_st_launcher
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern-Launcher...
-cd /d "%~dp0"
+:retry_update_rvc
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating Retrieval-based-Voice-Conversion-WebUI...
+cd /d "%~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_update_st_launcher
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SillyTavern-Launcher repository after %max_retries% retries.%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_rvc
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update Retrieval-based-Voice-Conversion-WebUI repository after %max_retries% retries.%reset%
     pause
-    goto :home
+    goto :update_manager_voice_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Retrieval-based-Voice-Conversion-WebUI updated successfully.%reset%
+pause
+goto :update_manager_voice_generation
+
+
+REM ############################################################
+REM ######## UPDATE MANAGER IMAGE GENERATION - FRONTEND ########
+REM ############################################################
+:update_manager_image_generation
+title STL [UPDATE MANAGER IMAGE GENERATION]
+cls
+echo %blue_fg_strong%/ Home / Update Manager / Image Generation%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Update Stable Diffusion web UI
+echo 2. Update Stable Diffusion web UI Forge
+echo 3. Update ComfyUI
+echo 4. Update Fooocus
+echo 0. Back
+
+set /p update_manager_img_gen_choice=Choose Your Destiny: 
+
+REM ######## UPDATE MANAGER IMAGE GENERATION - BACKEND #########
+if "%update_manager_img_gen_choice%"=="1" (
+    call :update_sdwebui
+) else if "%update_manager_img_gen_choice%"=="2" (
+    goto :update_sdwebuiforge
+) else if "%update_manager_img_gen_choice%"=="3" (
+    goto :update_comfyui
+) else if "%update_manager_img_gen_choice%"=="4" (
+    goto :update_fooocus
+) else if "%update_manager_img_gen_choice%"=="0" (
+    goto :update_manager
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :update_manager_image_generation
 )
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-Launcher updated successfully.%reset%
+:update_sdwebui
+REM Check if the folder exists
+if not exist "%~dp0image-generation\stable-diffusion-webui" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] stable-diffusion-webui directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_image_generation
+)
 
-REM Update SillyTavern
+REM Update stable-diffusion-webui
 set max_retries=3
 set retry_count=0
 
-:retry_update_st
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern...
-cd /d "%~dp0SillyTavern"
+:retry_update_sdwebui
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating stable-diffusion-webui...
+cd /d "%~dp0image-generation\stable-diffusion-webui"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_update_st
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SillyTavern repository after %max_retries% retries.%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_sdwebui
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update stable-diffusion-webui repository after %max_retries% retries.%reset%
     pause
-    goto :home
+    goto :update_manager_image_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%stable-diffusion-webui updated successfully.%reset%
+pause
+goto :update_manager_image_generation
+
+
+:update_sdwebuiforge
+REM Check if the folder exists
+if not exist "%~dp0image-generation\stable-diffusion-webui-forge" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] stable-diffusion-webui-forge directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_image_generation
 )
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern updated successfully.%reset%
+REM Update stable-diffusion-webui-forge
+set max_retries=3
+set retry_count=0
+
+:retry_update_sdwebuiforge
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating stable-diffusion-webui-forge...
+cd /d "%~dp0image-generation\stable-diffusion-webui-forge"
+call git pull
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_sdwebuiforge
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update stable-diffusion-webui-forge repository after %max_retries% retries.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%stable-diffusion-webui-forge updated successfully.%reset%
+pause
+goto :update_manager_image_generation
 
 
+:update_comfyui
+REM Check if the folder exists
+if not exist "%~dp0image-generation\ComfyUI" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] ComfyUI directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+
+REM Update ComfyUI
+set max_retries=3
+set retry_count=0
+
+:retry_update_comfyui
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating ComfyUI...
+cd /d "%~dp0image-generation\ComfyUI"
+call git pull
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_comfyui
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update ComfyUI repository after %max_retries% retries.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ComfyUI updated successfully.%reset%
+pause
+goto :update_manager_image_generation
+
+
+:update_fooocus
+REM Check if the folder exists
+if not exist "%~dp0image-generation\Fooocus" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Fooocus directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+
+REM Update Fooocus
+set max_retries=3
+set retry_count=0
+
+:retry_update_fooocus
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating Fooocus...
+cd /d "%~dp0image-generation\Fooocus"
+call git pull
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_fooocus
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update Fooocus repository after %max_retries% retries.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Fooocus updated successfully.%reset%
+pause
+goto :update_manager_image_generation
+
+
+REM ############################################################
+REM ######## UPDATE MANAGER CORE UTILITIES - FRONTEND #########
+REM ############################################################
+:update_manager_core_utilities
+title STL [UPDATE MANAGER CORE UTILITIES]
+cls
+echo %blue_fg_strong%/ Home / Update Manager / Core Utilities%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+echo 1. Update Extras
+echo 2. Update SillyTavern
+echo 3. Update 7-Zip
+echo 4. Update FFmpeg
+echo 5. Update Node.js
+echo 6. Update yq
+echo 0. Back
+
+set /p update_manager_core_util_choice=Choose Your Destiny: 
+
+REM ######## UPDATE MANAGER CORE UTILITIES - BACKEND #########
+if "%update_manager_core_util_choice%"=="1" (
+    call :update_extras
+) else if "%update_manager_core_util_choice%"=="2" (
+    call :update_st
+) else if "%update_manager_core_util_choice%"=="3" (
+    call :update_7zip
+) else if "%update_manager_core_util_choice%"=="4" (
+    call :update_ffmpeg
+) else if "%update_manager_core_util_choice%"=="5" (
+    call :update_nodejs
+) else if "%update_manager_core_util_choice%"=="6" (
+    call :update_yq
+) else if "%update_manager_core_util_choice%"=="0" (
+    goto :update_manager
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :update_manager_core_utilities
+)
+
+:update_extras
 REM Check if SillyTavern-extras directory exists
 if not exist "%~dp0SillyTavern-extras" (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] SillyTavern-extras directory not found. Skipping extras update.%reset%
-    goto :update_xtts
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] SillyTavern-extras directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_core_utilities
 )
 
 REM Update SillyTavern-extras
@@ -463,24 +830,64 @@ if %errorlevel% neq 0 (
     if %retry_count% lss %max_retries% goto :retry_update_extras
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SillyTavern-extras repository after %max_retries% retries.%reset%
     pause
-    goto :home
+    goto :update_manager_core_utilities
 )
-
-:update_xtts
-REM Check if XTTS directory exists
-if not exist "%~dp0xtts" (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] xtts directory not found. Skipping XTTS update.%reset%
-    pause
-    goto :home
-)
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating XTTS...
-call conda activate xtts
-pip install --upgrade xtts-api-server
-call conda deactivate
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS updated successfully.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-extras updated successfully.%reset%
 pause
-goto :home
+goto :update_manager_core_utilities
 
+
+:update_st
+REM Check if SillyTavern directory exists
+if not exist "%~dp0SillyTavern" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] SillyTavern directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_core_utilities
+)
+
+REM Update SillyTavern
+set max_retries=3
+set retry_count=0
+
+:retry_update_st
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern...
+cd /d "%~dp0SillyTavern"
+call git pull
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_st
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SillyTavern repository after %max_retries% retries.%reset%
+    pause
+    goto :update_manager_core_utilities
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern updated successfully.%reset%
+pause
+goto :update_manager_core_utilities
+
+
+:update_7zip
+winget upgrade 7zip.7zip
+pause
+goto :update_manager_core_utilities
+
+
+:update_ffmpeg
+echo COMING SOON
+pause
+goto :update_manager_core_utilities
+
+
+:update_nodejs
+winget upgrade OpenJS.NodeJS
+pause
+goto :update_manager_core_utilities
+
+
+:update_yq
+winget upgrade MikeFarah.yq
+pause
+goto :update_manager_core_utilities
 
 
 
@@ -4250,7 +4657,7 @@ goto :troubleshooting
 :export_dxdiag
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Exporting DirectX Diagnostic Tool information...
 dxdiag /t "%~dp0bin\dxdiag_info.txt"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%You can find the dxdiag_info.txt at: "%~dp0dxdiag_info.txt"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%You can find the dxdiag_info.txt at: "%~dp0bin\dxdiag_info.txt"%reset%
 pause
 goto :troubleshooting
 

@@ -56,6 +56,25 @@ set "st_shortcutName=SillyTavern.lnk"
 set "st_startIn=%~dp0"
 set "st_comment=SillyTavern"
 
+cd /d "%~dp0"
+
+REM Check if folder path has no spaces
+echo "%CD%"| findstr /C:" " >nul && (
+    echo %red_fg_strong%[ERROR] Path cannot have spaces! Please remove them or replace with: - %reset%
+    echo Folders containing spaces makes the launcher unstable
+    echo path: %red_bg%%~dp0%reset%
+    pause
+    exit /b 1
+)
+
+REM Check if folder path has no special characters
+echo "%CD%"| findstr /R /C:"[!#\$%&()\*+,;<=>?@\[\]\^`{|}~]" >nul && (
+    echo %red_fg_strong%[ERROR] Path cannot have special characters! Please remove them.%reset%
+    echo Folders containing special characters makes the launcher unstable for the following: "[!#\$%&()\*+,;<=>?@\[\]\^`{|}~]" 
+    echo path: %red_bg%%~dp0%reset%
+    pause
+    exit /b 1
+)
 
 REM Get the current PATH value from the registry
 for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
