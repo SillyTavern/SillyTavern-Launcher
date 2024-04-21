@@ -1881,7 +1881,7 @@ call conda activate alltalk
 REM Use the GPU choice made earlier to install requirements for alltalk
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%alltalk%reset%
-    pip install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
+    pip install torch==2.1.2+cu121 torchaudio==2.1.2+cu121 --index-url https://download.pytorch.org/whl/cu121
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing deepspeed...
     curl -LO https://github.com/erew123/alltalk_tts/releases/download/DeepSpeed-14.0/deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
     pip install deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
@@ -1970,7 +1970,7 @@ call conda activate xtts
 REM Use the GPU choice made earlier to install requirements for XTTS
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
-    pip install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --extra-index-url https://download.pytorch.org/whl/cu121
+    pip install torch==2.1.1+cu118 torchvision==0.16.1+cu118  torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
     goto :install_xtts_final
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
@@ -5035,7 +5035,8 @@ REM Allows users to create a home menu shortcut to launch any app from the toolb
 REM This function sets up the shortcut on the homepage with the users selected option, it saves the users choice in a text file called "custom-shortcut.txt" in "\bin\settings"
 :create_custom_shortcut
 cls
-echo Create a custom shortcut to launch any app with SillyTavern. (You can reset the shortcut in the Toolbox if you need to change it.)
+echo Create a custom shortcut to launch any app with SillyTavern. 
+echo To reset the shortcut go to: %blue_bg%/ Home / Toolbox%reset%
 echo ---------------------------------------------------------
 
 REM Define options and corresponding commands in a structured format
