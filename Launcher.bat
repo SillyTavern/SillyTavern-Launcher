@@ -344,6 +344,13 @@ echo 5. Update Manager
 echo 6. Toolbox
 echo 7. Support
 echo 8. More info about LLM models your GPU can run.
+REM Check if the custom shortcut file exists and is not empty
+set "custom_name=Create Custom App Shortcut to Launch with SillyTavern"  ; Initialize to default
+if exist "%~dp0bin\settings\custom-shortcut.txt" (
+    set /p custom_name=<"%~dp0bin\settings\custom-shortcut.txt"
+    if "!custom_name!"=="" set "custom_name=Create Custom Shortcut"
+)
+echo 9. %custom_name%
 echo 0. Exit
 
 REM Get the current Git branch
@@ -378,7 +385,13 @@ if "%choice%"=="1" (
     call :support
 ) else if "%choice%"=="8" (
     call :vraminfo
-) else if "%choice%"=="0" (
+) else if "%choice%"=="9" (
+    if exist "%~dp0bin\settings\custom-shortcut.txt" (
+        call :launch_custom_shortcut
+    ) else (
+        call :create_custom_shortcut
+    )
+)   else if "%choice%"=="0" (
     exit
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
@@ -910,6 +923,7 @@ echo 4. Editor
 echo 5. Backup
 echo 6. Switch branch
 echo 7. Troubleshooting
+echo 8. Reset Custom Shortcut
 echo 0. Back
 
 set /p toolbox_choice=Choose Your Destiny: 
@@ -929,6 +943,8 @@ if "%toolbox_choice%"=="1" (
     call :switch_brance
 ) else if "%toolbox_choice%"=="7" (
     call :troubleshooting
+) else if "%toolbox_choice%"=="8" (
+    call :reset_custom_shortcut
 ) else if "%toolbox_choice%"=="0" (
     goto :home
 ) else (
@@ -1028,7 +1044,7 @@ set "ooba_start_command=%ooba_start_command:ooba_start_command=%"
 REM Start Text generation web UI oobabooga with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Text generation web UI oobabooga launched in a new window.
 cd /d "%~dp0text-completion\text-generation-webui" && %ooba_start_command%
-goto :app_launcher_text_completion
+goto :home
 
 
 :start_koboldcpp
@@ -1037,7 +1053,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% koboldcpp launched i
 
 cd /d "%~dp0text-completion\dev-koboldcpp"
 start "" "koboldcpp.exe"
-goto :app_launcher_text_completion
+goto :home
 
 
 :start_tabbyapi
@@ -1051,7 +1067,7 @@ REM Start TabbyAPI with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% TabbyAPI launched in a new window.
 
 start cmd /k "title TabbyAPI && cd /d %~dp0text-completion\tabbyAPI && python start.py"
-goto :app_launcher_text_completion
+goto :home
 
 
 REM ############################################################
@@ -1095,7 +1111,7 @@ call conda activate alltalk
 REM Start AllTalk
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% AllTalk launched in a new window.
 start cmd /k "title AllTalk && cd /d %~dp0voice-generation\alltalk_tts && python script.py"
-goto :app_launcher_voice_generation
+goto :home
 
 
 :start_xtts
@@ -1133,7 +1149,7 @@ call conda activate rvc
 REM Start RVC with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% RVC launched in a new window.
 start cmd /k "title RVC && cd /d %~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI && python infer-web.py --port 7897"
-goto :app_launcher_voice_generation
+goto :home
 
 
 REM ############################################################
@@ -1206,7 +1222,7 @@ set "sdwebui_start_command=%sdwebui_start_command:sdwebui_start_command=%"
 REM Start Stable Diffusion WebUI with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI launched in a new window.
 start cmd /k "title SDWEBUI && cd /d %~dp0image-generation\stable-diffusion-webui && %sdwebui_start_command%"
-goto :app_launcher_image_generation
+goto :home
 
 :start_sdwebuiforge
 cd /d "%~dp0image-generation\stable-diffusion-webui-forge"
@@ -1214,7 +1230,7 @@ cd /d "%~dp0image-generation\stable-diffusion-webui-forge"
 REM Start Stable Diffusion WebUI Forge with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI Forge launched in a new window.
 start "" "webui-user.bat"
-goto :app_launcher_image_generation
+goto :home
 
 :start_comfyui
 REM Run conda activate from the Miniconda installation
@@ -1228,7 +1244,7 @@ call conda activate comfyui
 REM Start ComfyUI with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% ComfyUI launched in a new window.
 start cmd /k "title ComfyUI && cd /d %~dp0image-generation\ComfyUI && python main.py --auto-launch --listen --port 7901"
-goto :app_launcher_image_generation
+goto :home
 
 
 :start_fooocus
@@ -1243,7 +1259,7 @@ call conda activate fooocus
 REM Start Fooocus with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Fooocus launched in a new window.
 start cmd /k "title Fooocus && cd /d %~dp0image-generation\fooocus && python entry_with_update.py"
-goto :app_launcher_image_generation
+goto :home
 
 
 REM ############################################################
@@ -5013,3 +5029,109 @@ if /i "%uservram_choice%"=="Y" ( start https://sillytavernai.com/llm-model-vram-
 )
 goto :home
 
+REM ############################################################
+REM ############ CREATE CUSTOM SHORTCUT - FRONTEND #############
+REM ########### ADDED BY ROLYAT / BLUEPRINTCODING ##############
+REM ############################################################
+REM Allows users to create a home menu shortcut to launch any app from the toolbox with SillyTavern in one button push
+
+REM This function sets up the shortcut on the homepage with the users selected option, it saves the users choice in a text file called "custom-shortcut.txt" in "\bin\settings"
+:create_custom_shortcut
+cls
+echo Create a custom shortcut to launch any app with SillyTavern. (You can reset the shortcut in the Toolbox if you need to change it.)
+echo ---------------------------------------------------------
+
+REM Define options and corresponding commands in a structured format
+set "option1=Oobabooga"
+set "option2=Koboldcpp"
+set "option3=TabbyAPI"
+set "option4=AllTalk"
+set "option5=XTTS"
+set "option6=RVC"
+set "option7=Stable Diffusion"
+set "option8=Stable Diffusion Forge"
+set "option9=ComfyUI"
+set "option10=Fooocus"
+
+REM Display each option using a loop
+for /L %%i in (1,1,10) do (
+    call echo %%i. %%option%%i%%
+)
+
+echo Type 0 to cancel
+set /p user_apps="Enter your choice: "
+if "%user_apps%"=="0" goto :home
+
+REM Array-like structure for mapping names and commands
+set "command1=call :start_ooba"
+set "command2=call :start_koboldcpp"
+set "command3=call :start_tabbyapi"
+set "command4=call :start_alltalk"
+set "command5=call :start_xtts"
+set "command6=call :start_rvc"
+set "command7=call :start_sdwebui"
+set "command8=call :start_sdwebuiforge"
+set "command9=call :start_comfyui"
+set "command10=call :start_fooocus"
+
+REM Retrieve the selected application name and command
+call set "shortcut_name=Start SillyTavern With %%option%user_apps%%%"
+call set "command=%%command%user_apps%%%"
+
+REM Write the custom name and command to the settings file
+echo %shortcut_name% > "%~dp0bin\settings\custom-shortcut.txt"
+echo %command% >> "%~dp0bin\settings\custom-shortcut.txt"
+
+echo Shortcut "%shortcut_name%" created successfully.
+pause
+goto :home
+
+REM This command launches the custom shortcut if defined, it also launches SillyTavern, can't reuse the :start_st command as it goes to :home at the end, breaking the chaining
+:launch_custom_shortcut
+echo Executing custom shortcut...
+echo Launching SillyTavern...
+REM Check if Node.js is installed
+node --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Node.js is not installed or not found in the PATH.%reset%
+    echo %red_fg_strong%To install Node.js, go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install Node.js%reset%
+    pause
+    goto :home
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
+start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
+
+if exist "%~dp0bin\settings\custom-shortcut.txt" (
+    setlocal EnableDelayedExpansion
+    set "lineCount=0"
+    for /f "delims=" %%a in ('type "%~dp0bin\settings\custom-shortcut.txt"') do (
+        set /a lineCount+=1
+        if !lineCount! equ 1 (
+            set "appName=%%a"
+            echo Launching !appName:Start SillyTavern With=!:...
+        )
+        if !lineCount! equ 2 (
+            set "cmd=%%a"
+            echo Now executing: !cmd!
+            call !cmd!
+            echo !appName:Start SillyTavern With=!: Launched in a new window.
+        )
+    )
+    endlocal
+    echo Custom shortcut executed.
+) else (
+    echo Shortcut file not found. Please create it first.
+)
+pause
+goto :home
+
+REM This command is called from the toolbox, it deletes the txt file that saves the users defined shortcut
+:reset_custom_shortcut
+if exist "%~dp0bin\settings\custom-shortcut.txt" (
+    del "%~dp0bin\settings\custom-shortcut.txt"
+    echo Custom shortcut has been reset.
+) else (
+    echo No custom shortcut found to reset.
+)
+pause
+goto :home
