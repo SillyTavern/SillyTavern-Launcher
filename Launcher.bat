@@ -142,7 +142,7 @@ goto :startupcheck_no_update
 
 :startupcheck_found_update
 cls
-echo %blue_fg_strong%[INFO]%reset% %cyan_fg_strong%New update for sillytavern-launcher is available!%reset%
+echo %blue_fg_strong%[INFO]%reset% %cyan_fg_strong%New update for SillyTavern-Launcher is available!%reset%
 set /p update_choice=Update now? [Y/n] 
 if /i "%update_choice%"=="Y" (
     REM Update the repository
@@ -337,20 +337,19 @@ echo %blue_fg_strong%/ Home%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. Start SillyTavern
-echo 2. Start SillyTavern + Remote Link
-echo 3. Start Extras
-echo 4. Start XTTS
-echo 5. Update Manager
-echo 6. Toolbox
-echo 7. Support
-echo 8. More info about LLM models your GPU can run.
+echo 2. Start SillyTavern With Remote Link
 REM Check if the custom shortcut file exists and is not empty
 set "custom_name=Create Custom App Shortcut to Launch with SillyTavern"  ; Initialize to default
 if exist "%~dp0bin\settings\custom-shortcut.txt" (
     set /p custom_name=<"%~dp0bin\settings\custom-shortcut.txt"
     if "!custom_name!"=="" set "custom_name=Create Custom Shortcut"
 )
-echo 9. %custom_name%
+echo 3. %custom_name%
+echo 4. Start Extras
+echo 5. Update Manager
+echo 6. Toolbox
+echo 7. Support
+echo 8. More info about LLM models your GPU can run.
 echo 0. Exit
 
 REM Get the current Git branch
@@ -374,9 +373,13 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="2" (
     call :start_st_rl
 ) else if "%choice%"=="3" (
-    call :start_extras
+    if exist "%~dp0bin\settings\custom-shortcut.txt" (
+        call :launch_custom_shortcut
+    ) else (
+        call :create_custom_shortcut
+    )
 ) else if "%choice%"=="4" (
-    call :start_xtts
+    call :start_extras
 ) else if "%choice%"=="5" (
     call :update_manager
 ) else if "%choice%"=="6" (
@@ -385,12 +388,6 @@ if "%choice%"=="1" (
     call :support
 ) else if "%choice%"=="8" (
     call :vraminfo
-) else if "%choice%"=="9" (
-    if exist "%~dp0bin\settings\custom-shortcut.txt" (
-        call :launch_custom_shortcut
-    ) else (
-        call :create_custom_shortcut
-    )
 )   else if "%choice%"=="0" (
     exit
 ) else (
@@ -1973,7 +1970,7 @@ call conda activate xtts
 REM Use the GPU choice made earlier to install requirements for XTTS
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
-    pip install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
+    pip install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --extra-index-url https://download.pytorch.org/whl/cu121
     goto :install_xtts_final
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
@@ -5082,7 +5079,7 @@ REM Write the custom name and command to the settings file
 echo %shortcut_name% > "%~dp0bin\settings\custom-shortcut.txt"
 echo %command% >> "%~dp0bin\settings\custom-shortcut.txt"
 
-echo Shortcut "%shortcut_name%" created successfully.
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Shortcut "%shortcut_name%" created successfully.%reset%
 pause
 goto :home
 
@@ -5118,9 +5115,9 @@ if exist "%~dp0bin\settings\custom-shortcut.txt" (
         )
     )
     endlocal
-    echo Custom shortcut executed.
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Custom shortcut executed.%reset%
 ) else (
-    echo Shortcut file not found. Please create it first.
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Shortcut file not found. Please create it first.%reset%
 )
 pause
 goto :home
@@ -5129,9 +5126,11 @@ REM This command is called from the toolbox, it deletes the txt file that saves 
 :reset_custom_shortcut
 if exist "%~dp0bin\settings\custom-shortcut.txt" (
     del "%~dp0bin\settings\custom-shortcut.txt"
-    echo Custom shortcut has been reset.
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Custom shortcut has been reset.%reset%
+    pause
+    goto :home
 ) else (
-    echo No custom shortcut found to reset.
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] No custom shortcut found to reset.%reset%
+    pause
+    goto :toolbox
 )
-pause
-goto :home
