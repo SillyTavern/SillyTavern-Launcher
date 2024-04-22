@@ -4600,7 +4600,7 @@ REM ############################################################################
 
 
 :edit_env_var
-rundll32.exe sysdm.cpl,EditEnvironmentVariables
+start "" rundll32.exe sysdm.cpl,EditEnvironmentVariables
 goto :editor_core_utilities
 
 
@@ -4850,25 +4850,8 @@ if "%backup_choice%"=="1" (
 title STL [CREATE-BACKUP]
 REM Create a backup using 7zip
 7z a "%~dp0SillyTavern-backups\backup_.7z" ^
-    "public\assets\*" ^
-    "public\Backgrounds\*" ^
-    "public\Characters\*" ^
-    "public\Chats\*" ^
-    "public\context\*" ^
-    "public\Group chats\*" ^
-    "public\Groups\*" ^
-    "public\instruct\*" ^
-    "public\KoboldAI Settings\*" ^
-    "public\movingUI\*" ^
-    "public\NovelAI Settings\*" ^
-    "public\OpenAI Settings\*" ^
-    "public\QuickReplies\*" ^
-    "public\TextGen Settings\*" ^
-    "public\themes\*" ^
-    "public\User Avatars\*" ^
-    "public\user\*" ^
-    "public\worlds\*" ^
-    "public\settings.json"
+    "data\default-user\*" ^
+
 
 REM Get current date and time components
 for /f "tokens=1-3 delims=/- " %%d in ("%date%") do (
@@ -4927,9 +4910,9 @@ if "%restore_choice%" geq "1" (
     if "%restore_choice%" leq "%backup_count%" (
         set "selected_backup=!backup_files[%restore_choice%]!"
         echo Restoring backup !selected_backup!...
-        REM Extract the contents of the "public" folder directly into the existing "public" folder
+        REM Extract the contents of the "data" folder directly into the existing "data" folder
         7z x "%~dp0SillyTavern-backups\!selected_backup!.7z" -o"temp" -aoa
-        xcopy /y /e "temp\public\*" "%~dp0SillyTavern\public\"
+        xcopy /y /e "temp\data\*" "%~dp0SillyTavern\data\"
         rmdir /s /q "temp"
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%!selected_backup! restored successfully.%reset%
     ) else (
