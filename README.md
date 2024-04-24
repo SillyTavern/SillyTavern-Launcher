@@ -15,33 +15,55 @@
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/SillyTavern/SillyTavern-Launcher.svg)](https://github.com/SillyTavern/SillyTavern-Launcher/pulls)
 </div>
 
-## 🔧 Installation
-### 🪟 Windows
+# 🔧 Installation
+## 🪟 Windows
 1.  On your keyboard: press **`WINDOWS + R`** to open Run dialog box. Then, run the following command to install git:
 ```shell
 cmd /c winget install -e --id Git.Git
 ```
-
 2. On your keyboard: press **`WINDOWS + E`** to open File Explorer, then navigate to the folder where you want to install the launcher. Once in the desired folder, type `cmd` into the address bar and press enter. Then, run the following command:
 ```shell
 git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher && start installer.bat
 ```
 
-### 🐧 Linux
+## 🐧 Linux
 1. Open your favorite terminal and install git
-2. Download Sillytavern Launcher with: `git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher`
-3. Start the installer with: `chmod +x install.sh && ./install.sh` and choose what you wanna install
-4. After installation start the launcher with: `chmod +x launcher.sh && ./launcher.sh`
+2. Git clone the Sillytavern-Launcher with: 
+```shell
+git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher
+```
+3. Start the installer.sh with: 
+```shell
+chmod +x install.sh && ./install.sh
+```
+4. After installation start the launcher.sh with: 
+```shell
+chmod +x launcher.sh && ./launcher.sh
+```
 
-### 🍎 Mac
-1. Open a terminal and install brew with: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
-2. Then install git with: `brew install git`
-3. Download Sillytavern Launcher with: `git clone https://github.com/SillyTavern/SillyTavern-Launcher.git`
-4. Navigate to the SillyTavern-Launcher with: `cd SillyTavern-Launcher`
-5. Start the install launcher with: `chmod +x install.sh && ./install.sh` and choose what you wanna install
-6. After installation start the launcher with: `chmod +x launcher.sh && ./launcher.sh`
+## 🍎 Mac
+1. Open a terminal and install brew with: 
+```shell
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+2. Install git with: 
+```shell
+brew install git
+```
+3. Git clone the Sillytavern-Launcher with: 
+```shell
+git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher
+```
+4. Start the installer.sh with: 
+```shell
+chmod +x install.sh && ./install.sh
+```
+5. After installation start the launcher.sh with: 
+```shell
+chmod +x launcher.sh && ./launcher.sh
+```
 
-## ✨ Features
+# ✨ Features
 * Ability to automatically install Core apps with optional apps:
   * SillyTavern,
   * Extras,
@@ -77,8 +99,8 @@ git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTav
 | :---------------------------------------- | :------------------------------------------------------------------------------------------------------- |
 
 # Screenshots
-<img width="400" alt="image" src="https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/43c7a111-c221-4f03-b641-bc06887a8df0">
-<img width="400" alt="image" src="https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/25c5fdb6-e07b-4c84-ace7-637ac56c3d6b">
+<img width="400" alt="image" src="https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/96775287-df23-4976-980f-a0ce4dead9a5">
+<img width="400" alt="image" src="https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/b080c199-4b26-4246-931e-92cc0c4b47eb">
 
 <div align="right">
 
