@@ -398,6 +398,13 @@ if "%choice%"=="1" (
 )
 
 :start_st
+REM Check if the folder exists
+if not exist "%~dp0SillyTavern" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Directory:%reset% %red_bg%SillyTavern%reset% %red_fg_strong%not found.%reset%
+    echo %red_fg_strong%Please make sure SillyTavern is located in: %~dp0%reset%
+    pause
+    goto :home
+)
 REM Check if Node.js is installed
 node --version > nul 2>&1
 if %errorlevel% neq 0 (
@@ -407,11 +414,19 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
 start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
 goto :home
 
 :start_st_rl
+REM Check if the folder exists
+if not exist "%~dp0SillyTavern" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Directory:%reset% %red_bg%SillyTavern%reset% %red_fg_strong%not found.%reset%
+    echo %red_fg_strong%Please make sure SillyTavern is located in: %~dp0%reset%
+    pause
+    goto :home
+)
 REM Check if Node.js is installed
 node --version > nul 2>&1
 if %errorlevel% neq 0 (
@@ -2130,7 +2145,7 @@ if "%GPU_CHOICE%"=="1" (
 :install_rvc_final
 REM Install pip packages that are not in requirements list
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip modules for GUI
-pip install PySimpleGUI
+pip install FreeSimpleGUI
 pip install sounddevice
 
 
@@ -2413,7 +2428,7 @@ if errorlevel 1 (
     goto :install_sdwebui_model_custom
 )
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Downloading...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading...
 civitdl %civitaimodelid% -s basic "models\Stable-diffusion"
 pause
 goto :install_sdwebui_model_menu
@@ -4968,19 +4983,42 @@ echo %blue_fg_strong%/ Home / VRAM Info%reset%
 echo -------------------------------------------------------------
 REM Recommendations Based on VRAM Size
 if %VRAM% lss 8 (
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - It's recommended to stick with APIs like OpenAI or OpenRouter for LLM usage, as local models might not perform well.
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - It's recommended to stick with APIs like OpenAI or OpenRouter for LLM usage, 
+    echo because local models might not perform well.
 ) else if %VRAM% lss 12 (
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Capable of running efficient 7B models. However, APIs like OpenAI or OpenRouter will likely perform much better.
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Capable of running efficient 7B models. 
+    echo However, APIs like OpenAI or OpenRouter will likely perform much better.
 ) else if %VRAM% lss 22 (
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Suitable for 7B and some efficient 13B models, but APIs like OpenAI or OpenRouter are still recommended for much better performance.
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Suitable for 7B and some efficient 13B models, 
+    echo but APIs like OpenAI or OpenRouter are still recommended for much better performance.
 ) else if %VRAM% lss 25 (
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Good for 7B, 13B, 30B, and some efficient 70B models. Powerful local models will run well but APIs like OpenAI or Claude will still perform better than many local models.
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Good for 7B, 13B, 30B, and some efficient 70B models. Powerful local models will run well 
+    echo but APIs like OpenAI or Claude will still perform better than many local models.
 ) else if %VRAM% gtr 25 (
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Suitable for most models, including larger LLMs. You likely have the necessary expertise to pick your own model if you possess more than 25GB of VRAM.
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Suitable for most models, including larger LLMs. 
+    echo You likely have the necessary expertise to pick your own model if you possess more than 25GB of VRAM.
 ) else (
     echo An unexpected amount of VRAM detected or unable to detect VRAM. Check your system specifications.
 )
 echo.
+
+setlocal enabledelayedexpansion
+chcp 65001 > nul
+REM Get GPU information
+for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+    set "gpu_info=!gpu_info! %%i"
+)
+
+echo.
+echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
+echo %blue_bg%║                                               ║%reset%
+echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
+echo.
+
+endlocal
+
 echo Would you like to open the VRAM calculator website to check compatible models?
 set /p uservram_choice=Check compatible models? [Y/N] 
 
@@ -5005,7 +5043,10 @@ REM Allows users to create a home menu shortcut to launch any app from the toolb
 
 REM This function sets up the shortcut on the homepage with the users selected option, it saves the users choice in a text file called "custom-shortcut.txt" in "\bin\settings"
 :create_custom_shortcut
+title STL [CUSTOM SHORTCUT]
 cls
+echo %blue_fg_strong%/ Home / Create Custom Shortcut%reset%
+echo -------------------------------------------------------------
 echo Create a custom shortcut to launch any app with SillyTavern. 
 echo To reset the shortcut go to: %blue_bg%/ Home / Toolbox%reset%
 echo ---------------------------------------------------------
