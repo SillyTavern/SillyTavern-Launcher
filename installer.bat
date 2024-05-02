@@ -601,20 +601,20 @@ REM Confirm with the user before proceeding
 echo.
 echo %blue_bg%╔════ INSTALL SUMMARY ══════════════════════════════════════════════════════════════════════════╗%reset%
 echo %blue_bg%║ You are about to install all options from the installer.                                      ║%reset%
-echo %blue_bg%║ This will include the following options: SillyTavern, SillyTavern-Extras, and XTTS            ║%reset%
+echo %blue_bg%║ This will include the following options: SillyTavern, SillyTavern-Extras and XTTS             ║%reset%
 echo %blue_bg%║ Below is a list of package requirements that will get installed:                              ║%reset%
 echo %blue_bg%║ * SillyTavern [Size: 478 MB]                                                                  ║%reset%
 echo %blue_bg%║ * SillyTavern-extras [Size: 65 MB]                                                            ║%reset%
-echo %blue_bg%║ * xtts [Size: 2,06 MB]                                                                        ║%reset%
-echo %blue_bg%║ * Visual Studio BuildTools 2022 [Size: 3,10 GB]                                               ║%reset%
+echo %blue_bg%║ * xtts [Size: 1.74 GB]                                                                        ║%reset%
+echo %blue_bg%║ * Visual Studio BuildTools 2022 [Size: 3.10 GB]                                               ║%reset%
 echo %blue_bg%║ * Miniconda3 [INSTALLED] [Size: 630 MB]                                                       ║%reset%
-echo %blue_bg%║ * Miniconda3 env - xtts [Size: 6,98 GB]                                                       ║%reset%
-echo %blue_bg%║ * Miniconda3 env - extras [Size: 9,98 GB]                                                     ║%reset%
+echo %blue_bg%║ * Miniconda3 env - xtts [Size: 6.98 GB]                                                       ║%reset%
+echo %blue_bg%║ * Miniconda3 env - extras [Size: 9.98 GB]                                                     ║%reset%
 echo %blue_bg%║ * Git [INSTALLED] [Size: 338 MB]                                                              ║%reset%
-echo %blue_bg%║ * Node.js [Size: 87,5 MB]                                                                     ║%reset%
-echo %blue_bg%║ * Microsoft Visual C++ 2015-2022 Redistributable (x64) [Size: 20,6 MB]                        ║%reset%
+echo %blue_bg%║ * Node.js [Size: 87.5 MB]                                                                     ║%reset%
+echo %blue_bg%║ * Microsoft Visual C++ 2015-2022 Redistributable (x64) [Size: 20.6 MB]                        ║%reset%
 echo %blue_bg%║ * Microsoft Visual C++ 2015-2022 Redistributable (x86) [Size: 18 MB]                          ║%reset%
-echo %blue_bg%║ TOTAL INSTALL SIZE: 20.82 GB                                                                  ║%reset%
+echo %blue_bg%║ TOTAL INSTALL SIZE: 22.56 GB                                                                  ║%reset%
 echo %blue_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
 echo.
 set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
