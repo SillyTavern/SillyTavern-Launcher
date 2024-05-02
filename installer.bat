@@ -314,7 +314,35 @@ title STL [INSTALL EXTRAS]
 cls
 echo %blue_fg_strong%/ Installer / Install Extras%reset%
 echo ---------------------------------------------------------------
+setlocal enabledelayedexpansion
+chcp 65001 > nul
 
+REM Confirm with the user before proceeding
+echo.
+echo %blue_bg%╔════ INSTALL SUMMARY ══════════════════════════════════════════════════════════════════════════╗%reset%
+echo %blue_bg%║ Extras has been discontinued since April 2024 and won't receive any new updates or modules.   ║%reset%
+echo %blue_bg%║ The vast majority of modules are available natively in the main SillyTavern application.      ║%reset%
+echo %blue_bg%║ You may still install and use it but don't expect to get support if you face any issues.      ║%reset%
+echo %blue_bg%║ Below is a list of package requirements that will get installed:                              ║%reset%
+echo %blue_bg%║ * SillyTavern-extras [Size: 65 MB]                                                            ║%reset%
+echo %blue_bg%║ * Visual Studio BuildTools 2022 [Size: 3,10 GB]                                               ║%reset%
+echo %blue_bg%║ * Miniconda3 [INSTALLED] [Size: 630 MB]                                                       ║%reset%
+echo %blue_bg%║ * Miniconda3 env - extras [Size: 9,98 GB]                                                     ║%reset%
+echo %blue_bg%║ * Git [INSTALLED] [Size: 338 MB]                                                              ║%reset%
+echo %blue_bg%║ * Microsoft Visual C++ 2015-2022 Redistributable (x64) [Size: 20,6 MB]                        ║%reset%
+echo %blue_bg%║ * Microsoft Visual C++ 2015-2022 Redistributable (x86) [Size: 18 MB]                          ║%reset%
+echo %blue_bg%║ TOTAL INSTALL SIZE: 13,67 GB                                                                  ║%reset%
+echo %blue_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
+echo.
+set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+if /i "%confirmation%"=="Y" (
+    goto :install_extras_y
+) else (
+    goto :installer
+)
+
+
+:install_extras_y
 REM GPU menu - Frontend
 echo What is your GPU?
 echo 1. NVIDIA
@@ -682,7 +710,7 @@ REM Install script for XTTS
 
     REM Create a Conda environment named xtts
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%xtts%reset%
-    call conda create -n xtts python=3.10 git -y
+    call conda create -n xtts python=3.10 -y
 
     REM Activate the conda environment named xtts 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%xtts%reset%
@@ -734,7 +762,7 @@ REM End of install script for XTTS
 
 REM Create a Conda environment named extras
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%extras%reset%
-call conda create -n extras python=3.11 git -y
+call conda create -n extras python=3.11 -y
 
 REM Activate the conda environment named extras
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%extras%reset%
