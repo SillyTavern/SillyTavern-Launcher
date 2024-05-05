@@ -1122,7 +1122,7 @@ call conda activate alltalk
 
 REM Start AllTalk
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% AllTalk launched in a new window.
-start cmd /k "title AllTalk && cd /d %~dp0voice-generation\alltalk_tts && python script.py"
+start cmd /k "title AllTalk && cd /d %~dp0voice-generation\alltalk_tts && start_alltalk.bat"
 goto :home
 
 
