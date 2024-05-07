@@ -414,7 +414,7 @@ if %errorlevel% neq 0 (
 
 REM Create a Conda environment named extras
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%extras%reset%
-call conda create -n extras python=3.11 git -y
+call conda create -n extras python=3.11 -y
 
 REM Activate the conda environment named extras
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%extras%reset%
@@ -527,8 +527,16 @@ if "%gpu_choice%"=="1" (
     pause
     goto :install_xtts
 )
-
 :install_xtts_pre
+REM Check if the folder exists
+if not exist "%~dp0voice-generation" (
+    mkdir "%~dp0voice-generation"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
+)
+cd /d "%~dp0voice-generation"
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
 
 REM Activate the Miniconda installation
@@ -557,33 +565,34 @@ if "%GPU_CHOICE%"=="1" (
     pip install torch torchvision torchaudio
     goto :install_xtts_final
 )
-
-
 :install_xtts_final
 REM Clone the xtts-api-server repository for voice examples
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
 git clone https://github.com/daswer123/xtts-api-server.git
-cd /d "%~dp0xtts-api-server"
+cd /d "xtts-api-server"
+
+REM Create requirements-custom.txt to install pip requirements
+echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Creating file: requirements-custom.txt%reset%
+echo xtts-api-server > requirements-custom.txt
+echo pydub >> requirements-custom.txt
+echo stream2sentence >> requirements-custom.txt
+echo spacy==3.7.4 >> requirements-custom.txt
 
 REM Install pip requirements
 echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements in conda enviroment: %cyan_fg_strong%xtts%reset%
-pip install -r requirements.txt
-pip install xtts-api-server
-pip install pydub
-pip install stream2sentence
+pip install -r requirements-custom.txt
 
 REM Create folders for xtts
-cd /d "%~dp0"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
-mkdir "%~dp0xtts"
-mkdir "%~dp0xtts\speakers"
-mkdir "%~dp0xtts\output"
+mkdir "%~dp0voice-generation\xtts"
+mkdir "%~dp0voice-generation\xtts\speakers"
+mkdir "%~dp0voice-generation\xtts\output"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
-xcopy "%~dp0xtts-api-server\example\*" "%~dp0xtts\speakers\" /y /e
+xcopy "%~dp0voice-generation\xtts-api-server\example\*" "%~dp0voice-generation\xtts\speakers\" /y /e
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
-rmdir /s /q "%~dp0xtts-api-server"
+rmdir /s /q "%~dp0voice-generation\xtts-api-server"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
 pause
 goto :installer
@@ -702,6 +711,15 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning SillyTavern-
 git clone https://github.com/SillyTavern/SillyTavern-extras.git
 
 REM Install script for XTTS 
+    REM Check if the folder exists
+    if not exist "%~dp0voice-generation" (
+        mkdir "%~dp0voice-generation"
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
+    ) else (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
+    )
+    cd /d "%~dp0voice-generation"
+
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
 
     REM Activate the Miniconda installation
@@ -735,27 +753,30 @@ REM Install script for XTTS
     REM Clone the xtts-api-server repository for voice examples
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
     git clone https://github.com/daswer123/xtts-api-server.git
-    cd /d "%~dp0xtts-api-server"
+    cd /d "xtts-api-server"
+
+    REM Create requirements-custom.txt to install pip requirements
+    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Creating file: requirements-custom.txt%reset%
+    echo xtts-api-server > requirements-custom.txt
+    echo pydub >> requirements-custom.txt
+    echo stream2sentence >> requirements-custom.txt
+    echo spacy==3.7.4 >> requirements-custom.txt
 
     REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements in conda enviroment: %cyan_fg_strong%xtts%reset%
-    pip install -r requirements.txt
-    pip install xtts-api-server
-    pip install pydub
-    pip install stream2sentence
+    pip install -r requirements-custom.txt
 
     REM Create folders for xtts
-    cd /d "%~dp0"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
-    mkdir "%~dp0xtts"
-    mkdir "%~dp0xtts\speakers"
-    mkdir "%~dp0xtts\output"
+    mkdir "%~dp0voice-generation\xtts"
+    mkdir "%~dp0voice-generation\xtts\speakers"
+    mkdir "%~dp0voice-generation\xtts\output"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
-    xcopy "%~dp0xtts-api-server\example\*" "%~dp0xtts\speakers\" /y /e
+    xcopy "%~dp0voice-generation\xtts-api-server\example\*" "%~dp0voice-generation\xtts\speakers\" /y /e
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
-    rmdir /s /q "%~dp0xtts-api-server"
+    rmdir /s /q "%~dp0voice-generation\xtts-api-server"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
 REM End of install script for XTTS
 

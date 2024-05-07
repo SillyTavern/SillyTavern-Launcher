@@ -539,18 +539,63 @@ if "%update_manager_txt_comp_choice%"=="1" (
     echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
-    goto :app_launcher_text_completion
+    goto :update_manager_text_completion
 )
 
 :update_ooba
-echo COMING SOON
+REM Check if text-generation-webui directory exists
+if not exist "%~dp0text-completion\text-generation-webui" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] text-generation-webui directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_text_completion
+)
+
+REM Update text-generation-webui
+set max_retries=3
+set retry_count=0
+
+:retry_update_ooba
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating text-generation-webui...
+cd /d "%~dp0text-completion\text-generation-webui"
+call git pull
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_ooba
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update text-generation-webui repository after %max_retries% retries.%reset%
+    pause
+    goto :update_manager_text_completion
+)
+
+start "" "update_wizard_windows.bat"
+echo When the update is finished:
+pause
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%text-generation-webui updated successfully.%reset%
 pause
 goto :update_manager_text_completion
 
 :update_koboldcpp
-echo COMING SOON
-pause
-goto :update_manager_text_completion
+REM Check if koboldcpp file exists [koboldcpp NVIDIA]
+if exist "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" (
+    REM Remove koboldcpp
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing koboldcpp.exe
+    del "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe"
+    curl -L -o "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp updated successfully.%reset%
+    pause
+    goto :update_manager_text_completion
+)
+REM Check if koboldcpp file exists [koboldcpp AMD]
+if exist "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe" (
+    REM Remove koboldcpp_rocm
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing koboldcpp_rocm.exe
+    del "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe"
+    curl -L -o "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp_rocm updated successfully.%reset%
+    pause
+    goto :update_manager_text_completion
+)
+
 
 :update_tabbyapi
 echo COMING SOON
@@ -592,14 +637,37 @@ if "%update_manager_voice_gen_choice%"=="1" (
 )
 
 :update_alltalk
-echo COMING SOON
+REM Check if alltalk_tts directory exists
+if not exist "%~dp0voice-generation\alltalk_tts" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] alltalk_tts directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_voice_generation
+)
+
+REM Update alltalk_tts
+set max_retries=3
+set retry_count=0
+
+:retry_update_alltalk
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating alltalk_tts...
+cd /d "%~dp0voice-generation\alltalk_tts"
+call git pull
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_alltalk
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update alltalk_tts repository after %max_retries% retries.%reset%
+    pause
+    goto :update_manager_voice_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%alltalk_tts updated successfully.%reset%
 pause
 goto :update_manager_voice_generation
 
 
 :update_xtts
 REM Check if XTTS directory exists
-if not exist "%~dp0xtts" (
+if not exist "%~dp0voice-generation\xtts" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] xtts directory not found. Skipping update.%reset%
     pause
     goto :update_manager_voice_generation
@@ -1150,7 +1218,7 @@ if not defined xtts_start_command (
 )
 
 set "xtts_start_command=%xtts_start_command:xtts_start_command=%"
-start cmd /k "title XTTSv2 API Server && cd /d %~dp0xtts && %xtts_start_command%"
+start cmd /k "title XTTSv2 API Server && cd /d %~dp0voice-generation\xtts && %xtts_start_command%"
 goto :home
 
 
@@ -1968,6 +2036,15 @@ if "%gpu_choice%"=="1" (
     goto :install_xtts
 )
 :install_xtts_pre
+REM Check if the folder exists
+if not exist "%~dp0voice-generation" (
+    mkdir "%~dp0voice-generation"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
+)
+cd /d "%~dp0voice-generation"
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
 
 REM Activate the Miniconda installation
@@ -2000,27 +2077,30 @@ if "%GPU_CHOICE%"=="1" (
 REM Clone the xtts-api-server repository for voice examples
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
 git clone https://github.com/daswer123/xtts-api-server.git
-cd /d "%~dp0xtts-api-server"
+cd /d "xtts-api-server"
+
+REM Create requirements-custom.txt to install pip requirements
+echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Creating file: requirements-custom.txt%reset%
+echo xtts-api-server > requirements-custom.txt
+echo pydub >> requirements-custom.txt
+echo stream2sentence >> requirements-custom.txt
+echo spacy==3.7.4 >> requirements-custom.txt
 
 REM Install pip requirements
 echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements in conda enviroment: %cyan_fg_strong%xtts%reset%
-pip install -r requirements.txt
-pip install xtts-api-server
-pip install pydub
-pip install stream2sentence
+pip install -r requirements-custom.txt
 
 REM Create folders for xtts
-cd /d "%~dp0"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
-mkdir "%~dp0xtts"
-mkdir "%~dp0xtts\speakers"
-mkdir "%~dp0xtts\output"
+mkdir "%~dp0voice-generation\xtts"
+mkdir "%~dp0voice-generation\xtts\speakers"
+mkdir "%~dp0voice-generation\xtts\output"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
-xcopy "%~dp0xtts-api-server\example\*" "%~dp0xtts\speakers\" /y /e
+xcopy "%~dp0voice-generation\xtts-api-server\example\*" "%~dp0voice-generation\xtts\speakers\" /y /e
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
-rmdir /s /q "%~dp0xtts-api-server"
+rmdir /s /q "%~dp0voice-generation\xtts-api-server"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
 pause
 goto :app_installer_voice_generation
@@ -3374,7 +3454,7 @@ if /i "%confirmation%"=="Y" (
     REM Remove the folder
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts directory...
     cd /d "%~dp0"
-    rmdir /s /q "%~dp0xtts"
+    rmdir /s /q "%~dp0voice-generation\xtts"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS has been uninstalled successfully.%reset%
     pause
