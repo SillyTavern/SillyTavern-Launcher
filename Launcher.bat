@@ -46,16 +46,16 @@ set "zip7_install_path=%ProgramFiles%\7-Zip"
 set "zip7_download_path=%TEMP%\%zip7_version%.exe"
 
 REM Environment Variables (FFmpeg)
-set "ffmpeg_url=https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z"
+set "ffmpeg_download_url=https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z"
 set "ffmpeg_download_path=%~dp0bin\ffmpeg.7z"
-set "ffmpeg_extract_path=C:\ffmpeg"
-set "ffmpeg_path_bin=%ffmpeg_extract_path%\bin"
+set "ffmpeg_install_path=C:\ffmpeg"
+set "ffmpeg_path_bin=%ffmpeg_install_path%\bin"
 
 REM Environment Variables (w64devkit)
 set "w64devkit_download_url=https://github.com/skeeto/w64devkit/releases/download/v1.22.0/w64devkit-1.22.0.zip"
 set "w64devkit_download_path=%~dp0bin\w64devkit-1.22.0.zip"
-set "w64devkit_path=C:\w64devkit"
-set "w64devkit_path_bin=%w64devkit_path%\bin"
+set "w64devkit_install_path=C:\w64devkit"
+set "w64devkit_path_bin=%w64devkit_install_path%\bin"
 
 REM Environment Variables (Node.js)
 set "node_installer_path=%temp%\NodejsInstaller.msi"
@@ -575,6 +575,13 @@ pause
 goto :update_manager_text_completion
 
 :update_koboldcpp
+REM Check if dev-koboldcpp directory exists
+if not exist "%~dp0text-completion\dev-koboldcpp" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] dev-koboldcpp directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_text_completion
+)
+
 REM Check if koboldcpp file exists [koboldcpp NVIDIA]
 if exist "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" (
     REM Remove koboldcpp
@@ -598,7 +605,30 @@ if exist "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe" (
 
 
 :update_tabbyapi
-echo COMING SOON
+REM Check if tabbyAPI directory exists
+if not exist "%~dp0text-completion\tabbyAPI" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] tabbyAPI directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_text_completion
+)
+
+REM Update tabbyAPI
+set max_retries=3
+set retry_count=0
+
+:retry_update_tabbyapi
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating tabbyAPI...
+cd /d "%~dp0text-completion\tabbyAPI"
+call git pull
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_tabbyapi
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update tabbyAPI repository after %max_retries% retries.%reset%
+    pause
+    goto :update_manager_text_completion
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%tabbyAPI updated successfully.%reset%
 pause
 goto :update_manager_text_completion
 
@@ -871,8 +901,8 @@ cls
 echo %blue_fg_strong%/ Home / Update Manager / Core Utilities%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
-echo 1. Update Extras
-echo 2. Update SillyTavern
+echo 1. Update SillyTavern
+echo 2. Update Extras
 echo 3. Update 7-Zip
 echo 4. Update FFmpeg
 echo 5. Update Node.js
@@ -883,9 +913,9 @@ set /p update_manager_core_util_choice=Choose Your Destiny:
 
 REM ######## UPDATE MANAGER CORE UTILITIES - BACKEND #########
 if "%update_manager_core_util_choice%"=="1" (
-    call :update_extras
-) else if "%update_manager_core_util_choice%"=="2" (
     call :update_st
+) else if "%update_manager_core_util_choice%"=="2" (
+    call :update_extras
 ) else if "%update_manager_core_util_choice%"=="3" (
     call :update_7zip
 ) else if "%update_manager_core_util_choice%"=="4" (
@@ -902,35 +932,6 @@ if "%update_manager_core_util_choice%"=="1" (
     pause
     goto :update_manager_core_utilities
 )
-
-:update_extras
-REM Check if SillyTavern-extras directory exists
-if not exist "%~dp0SillyTavern-extras" (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] SillyTavern-extras directory not found. Skipping update.%reset%
-    pause
-    goto :update_manager_core_utilities
-)
-
-REM Update SillyTavern-extras
-set max_retries=3
-set retry_count=0
-
-:retry_update_extras
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern-extras...
-cd /d "%~dp0SillyTavern-extras"
-call git pull
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_update_extras
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SillyTavern-extras repository after %max_retries% retries.%reset%
-    pause
-    goto :update_manager_core_utilities
-)
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-extras updated successfully.%reset%
-pause
-goto :update_manager_core_utilities
-
 
 :update_st
 REM Check if SillyTavern directory exists
@@ -961,6 +962,35 @@ pause
 goto :update_manager_core_utilities
 
 
+:update_extras
+REM Check if SillyTavern-extras directory exists
+if not exist "%~dp0SillyTavern-extras" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] SillyTavern-extras directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_core_utilities
+)
+
+REM Update SillyTavern-extras
+set max_retries=3
+set retry_count=0
+
+:retry_update_extras
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern-extras...
+cd /d "%~dp0SillyTavern-extras"
+call git pull
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_extras
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SillyTavern-extras repository after %max_retries% retries.%reset%
+    pause
+    goto :update_manager_core_utilities
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-extras updated successfully.%reset%
+pause
+goto :update_manager_core_utilities
+
+
 :update_7zip
 winget upgrade 7zip.7zip
 pause
@@ -968,7 +998,46 @@ goto :update_manager_core_utilities
 
 
 :update_ffmpeg
-echo COMING SOON
+REM Check if 7-Zip is installed
+7z > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
+    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
+    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
+    pause
+    goto :app_installer_core_utilities
+)
+
+REM Check if the folder exists
+if exist "%ffmpeg_install_path%" (
+    REM Remove ffmpeg folder if it already exist
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing ffmpeg installation...
+    rmdir /s /q "%ffmpeg_install_path%
+)
+
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading FFmpeg archive...
+curl -L -o "%ffmpeg_download_path%" "%ffmpeg_download_url%"
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating ffmpeg directory if it doesn't exist...
+if not exist "%ffmpeg_install_path%" (
+    mkdir "%ffmpeg_install_path%"
+)
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extracting FFmpeg archive...
+7z x "%ffmpeg_download_path%" -o"%ffmpeg_install_path%"
+
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving FFmpeg contents to C:\ffmpeg...
+for /d %%i in ("%ffmpeg_install_path%\ffmpeg-*-full_build") do (
+    xcopy "%%i\bin" "%ffmpeg_install_path%\bin" /E /I /Y
+    xcopy "%%i\doc" "%ffmpeg_install_path%\doc" /E /I /Y
+    xcopy "%%i\presets" "%ffmpeg_install_path%\presets" /E /I /Y
+    rd "%%i" /S /Q
+)
+
+del "%ffmpeg_download_path%"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg updated successfully.%reset%
 pause
 goto :update_manager_core_utilities
 
@@ -1581,7 +1650,7 @@ echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Instal
 echo -------------------------------------------------------------
 
 REM Check if the folder exists
-if not exist "c:\w64devkit" (
+if not exist "%w64devkit_install_path%" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] w64devkit not found.%reset%
     echo %red_fg_strong%w64devkit is not installed or not found in the system PATH.%reset%
     echo %red_fg_strong%To install w64devkit go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install w64devkit%reset%
@@ -1786,7 +1855,7 @@ echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Instal
 echo -------------------------------------------------------------
 
 REM Check if the folder exists
-if not exist "c:\w64devkit" (
+if not exist "%w64devkit_install_path%" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] w64devkit not found.%reset%
     echo %red_fg_strong%w64devkit is not installed or not found in the system PATH.%reset%
     echo %red_fg_strong%To install w64devkit go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install w64devkit%reset%
@@ -2984,22 +3053,22 @@ if %errorlevel% neq 0 (
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading FFmpeg archive...
-curl -L -o "%ffmpeg_download_path%" "%ffmpeg_url%"
+curl -L -o "%ffmpeg_download_path%" "%ffmpeg_download_url%"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating ffmpeg directory if it doesn't exist...
-if not exist "%ffmpeg_extract_path%" (
-    mkdir "%ffmpeg_extract_path%"
+if not exist "%ffmpeg_install_path%" (
+    mkdir "%ffmpeg_install_path%"
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extracting FFmpeg archive...
-7z x "%ffmpeg_download_path%" -o"%ffmpeg_extract_path%"
+7z x "%ffmpeg_download_path%" -o"%ffmpeg_install_path%"
 
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving FFmpeg contents to C:\ffmpeg...
-for /d %%i in ("%ffmpeg_extract_path%\ffmpeg-*-full_build") do (
-    xcopy "%%i\bin" "%ffmpeg_extract_path%\bin" /E /I /Y
-    xcopy "%%i\doc" "%ffmpeg_extract_path%\doc" /E /I /Y
-    xcopy "%%i\presets" "%ffmpeg_extract_path%\presets" /E /I /Y
+for /d %%i in ("%ffmpeg_install_path%\ffmpeg-*-full_build") do (
+    xcopy "%%i\bin" "%ffmpeg_install_path%\bin" /E /I /Y
+    xcopy "%%i\doc" "%ffmpeg_install_path%\doc" /E /I /Y
+    xcopy "%%i\presets" "%ffmpeg_install_path%\presets" /E /I /Y
     rd "%%i" /S /Q
 )
 
@@ -3107,10 +3176,10 @@ if %errorlevel% neq 0 (
 )
 
 REM Check if the folder exists
-if exist "C:\w64devkit" (
+if exist "%w64devkit_install_path%" (
     REM Remove w64devkit folder if it already exist
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing w64devkit installation...
-    rmdir /s /q "C:\w64devkit"
+    rmdir /s /q "%w64devkit_install_path%"
 )
 
 REM Download w64devkit zip archive
@@ -3286,7 +3355,7 @@ if /i "%confirmation%"=="Y" (
     cd /d "%~dp0text-completion"
     rmdir /s /q "dev-koboldcpp"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the w64devkit directory...
-    rmdir /s /q "%w64devkit_path%" 
+    rmdir /s /q "%w64devkit_install_path%" 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp has been uninstalled successfully.%reset%
     pause
     goto :app_uninstaller_text_completion
@@ -3812,7 +3881,7 @@ goto :app_uninstaller_core_utilities
 :uninstall_ffmpeg
 title STL [UNINSTALL-FFMPEG]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling ffmpeg...
-rmdir /s /q "%ffmpeg_extract_path%"
+rmdir /s /q "%ffmpeg_install_path%"
 
 setlocal EnableDelayedExpansion
 rem Get the current PATH value from the registry
@@ -3873,7 +3942,7 @@ goto :app_uninstaller_core_utilities
 :uninstall_w64devkit
 title STL [UNINSTALL-VSBUILDTOOLS]
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling w64devkit...
-rmdir /s /q "C:\w64devkit"
+rmdir /s /q "%w64devkit_install_path%"
 
 setlocal EnableDelayedExpansion
 REM Get the current PATH value from the registry

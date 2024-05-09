@@ -213,7 +213,7 @@ echo What would you like to do?
 echo 1. Install SillyTavern
 echo 2. Install Extras
 echo 3. Install XTTS
-echo 4. Install Everything
+echo 4. Install All Options From Above
 echo 5. Support
 echo 0. Exit
 
@@ -388,7 +388,7 @@ if "%gpu_choice%"=="1" (
 ) else (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
     pause
-    goto :install_extras
+    goto :install_extras_y
 )
 
 :install_extras_pre

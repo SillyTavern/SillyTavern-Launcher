@@ -306,13 +306,41 @@ install_nodejs_npm() {
 }
 
 
-# Function to install SillyTavern + Extras + XTTS
+# Function to install all options from the installer
 install_all() {
     echo -e "\033]0;SillyTavern [INSTALL-SILLYTAVERN-EXTRAS-XTTS]\007"
     clear
     echo -e "${blue_fg_strong}/ Installer / SillyTavern + Extras + XTTS${reset}"
     echo "---------------------------------------------------------------"
 
+    echo ""
+    echo -e "${blue_bg}╔════ INSTALL SUMMARY ══════════════════════════════════════════════════════════════════════════╗${reset}"
+    echo -e "${blue_bg}║ You are about to install all options from the installer.                                      ║${reset}"
+    echo -e "${blue_bg}║ This will include the following options: SillyTavern, SillyTavern-Extras and XTTS             ║${reset}"
+    echo -e "${blue_bg}║ Below is a list of package requirements that will get installed:                              ║${reset}"
+    echo -e "${blue_bg}║ * SillyTavern [Size: 478 MB]                                                                  ║${reset}"
+    echo -e "${blue_bg}║ * SillyTavern-extras [Size: 65 MB]                                                            ║${reset}"
+    echo -e "${blue_bg}║ * xtts [Size: 1.74 GB]                                                                        ║${reset}"
+    echo -e "${blue_bg}║ * Miniconda3 [INSTALLED] [Size: 630 MB]                                                       ║${reset}"
+    echo -e "${blue_bg}║ * Miniconda3 env - xtts [Size: 6.98 GB]                                                       ║${reset}"
+    echo -e "${blue_bg}║ * Miniconda3 env - extras [Size: 9.98 GB]                                                     ║${reset}"
+    echo -e "${blue_bg}║ * Git [INSTALLED] [Size: 338 MB]                                                              ║${reset}"
+    echo -e "${blue_bg}║ * Node.js [Size: 87.5 MB]                                                                     ║${reset}"
+    echo -e "${blue_bg}║ TOTAL INSTALL SIZE: 20.26 GB                                                                  ║${reset}"
+    echo -e "${blue_bg}╚═══════════════════════════════════════════════════════════════════════════════════════════════╝${reset}"
+    echo ""
+
+    echo -n "Are you sure you want to proceed? [Y/N]: "
+    read confirmation
+
+    if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
+        install_all_y
+    else
+        installer
+    fi
+}
+
+install_all_y() {
     # Ask the user about the GPU
     echo -e "What is your GPU?"
     echo -e "1. NVIDIA"
@@ -576,6 +604,32 @@ install_extras() {
     echo -e "${blue_fg_strong}/ Installer / Extras${reset}"
     echo "---------------------------------------------------------------"
 
+    echo ""
+    echo -e "${red_bg}╔════ INSTALL SUMMARY ══════════════════════════════════════════════════════════════════════════╗${reset}"
+    echo -e "${red_bg}║ Extras has been DISCONTINUED since April 2024 and WON'T receive any new updates or modules.   ║${reset}"
+    echo -e "${red_bg}║ The vast majority of modules are available natively in the main SillyTavern application.      ║${reset}"
+    echo -e "${red_bg}║ You may still install and use it but DON'T expect to get support if you face any issues.      ║${reset}"
+    echo -e "${red_bg}║ Below is a list of package requirements that will get installed:                              ║${reset}"
+    echo -e "${red_bg}║ * SillyTavern-extras [Size: 65 MB]                                                            ║${reset}"
+    echo -e "${red_bg}║ * Miniconda3 [INSTALLED] [Size: 630 MB]                                                       ║${reset}"
+    echo -e "${red_bg}║ * Miniconda3 env - extras [Size: 9,98 GB]                                                     ║${reset}"
+    echo -e "${red_bg}║ * Git [INSTALLED] [Size: 338 MB]                                                              ║${reset}"
+    echo -e "${red_bg}║ TOTAL INSTALL SIZE: 11 GB                                                                     ║${reset}"
+    echo -e "${red_bg}╚═══════════════════════════════════════════════════════════════════════════════════════════════╝${reset}"
+    echo ""
+
+    echo -n "Are you sure you want to proceed? [Y/N]: "
+    read confirmation
+
+    if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
+        install_extras_y
+    else
+        installer
+    fi
+}
+
+install_extras_y() {
+    clear
     # Ask the user about the GPU
     echo -e "What is your GPU?"
     echo -e "1. NVIDIA"
@@ -743,10 +797,10 @@ installer() {
     echo -e "${blue_fg_strong}/ Installer${reset}"
     echo "-------------------------------------"
     echo "What would you like to do?"
-    echo "1. Install SillyTavern + Extras + XTTS"
-    echo "2. Install SillyTavern"
-    echo "3. Install Extras"
-    echo "4. Install XTTS"
+    echo "1. Install SillyTavern"
+    echo "2. Install Extras"
+    echo "3. Install XTTS"
+    echo "4. Install All Options From Above"
     echo "5. Support"
     echo "0. Exit"
 
@@ -759,10 +813,10 @@ installer() {
 
 ################# INSTALLER - BACKEND #####################
     case $choice in
-        1) install_all ;;
-        2) install_sillytavern ;;
-        3) install_extras ;;
-        4) install_xtts ;;
+        1) install_sillytavern ;;
+        2) install_extras ;;
+        3) install_xtts ;;
+        4) install_all ;;
         5) support ;;
         0) exit ;;
         *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
