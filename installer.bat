@@ -592,6 +592,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice example
 xcopy "%~dp0voice-generation\xtts-api-server\example\*" "%~dp0voice-generation\xtts\speakers\" /y /e
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
+cd /d "%~dp0"
 rmdir /s /q "%~dp0voice-generation\xtts-api-server"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
 pause
@@ -776,6 +777,7 @@ REM Install script for XTTS
     xcopy "%~dp0voice-generation\xtts-api-server\example\*" "%~dp0voice-generation\xtts\speakers\" /y /e
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
+    cd /d "%~dp0"
     rmdir /s /q "%~dp0voice-generation\xtts-api-server"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
 REM End of install script for XTTS
