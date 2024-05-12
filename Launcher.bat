@@ -2033,7 +2033,7 @@ call conda activate alltalk
 REM Use the GPU choice made earlier to install requirements for alltalk
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%alltalk%reset%
-    pip install torch==2.1.2+cu121 torchaudio==2.1.2+cu121 --index-url https://download.pytorch.org/whl/cu121
+    pip install torch==2.2.0+cu121 torchaudio>=2.2.0+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing deepspeed...
     curl -LO https://github.com/erew123/alltalk_tts/releases/download/DeepSpeed-14.0/deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
     pip install deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
