@@ -102,6 +102,29 @@ set "ooba_listenport_trigger=false"
 set "ooba_apiport_trigger=false"
 set "ooba_verbose_trigger=false"
 
+REM Define variables for install locations (Core Utilities)
+set "st_install_path=%~dp0SillyTavern"
+set "extras_install_path=%~dp0SillyTavern-extras"
+set "st_backup_path=%~dp0SillyTavern-backups"
+
+REM Define variables for install locations (Image Generation)
+set "sdwebui_install_path=%~dp0image-generation\stable-diffusion-webui"
+set "sdwebuiforge_install_path=%~dp0image-generation\stable-diffusion-webui-forge"
+set "comfyui_install_path=%~dp0image-generation\ComfyUI"
+set "fooocus_install_path=%~dp0image-generation\Fooocus"
+
+REM Define variables for install locations (Text Completion)
+set "ooba_install_path=%~dp0text-completion\text-generation-webui"
+set "koboldcpp_install_path=%~dp0text-completion\dev-koboldcpp"
+set "llamacpp_install_path=%~dp0text-completion\dev-llamacpp"
+set "tabbyapi_install_path=%~dp0text-completion\tabbyAPI"
+
+REM Define variables for install locations (Voice Generation)
+set "alltalk_install_path=%~dp0voice-generation\alltalk_tts"
+set "xtts_install_path=%~dp0voice-generation\xtts"
+set "rvc_install_path=%~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI"
+
+
 REM Define variables for logging
 set "log_path=%~dp0bin\logs.log"
 set "log_invalidinput=[ERROR] Invalid input. Please enter a valid number."
@@ -297,7 +320,9 @@ if %ff_path_exists% neq 0 (
 REM Check if Miniconda3 is installed if not then install Miniconda3
 call conda --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Miniconda3 is not installed on this system.%reset%
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Miniconda3 is not installed on this system. Could not find command: conda%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Checking if Miniconda3 exists in app list...
+    winget uninstall --id Anaconda.Miniconda3
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using Winget...
     winget install -e --id Anaconda.Miniconda3
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Miniconda3 installed successfully. Please restart the Installer.%reset%
@@ -312,25 +337,34 @@ for /f "usebackq tokens=*" %%i in (`powershell -Command "$qwMemorySize = (Get-It
     set "VRAM=%%i"
 )
 
+REM Check if the SillyTavern folder exists
+if not exist "%st_install_path%" (
+    set "update_status_st=%red_bg%[ERROR] SillyTavern not found in: "%~dp0"%reset%"
+    goto :no_st_install_path
+)
+
+
 REM Change the current directory to 'sillytavern' folder
-cd /d "%~dp0SillyTavern"
+cd /d "%st_install_path%"
 
 REM Check for updates
 git fetch origin
 
 REM Get the list of commits between local and remote branch
 for /f %%i in ('git rev-list HEAD..%current_branch%@{upstream}') do (
-    set "update_status=%yellow_fg_strong%Update Available%reset%"
+    set "update_status_st=%yellow_fg_strong%Update Available%reset%"
     goto :found_update
 )
 
-set "update_status=%green_fg_strong%Up to Date%reset%"
+set "update_status_st=%green_fg_strong%Up to Date%reset%"
 :found_update
 
 REM ############################################################
 REM ################## HOME - FRONTEND #########################
 REM ############################################################
 :home
+:no_st_install_path
+cd /d "%st_install_path%"
 title STL [HOME]
 cls
 echo %blue_fg_strong%/ Home%reset%
@@ -356,7 +390,7 @@ REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
-echo SillyTavern: %update_status%
+echo SillyTavern: %update_status_st%
 echo SillyTavern-Launcher: V1.1.6
 echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 echo =================================
@@ -399,7 +433,7 @@ if "%choice%"=="1" (
 
 :start_st
 REM Check if the folder exists
-if not exist "%~dp0SillyTavern" (
+if not exist "%st_install_path%" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Directory:%reset% %red_bg%SillyTavern%reset% %red_fg_strong%not found.%reset%
     echo %red_fg_strong%Please make sure SillyTavern is located in: %~dp0%reset%
     pause
@@ -416,12 +450,12 @@ if %errorlevel% neq 0 (
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
+start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
 goto :home
 
 :start_st_rl
 REM Check if the folder exists
-if not exist "%~dp0SillyTavern" (
+if not exist "%st_install_path%" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Directory:%reset% %red_bg%SillyTavern%reset% %red_fg_strong%not found.%reset%
     echo %red_fg_strong%Please make sure SillyTavern is located in: %~dp0%reset%
     pause
@@ -437,8 +471,8 @@ if %errorlevel% neq 0 (
     goto :home
 )
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
-start "" "%~dp0SillyTavern\Remote-Link.cmd"
+start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
+start "" "%st_install_path%\Remote-Link.cmd"
 goto :home
 
 :start_extras
@@ -468,7 +502,7 @@ if not defined extras_start_command (
 )
 
 set "extras_start_command=%extras_start_command:extras_start_command=%"
-start cmd /k "title SillyTavern Extras && cd /d %~dp0SillyTavern-extras && %extras_start_command%"
+start cmd /k "title SillyTavern Extras && cd /d %extras_install_path% && %extras_start_command%"
 goto :home
 
 
@@ -544,7 +578,7 @@ if "%update_manager_txt_comp_choice%"=="1" (
 
 :update_ooba
 REM Check if text-generation-webui directory exists
-if not exist "%~dp0text-completion\text-generation-webui" (
+if not exist "%ooba_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] text-generation-webui directory not found. Skipping update.%reset%
     pause
     goto :update_manager_text_completion
@@ -556,7 +590,7 @@ set retry_count=0
 
 :retry_update_ooba
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating text-generation-webui...
-cd /d "%~dp0text-completion\text-generation-webui"
+cd /d "%ooba_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
@@ -576,28 +610,28 @@ goto :update_manager_text_completion
 
 :update_koboldcpp
 REM Check if dev-koboldcpp directory exists
-if not exist "%~dp0text-completion\dev-koboldcpp" (
+if not exist "%koboldcpp_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] dev-koboldcpp directory not found. Skipping update.%reset%
     pause
     goto :update_manager_text_completion
 )
 
 REM Check if koboldcpp file exists [koboldcpp NVIDIA]
-if exist "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" (
+if exist "%koboldcpp_install_path%\koboldcpp.exe" (
     REM Remove koboldcpp
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing koboldcpp.exe
-    del "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe"
-    curl -L -o "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
+    del "%koboldcpp_install_path%\koboldcpp.exe"
+    curl -L -o "%koboldcpp_install_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp updated successfully.%reset%
     pause
     goto :update_manager_text_completion
 )
 REM Check if koboldcpp file exists [koboldcpp AMD]
-if exist "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe" (
+if exist "%koboldcpp_install_path%\koboldcpp_rocm.exe" (
     REM Remove koboldcpp_rocm
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing koboldcpp_rocm.exe
-    del "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe"
-    curl -L -o "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
+    del "%koboldcpp_install_path%\koboldcpp_rocm.exe"
+    curl -L -o "%koboldcpp_install_path%\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp_rocm updated successfully.%reset%
     pause
     goto :update_manager_text_completion
@@ -606,7 +640,7 @@ if exist "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe" (
 
 :update_tabbyapi
 REM Check if tabbyAPI directory exists
-if not exist "%~dp0text-completion\tabbyAPI" (
+if not exist "%tabbyapi_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] tabbyAPI directory not found. Skipping update.%reset%
     pause
     goto :update_manager_text_completion
@@ -618,7 +652,7 @@ set retry_count=0
 
 :retry_update_tabbyapi
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating tabbyAPI...
-cd /d "%~dp0text-completion\tabbyAPI"
+cd /d "%tabbyapi_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
@@ -668,7 +702,7 @@ if "%update_manager_voice_gen_choice%"=="1" (
 
 :update_alltalk
 REM Check if alltalk_tts directory exists
-if not exist "%~dp0voice-generation\alltalk_tts" (
+if not exist "%alltalk_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] alltalk_tts directory not found. Skipping update.%reset%
     pause
     goto :update_manager_voice_generation
@@ -680,7 +714,7 @@ set retry_count=0
 
 :retry_update_alltalk
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating alltalk_tts...
-cd /d "%~dp0voice-generation\alltalk_tts"
+cd /d "%alltalk_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
@@ -697,7 +731,7 @@ goto :update_manager_voice_generation
 
 :update_xtts
 REM Check if XTTS directory exists
-if not exist "%~dp0voice-generation\xtts" (
+if not exist "%xtts_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] xtts directory not found. Skipping update.%reset%
     pause
     goto :update_manager_voice_generation
@@ -713,7 +747,7 @@ goto :update_manager_voice_generation
 
 :update_rvc
 REM Check if the folder exists
-if not exist "%~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI" (
+if not exist "%rvc_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retrieval-based-Voice-Conversion-WebUI directory not found. Skipping update.%reset%
     pause
     goto :update_manager_voice_generation
@@ -725,7 +759,7 @@ set retry_count=0
 
 :retry_update_rvc
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating Retrieval-based-Voice-Conversion-WebUI...
-cd /d "%~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI"
+cd /d "%rvc_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
@@ -778,7 +812,7 @@ if "%update_manager_img_gen_choice%"=="1" (
 
 :update_sdwebui
 REM Check if the folder exists
-if not exist "%~dp0image-generation\stable-diffusion-webui" (
+if not exist "%sdwebui_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] stable-diffusion-webui directory not found. Skipping update.%reset%
     pause
     goto :update_manager_image_generation
@@ -790,7 +824,7 @@ set retry_count=0
 
 :retry_update_sdwebui
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating stable-diffusion-webui...
-cd /d "%~dp0image-generation\stable-diffusion-webui"
+cd /d "%sdwebui_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
@@ -807,7 +841,7 @@ goto :update_manager_image_generation
 
 :update_sdwebuiforge
 REM Check if the folder exists
-if not exist "%~dp0image-generation\stable-diffusion-webui-forge" (
+if not exist "%sdwebuiforge_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] stable-diffusion-webui-forge directory not found. Skipping update.%reset%
     pause
     goto :update_manager_image_generation
@@ -819,7 +853,7 @@ set retry_count=0
 
 :retry_update_sdwebuiforge
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating stable-diffusion-webui-forge...
-cd /d "%~dp0image-generation\stable-diffusion-webui-forge"
+cd /d "%sdwebuiforge_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
@@ -836,7 +870,7 @@ goto :update_manager_image_generation
 
 :update_comfyui
 REM Check if the folder exists
-if not exist "%~dp0image-generation\ComfyUI" (
+if not exist "%comfyui_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] ComfyUI directory not found. Skipping update.%reset%
     pause
     goto :update_manager_image_generation
@@ -848,7 +882,7 @@ set retry_count=0
 
 :retry_update_comfyui
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating ComfyUI...
-cd /d "%~dp0image-generation\ComfyUI"
+cd /d "%comfyui_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
@@ -865,7 +899,7 @@ goto :update_manager_image_generation
 
 :update_fooocus
 REM Check if the folder exists
-if not exist "%~dp0image-generation\Fooocus" (
+if not exist "%fooocus_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Fooocus directory not found. Skipping update.%reset%
     pause
     goto :update_manager_image_generation
@@ -877,7 +911,7 @@ set retry_count=0
 
 :retry_update_fooocus
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating Fooocus...
-cd /d "%~dp0image-generation\Fooocus"
+cd /d "%fooocus_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
@@ -935,7 +969,7 @@ if "%update_manager_core_util_choice%"=="1" (
 
 :update_st
 REM Check if SillyTavern directory exists
-if not exist "%~dp0SillyTavern" (
+if not exist "%st_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] SillyTavern directory not found. Skipping update.%reset%
     pause
     goto :update_manager_core_utilities
@@ -947,7 +981,7 @@ set retry_count=0
 
 :retry_update_st
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern...
-cd /d "%~dp0SillyTavern"
+cd /d "%st_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
@@ -964,7 +998,7 @@ goto :update_manager_core_utilities
 
 :update_extras
 REM Check if SillyTavern-extras directory exists
-if not exist "%~dp0SillyTavern-extras" (
+if not exist "%extras_install_path%" (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] SillyTavern-extras directory not found. Skipping update.%reset%
     pause
     goto :update_manager_core_utilities
@@ -976,7 +1010,7 @@ set retry_count=0
 
 :retry_update_extras
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern-extras...
-cd /d "%~dp0SillyTavern-extras"
+cd /d "%extras_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
@@ -1192,7 +1226,7 @@ set "ooba_start_command=%ooba_start_command:ooba_start_command=%"
 
 REM Start Text generation web UI oobabooga with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Text generation web UI oobabooga launched in a new window.
-cd /d "%~dp0text-completion\text-generation-webui" && %ooba_start_command%
+cd /d "%ooba_install_path%" && %ooba_start_command%
 goto :home
 
 
@@ -1200,7 +1234,7 @@ goto :home
 REM Start koboldcpp with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% koboldcpp launched in a new window.
 
-cd /d "%~dp0text-completion\dev-koboldcpp"
+cd /d "%koboldcpp_install_path%"
 start "" "koboldcpp.exe"
 goto :home
 
@@ -1215,7 +1249,7 @@ call conda activate tabbyapi
 REM Start TabbyAPI with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% TabbyAPI launched in a new window.
 
-start cmd /k "title TabbyAPI && cd /d %~dp0text-completion\tabbyAPI && python start.py"
+start cmd /k "title TabbyAPI && cd /d %tabbyapi_install_path% && python start.py"
 goto :home
 
 
@@ -1259,7 +1293,7 @@ call conda activate alltalk
 
 REM Start AllTalk
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% AllTalk launched in a new window.
-start cmd /k "title AllTalk && cd /d %~dp0voice-generation\alltalk_tts && python script.py"
+start cmd /k "title AllTalk && cd /d %alltalk_install_path% && python script.py"
 goto :home
 
 
@@ -1287,7 +1321,7 @@ if not defined xtts_start_command (
 )
 
 set "xtts_start_command=%xtts_start_command:xtts_start_command=%"
-start cmd /k "title XTTSv2 API Server && cd /d %~dp0voice-generation\xtts && %xtts_start_command%"
+start cmd /k "title XTTSv2 API Server && cd /d %xtts_install_path% && %xtts_start_command%"
 goto :home
 
 
@@ -1297,7 +1331,7 @@ call conda activate rvc
 
 REM Start RVC with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% RVC launched in a new window.
-start cmd /k "title RVC && cd /d %~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI && python infer-web.py --port 7897"
+start cmd /k "title RVC && cd /d %rvc_install_path% && python infer-web.py --port 7897"
 goto :home
 
 
@@ -1339,7 +1373,7 @@ if "%app_launcher_img_gen_choice%"=="1" (
 
 
 :start_sdwebui
-cd /d "%~dp0image-generation\stable-diffusion-webui"
+cd /d "%sdwebui_install_path%"
 
 REM Run conda activate from the Miniconda installation
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
@@ -1370,11 +1404,11 @@ set "sdwebui_start_command=%sdwebui_start_command:sdwebui_start_command=%"
 
 REM Start Stable Diffusion WebUI with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI launched in a new window.
-start cmd /k "title SDWEBUI && cd /d %~dp0image-generation\stable-diffusion-webui && %sdwebui_start_command%"
+start cmd /k "title SDWEBUI && cd /d %sdwebui_install_path% && %sdwebui_start_command%"
 goto :home
 
 :start_sdwebuiforge
-cd /d "%~dp0image-generation\stable-diffusion-webui-forge"
+cd /d "%sdwebui_install_path%-forge"
 
 REM Start Stable Diffusion WebUI Forge with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI Forge launched in a new window.
@@ -1392,7 +1426,7 @@ call conda activate comfyui
 
 REM Start ComfyUI with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% ComfyUI launched in a new window.
-start cmd /k "title ComfyUI && cd /d %~dp0image-generation\ComfyUI && python main.py --auto-launch --listen --port 7901"
+start cmd /k "title ComfyUI && cd /d %comfyui_install_path% && python main.py --auto-launch --listen --port 7901"
 goto :home
 
 
@@ -1407,7 +1441,7 @@ call conda activate fooocus
 
 REM Start Fooocus with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Fooocus launched in a new window.
-start cmd /k "title Fooocus && cd /d %~dp0image-generation\fooocus && python entry_with_update.py"
+start cmd /k "title Fooocus && cd /d %fooocus_install_path% && python entry_with_update.py"
 goto :home
 
 
@@ -1518,7 +1552,7 @@ if %errorlevel% neq 0 (
     goto :app_installer_text_completion
 )
 
-cd /d "text-generation-webui"
+cd /d "%ooba_install_path%"
 start "" "start_windows.bat"
 echo When the installation is finished:
 pause
@@ -1617,23 +1651,23 @@ if not exist "%~dp0text-completion" (
 )
 
 REM Check if dev-koboldcpp folder exists
-if not exist "%~dp0text-completion\dev-koboldcpp" (
-    mkdir "%~dp0text-completion\dev-koboldcpp"
+if not exist "%koboldcpp_install_path%" (
+    mkdir "%koboldcpp_install_path%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-koboldcpp"  
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-koboldcpp" folder already exists.%reset%
 )
-cd /d "%~dp0text-completion\dev-koboldcpp"
+cd /d "%koboldcpp_install_path%"
 
 REM Use the GPU choice made earlier to install koboldcpp
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
-    curl -L -o "%~dp0text-completion\dev-koboldcpp\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
+    curl -L -o "%koboldcpp_install_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
     start "" "koboldcpp.exe"
     goto :install_koboldcpp_final
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp_rocm.exe for: %cyan_fg_strong%AMD%reset% 
-    curl -L -o "%~dp0text-completion\dev-koboldcpp\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
+    curl -L -o "%koboldcpp_install_path%\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
     start "" "koboldcpp_rocm.exe"
     goto :install_koboldcpp_final
 )
@@ -1685,15 +1719,15 @@ if not exist "%~dp0text-completion" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
 )
 
-cd /d "text-completion"
+
 REM Check if the folder exists
-if not exist "dev-koboldcpp" (
-    mkdir "dev-koboldcpp"
+if not exist "%koboldcpp_install_path%" (
+    mkdir "%koboldcpp_install_path%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-koboldcpp"  
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-koboldcpp" folder already exists.%reset%
 )
-cd /d "dev-koboldcpp"
+cd /d "%koboldcpp_install_path%"
 
 REM Check if file exists
 if not exist "make.sh" (
@@ -1821,7 +1855,7 @@ REM Activate the conda environment named tabbyapi
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%tabbyapi%reset%
 call conda activate tabbyapi
 
-cd /d "tabbyAPI"
+cd /d "%tabbyapi_install_path%"
 REM Use the GPU choice made earlier to install requirements for tabbyapi
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[tabbyapi]%reset% %blue_fg_strong%[INFO]%reset% Setting TabbyAPI to use NVIDIA GPUs: %cyan_fg_strong%tabbyapi%reset%
@@ -1874,15 +1908,15 @@ if not exist "%~dp0text-completion" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
 )
 
-cd /d "text-completion"
+
 REM Check if the folder exists
-if not exist "dev-llamacpp" (
-    mkdir "dev-llamacpp"
+if not exist "%llamacpp_install_path%" (
+    mkdir "%llamacpp_install_path%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-llamacpp"  
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-llamacpp" folder already exists.%reset%
 )
-cd /d "dev-llamacpp"
+cd /d "%llamacpp_install_path%"
 
 set max_retries=3
 set retry_count=0
@@ -2016,7 +2050,7 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-cd /d "alltalk_tts"
+cd /d "%alltalk_install_path%"
 
 REM Activate the Miniconda installation
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
@@ -2161,12 +2195,12 @@ pip install -r requirements-custom.txt
 
 REM Create folders for xtts
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
-mkdir "%~dp0voice-generation\xtts"
-mkdir "%~dp0voice-generation\xtts\speakers"
-mkdir "%~dp0voice-generation\xtts\output"
+mkdir "%xtts_install_path%"
+mkdir "%xtts_install_path%\speakers"
+mkdir "%xtts_install_path%\output"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
-xcopy "%~dp0voice-generation\xtts-api-server\example\*" "%~dp0voice-generation\xtts\speakers\" /y /e
+xcopy "%~dp0voice-generation\xtts-api-server\example\*" "%xtts_install_path%\speakers\" /y /e
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
 cd /d "%~dp0"
@@ -2258,7 +2292,7 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-cd /d "Retrieval-based-Voice-Conversion-WebUI"
+cd /d "%rvc_install_path%"
 
 REM Run conda activate from the Miniconda installation
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
@@ -2348,7 +2382,7 @@ REM ############################################################
 title STL [APP INSTALLER STABLE DIFUSSION WEBUI]
 
 REM Check if the folder exists
-if exist "%~dp0image-generation\stable-diffusion-webui" (
+if exist "%sdwebui_install_path%" (
     REM Activate the sdwebui environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment: %cyan_fg_strong%sdwebui%reset%
     call conda deactivate
@@ -2439,7 +2473,7 @@ goto :install_sdwebui_menu
 
 :install_sdwebui_extensions
 REM Check if the folder exists
-if not exist "%~dp0image-generation\stable-diffusion-webui" (
+if not exist "%sdwebui_install_path%" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion Webui is not installed. Please install it first.%reset%
     pause
     goto :install_sdwebui_menu
@@ -2447,7 +2481,7 @@ if not exist "%~dp0image-generation\stable-diffusion-webui" (
 
 REM Clone extensions for stable-diffusion-webui
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for stable-diffusion-webui...
-cd /d "%~dp0image-generation\stable-diffusion-webui\extensions"
+cd /d "%sdwebui_install_path%\extensions"
 git clone https://github.com/alemelis/sd-webui-ar.git
 git clone https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper.git
 git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git
@@ -2465,7 +2499,7 @@ git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git
 
 REM Installs better upscaler models
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Better Upscaler models...
-cd /d "%~dp0image-generation\stable-diffusion-webui\models"
+cd /d "%sdwebui_install_path%\models"
 mkdir ESRGAN && cd ESRGAN
 curl -o 4x-AnimeSharp.pth https://huggingface.co/Kim2091/AnimeSharp/resolve/main/4x-AnimeSharp.pth
 curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
@@ -2481,7 +2515,7 @@ REM ############################################################
 title STL [APP INSTALLER SDWEBUI MODELS]
 
 REM Check if the folder exists
-if not exist "%~dp0image-generation\stable-diffusion-webui" (
+if not exist "%sdwebui_install_path%" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion Webui is not installed. Please install it first.%reset%
     pause
     goto :install_sdwebui_menu
@@ -2495,7 +2529,7 @@ REM Activate the sdwebui environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebui%reset%
 call conda activate sdwebui
 
-cd /d "%~dp0image-generation\stable-diffusion-webui"
+cd /d "%sdwebui_install_path%"
 
 cls
 echo %blue_fg_strong%/ Home / Toolbox / App Installer / SDWEBUI Models%reset%
@@ -2534,7 +2568,7 @@ if "%app_installer_sdwebui_model_choice%"=="1" (
 :install_sdwebui_model_hassaku
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku Model...
 civitdl 2583 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebui_model_menu
 
@@ -2542,15 +2576,15 @@ goto :install_sdwebui_model_menu
 :install_sdwebui_model_yiffymix
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Model...
 civitdl 3671 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Config...
 civitdl 3671 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix VAE...
 civitdl 3671 -s basic "models\VAE"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%~dp0image-generation\stable-diffusion-webui\models\VAE"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%sdwebui_install_path%\models\VAE"%reset%
 pause
 goto :install_sdwebui_model_menu
 
@@ -2558,7 +2592,7 @@ goto :install_sdwebui_model_menu
 :install_sdwebui_model_perfectworld
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
 civitdl 8281 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebui_model_menu
 
@@ -2602,7 +2636,7 @@ REM ############################################################
 title STL [APP INSTALLER STABLE DIFUSSION WEBUI FORGE]
 
 REM Check if the folder exists
-if exist "%~dp0image-generation\stable-diffusion-webui-forge" (
+if exist "%sdwebuiforge_install_path%" (
     REM Activate the sdwebuiforge environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment: %cyan_fg_strong%sdwebui%reset%
     call conda deactivate
@@ -2693,7 +2727,7 @@ goto :install_sdwebuiforge_menu
 
 :install_sdwebuiforge_extensions
 REM Check if the folder exists
-if not exist "%~dp0image-generation\stable-diffusion-webui-forge" (
+if not exist "%sdwebuiforge_install_path%" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion WebUI Forge is not installed. Please install it first.%reset%
     pause
     goto :install_sdwebuiforge_menu
@@ -2701,7 +2735,7 @@ if not exist "%~dp0image-generation\stable-diffusion-webui-forge" (
 
 REM Clone extensions for stable-diffusion-webui-forge
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for stable-diffusion-webui-forge...
-cd /d "%~dp0image-generation\stable-diffusion-webui-forge\extensions"
+cd /d "%sdwebuiforge_install_path%\extensions"
 git clone https://github.com/alemelis/sd-webui-ar.git
 git clone https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper.git
 git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git
@@ -2719,7 +2753,7 @@ git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git
 
 REM Installs better upscaler models
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Better Upscaler models...
-cd /d "%~dp0image-generation\stable-diffusion-webui-forge\models"
+cd /d "%sdwebuiforge_install_path%\models"
 mkdir ESRGAN && cd ESRGAN
 curl -o 4x-AnimeSharp.pth https://huggingface.co/Kim2091/AnimeSharp/resolve/main/4x-AnimeSharp.pth
 curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
@@ -2735,7 +2769,7 @@ REM ############################################################
 title STL [APP INSTALLER SDWEBUIFORGE MODELS]
 
 REM Check if the folder exists
-if not exist "%~dp0image-generation\stable-diffusion-webui-forge" (
+if not exist "%sdwebuiforge_install_path%" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion WebUI Forge is not installed. Please install it first.%reset%
     pause
     goto :install_sdwebuiforge_menu
@@ -2749,7 +2783,7 @@ REM Activate the sdwebuiforge environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
 call conda activate sdwebuiforge
 
-cd /d "%~dp0image-generation\stable-diffusion-webui-forge"
+cd /d "%sdwebuiforge_install_path%"
 
 cls
 echo %blue_fg_strong%/ Home / Toolbox / App Installer / SDWEBUIFORGE Models%reset%
@@ -2785,7 +2819,7 @@ if "%app_installer_sdwebuiforge_model_choice%"=="1" (
 :install_sdwebuiforge_model_hassaku
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku Model...
 civitdl 2583 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebuiforge_model_menu
 
@@ -2793,15 +2827,15 @@ goto :install_sdwebuiforge_model_menu
 :install_sdwebuiforge_model_yiffymix
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Model...
 civitdl 3671 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Config...
 civitdl 3671 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix VAE...
 civitdl 3671 -s basic "models\VAE"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%~dp0image-generation\stable-diffusion-webui\models\VAE"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%sdwebui_install_path%\models\VAE"%reset%
 pause
 goto :install_sdwebuiforge_model_menu
 
@@ -2809,7 +2843,7 @@ goto :install_sdwebuiforge_model_menu
 :install_sdwebuiforge_model_perfectworld
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
 civitdl 8281 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%~dp0image-generation\stable-diffusion-webui\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebuiforge_model_menu
 
@@ -2867,7 +2901,7 @@ if %errorlevel% neq 0 (
     pause
     goto :app_installer_image_generation
 )
-cd /d "ComfyUI"
+cd /d "%comfyui_install_path%"
 
 REM Run conda activate from the Miniconda installation
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
@@ -2887,12 +2921,12 @@ pip install torch torchvision torchaudio --extra-index-url https://download.pyto
 
 REM Clone extensions for ComfyUI
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for ComfyUI...
-cd /d "%~dp0image-generation/ComfyUI/custom_nodes"
+cd /d "%comfyui_install_path%\custom_nodes"
 git clone https://github.com/ltdrdata/ComfyUI-Manager.git
 
 REM Installs better upscaler models
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Better Upscaler models...
-cd /d "%~dp0image-generation/ComfyUI/models"
+cd /d "%comfyui_install_path%\models"
 mkdir ESRGAN && cd ESRGAN
 curl -o 4x-AnimeSharp.pth https://huggingface.co/konohashinobi4/4xAnimesharp/resolve/main/4x-AnimeSharp.pth
 curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
@@ -2933,7 +2967,7 @@ if %errorlevel% neq 0 (
     pause
     goto :app_installer_image_generation
 )
-cd /d "Fooocus"
+cd /d "%fooocus_install_path%"
 
 REM Run conda activate from the Miniconda installation
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
@@ -3318,8 +3352,8 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder text-generation-webui
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the text-generation-webui directory...
-    cd /d "%~dp0text-completion"
-    rmdir /s /q "text-generation-webui"
+    cd /d "%~dp0"
+    rmdir /s /q "%ooba_install_path%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Text generation web UI oobabooga has been uninstalled successfully.%reset%
     pause
     goto :app_uninstaller_text_completion
@@ -3353,8 +3387,8 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder koboldcpp
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the koboldcpp directory...
-    cd /d "%~dp0text-completion"
-    rmdir /s /q "dev-koboldcpp"
+    cd /d "%~dp0"
+    rmdir /s /q "%koboldcpp_install_path%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the w64devkit directory...
     rmdir /s /q "%w64devkit_install_path%" 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp has been uninstalled successfully.%reset%
@@ -3390,8 +3424,8 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder tabbyAPI
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the tabbyAPI directory...
-    cd /d "%~dp0text-completion"
-    rmdir /s /q "tabbyAPI"
+    cd /d "%~dp0"
+    rmdir /s /q "%tabbyapi_install_path%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been uninstalled successfully.%reset%
     pause
     goto :app_uninstaller_text_completion
@@ -3419,8 +3453,8 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the llamacpp directory...
-    cd /d "%~dp0text-completion"
-    rmdir /s /q "dev-llamacpp"
+    cd /d "%~dp0"
+    rmdir /s /q "%llamacpp_install_path%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%llamacpp has been uninstalled successfully.%reset%
     pause
     goto :app_uninstaller_text_completion
@@ -3487,8 +3521,8 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the alltalk directory...
-    cd /d "%~dp0voice-generation"
-    rmdir /s /q "alltalk_tts"
+    cd /d "%~dp0"
+    rmdir /s /q "%alltalk_install_path%"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%AllTalk has been uninstalled successfully.%reset%
     pause
@@ -3524,7 +3558,7 @@ if /i "%confirmation%"=="Y" (
     REM Remove the folder
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts directory...
     cd /d "%~dp0"
-    rmdir /s /q "%~dp0voice-generation\xtts"
+    rmdir /s /q "%xtts_install_path%"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS has been uninstalled successfully.%reset%
     pause
@@ -3559,8 +3593,8 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Retrieval-based-Voice-Conversion-WebUI directory...
-    cd /d "%~dp0voice-generation"
-    rmdir /s /q "Retrieval-based-Voice-Conversion-WebUI"
+    cd /d "%~dp0"
+    rmdir /s /q "%rvc_install_path%"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%RVC has been uninstalled successfully.%reset%
     pause
@@ -3632,8 +3666,8 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder stable-diffusion-webui
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the stable-diffusion-webui directory...
-    cd /d "%~dp0image-generation"
-    rmdir /s /q "stable-diffusion-webui"
+    cd /d "%~dp0"
+    rmdir /s /q "%sdwebui_install_path%"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Stable Diffusion web UI has been uninstalled successfully.%reset%
     pause
@@ -3668,8 +3702,8 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder stable-diffusion-webui
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the stable-diffusion-webui-forge directory...
-    cd /d "%~dp0image-generation"
-    rmdir /s /q "stable-diffusion-webui-forge"
+    cd /d "%~dp0"
+    rmdir /s /q "%sdwebuiforge_install_path%"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Stable Diffusion web UI Forge has been uninstalled successfully.%reset%
     pause
@@ -3704,8 +3738,8 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder ComfyUI
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the ComfyUI directory...
-    cd /d "%~dp0image-generation"
-    rmdir /s /q "ComfyUI"
+    cd /d "%~dp0"
+    rmdir /s /q "%comfyui_install_path%"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ComfyUI has been uninstalled successfully.%reset%
     pause
@@ -3740,8 +3774,8 @@ if /i "%confirmation%"=="Y" (
 
     REM Remove the folder Fooocus
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Fooocus directory...
-    cd /d "%~dp0image-generation"
-    rmdir /s /q "Fooocus"
+    cd /d "%~dp0"
+    rmdir /s /q "%fooocus_install_path%"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Fooocus has been uninstalled successfully.%reset%
     pause
@@ -3828,7 +3862,7 @@ if /i "%confirmation%"=="Y" (
     REM Remove the folder SillyTavern-extras
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern-extras directory...
     cd /d "%~dp0"
-    rmdir /s /q "%~dp0SillyTavern-extras"
+    rmdir /s /q "%extras_install_path%"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras has been uninstalled successfully.%reset%
     pause
@@ -3858,7 +3892,7 @@ if /i "%confirmation%"=="Y" (
     REM Remove the folder SillyTavern
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern directory...
     cd /d "%~dp0"
-    rmdir /s /q "%~dp0SillyTavern"
+    rmdir /s /q "%st_install_path%"
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern has been uninstalled successfully.%reset%
     pause
@@ -4619,7 +4653,7 @@ if "%editor_core_util_choice%"=="1" (
 )
 
 :edit_st_config
-start "" "%~dp0SillyTavern\config.yaml"
+start "" "%st_install_path%\config.yaml"
 goto :editor_core_utilities
 
 REM ##################################################################################################################################################
@@ -4852,7 +4886,7 @@ if "%troubleshooting_choice%"=="1" (
 
 :remove_node_modules
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing node_modules folder...
-cd /d "%~dp0SillyTavern"
+cd /d "%st_install_path%"
 rmdir /s /q "node_modules"
 del package-lock.json
 call npm cache clean --force
@@ -4877,7 +4911,7 @@ goto :troubleshooting
 
 :unresolved_unmerged
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Trying to resolve unresolved conflicts in the working directory or unmerged files...
-cd /d "%~dp0SillyTavern"
+cd /d "%st_install_path%"
 git merge --abort
 git reset --hard
 git pull --rebase --autostash
@@ -4942,7 +4976,7 @@ goto :troubleshooting
 :onboarding_flow
 set ONBOARDING_FLOW_VALUE=
 set /p ONBOARDING_FLOW_VALUE="Enter new value for Onboarding Flow (true/false): "
-yq eval -i ".firstRun = %ONBOARDING_FLOW_VALUE%" "%~dp0SillyTavern\public\settings.json"
+yq eval -i ".firstRun = %ONBOARDING_FLOW_VALUE%" "%st_install_path%\public\settings.json"
 goto :troubleshooting
 
 
@@ -4986,7 +5020,7 @@ if "%brance_choice%"=="1" (
 
 :switch_brance_release_st
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to release branch...
-cd /d "%~dp0SillyTavern"
+cd /d "%st_install_path%"
 git switch release
 pause
 goto :switch_brance
@@ -4994,7 +5028,7 @@ goto :switch_brance
 
 :switch_brance_staging_st
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to staging branch...
-cd /d "%~dp0SillyTavern"
+cd /d "%st_install_path%"
 git switch staging
 pause
 goto :switch_brance
@@ -5041,7 +5075,7 @@ if "%backup_choice%"=="1" (
 :create_backup
 title STL [CREATE-BACKUP]
 REM Create a backup using 7zip
-7z a "%~dp0SillyTavern-backups\backup_.7z" ^
+7z a "%st_backup_path%\backup_.7z" ^
     "data\default-user\*" ^
 
 
@@ -5067,12 +5101,12 @@ set "minute=0!minute!"
 set "formatted_date=%month:~-2%-%day:~-2%-%year%_%hour:~-2%%minute:~-2%"
 
 REM Rename the backup file with the formatted date and time
-rename "%~dp0SillyTavern-backups\backup_.7z" "backup_%formatted_date%.7z"
+rename "%st_backup_path%\backup_.7z" "backup_%formatted_date%.7z"
 
 endlocal
 
 
-echo %green_fg_strong%Backup created at %~dp0SillyTavern-backups%reset%
+echo %green_fg_strong%Backup created at %st_backup_path%%reset%
 pause
 endlocal
 goto :backup
@@ -5087,7 +5121,7 @@ echo =========================
 setlocal enabledelayedexpansion
 set "backup_count=0"
 
-for %%F in ("%~dp0SillyTavern-backups\backup_*.7z") do (
+for %%F in ("%st_backup_path%\backup_*.7z") do (
     set /a "backup_count+=1"
     set "backup_files[!backup_count!]=%%~nF"
     echo !backup_count!. %cyan_fg_strong%%%~nF%reset%
@@ -5103,8 +5137,8 @@ if "%restore_choice%" geq "1" (
         set "selected_backup=!backup_files[%restore_choice%]!"
         echo Restoring backup !selected_backup!...
         REM Extract the contents of the "data" folder directly into the existing "data" folder
-        7z x "%~dp0SillyTavern-backups\!selected_backup!.7z" -o"temp" -aoa
-        xcopy /y /e "temp\data\*" "%~dp0SillyTavern\data\"
+        7z x "%st_backup_path%\!selected_backup!.7z" -o"temp" -aoa
+        xcopy /y /e "temp\data\*" "%st_install_path%\data\"
         rmdir /s /q "temp"
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%!selected_backup! restored successfully.%reset%
     ) else (
@@ -5298,7 +5332,7 @@ if %errorlevel% neq 0 (
     goto :home
 )
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-start cmd /k "title SillyTavern && cd /d %~dp0SillyTavern && call npm install --no-audit && node server.js && pause && popd"
+start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
 
 if exist "%~dp0bin\settings\custom-shortcut.txt" (
     setlocal EnableDelayedExpansion
