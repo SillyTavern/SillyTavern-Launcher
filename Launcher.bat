@@ -13,6 +13,9 @@ REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title STL [STARTUP CHECK]
 setlocal
 
+set "stl_version=V1.1.6"
+set "stl_title_pid=STL [TROUBLESHOOTING]"
+
 REM ANSI Escape Code for Colors
 set "reset=[0m"
 
@@ -379,19 +382,18 @@ if exist "%~dp0bin\settings\custom-shortcut.txt" (
     if "!custom_name!"=="" set "custom_name=Create Custom Shortcut"
 )
 echo 3. %custom_name%
-echo 4. Start Extras
-echo 5. Update Manager
-echo 6. Toolbox
-echo 7. Support
-echo 8. More info about LLM models your GPU can run.
+echo 4. Update Manager
+echo 5. Toolbox
+echo 6. Support
+echo 7. More info about LLM models your GPU can run.
 echo 0. Exit
 
+echo ======== VERSION STATUS =========
 REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
-echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status_st%
-echo SillyTavern-Launcher: V1.1.6
+echo STL Version: %stl_version%
 echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 echo =================================
 
@@ -413,23 +415,30 @@ if "%choice%"=="1" (
         call :create_custom_shortcut
     )
 ) else if "%choice%"=="4" (
-    call :start_extras
-) else if "%choice%"=="5" (
     call :update_manager
-) else if "%choice%"=="6" (
+) else if "%choice%"=="5" (
     call :toolbox
-) else if "%choice%"=="7" (
+) else if "%choice%"=="6" (
     call :support
-) else if "%choice%"=="8" (
+) else if "%choice%"=="7" (
     call :vraminfo
 )   else if "%choice%"=="0" (
-    exit
+    call :exit
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :home
 )
+
+:exit
+echo %red_bg%[%time%]%reset% %red_fg_strong%Terminating all started processes...%reset%
+for /f %%a in ('type "%~dp0bin\pids.txt"') do (
+    taskkill /F /PID %%a
+)
+del "%~dp0bin\pids.txt"
+exit
+
 
 :start_st
 REM Check if the folder exists
@@ -448,6 +457,20 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
+
+setlocal
+set "command=%~1"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Starting %command%
+start /B cmd /C "%command%"
+for /f "tokens=2 delims=," %%a in ('tasklist /FI "IMAGENAME eq cmd.exe" /FO CSV /NH') do (
+    set "pid=%%a"
+    echo Started process with PID: !pid!
+    echo !pid!>>"%~dp0bin\pids.txt"
+    goto :st_found_pid
+)
+:st_found_pid
+endlocal
+
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
 start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
@@ -473,36 +496,6 @@ if %errorlevel% neq 0 (
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
 start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
 start "" "%st_install_path%\Remote-Link.cmd"
-goto :home
-
-:start_extras
-REM Run conda activate from the Miniconda installation
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Activate the extras environment
-call conda activate extras
-
-REM Start SillyTavern Extras with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
-
-REM Read modules-extras and find the extras_start_command line
-set "extras_start_command="
-
-for /F "tokens=*" %%a in ('findstr /I "extras_start_command=" "%extras_modules_path%"') do (
-    set "%%a"
-)
-
-if not defined extras_start_command (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
-    echo %red_bg%Please make sure at least one of the modules are enabled from Edit Extras Modules.%reset%
-    echo.
-    echo %blue_bg%We will redirect you to the Edit Extras Modules menu.%reset%
-    pause
-    goto :edit_extras_modules
-)
-
-set "extras_start_command=%extras_start_command:extras_start_command=%"
-start cmd /k "title SillyTavern Extras && cd /d %extras_install_path% && %extras_start_command%"
 goto :home
 
 
@@ -1151,6 +1144,7 @@ echo What would you like to do?
 echo 1. Text Completion
 echo 2. Voice Generation
 echo 3. Image Generation
+echo 4. Core Utilities
 echo 0. Back
 
 set /p app_launcher_choice=Choose Your Destiny: 
@@ -1162,6 +1156,8 @@ if "%app_launcher_choice%"=="1" (
     call :app_launcher_voice_generation
 ) else if "%app_launcher_choice%"=="3" (
     call :app_launcher_image_generation
+) else if "%app_launcher_choice%"=="4" (
+    call :app_launcher_core_utilities
 ) else if "%app_launcher_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -1442,6 +1438,65 @@ call conda activate fooocus
 REM Start Fooocus with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Fooocus launched in a new window.
 start cmd /k "title Fooocus && cd /d %fooocus_install_path% && python entry_with_update.py"
+goto :home
+
+
+REM ############################################################
+REM ######## APP LAUNCHER IMAGE GENERATION - FRONTEND ##########
+REM ############################################################
+:app_launcher_core_utilities
+title STL [APP LAUNCHER IMAGE GENERATION]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Launcher / Core Utilities%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Start Extras
+echo 0. Back
+
+set /p app_launcher_core_util_choice=Choose Your Destiny: 
+
+REM ######## APP LAUNCHER IMAGE GENERATION - BACKEND #########
+if "%app_launcher_core_util_choice%"=="1" (
+    call :start_extras
+) else if "%app_launcher_core_util_choice%"=="0" (
+    goto :app_launcher
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :app_launcher_core_utilities
+)
+
+
+:start_extras
+REM Run conda activate from the Miniconda installation
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the extras environment
+call conda activate extras
+
+REM Start SillyTavern Extras with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
+
+REM Read modules-extras and find the extras_start_command line
+set "extras_start_command="
+
+for /F "tokens=*" %%a in ('findstr /I "extras_start_command=" "%extras_modules_path%"') do (
+    set "%%a"
+)
+
+if not defined extras_start_command (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
+    echo %red_bg%Please make sure at least one of the modules are enabled from Edit Extras Modules.%reset%
+    echo.
+    echo %blue_bg%We will redirect you to the Edit Extras Modules menu.%reset%
+    pause
+    goto :edit_extras_modules
+)
+
+set "extras_start_command=%extras_start_command:extras_start_command=%"
+start cmd /k "title SillyTavern Extras && cd /d %extras_install_path% && %extras_start_command%"
 goto :home
 
 
@@ -2067,7 +2122,7 @@ call conda activate alltalk
 REM Use the GPU choice made earlier to install requirements for alltalk
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%alltalk%reset%
-    pip install torch==2.2.0+cu121 torchaudio>=2.2.0+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
+    pip install torch==2.2.0+cu121 torchaudio==2.2.0+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing deepspeed...
     curl -LO https://github.com/erew123/alltalk_tts/releases/download/DeepSpeed-14.0/deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
     pip install deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
@@ -4859,7 +4914,16 @@ echo 5. Find what app is using port
 echo 6. Set Onboarding Flow
 echo 0. Back
 
+REM Retrieve the PID of the current script using PowerShell
+for /f "delims=" %%G in ('powershell -NoProfile -Command "Get-Process | Where-Object { $_.MainWindowTitle -eq '%stl_title_pid%' } | Select-Object -ExpandProperty Id"') do (
+    set "stl_PID=%%~G"
+)
+echo ======== INFO BOX ===============
+echo STL PID: %cyan_fg_strong%%stl_PID%%reset%
+echo =================================
+
 set /p troubleshooting_choice=Choose Your Destiny: 
+
 
 REM ############## TROUBLESHOOTING - BACKEND ##################
 if "%troubleshooting_choice%"=="1" (
@@ -4882,6 +4946,9 @@ if "%troubleshooting_choice%"=="1" (
     pause
     goto :troubleshooting
 )
+
+
+
 
 
 :remove_node_modules
