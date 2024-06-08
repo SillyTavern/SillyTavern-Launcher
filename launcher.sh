@@ -146,6 +146,9 @@ if [[ "$(git rev-list HEAD...origin/$current_branch)" ]]; then
   update_status="Update Available"
 fi
 
+# Go back to base dir
+cd ..
+
 ############################################################
 ################## HOME - FRONTEND #########################
 ############################################################
@@ -210,21 +213,30 @@ check_nodejs() {
 
 
 # Function to find a suitable terminal emulator
-find_terminal() {
-    for terminal in "$TERMINAL" x-terminal-emulator mate-terminal gnome-terminal terminator xfce4-terminal urxvt rxvt termit Eterm aterm uxterm xterm roxterm termite lxterminal terminology st qterminal lilyterm tilix terminix konsole kitty guake tilda alacritty hyper wezterm; do
+find_terminal()
+{
+    for term in "$TERM"
+    do
+        if command -v "$term" > /dev/null 2>&1; then
+            echo "$term"
+            return 0
+        fi
+    done
+    for terminal in "$TERMINAL"
+    do
         if command -v "$terminal" > /dev/null 2>&1; then
             echo "$terminal"
             return 0
         fi
     done
-
     # Return a default terminal if none is found
     echo "x-terminal-emulator"
     return 1
 }
 
 # Function to start SillyTavern
-start_st() {
+start_st()
+{
     check_nodejs
     #if LAUNCH_NEW_WIN is set to 0, SillyTavern will launch in the same window
     if [ "$LAUNCH_NEW_WIN" = "0" ]; then
@@ -339,41 +351,43 @@ start_xtts() {
 update() {
     echo -e "\033]0;SillyTavern [UPDATE]\007"
     log_message "INFO" "Updating SillyTavern-Launcher..."
-    cd "$(dirname "$0")"
     git pull --rebase --autostash
 
     # Update SillyTavern if directory exists
-    if [ -d "$(dirname "$0")/SillyTavern" ]; then
+    if [ -d "./SillyTavern" ]; then
         log_message "INFO" "Updating SillyTavern..."
-        cd "$(dirname "$0")./SillyTavern"
+        cd "SillyTavern"
         git pull --rebase --autostash
+        cd ..
         log_message "INFO" "SillyTavern updated successfully."
     else
         log_message "WARN" "SillyTavern directory not found. Skipping SillyTavern update."
     fi
 
     # Update Extras if directory exists
-    if [ -d "$(dirname "$0")/SillyTavern-extras" ]; then
+    if [ -d "./SillyTavern-extras" ]; then
         log_message "INFO" "Updating SillyTavern-extras..."
-        cd "$(dirname "$0")./SillyTavern-extras"
+        cd "SillyTavern-extras"
         git pull --rebase --autostash
+        cd ..
         log_message "INFO" "SillyTavern-extras updated successfully."
     else
         log_message "WARN" "SillyTavern-extras directory not found. Skipping SillyTavern-extras update."
     fi
 
     # Update XTTS if directory exists
-    if [ -d "$(dirname "$0")/xtts" ]; then
+    if [ -d "./xtts" ]; then
         log_message "INFO" "Updating XTTS..."
-        cd "$(dirname "$0")./xtts"
+        cd "xtts"
         source activate xtts
-        pip install --upgrade xtts-api-server
+        install --upgrade xtts-api-server
         conda deactivate
+        cd ..
         log_message "INFO" "XTTS updated successfully."
     else
         log_message "WARN" "xtts directory not found. Skipping XTTS update."
     fi
-
+    cd "$(dirname "$0")"
     read -p "Press Enter to continue..."
     home
 }
