@@ -131,10 +131,8 @@ install_git() {
         echo -e "${blue_fg_strong}[INFO] Git is already installed.${reset}"
     fi
 }
-#cd to base dir first
-cd "$(dirname "$0")"
 # Change the current directory to 'sillytavern' folder
-cd "SillyTavern" || exit 1
+cd "$(dirname "$0")/SillyTavern" || exit 1
 
 # Check for updates
 git fetch origin
