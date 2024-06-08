@@ -380,7 +380,7 @@ update() {
         log_message "INFO" "Updating XTTS..."
         cd "xtts"
         source activate xtts
-        install --upgrade xtts-api-server
+        pip install --upgrade xtts-api-server
         conda deactivate
         cd ..
         log_message "INFO" "XTTS updated successfully."
