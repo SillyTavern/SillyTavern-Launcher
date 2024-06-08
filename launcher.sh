@@ -243,6 +243,7 @@ start_st()
         cd "SillyTavern" || exit 1
         ./start.sh
     else
+        cd "SillyTavern" || exit 1
         log_message "INFO" "SillyTavern launched in a new window."
         # Find a suitable terminal
         local detected_terminal
@@ -256,7 +257,7 @@ start_st()
             log_message "INFO" "Detected macOS. Opening new Terminal window."
             open -a Terminal "start.sh"
         else
-            exec "$detected_terminal" -e "cd SillyTavern && ./start.sh" &
+            exec "$detected_terminal" -e "./start.sh" &
         fi
     fi
 
@@ -276,7 +277,7 @@ start_extras() {
                 kill $main_pid
                 exit 1
             }
-            log_message "INFO" "Wordking dir: $(pwd)"
+            log_message "INFO" "Working dir: $(pwd)"
             ./start.sh
         } &
         local extras_pid=$!
@@ -284,6 +285,7 @@ start_extras() {
         wait $main_pid
         kill $extras_pid
     else
+        cd "SillyTavern-extras"
         log_message "INFO" "Extras launched in a new window."
         # Find a suitable terminal
         local detected_terminal
@@ -295,9 +297,9 @@ start_extras() {
         # Start SillyTavern in the detected terminal
         if [ "$(uname)" == "Darwin" ]; then
             log_message "INFO" "Detected macOS. Opening new Terminal window."
-            open -a Terminal --args --title="SillyTavern Extras" --working-directory="SillyTavern-extras" --command "conda activate xtts; python server.py --listen --rvc-save-file --max-content-length=1000 --enable-modules=rvc,caption; exec bash"
+            open -a Terminal --args --title="SillyTavern Extras" --working-directory="SillyTavern-extras" --command "python server.py --listen --rvc-save-file --max-content-length=1000 --enable-modules=rvc,caption; exec bash"
         else
-            exec "$detected_terminal" -e "cd 'SillyTavern-extras' && conda activate extras && python server.py --listen --rvc-save-file --max-content-length=1000 --enable-modules=rvc,caption; bash"
+            exec "$detected_terminal" -e "python server.py --listen --rvc-save-file --max-content-length=1000 --enable-modules=rvc,caption; bash"
         fi
     fi
     home
@@ -326,6 +328,7 @@ start_xtts() {
         wait "$main_pid"
         kill "$xtts_pid"
     else
+        cd "xtts"
         log_message "INFO" "xtts launched in a new window."
         # Find a suitable terminal
         local detected_terminal
@@ -339,7 +342,7 @@ start_xtts() {
             log_message "INFO" "Detected macOS. Opening new Terminal window."
             open -a Terminal --args --title="XTTSv2 API Server" --working-directory="xtts" --command "conda activate xtts; python -m xtts_api_server; exec bash"
         else
-            exec "$detected_terminal" -e "cd 'xtts' && conda activate xtts && python -m xtts_api_server; bash"
+            exec "$detected_terminal" -e "conda activate xtts && python -m xtts_api_server; bash"
         fi
     fi
     home
