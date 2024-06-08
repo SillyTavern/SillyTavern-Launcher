@@ -354,7 +354,7 @@ update() {
     git pull --rebase --autostash
 
     # Update SillyTavern if directory exists
-    if [ -d "./SillyTavern" ]; then
+    if [ -d "SillyTavern" ]; then
         log_message "INFO" "Updating SillyTavern..."
         cd "SillyTavern"
         git pull --rebase --autostash
@@ -365,7 +365,7 @@ update() {
     fi
 
     # Update Extras if directory exists
-    if [ -d "./SillyTavern-extras" ]; then
+    if [ -d "SillyTavern-extras" ]; then
         log_message "INFO" "Updating SillyTavern-extras..."
         cd "SillyTavern-extras"
         git pull --rebase --autostash
@@ -376,7 +376,7 @@ update() {
     fi
 
     # Update XTTS if directory exists
-    if [ -d "./xtts" ]; then
+    if [ -d "xtts" ]; then
         log_message "INFO" "Updating XTTS..."
         cd "xtts"
         source activate xtts
