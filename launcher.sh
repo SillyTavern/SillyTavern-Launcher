@@ -131,9 +131,8 @@ install_git() {
         echo -e "${blue_fg_strong}[INFO] Git is already installed.${reset}"
     fi
 }
-
 # Change the current directory to 'sillytavern' folder
-cd "SillyTavern" || exit 1
+cd "$(dirname "$0")/SillyTavern" || exit 1
 
 # Check for updates
 git fetch origin
@@ -145,6 +144,9 @@ current_branch="$(git branch --show-current)"
 if [[ "$(git rev-list HEAD...origin/$current_branch)" ]]; then
   update_status="Update Available"
 fi
+
+# Go back to base dir
+cd ..
 
 ############################################################
 ################## HOME - FRONTEND #########################
@@ -210,28 +212,38 @@ check_nodejs() {
 
 
 # Function to find a suitable terminal emulator
-find_terminal() {
-    for terminal in "$TERMINAL" x-terminal-emulator mate-terminal gnome-terminal terminator xfce4-terminal urxvt rxvt termit Eterm aterm uxterm xterm roxterm termite lxterminal terminology st qterminal lilyterm tilix terminix konsole kitty guake tilda alacritty hyper wezterm; do
+find_terminal()
+{
+    for term in "$TERM"
+    do
+        if command -v "$term" > /dev/null 2>&1; then
+            echo "$term"
+            return 0
+        fi
+    done
+    for terminal in "$TERMINAL"
+    do
         if command -v "$terminal" > /dev/null 2>&1; then
             echo "$terminal"
             return 0
         fi
     done
-
     # Return a default terminal if none is found
     echo "x-terminal-emulator"
     return 1
 }
 
 # Function to start SillyTavern
-start_st() {
+start_st()
+{
     check_nodejs
     #if LAUNCH_NEW_WIN is set to 0, SillyTavern will launch in the same window
     if [ "$LAUNCH_NEW_WIN" = "0" ]; then
         log_message "INFO" "SillyTavern launched"
-        cd "$(dirname "$0")./SillyTavern" || exit 1
+        cd "SillyTavern" || exit 1
         ./start.sh
     else
+        cd "SillyTavern" || exit 1
         log_message "INFO" "SillyTavern launched in a new window."
         # Find a suitable terminal
         local detected_terminal
@@ -243,9 +255,9 @@ start_st() {
         # Start SillyTavern in the detected terminal
         if [ "$(uname)" == "Darwin" ]; then
             log_message "INFO" "Detected macOS. Opening new Terminal window."
-            open -a Terminal "$(dirname "$0")/start.sh"
+            open -a Terminal "start.sh"
         else
-            exec "$detected_terminal" -e "cd $(dirname "$0")./SillyTavern && ./start.sh" &
+            exec "$detected_terminal" -e "./start.sh" &
         fi
     fi
 
@@ -260,12 +272,12 @@ start_extras() {
         log_message "INFO" "Extras launched under pid $main_pid"
         {
             #has to be after the first one, so we are 1 directory up
-            cd "$(dirname "$0")./SillyTavern-extras" || {
+            cd "SillyTavern-extras" || {
                 log_message "ERROR" "SillyTavern-extras directory not found. Please make sure you have installed SillyTavern-extras."
                 kill $main_pid
                 exit 1
             }
-            log_message "INFO" "Wordking dir: $(pwd)"
+            log_message "INFO" "Working dir: $(pwd)"
             ./start.sh
         } &
         local extras_pid=$!
@@ -273,6 +285,7 @@ start_extras() {
         wait $main_pid
         kill $extras_pid
     else
+        cd "SillyTavern-extras"
         log_message "INFO" "Extras launched in a new window."
         # Find a suitable terminal
         local detected_terminal
@@ -284,9 +297,9 @@ start_extras() {
         # Start SillyTavern in the detected terminal
         if [ "$(uname)" == "Darwin" ]; then
             log_message "INFO" "Detected macOS. Opening new Terminal window."
-            open -a Terminal --args --title="SillyTavern Extras" --working-directory="$(dirname "$0")/SillyTavern-extras" --command "conda activate xtts; python server.py --listen --rvc-save-file --max-content-length=1000 --enable-modules=rvc,caption; exec bash"
+            open -a Terminal --args --title="SillyTavern Extras" --working-directory="SillyTavern-extras" --command "python server.py --listen --rvc-save-file --max-content-length=1000 --enable-modules=rvc,caption; exec bash"
         else
-            exec "$detected_terminal" -e "cd '$(dirname "$0")/SillyTavern-extras' && conda activate extras && python server.py --listen --rvc-save-file --max-content-length=1000 --enable-modules=rvc,caption; bash"
+            exec "$detected_terminal" -e "python server.py --listen --rvc-save-file --max-content-length=1000 --enable-modules=rvc,caption; bash"
         fi
     fi
     home
@@ -301,7 +314,7 @@ start_xtts() {
         log_message "INFO" "xtts launched under pid $main_pid"
 
         # Move to xtts directory
-        cd "$(dirname "$0")/xtts" || {
+        cd "xtts" || {
             log_message "ERROR" "xtts directory not found. Please make sure you have installed xtts"
             kill "$main_pid"
             exit 1
@@ -315,6 +328,7 @@ start_xtts() {
         wait "$main_pid"
         kill "$xtts_pid"
     else
+        cd "xtts"
         log_message "INFO" "xtts launched in a new window."
         # Find a suitable terminal
         local detected_terminal
@@ -326,9 +340,9 @@ start_xtts() {
         # Start XTTS in the detected terminal
         if [ "$(uname)" == "Darwin" ]; then
             log_message "INFO" "Detected macOS. Opening new Terminal window."
-            open -a Terminal --args --title="XTTSv2 API Server" --working-directory="$(dirname "$0")/xtts" --command "conda activate xtts; python -m xtts_api_server; exec bash"
+            open -a Terminal --args --title="XTTSv2 API Server" --working-directory="xtts" --command "conda activate xtts; python -m xtts_api_server; exec bash"
         else
-            exec "$detected_terminal" -e "cd '$(dirname "$0")/xtts' && conda activate xtts && python -m xtts_api_server; bash"
+            exec "$detected_terminal" -e "conda activate xtts && python -m xtts_api_server; bash"
         fi
     fi
     home
@@ -339,41 +353,42 @@ start_xtts() {
 update() {
     echo -e "\033]0;SillyTavern [UPDATE]\007"
     log_message "INFO" "Updating SillyTavern-Launcher..."
-    cd "$(dirname "$0")"
     git pull --rebase --autostash
 
     # Update SillyTavern if directory exists
-    if [ -d "$(dirname "$0")/SillyTavern" ]; then
+    if [ -d "SillyTavern" ]; then
         log_message "INFO" "Updating SillyTavern..."
-        cd "$(dirname "$0")./SillyTavern"
+        cd "SillyTavern"
         git pull --rebase --autostash
+        cd ..
         log_message "INFO" "SillyTavern updated successfully."
     else
         log_message "WARN" "SillyTavern directory not found. Skipping SillyTavern update."
     fi
 
     # Update Extras if directory exists
-    if [ -d "$(dirname "$0")/SillyTavern-extras" ]; then
+    if [ -d "SillyTavern-extras" ]; then
         log_message "INFO" "Updating SillyTavern-extras..."
-        cd "$(dirname "$0")./SillyTavern-extras"
+        cd "SillyTavern-extras"
         git pull --rebase --autostash
+        cd ..
         log_message "INFO" "SillyTavern-extras updated successfully."
     else
         log_message "WARN" "SillyTavern-extras directory not found. Skipping SillyTavern-extras update."
     fi
 
     # Update XTTS if directory exists
-    if [ -d "$(dirname "$0")/xtts" ]; then
+    if [ -d "xtts" ]; then
         log_message "INFO" "Updating XTTS..."
-        cd "$(dirname "$0")./xtts"
+        cd "xtts"
         source activate xtts
         pip install --upgrade xtts-api-server
         conda deactivate
+        cd ..
         log_message "INFO" "XTTS updated successfully."
     else
         log_message "WARN" "xtts directory not found. Skipping XTTS update."
     fi
-
     read -p "Press Enter to continue..."
     home
 }
@@ -687,7 +702,6 @@ uninstall_extras() {
     read confirmation
 
     if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
-        cd "$(dirname "$0")"
         log_message "INFO" "Removing the SillyTavern-extras directory..."
         rm -rf SillyTavern-extras
         log_message "INFO" "Removing the Conda environment: extras"
@@ -713,7 +727,6 @@ uninstall_xtts() {
     read confirmation
 
     if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
-        cd "$(dirname "$0")"
         log_message "INFO" "Removing the xtts directory..."
         rm -rf xtts
         log_message "INFO" "Removing the Conda environment: xtts"
@@ -741,7 +754,6 @@ uninstall_st() {
     read confirmation
 
     if [ "$confirmation" = "Y" ] || [ "$confirmation" = "y" ]; then
-        cd "$(dirname "$0")"
         log_message "INFO" "Removing the SillyTavern directory..."
         rm -rf SillyTavern
         log_message "INFO" "${green_fg_strong}SillyTavern uninstalled successfully.${reset}"
