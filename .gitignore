@@ -6,3 +6,4 @@ image-generation/
 voice-generation/
 xtts/
 bin/
+!bin/create_ssl.bat
