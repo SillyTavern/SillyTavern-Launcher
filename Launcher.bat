@@ -370,11 +370,20 @@ REM ############################################################
 cd /d "%st_install_path%"
 title STL [HOME]
 cls
+
+set "SSL_INFO_FILE=%~dp0\SillyTavern\certs\SillyTavernSSLInfo.txt"
+set "sslOptionSuffix="
+
+REM Check if the SSL info file exists and set the suffix
+if exist "%SSL_INFO_FILE%" (
+    set "sslOptionSuffix= (With SSL)"
+)
+
 echo %blue_fg_strong%/ Home%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
-echo 1. Start SillyTavern
-echo 2. Start SillyTavern With Remote Link
+echo 1. Start SillyTavern%sslOptionSuffix%
+echo 2. Start SillyTavern With Remote Link%sslOptionSuffix%
 REM Check if the custom shortcut file exists and is not empty
 set "custom_name=Create Custom App Shortcut to Launch with SillyTavern"  ; Initialize to default
 if exist "%~dp0bin\settings\custom-shortcut.txt" (
@@ -458,6 +467,8 @@ if %errorlevel% neq 0 (
     goto :home
 )
 
+
+
 setlocal
 set "command=%~1"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Starting %command%
@@ -472,9 +483,20 @@ for /f "tokens=2 delims=," %%a in ('tasklist /FI "IMAGENAME eq cmd.exe" /FO CSV 
 endlocal
 
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
+REM Check if SSL info file exists and set the command accordingly
+if exist "%SSL_INFO_FILE%" (
+    for /f "skip=0 tokens=*" %%i in ('type "%SSL_INFO_FILE%"') do (
+        goto :sslPathsFound
+    )
+    :sslPathsFound
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched with SSL in a new window.
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js --ssl && pause && popd"
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
+)
 goto :home
+
 
 :start_st_rl
 REM Check if the folder exists
@@ -493,11 +515,22 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
-start "" "%st_install_path%\Remote-Link.cmd"
-goto :home
 
+REM Check if SSL info file exists and set the command accordingly
+if exist "%SSL_INFO_FILE%" (
+    for /f "skip=0 tokens=*" %%i in ('type "%SSL_INFO_FILE%"') do (
+        goto :sslPathsFoundRL
+    )
+    :sslPathsFoundRL
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched with SSL in a new window.
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js --ssl && pause && popd"
+    start "" "%~dp0SillyTavern\Remote-Link.cmd"
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
+    start "" "%~dp0SillyTavern\Remote-Link.cmd"
+)
+goto :home
 
 REM ############################################################
 REM ############## UPDATE MANAGER - FRONTEND ###################
@@ -4681,12 +4714,27 @@ REM ############################################################
 :editor_core_utilities
 title STL [EDITOR CORE UTILITIES]
 cls
+set "SSL_INFO_FILE=%~dp0SillyTavern\certs\SillyTavernSSLInfo.txt"
+set "sslOption=2. Create and Use Self-Signed SSL Certificate with SillyTavern to encrypt your connection &echo       %blue_fg_strong%Read More: https://sillytavernai.com/launcher-ssl (press 9 to open)%reset%"
+
+REM Check if the SSL info file exists and read the expiration date
+if exist "%SSL_INFO_FILE%" (
+    for /f "skip=2 tokens=*" %%i in ('type "%SSL_INFO_FILE%"') do (
+        set "expDate=%%i"
+        goto :infoFound
+    )
+    :infoFound
+        set "sslOption=2. Regenerate SillyTavern SSL - %expDate% &echo     %blue_fg_strong%SSL NOTE 1: You%reset% %red_fg_strong%WILL%reset% %blue_fg_strong%need to add the Self-Signed Cert as trusted in your browser on first launch. How to here: https://sillytavernai.com/launcher-ssl (press 9 to open)%reset% &echo     %blue_fg_strong%SSL NOTE 2: To remove the SSL press 8%reset%"
+
+)
+
 echo %blue_fg_strong%/ Home / Toolbox / Editor / Core Utilities%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 echo 1. Edit SillyTavern config.yaml
-echo 2. Edit Extras
-echo 3. Edit Environment Variables
+echo %sslOption%
+echo 3. Edit Extras
+echo 4. Edit Environment Variables
 echo 0. Back
 
 set /p editor_core_util_choice=Choose Your Destiny: 
@@ -4695,11 +4743,19 @@ REM ######## EDITOR CORE UTILITIES - FRONTEND ##################
 if "%editor_core_util_choice%"=="1" (
     call :edit_st_config
 ) else if "%editor_core_util_choice%"=="2" (
-    call :edit_extras_modules
+    call :create_st_ssl
 ) else if "%editor_core_util_choice%"=="3" (
+    call :edit_extras_modules
+) else if "%editor_core_util_choice%"=="4" (
     call :edit_env_var
 ) else if "%editor_core_util_choice%"=="0" (
     goto :editor
+) else if "%editor_core_util_choice%"=="8" (
+    goto :delete_st_ssl
+) else if "%editor_core_util_choice%"=="9" (
+    echo Opening SillyTavernai.com SSL Info Page
+    start "" "https://sillytavernai.com/launcher-ssl"
+    goto :editor_core_utilities
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
@@ -4709,6 +4765,35 @@ if "%editor_core_util_choice%"=="1" (
 
 :edit_st_config
 start "" "%st_install_path%\config.yaml"
+goto :editor_core_utilities
+
+:create_st_ssl
+call "%~dp0bin\create_ssl.bat" no-pause
+:: Check the error level returned by the main batch file
+if %errorlevel% equ 0 (
+    echo  %green_fg_strong%The SSL was created successfully.%reset%
+) else (
+    echo  %red_fg_strong%The SSL creation encountered an error. Please see \bin\SSL-Certs\ssl_error_log.txt for more info.%reset%
+)
+pause
+goto :editor_core_utilities
+
+:delete_st_ssl
+REM Check if the SillyTavern\certs folder exists and delete it if it does
+set "CERTS_DIR=%~dp0SillyTavern\certs"
+
+if exist "%CERTS_DIR%" (
+    echo %blue_fg_strong%Deleting %CERTS_DIR% ...%reset%
+    rmdir /s /q "%CERTS_DIR%"
+    if errorlevel 0 (
+        echo  %green_fg_strong%The SillyTavern\certs folder has been successfully deleted.%reset%
+    ) else (
+        echo  %red_fg_strong%Failed to delete the SillyTavern\certs folder. Please check if the folder is in use and try again.%reset%
+    )
+) else (
+    echo  %red_fg_strong%The SillyTavern\certs folder does not exist.%reset%
+)
+pause
 goto :editor_core_utilities
 
 REM ##################################################################################################################################################
