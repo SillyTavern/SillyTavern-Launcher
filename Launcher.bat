@@ -1437,11 +1437,20 @@ start cmd /k "title SDWEBUI && cd /d %sdwebui_install_path% && %sdwebui_start_co
 goto :home
 
 :start_sdwebuiforge
-cd /d "%sdwebui_install_path%-forge"
+cd /d "%sdwebuiforge_install_path%"
+
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the sdwebui environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
+call conda activate sdwebuiforge
 
 REM Start Stable Diffusion WebUI Forge with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI Forge launched in a new window.
-start "" "webui-user.bat"
+REM start cmd /k "title SDWEBUIFORGE && cd /d %sdwebuiforge_install_path% && %sdwebuiforge_start_command%"
+start cmd /k "title SDWEBUIFORGE && cd /d %sdwebuiforge_install_path% && python launch.py"
 goto :home
 
 :start_comfyui
@@ -2798,7 +2807,7 @@ call "%miniconda_path%\Scripts\activate.bat"
 
 REM Create a Conda environment named sdwebuiforge
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
-call conda create -n sdwebuiforge python=3.11 -y
+call conda create -n sdwebuiforge python=3.10.6 -y
 
 REM Activate the sdwebuiforge environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
