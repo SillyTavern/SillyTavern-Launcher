@@ -1965,6 +1965,9 @@ if "%GPU_CHOICE%"=="1" (
 )
 
 :install_tabbyapi_final
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downgrading numpy to: %cyan_fg_strong%1.26.4%reset%
+pip install numpy==1.26.4
+
 echo Loading solely the API may not be your optimal usecase. 
 echo Therefore, a config.yml exists to tune initial launch parameters and other configuration options.
 echo.
