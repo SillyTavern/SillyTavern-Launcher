@@ -13,7 +13,7 @@ REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title STL [STARTUP CHECK]
 setlocal
 
-set "stl_version=V1.1.6"
+set "stl_version=V1.1.7"
 set "stl_title_pid=STL [TROUBLESHOOTING]"
 
 REM ANSI Escape Code for Colors
@@ -2060,7 +2060,7 @@ echo 0. Back
 
 set /p app_installer_tabbyapi_model_choice=Choose Your Destiny: 
 
-REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
+REM ######## APP INSTALLER TABBYAPI Models - BACKEND #########
 if "%app_installer_tabbyapi_model_choice%"=="1" (
     call :install_tabbyapi_model_hathorv05
 ) else if "%app_installer_tabbyapi_model_choice%"=="2" (
