@@ -199,6 +199,7 @@ if not exist "%~dp0bin\settings" (
 REM Create modules-extras if it doesn't exist
 if not exist %extras_modules_path% (
     type nul > %extras_modules_path%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created text file: "modules-extras.txt"  
 )
 REM Load modules-extras flags from modules
 for /f "tokens=*" %%a in (%extras_modules_path%) do set "%%a"
@@ -207,6 +208,7 @@ for /f "tokens=*" %%a in (%extras_modules_path%) do set "%%a"
 REM Create modules-xtts if it doesn't exist
 if not exist %xtts_modules_path% (
     type nul > %xtts_modules_path%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created text file: "modules-xtts.txt"  
 )
 REM Load modules-xtts flags from modules-xtts
 for /f "tokens=*" %%a in (%xtts_modules_path%) do set "%%a"
@@ -215,6 +217,7 @@ for /f "tokens=*" %%a in (%xtts_modules_path%) do set "%%a"
 REM Create modules-sdwebui if it doesn't exist
 if not exist %sdwebui_modules_path% (
     type nul > %sdwebui_modules_path%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created text file: "modules-sdwebui.txt"  
 )
 REM Load modules-xtts flags from modules-xtts
 for /f "tokens=*" %%a in (%sdwebui_modules_path%) do set "%%a"
@@ -223,6 +226,7 @@ for /f "tokens=*" %%a in (%sdwebui_modules_path%) do set "%%a"
 REM Create modules-ooba if it doesn't exist
 if not exist %ooba_modules_path% (
     type nul > %ooba_modules_path%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created text file: "modules-ooba.txt"  
 )
 REM Load modules-ooba flags from modules-ooba
 for /f "tokens=*" %%a in (%ooba_modules_path%) do set "%%a"
@@ -1591,7 +1595,7 @@ echo What would you like to do?
 
 echo 1. Install Text generation web UI oobabooga
 echo 2. koboldcpp [Install options]
-echo 3. Install TabbyAPI
+echo 3. TabbyAPI [Install options]
 echo 4. Install llamacpp
 echo 0. Back
 
@@ -1603,7 +1607,7 @@ if "%app_installer_txt_comp_choice%"=="1" (
 ) else if "%app_installer_txt_comp_choice%"=="2" (
     call :install_koboldcpp_menu
 ) else if "%app_installer_txt_comp_choice%"=="3" (
-    call :install_tabbyapi
+    call :install_tabbyapi_menu
 ) else if "%app_installer_txt_comp_choice%"=="4" (
     call :install_llamacpp
 ) else if "%app_installer_txt_comp_choice%"=="0" (
@@ -1863,6 +1867,45 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Suc
 pause
 goto :app_installer_text_completion
 
+
+REM ############################################################
+REM ######## APP INSTALLER TABBYAPI - FRONTEND #################
+REM ############################################################
+:install_tabbyapi_menu
+title STL [APP INSTALLER TABBYAPI]
+
+REM Check if the folder exists
+if exist "%tabbyapi_install_path%" (
+    REM Activate the tabbyapi environment
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment: %cyan_fg_strong%tabbyapi%reset%
+    call conda deactivate
+)
+
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / TabbyAPI %reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Install TabbyAPI
+echo 2. Models [Install Options]
+echo 0. Back
+
+set /p app_installer_tabbyapi_choice=Choose Your Destiny: 
+
+REM ##### APP INSTALLER TABBYAPI - BACKEND ######
+if "%app_installer_tabbyapi_choice%"=="1" (
+    call :install_tabbyapi
+) else if "%app_installer_tabbyapi_choice%"=="2" (
+    goto :install_tabbyapi_model_menu
+) else if "%app_installer_tabbyapi_choice%"=="0" (
+    goto :app_installer_text_completion
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :install_tabbyapi_menu
+)
+
 :install_tabbyapi
 title STL [INSTALL TABBYAPI]
 cls
@@ -1979,7 +2022,132 @@ echo so make sure to read the descriptions and comment out or remove fields that
 echo.
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been installed successfully.%reset%
 pause
-goto :app_installer_text_completion
+goto :install_tabbyapi_menu
+
+
+REM ############################################################
+REM ##### APP INSTALLER TABBYAPI Models - FRONTEND #############
+REM ############################################################
+:install_tabbyapi_model_menu
+title STL [APP INSTALLER TABBYAPI MODELS]
+
+REM Check if the folder exists
+if not exist "%tabbyapi_install_path%" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] TabbyAPI is not installed. Please install it first.%reset%
+    pause
+    goto :install_tabbyapi_menu
+)
+
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the tabbyapi environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%tabbyapi%reset%
+call conda activate tabbyapi
+
+cd /d "%tabbyapi_install_path%"
+
+cls
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / TabbyAPI / Models%reset%
+echo -------------------------------------------------------------
+echo What would you like to do?
+
+echo 1. Install Hathor_Stable-L3-8B-v0.5-exl2 [RP/bio/code MODEL UNCENSORED]
+echo 2. Install Hathor-L3-8B-v.01-exl2 [RP MODEL UNCENSORED]
+echo 3. Install a custom model
+echo 0. Back
+
+set /p app_installer_tabbyapi_model_choice=Choose Your Destiny: 
+
+REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
+if "%app_installer_tabbyapi_model_choice%"=="1" (
+    call :install_tabbyapi_model_hathorv05
+) else if "%app_installer_tabbyapi_model_choice%"=="2" (
+    goto :install_tabbyapi_model_hathorv01
+) else if "%app_installer_tabbyapi_model_choice%"=="3" (
+    goto :install_tabbyapi_model_custom
+) else if "%app_installer_tabbyapi_model_choice%"=="0" (
+    goto :install_tabbyapi_menu
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :install_tabbyapi_model_menu
+)
+
+
+:install_tabbyapi_model_hathorv05
+cd /d "%tabbyapi_install_path%\models"
+REM Install model Based on VRAM Size
+if %VRAM% lss 8 (
+echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Sorry... You need atleast 8GB VRAM or more to run a local LLM%reset%
+pause
+goto :install_tabbyapi_model_menu
+) else if %VRAM% lss 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model size bits: 5.0
+REM set GIT_CURL_VERBOSE=1
+REM set GIT_TRACE=1
+git clone --single-branch --branch 5_0 https://huggingface.co/bartowski/Hathor_Stable-L3-8B-v0.5-exl2 Hathor_Stable-L3-8B-v0.5-exl2-5_0
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Stable-L3-8B-v0.5-exl2%reset%
+pause
+goto :install_tabbyapi_model_menu
+) else if %VRAM% gtr 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model size bits: 6.0
+REM set GIT_CURL_VERBOSE=1
+REM set GIT_TRACE=1
+git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor_Stable-L3-8B-v0.5-exl2 Hathor_Stable-L3-8B-v0.5-exl2-6_5
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Stable-L3-8B-v0.5-exl2%reset%
+pause
+goto :install_tabbyapi_model_menu
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] An unexpected amount of VRAM detected or unable to detect VRAM. Check your system specifications.%reset%
+    pause
+    goto :install_tabbyapi_model_menu
+)
+
+
+:install_tabbyapi_model_hathorv01
+cd /d "%tabbyapi_install_path%\models"
+REM Install model Based on VRAM Size
+if %VRAM% lss 8 (
+echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Sorry... You need atleast 8GB VRAM or more to run a local LLM%reset%
+pause
+goto :install_tabbyapi_model_menu
+) else if %VRAM% lss 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Downloading model size bits: 5.0
+git clone --single-branch --branch 5_0 https://huggingface.co/bartowski/Hathor-L3-8B-v.01-exl2 Hathor-L3-8B-v.01-exl2-5_0
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor-L3-8B-v.01-exl2%reset%
+pause
+goto :install_tabbyapi_model_menu
+) else if %VRAM% gtr 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Downloading model size bits: 6.0
+git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor-L3-8B-v.01-exl2 Hathor-L3-8B-v.01-exl2-6_5
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor-L3-8B-v.01-exl2%reset%
+pause
+goto :install_tabbyapi_model_menu
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] An unexpected amount of VRAM detected or unable to detect VRAM. Check your system specifications.%reset%
+    pause
+    goto :install_tabbyapi_model_menu
+)
+
+:install_tabbyapi_model_custom
+cls
+set /p tabbyapimodelurl="(0 to cancel)Insert Model URL: "
+if "%tabbyapimodelurl%"=="0" goto :install_tabbyapi_model_menu
+
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading...
+cd /d "%tabbyapi_install_path%\models"
+git clone %tabbyapimodelurl%
+pause
+goto :install_tabbyapi_model_menu
+
 
 
 :install_llamacpp
@@ -2489,7 +2657,7 @@ if exist "%sdwebui_install_path%" (
 )
 
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Stable Diffusion web UI %reset%
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation / Stable Diffusion web UI %reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 
@@ -2520,7 +2688,7 @@ if "%app_installer_sdwebui_choice%"=="1" (
 :install_sdwebui
 title STL [INSTALL STABLE DIFFUSION WEBUI]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install Stable Diffusion web UI%reset%
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation / Install Stable Diffusion web UI%reset%
 echo -------------------------------------------------------------
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Stable Diffusion web UI...
 
@@ -2632,7 +2800,7 @@ call conda activate sdwebui
 cd /d "%sdwebui_install_path%"
 
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / SDWEBUI Models%reset%
+echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation / Stable Diffusion web UI / Models%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
 
@@ -5370,16 +5538,16 @@ echo %blue_fg_strong%/ Home / VRAM Info%reset%
 echo -------------------------------------------------------------
 REM Recommendations Based on VRAM Size
 if %VRAM% lss 8 (
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - It's recommended to stick with APIs like OpenAI or OpenRouter for LLM usage, 
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - It's recommended to stick with APIs like OpenAI, Claude or OpenRouter for LLM usage, 
     echo because local models might not perform well.
 ) else if %VRAM% lss 12 (
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Capable of running efficient 7B models. 
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Capable of running efficient 7B and 8B models. 
     echo However, APIs like OpenAI or OpenRouter will likely perform much better.
 ) else if %VRAM% lss 22 (
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Suitable for 7B and some efficient 13B models, 
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Suitable for 7B, 8B and some efficient 13B models, 
     echo but APIs like OpenAI or OpenRouter are still recommended for much better performance.
 ) else if %VRAM% lss 25 (
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Good for 7B, 13B, 30B, and some efficient 70B models. Powerful local models will run well 
+    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Good for 7B, 8B, 13B, 30B, and some efficient 70B models. Powerful local models will run well 
     echo but APIs like OpenAI or Claude will still perform better than many local models.
 ) else if %VRAM% gtr 25 (
     echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Suitable for most models, including larger LLMs. 
