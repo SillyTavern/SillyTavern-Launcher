@@ -170,6 +170,7 @@ goto :startupcheck_no_update
 cls
 echo %blue_fg_strong%[INFO]%reset% %cyan_fg_strong%New update for SillyTavern-Launcher is available!%reset%
 set /p update_choice=Update now? [Y/n] 
+if /i "%update_choice%"=="" set update_choice=Y
 if /i "%update_choice%"=="Y" (
     REM Update the repository
     git pull
@@ -180,6 +181,7 @@ if /i "%update_choice%"=="Y" (
 ) else (
     goto :startupcheck_no_update
 )
+
 
 
 :startupcheck_no_update
