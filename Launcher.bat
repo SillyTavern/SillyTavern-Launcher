@@ -127,9 +127,17 @@ set "alltalk_install_path=%~dp0voice-generation\alltalk_tts"
 set "xtts_install_path=%~dp0voice-generation\xtts"
 set "rvc_install_path=%~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI"
 
+REM Define the directories
+set "log_dir=%~dp0bin\logs\"
+set "functions_dir=%~dp0bin\functions\"
 
 REM Define variables for logging
-set "log_path=%~dp0bin\logs.log"
+set "log_path=%log_dir%\logs.log"
+:: Create the logs folder if it doesn't exist
+if not exist "%~dp0bin\logs" (
+    mkdir "%~dp0bin\logs"
+)
+
 set "log_invalidinput=[ERROR] Invalid input. Please enter a valid number."
 set "echo_invalidinput=%red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%"
 
@@ -448,10 +456,10 @@ if "%choice%"=="1" (
 
 :exit
 echo %red_bg%[%time%]%reset% %red_fg_strong%Terminating all started processes...%reset%
-for /f %%a in ('type "%~dp0bin\pids.txt"') do (
+for /f %%a in ('type "%~dp0bin\logs\pids.txt"') do (
     taskkill /F /PID %%a
 )
-del "%~dp0bin\pids.txt"
+del "%~dp0bin\logs\pids.txt"
 exit
 
 
@@ -479,31 +487,37 @@ start /B cmd /C "%command%"
 for /f "tokens=2 delims=," %%a in ('tasklist /FI "IMAGENAME eq cmd.exe" /FO CSV /NH') do (
     set "pid=%%a"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Started process with PID: %cyan_fg_strong%!pid!%reset%
-    echo !pid!>>"%~dp0bin\pids.txt"
+    echo !pid!>>"%~dp0bin\logs\pids.txt"
     goto :st_found_pid
 )
 :st_found_pid
 endlocal
 
 REM Check if SSL info file exists and set the command accordingly
+set "sslPathsFound=false"
 if exist "%SSL_INFO_FILE%" (
-    for /f "skip=0 tokens=*" %%i in ('type "%SSL_INFO_FILE%"') do (
-        goto :sslPathsFound
+    for /f %%i in ('type "%SSL_INFO_FILE%"') do (
+        set "sslPathsFound=true"
+        goto :ST_SSL_Start
     )
-    :sslPathsFound
+)
+
+:ST_SSL_Start
+if "%sslPathsFound%"=="true" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched with SSL in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %~dp0log_wrapper.bat ssl"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %functions_dir%\launch\log_wrapper.bat ssl"
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %~dp0log_wrapper.bat"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %functions_dir%\launch\log_wrapper.bat"
 )
+
+
 rem Clear the old log file
-set "log_file=%~dp0bin\st_console_output.log"
+set "log_file=%~dp0bin\logs\st_console_output.log"
 del "%log_file%"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Waiting for log file to be created...
 :wait_for_log
 timeout /t 3 > nul
-
 if not exist "%log_file%" (
     goto :wait_for_log
 )
@@ -1188,7 +1202,7 @@ if "%toolbox_choice%"=="1" (
 ) else if "%toolbox_choice%"=="5" (
     call :backup
 ) else if "%toolbox_choice%"=="6" (
-    call :switch_brance
+    call :switch_branch
 ) else if "%toolbox_choice%"=="7" (
     call :troubleshooting
 ) else if "%toolbox_choice%"=="8" (
@@ -5100,7 +5114,7 @@ start "" "%st_install_path%\config.yaml"
 goto :editor_core_utilities
 
 :create_st_ssl
-call "%~dp0bin\create_ssl.bat" no-pause
+call "%functions_dir%\SSL\create_ssl.bat" no-pause
 :: Check the error level returned by the main batch file
 if %errorlevel% equ 0 (
     echo  %green_fg_strong%The SSL was created successfully.%reset%
@@ -5446,8 +5460,17 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr /r "\<!port_choice!\>"') do (
 
 if defined pid (
     for /f "tokens=2*" %%b in ('tasklist /fi "PID eq !pid!" /fo list ^| find "Image Name"') do (
-        echo Application Name: %cyan_fg_strong%%%c%reset%
+        set app_name=%%c
+        echo Application Name: %cyan_fg_strong%!app_name!%reset%
         echo PID of Port !port_choice!: %cyan_fg_strong%!pid!%reset%
+
+        REM Fetch the page title for the specified port
+        call :fetch_page_title !port_choice!
+        if defined PAGE_TITLE (
+            echo Title of Application: %cyan_fg_strong%!PAGE_TITLE!%reset%
+        ) else (
+            echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN]%reset% Could not retrieve page title.
+        )
     )
 ) else (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN]%reset% Port: !port_choice! not found.
@@ -5456,6 +5479,18 @@ endlocal
 pause
 goto :troubleshooting
 
+:fetch_page_title
+setlocal
+set "PORT=%1"
+set "URL=http://localhost:%PORT%"
+
+REM Use JScript to fetch and parse the title
+for /f "delims=" %%I in ('cscript /nologo "%functions_dir%\troubleshooting\fetch_title.js" "%URL%"') do (
+    set "PAGE_TITLE=%%I"
+)
+
+endlocal & set "PAGE_TITLE=%PAGE_TITLE%"
+goto :EOF
 
 :onboarding_flow
 set ONBOARDING_FLOW_VALUE=
@@ -5468,10 +5503,10 @@ goto :troubleshooting
 
 
 REM ############################################################
-REM ############## SWITCH BRANCE - FRONTEND ####################
+REM ############## SWITCH BRANCH - FRONTEND ####################
 REM ############################################################
-:switch_brance
-title STL [SWITCH-BRANCE]
+:switch_branch
+title STL [SWITCH-BRANCH]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Switch Branch%reset%
 echo -------------------------------------------------------------
@@ -5485,37 +5520,37 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo =================================
-set /p brance_choice=Choose Your Destiny: 
+set /p branch_choice=Choose Your Destiny: 
 
-REM ################# SWITCH BRANCE - BACKEND ########################
-if "%brance_choice%"=="1" (
-    call :switch_brance_release_st
-) else if "%brance_choice%"=="2" (
-    call :switch_brance_staging_st
-) else if "%brance_choice%"=="0" (
+REM ################# SWITCH BRANCH - BACKEND ########################
+if "%branch_choice%"=="1" (
+    call :switch_branch_release_st
+) else if "%branch_choice%"=="2" (
+    call :switch_branch_staging_st
+) else if "%branch_choice%"=="0" (
     goto :toolbox
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
-    goto :switch_brance
+    goto :switch_branch
 )
 
 
-:switch_brance_release_st
+:switch_branch_release_st
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to release branch...
 cd /d "%st_install_path%"
 git switch release
 pause
-goto :switch_brance
+goto :switch_branch
 
 
-:switch_brance_staging_st
+:switch_branch_staging_st
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Switching to staging branch...
 cd /d "%st_install_path%"
 git switch staging
 pause
-goto :switch_brance
+goto :switch_branch
 
 
 REM ############################################################

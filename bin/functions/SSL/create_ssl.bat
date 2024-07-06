@@ -18,7 +18,7 @@ if "%silentMode%"=="true" (
 )
 
 :: Set the SSL certificate directory and files
-set "SILLYTAVERN_DIR=%~dp0..\SillyTavern"
+set "SILLYTAVERN_DIR=%~dp0..\..\..\SillyTavern"
 set "CERT_DIR=%SILLYTAVERN_DIR%\certs"
 set "CERT_FILE=%CERT_DIR%\cert.pem"
 set "KEY_FILE=%CERT_DIR%\privkey.pem"
@@ -90,12 +90,8 @@ for /f %%i in ('powershell -command "[datetime]::Now.AddDays(825).ToString('MM/d
 )
 
 :: Store the certificate and key path, and expiration date in the text file
-:: Correcting the paths to remove the "bin\.."
-set "correctCertPath=%SILLYTAVERN_DIR:\..\SillyTavern=\\SillyTavern%\certs\cert.pem"
-set "correctKeyPath=%SILLYTAVERN_DIR:\..\SillyTavern=\\SillyTavern%\certs\privkey.pem"
-
-echo %correctCertPath% > "%CERT_INFO_FILE%"
-echo %correctKeyPath% >> "%CERT_INFO_FILE%"
+echo %CERT_FILE% > "%CERT_INFO_FILE%"
+echo %KEY_FILE% >> "%CERT_INFO_FILE%"
 echo SSL Expiration Date (mm/dd/yyyy): %expDate% >> "%CERT_INFO_FILE%"
 echo Certificate and key paths and expiration date stored in %CERT_INFO_FILE%. %outputRedirection%
 

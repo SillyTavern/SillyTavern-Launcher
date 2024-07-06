@@ -2,7 +2,7 @@
 setlocal
 
 REM Define the path to the log file
-set LOG_FILE=..\bin\st_console_output.log
+set LOG_FILE=..\bin\logs\st_console_output.log
 
 REM Set necessary environment variables for Node.js
 set NODE_ENV=production
