@@ -169,7 +169,7 @@ goto :startupcheck_no_update
 :startupcheck_found_update
 cls
 echo %blue_fg_strong%[INFO]%reset% %cyan_fg_strong%New update for SillyTavern-Launcher is available!%reset%
-set /p update_choice=Update now? [Y/n] 
+set /p "update_choice=Update now? [Y/n]: "
 if /i "%update_choice%"=="" set update_choice=Y
 if /i "%update_choice%"=="Y" (
     REM Update the repository
@@ -475,11 +475,10 @@ if %errorlevel% neq 0 (
 
 setlocal
 set "command=%~1"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Starting %command%
 start /B cmd /C "%command%"
 for /f "tokens=2 delims=," %%a in ('tasklist /FI "IMAGENAME eq cmd.exe" /FO CSV /NH') do (
     set "pid=%%a"
-    echo Started process with PID: !pid!
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Started process with PID: %cyan_fg_strong%!pid!%reset%
     echo !pid!>>"%~dp0bin\pids.txt"
     goto :st_found_pid
 )
@@ -520,11 +519,11 @@ powershell -Command "try { $content = Get-Content '%log_file%' -Raw; if ($conten
 set "ps_errorlevel=%errorlevel%"
 
 if %ps_errorlevel% equ 0 (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern Launched Successfully, press any key to go home.%reset%
-    pause
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern Launched Successfully. Returning home...%reset%
+    timeout /t 10
     goto :home
 ) else if %ps_errorlevel% equ 1 (
-    echo %blue_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% %red_fg_strong%Node Modules Error Found!%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Node.js Code: MODULE_NOT_FOUND%reset%
     goto :attemptnodefix
 ) else (
     timeout /t 3 > nul
@@ -532,7 +531,8 @@ if %ps_errorlevel% equ 0 (
 )
 
 :attemptnodefix
-set /p "choice=Would you like to run the automated troubleshooter to attempt to fix this error? [Please close any open SillyTavern Command Windows First] (Y/N): "
+set /p "choice=Run troubleshooter to fix this error? [Y/n]: "
+    if /i "%choice%"=="" set choice=Y
     if /i "%choice%"=="Y" (
         call :remove_node_modules
     )
