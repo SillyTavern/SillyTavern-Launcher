@@ -8,5 +8,3 @@ xtts/
 bin/
 !bin/functions/
 !bin/functions/**
-!bin/logs/
-!bin/logs/**
