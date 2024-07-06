@@ -2104,6 +2104,21 @@ git clone --single-branch --branch 5_0 https://huggingface.co/bartowski/Hathor_A
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Stable-L3-8B-v0.5-exl2%reset%
 pause
 goto :install_tabbyapi_model_menu
+) else if %VRAM% equ 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+REM Check if model exists
+if exist "Hathor_Aleph-L3-8B-v0.72-exl2-6_5" (
+    REM Remove model if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
+    rmdir /s /q "Hathor_Aleph-L3-8B-v0.72-exl2-6_5"
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model size bits: 6.0
+echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or more, depending on your internet speed.%reset%
+echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
+git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor_Aleph-L3-8B-v0.72-exl2 Hathor_Aleph-L3-8B-v0.72-exl2-6_5
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Aleph-L3-8B-v0.72-exl2-6_5%reset%
+pause
+goto :install_tabbyapi_model_menu
 ) else if %VRAM% gtr 12 (
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 REM Check if model exists
@@ -2144,6 +2159,23 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model si
 echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or more, depending on your internet speed.%reset%
 echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
 git clone --single-branch --branch 5_0 https://huggingface.co/bartowski/Hathor_Stable-L3-8B-v0.5-exl2 Hathor_Stable-L3-8B-v0.5-exl2-5_0
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Stable-L3-8B-v0.5-exl2%reset%
+pause
+goto :install_tabbyapi_model_menu
+) else if %VRAM% equ 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+REM Check if model exists
+if exist "Hathor_Stable-L3-8B-v0.5-exl2-6_5" (
+    REM Remove model if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
+    rmdir /s /q "Hathor_Stable-L3-8B-v0.5-exl2-6_5"
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model size bits: 6.0
+REM set GIT_CURL_VERBOSE=1
+REM set GIT_TRACE=1
+echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or more, depending on your internet speed.%reset%
+echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
+git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor_Stable-L3-8B-v0.5-exl2 Hathor_Stable-L3-8B-v0.5-exl2-6_5
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Stable-L3-8B-v0.5-exl2%reset%
 pause
 goto :install_tabbyapi_model_menu
@@ -2188,6 +2220,19 @@ if exist "Hathor-L3-8B-v.01-exl2-5_0" (
 )
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Downloading model size bits: 5.0
 git clone --single-branch --branch 5_0 https://huggingface.co/bartowski/Hathor-L3-8B-v.01-exl2 Hathor-L3-8B-v.01-exl2-5_0
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor-L3-8B-v.01-exl2%reset%
+pause
+goto :install_tabbyapi_model_menu
+) else if %VRAM% equ 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+REM Check if model exists
+if exist "Hathor-L3-8B-v.01-exl2-6_5" (
+    REM Remove model if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
+    rmdir /s /q "Hathor-L3-8B-v.01-exl2-6_5"
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Downloading model size bits: 6.0
+git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor-L3-8B-v.01-exl2 Hathor-L3-8B-v.01-exl2-6_5
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor-L3-8B-v.01-exl2%reset%
 pause
 goto :install_tabbyapi_model_menu
