@@ -473,8 +473,6 @@ if %errorlevel% neq 0 (
     goto :home
 )
 
-
-
 setlocal
 set "command=%~1"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Starting %command%
@@ -488,7 +486,6 @@ for /f "tokens=2 delims=," %%a in ('tasklist /FI "IMAGENAME eq cmd.exe" /FO CSV 
 :st_found_pid
 endlocal
 
-
 REM Check if SSL info file exists and set the command accordingly
 if exist "%SSL_INFO_FILE%" (
     for /f "skip=0 tokens=*" %%i in ('type "%SSL_INFO_FILE%"') do (
@@ -496,13 +493,49 @@ if exist "%SSL_INFO_FILE%" (
     )
     :sslPathsFound
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched with SSL in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js --ssl && pause && popd"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %~dp0log_wrapper.bat ssl"
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %~dp0log_wrapper.bat"
 )
-goto :home
+rem Clear the old log file
+set "log_file=%~dp0bin\st_console_output.log"
+del "%log_file%"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Waiting for log file to be created...
+:wait_for_log
+timeout /t 3 > nul
 
+if not exist "%log_file%" (
+    goto :wait_for_log
+)
+
+goto :scan_log
+
+:scan_log
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Log file found: %log_file%. Scanning log for errors...
+
+:loop
+REM Use PowerShell to search for the error message
+powershell -Command "try { $content = Get-Content '%log_file%' -Raw; if ($content -match 'Error: Cannot find module') { exit 1 } elseif ($content -match 'SillyTavern is listening on:') { exit 0 } else { exit 2 } } catch { exit 2 }"
+set "ps_errorlevel=%errorlevel%"
+
+if %ps_errorlevel% equ 0 (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern Launched Successfully, press any key to go home.%reset%
+    pause
+    goto :home
+) else if %ps_errorlevel% equ 1 (
+    echo %blue_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% %red_fg_strong%Node Modules Error Found!%reset%
+    goto :attemptnodefix
+) else (
+    timeout /t 3 > nul
+    goto :loop
+)
+
+:attemptnodefix
+set /p "choice=Would you like to run the automated troubleshooter to attempt to fix this error? [Please close any open SillyTavern Command Windows First] (Y/N): "
+    if /i "%choice%"=="Y" (
+        call :remove_node_modules
+    )
 
 :start_st_rl
 REM Check if the folder exists
