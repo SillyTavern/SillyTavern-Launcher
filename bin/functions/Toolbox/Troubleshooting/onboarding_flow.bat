@@ -1,9 +1,6 @@
 @echo off
-REM Set base directory
-set "base_dir=%~dp0\..\.."
 
 :onboarding_flow
-
 REM Scan for user folders
 set "user_folders="
 for /d %%d in ("%st_install_path%\data\*") do (

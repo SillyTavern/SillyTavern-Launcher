@@ -1,8 +1,6 @@
 @echo off
-REM Set base directory
-set "base_dir=%~dp0\..\.."
 
-:unresolved_unmerged
+:fix_github_conflicts
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Trying to resolve unresolved conflicts in the working directory or unmerged files...
 cd /d "%st_install_path%"
 git merge --abort

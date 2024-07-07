@@ -1,6 +1,4 @@
 @echo off
-REM Set base directory
-set "base_dir=%~dp0\..\.."
 
 :remove_pip_cache
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Clearing pip cache...

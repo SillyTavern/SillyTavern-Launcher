@@ -1,6 +1,6 @@
 @echo off
 REM Set base directory
-set "base_dir=%~dp0\..\.."
+set "base_dir=%~dp0\..\..\.."
 
 :exit
 echo %red_bg%[%time%]%reset% %red_fg_strong%Terminating all started processes...%reset%

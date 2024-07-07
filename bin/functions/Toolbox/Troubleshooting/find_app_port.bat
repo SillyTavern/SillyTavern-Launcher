@@ -1,6 +1,4 @@
 @echo off
-REM Set base directory
-set "base_dir=%~dp0\..\.."
 
 REM Function to find and display the application using the specified port
 :find_app_port
@@ -61,7 +59,7 @@ set "PORT=%1"
 set "URL=http://localhost:%PORT%"
 
 REM Use JScript to fetch and parse the title
-for /f "delims=" %%I in ('cscript /nologo "%base_dir%\functions\troubleshooting\fetch_title.js" "%URL%"') do (
+for /f "delims=" %%I in ('cscript /nologo "%troubleshooting_dir%fetch_title.js" "%URL%"') do (
     set "PAGE_TITLE=%%I"
 )
 

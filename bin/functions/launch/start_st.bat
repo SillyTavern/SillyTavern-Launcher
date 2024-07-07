@@ -1,6 +1,6 @@
 @echo off
 REM Set base directory
-set "base_dir=%~dp0\..\.."
+set "base_dir=%~dp0\..\..\.."
 
 REM Check if the folder exists
 if not exist "%st_install_path%" (

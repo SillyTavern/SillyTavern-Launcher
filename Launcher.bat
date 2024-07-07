@@ -127,15 +127,18 @@ set "alltalk_install_path=%~dp0voice-generation\alltalk_tts"
 set "xtts_install_path=%~dp0voice-generation\xtts"
 set "rvc_install_path=%~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI"
 
-REM Define the directories
-set "log_dir=%~dp0bin\logs\"
-set "functions_dir=%~dp0bin\functions\"
+REM Define variables for the directories
+set "log_dir=%~dp0bin\logs"
+set "functions_dir=%~dp0bin\functions"
+set "toolbox_dir=%~dp0bin\functions\Toolbox"
+set "troubleshooting_dir=%~dp0bin\functions\Toolbox\Troubleshooting"
 
 REM Define variables for logging
 set "log_path=%log_dir%\logs.log"
-:: Create the logs folder if it doesn't exist
-if not exist "%~dp0bin\logs" (
-    mkdir "%~dp0bin\logs"
+
+REM Create the logs folder if it doesn't exist
+if not exist "%log_dir%" (
+    mkdir "%log_dir%"
 )
 
 set "log_invalidinput=[ERROR] Invalid input. Please enter a valid number."
@@ -5219,13 +5222,14 @@ echo 5. Find what app is using port
 echo 6. Set Onboarding Flow
 echo 0. Back
 
-REM Retrieve the PID of the current script using PowerShell
-for /f "delims=" %%G in ('powershell -NoProfile -Command "Get-Process | Where-Object { $_.MainWindowTitle -eq '%stl_title_pid%' } | Select-Object -ExpandProperty Id"') do (
-    set "stl_PID=%%~G"
-)
-echo ======== INFO BOX ===============
-echo STL PID: %cyan_fg_strong%%stl_PID%%reset%
-echo =================================
+REM Retrieve the PID of the current script using PowerShell TEMPORARY DISABLED UNTIL A BETTER WAY IS FOUND
+
+REM for /f "delims=" %%G in ('powershell -NoProfile -Command "Get-Process | Where-Object { $_.MainWindowTitle -eq '%stl_title_pid%' } | Select-Object -ExpandProperty Id"') do (
+REM     set "stl_PID=%%~G"
+REM )
+REM echo ======== INFO BOX ===============
+REM echo STL PID: %cyan_fg_strong%%stl_PID%%reset%
+REM echo =================================
 
 set /p troubleshooting_choice=Choose Your Destiny: 
 
@@ -5233,7 +5237,7 @@ set /p troubleshooting_choice=Choose Your Destiny:
 REM ############## TROUBLESHOOTING - BACKEND ##################
 if "%troubleshooting_choice%"=="1" (
     set "caller=troubleshooting"
-    call %functions_dir%\troubleshooting\remove_node_modules.bat
+    call %functions_dir%\Toolbox\Troubleshooting\remove_node_modules.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5241,7 +5245,7 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="2" (
     set "caller=troubleshooting"
-    call %functions_dir%\troubleshooting\remove_pip_cache.bat
+    call %functions_dir%\Toolbox\Troubleshooting\remove_pip_cache.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5249,7 +5253,7 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="3" (
     set "caller=troubleshooting"
-    call %functions_dir%\troubleshooting\unresolved_unmerged.bat
+    call %functions_dir%\Toolbox\Troubleshooting\fix_github_conflicts.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5257,7 +5261,7 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="4" (
     set "caller=troubleshooting"
-    call %functions_dir%\troubleshooting\export_dxdiag.bat
+    call %functions_dir%\Toolbox\Troubleshooting\export_dxdiag.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5265,7 +5269,7 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="5" (
     set "caller=troubleshooting"
-    call %functions_dir%\troubleshooting\find_app_port.bat
+    call %functions_dir%\Toolbox\Troubleshooting\find_app_port.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5273,7 +5277,7 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="6" (
     set "caller=troubleshooting"
-    call %functions_dir%\troubleshooting\onboarding_flow.bat
+    call %functions_dir%\Toolbox\Troubleshooting\onboarding_flow.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
