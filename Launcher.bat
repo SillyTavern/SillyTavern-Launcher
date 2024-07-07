@@ -128,13 +128,15 @@ set "xtts_install_path=%~dp0voice-generation\xtts"
 set "rvc_install_path=%~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI"
 
 REM Define variables for the directories
-set "log_dir=%~dp0bin\logs"
+set "log_dir=%~dp0bin\logs\"
 set "functions_dir=%~dp0bin\functions"
 set "toolbox_dir=%~dp0bin\functions\Toolbox"
 set "troubleshooting_dir=%~dp0bin\functions\Toolbox\Troubleshooting"
 
 REM Define variables for logging
-set "log_path=%log_dir%\logs.log"
+set "logs_stl_console_path=%log_dir%stl.log"
+set "logs_st_console_path=%log_dir%st_console_output.log"
+
 
 REM Create the logs folder if it doesn't exist
 if not exist "%log_dir%" (
@@ -455,7 +457,7 @@ if "%choice%"=="1" (
 )   else if "%choice%"=="0" (
     call %functions_dir%\launch\exit_stl.bat
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :home
@@ -492,7 +494,7 @@ if "%update_manager_choice%"=="1" (
 ) else if "%update_manager_choice%"=="0" (
     goto :home
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :update_manager
@@ -526,7 +528,7 @@ if "%update_manager_txt_comp_choice%"=="1" (
 ) else if "%update_manager_txt_comp_choice%"=="0" (
     goto :update_manager
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :update_manager_text_completion
@@ -650,7 +652,7 @@ if "%update_manager_voice_gen_choice%"=="1" (
 ) else if "%update_manager_voice_gen_choice%"=="0" (
     goto :update_manager
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :update_manager_voice_generation
@@ -760,7 +762,7 @@ if "%update_manager_img_gen_choice%"=="1" (
 ) else if "%update_manager_img_gen_choice%"=="0" (
     goto :update_manager
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :update_manager_image_generation
@@ -917,7 +919,7 @@ if "%update_manager_core_util_choice%"=="1" (
 ) else if "%update_manager_core_util_choice%"=="0" (
     goto :update_manager
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :update_manager_core_utilities
@@ -1087,7 +1089,7 @@ if "%toolbox_choice%"=="1" (
 ) else if "%toolbox_choice%"=="0" (
     goto :home
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :toolbox
@@ -1124,7 +1126,7 @@ if "%app_launcher_choice%"=="1" (
 ) else if "%app_launcher_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_launcher
@@ -1158,7 +1160,7 @@ if "%app_launcher_txt_comp_choice%"=="1" (
 ) else if "%app_launcher_txt_comp_choice%"=="0" (
     goto :app_launcher
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_launcher_text_completion
@@ -1239,7 +1241,7 @@ if "%app_launcher_voice_gen_choice%"=="1" (
 ) else if "%app_launcher_voice_gen_choice%"=="0" (
     goto :app_launcher
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_launcher_voice_generation
@@ -1324,7 +1326,7 @@ if "%app_launcher_img_gen_choice%"=="1" (
 ) else if "%app_launcher_img_gen_choice%"=="0" (
     goto :app_launcher
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_launcher_image_generation
@@ -1434,7 +1436,7 @@ if "%app_launcher_core_util_choice%"=="1" (
 ) else if "%app_launcher_core_util_choice%"=="0" (
     goto :app_launcher
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_launcher_core_utilities
@@ -1502,7 +1504,7 @@ if "%app_installer_choice%"=="1" (
 ) else if "%app_installer_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_installer
@@ -1539,7 +1541,7 @@ if "%app_installer_txt_comp_choice%"=="1" (
 ) else if "%app_installer_txt_comp_choice%"=="0" (
     goto :app_installer
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_installer_text_completion
@@ -1612,7 +1614,7 @@ if "%app_installer_koboldcpp_choice%"=="1" (
 ) else if "%app_installer_koboldcpp_choice%"=="0" (
     goto :app_installer_text_completion
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_koboldcpp_menu
@@ -1662,7 +1664,7 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="0" (
     goto :install_koboldcpp_menu
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_koboldcpp
@@ -1826,7 +1828,7 @@ if "%app_installer_tabbyapi_choice%"=="1" (
 ) else if "%app_installer_tabbyapi_choice%"=="0" (
     goto :app_installer_text_completion
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_tabbyapi_menu
@@ -1875,7 +1877,7 @@ if "%gpu_choice%"=="1" (
 ) else if "%gpu_choice%"=="0" (
     goto :app_installer_text_completion
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_tabbyapi
@@ -1999,7 +2001,7 @@ if "%app_installer_tabbyapi_model_choice%"=="1" (
 ) else if "%app_installer_tabbyapi_model_choice%"=="0" (
     goto :install_tabbyapi_menu
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_tabbyapi_model_menu
@@ -2280,7 +2282,7 @@ if "%app_installer_voice_gen_choice%"=="1" (
 ) else if "%app_installer_voice_gen_choice%"=="0" (
     goto :app_installer
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_installer_voice_generation
@@ -2679,7 +2681,7 @@ if "%app_installer_img_gen_choice%"=="1" (
 ) else if "%app_installer_img_gen_choice%"=="0" (
     goto :app_installer
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_installer_image_generation
@@ -2721,7 +2723,7 @@ if "%app_installer_sdwebui_choice%"=="1" (
 ) else if "%app_installer_sdwebui_choice%"=="0" (
     goto :app_installer_image_generation
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebui_menu
@@ -2870,7 +2872,7 @@ if "%app_installer_sdwebui_model_choice%"=="1" (
 ) else if "%app_installer_sdwebui_model_choice%"=="0" (
     goto :install_sdwebui_menu
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebui_model_menu
@@ -2917,7 +2919,7 @@ if "%civitaimodelid%"=="0" goto :install_sdwebui_model_menu
 REM Check if the input is a valid number
 echo %civitaimodelid%| findstr /R "^[0-9]*$" > nul
 if errorlevel 1 (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebui_model_custom
@@ -2975,7 +2977,7 @@ if "%app_installer_sdwebuiforge_choice%"=="1" (
 ) else if "%app_installer_sdwebuiforge_choice%"=="0" (
     goto :app_installer_image_generation
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebuiforge_menu
@@ -3121,7 +3123,7 @@ if "%app_installer_sdwebuiforge_model_choice%"=="1" (
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="0" (
     goto :install_sdwebuiforge_menu
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebuiforge_model_menu
@@ -3168,7 +3170,7 @@ if "%civitaimodelid%"=="0" goto :install_sdwebuiforge_model_menu
 REM Check if the input is a valid number
 echo %civitaimodelid%| findstr /R "^[0-9]*$" > nul
 if errorlevel 1 (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :install_sdwebuiforge_model_custom
@@ -3339,7 +3341,7 @@ if "%app_installer_core_util_choice%"=="1" (
 ) else if "%app_installer_core_util_choice%"=="0" (
     goto :app_installer
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_installer_core_utilities
@@ -3602,7 +3604,7 @@ if "%app_uninstaller_choice%"=="1" (
 ) else if "%app_uninstaller_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_uninstaller
@@ -3639,7 +3641,7 @@ if "%app_uninstaller_txt_comp_choice%"=="1" (
 ) else if "%app_uninstaller_txt_comp_choice%"=="0" (
     goto :app_uninstaller
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_uninstaller_text_completion
@@ -3803,7 +3805,7 @@ if "%app_uninstaller_voice_gen_choice%"=="1" (
 ) else if "%app_uninstaller_voice_gen_choice%"=="0" (
     goto :app_uninstaller
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_uninstaller_voice_generation
@@ -3947,7 +3949,7 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
 ) else if "%app_uninstaller_img_gen_choice%"=="0" (
     goto :app_uninstaller
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_uninstaller_image_generation
@@ -4142,7 +4144,7 @@ if "%app_uninstaller_core_util_choice%"=="1" (
 ) else if "%app_uninstaller_core_util_choice%"=="0" (
     goto :app_uninstaller
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :app_uninstaller_core_utilities
@@ -4340,7 +4342,7 @@ if "%editor_choice%"=="1" (
 ) else if "%editor_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :editor
@@ -4374,7 +4376,7 @@ if "%editor_txt_comp_choice%"=="1" (
 ) else if "%editor_txt_comp_choice%"=="0" (
     goto :editor
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :editor_text_completion
@@ -4559,7 +4561,7 @@ if "%editor_voice_gen_choice%"=="1" (
 ) else if "%editor_voice_gen_choice%"=="0" (
     goto :editor
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :editor_voice_generation
@@ -4733,7 +4735,7 @@ if "%editor_img_gen_choice%"=="1" (
 ) else if "%editor_img_gen_choice%"=="0" (
     goto :editor
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :editor_image_generation
@@ -4980,7 +4982,7 @@ if "%editor_core_util_choice%"=="1" (
     start "" "https://sillytavernai.com/launcher-ssl"
     goto :editor_core_utilities
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :editor_core_utilities
@@ -5286,7 +5288,7 @@ if "%troubleshooting_choice%"=="1" (
 ) else if "%troubleshooting_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :troubleshooting
@@ -5322,7 +5324,7 @@ if "%branch_choice%"=="1" (
 ) else if "%branch_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :switch_branch
@@ -5377,7 +5379,7 @@ if "%backup_choice%"=="1" (
 ) else if "%backup_choice%"=="0" (
     goto :toolbox
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :backup
@@ -5453,11 +5455,11 @@ if "%restore_choice%" geq "1" (
         rmdir /s /q "temp"
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%!selected_backup! restored successfully.%reset%
     ) else (
-        echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+        echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %echo_invalidinput%
     )
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
 )
 
@@ -5491,7 +5493,7 @@ if "%support_choice%"=="1" (
 ) else if "%support_choice%"=="0" (
     goto :home
 ) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :support

@@ -1,6 +1,4 @@
 @echo off
-REM Set base directory
-set "base_dir=%~dp0\..\.."
 
 REM Check if the folder exists
 if not exist "%st_install_path%" (
@@ -26,7 +24,7 @@ start /B cmd /C "%command%"
 for /f "tokens=2 delims=," %%a in ('tasklist /FI "IMAGENAME eq cmd.exe" /FO CSV /NH') do (
     set "pid=%%a"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Started process with PID: %cyan_fg_strong%!pid!%reset%
-    echo !pid!>>"%base_dir%\logs\pids.txt"
+    echo !pid!>>"%log_dir%pids.txt"
     goto :st_found_pid
 )
 :st_found_pid
@@ -44,16 +42,15 @@ if exist "%SSL_INFO_FILE%" (
 :ST_SSL_Start
 if "%sslPathsFound%"=="true" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened with SSL in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %base_dir%\functions\launch\log_wrapper.bat ssl"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %functions_dir%\launch\log_wrapper.bat ssl"
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %base_dir%\functions\launch\log_wrapper.bat"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %functions_dir%\launch\log_wrapper.bat"
 )
 
 REM Clear the old log file if it exists
-set "log_file=%base_dir%\logs\st_console_output.log"
-if exist "%log_file%" (
-    del "%log_file%"
+if exist "%logs_st_console_path%" (
+    del "%logs_st_console_path%"
 )
 REM Wait for log file to be created, timeout after 60 seconds (20 iterations of 3 seconds)
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Waiting for SillyTavern to fully launch...
@@ -61,7 +58,7 @@ set "counter=0"
 :wait_for_log
 timeout /t 3 > nul
 set /a counter+=1
-if not exist "%log_file%" (
+if not exist "%logs_st_console_path%" (
     if %counter% lss 20 (
         goto :wait_for_log
     ) else (
@@ -79,7 +76,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Log file found, scan
 
 :loop
 REM Use PowerShell to search for the error message
-powershell -Command "try { $content = Get-Content '%log_file%' -Raw; if ($content -match 'Error: Cannot find module') { exit 1 } elseif ($content -match 'SillyTavern is listening on:') { exit 0 } else { exit 2 } } catch { exit 2 }"
+powershell -Command "try { $content = Get-Content '%logs_st_console_path%' -Raw; if ($content -match 'Error: Cannot find module') { exit 1 } elseif ($content -match 'SillyTavern is listening on:') { exit 0 } else { exit 2 } } catch { exit 2 }"
 set "ps_errorlevel=%errorlevel%"
 
 if %ps_errorlevel% equ 0 (
@@ -99,7 +96,7 @@ set /p "choice=Run troubleshooter to fix this error? (If yes, close any open Sil
 if /i "%choice%"=="" set choice=Y
 if /i "%choice%"=="Y" (
     set "caller=home"
-    call %base_dir%\functions\troubleshooting\remove_node_modules.bat
+    call "%troubleshooting_dir%remove_node_modules.bat"
     if %errorlevel% equ 0 goto :home
 )
 exit /b 1

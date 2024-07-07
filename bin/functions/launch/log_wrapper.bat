@@ -1,9 +1,6 @@
 @echo off
 setlocal
 
-REM Define the path to the log file
-set LOG_FILE=%~dp0..\..\logs\st_console_output.log
-
 REM Set necessary environment variables for Node.js
 set NODE_ENV=production
 
@@ -16,7 +13,7 @@ if "%1"=="ssl" (
 
 REM Start the Node.js server and log the output using PowerShell Tee-Object, suppressing specific warnings
 echo Starting Node.js server with command: %NODE_CMD%
-powershell -Command "& {%NODE_CMD% 2>&1 | Where-Object {$_ -notmatch 'Security has been overridden'} | Tee-Object -FilePath '%LOG_FILE%'}"
+powershell -Command "& {%NODE_CMD% 2>&1 | Where-Object {$_ -notmatch 'Security has been overridden'} | Tee-Object -FilePath '%logs_st_console_path%'}"
 echo Node.js server started.
 pause
 
