@@ -428,9 +428,13 @@ if not defined choice set "choice=1"
 
 REM ################## HOME - BACKEND #########################
 if "%choice%"=="1" (
-    call :start_st
+    call %functions_dir%\launch\start_st.bat
+    if %errorlevel% equ 1 goto :home
 ) else if "%choice%"=="2" (
-    call :start_st_rl
+    start "" "%~dp0SillyTavern\Remote-Link.cmd"
+    echo "SillyTavern Remote Link Cloudflare Tunnel Launched"
+    call %functions_dir%\launch\start_st.bat
+    if %errorlevel% equ 1 goto :home
 ) else if "%choice%"=="3" (
     if exist "%~dp0bin\settings\custom-shortcut.txt" (
         call :launch_custom_shortcut
@@ -446,142 +450,12 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="7" (
     call :vraminfo
 )   else if "%choice%"=="0" (
-    call :exit
+    call %functions_dir%\launch\exit_stl.bat
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :home
-)
-
-:exit
-echo %red_bg%[%time%]%reset% %red_fg_strong%Terminating all started processes...%reset%
-for /f %%a in ('type "%~dp0bin\logs\pids.txt"') do (
-    taskkill /F /PID %%a
-)
-del "%~dp0bin\logs\pids.txt"
-exit
-
-
-:start_st
-REM Check if the folder exists
-if not exist "%st_install_path%" (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Directory:%reset% %red_bg%SillyTavern%reset% %red_fg_strong%not found.%reset%
-    echo %red_fg_strong%Please make sure SillyTavern is located in: %~dp0%reset%
-    pause
-    goto :home
-)
-REM Check if Node.js is installed
-node --version > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] node command not found in PATH.%reset%
-    echo %red_fg_strong%Node.js is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install Node.js go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install Node.js%reset%
-    pause
-    goto :home
-)
-
-setlocal
-set "command=%~1"
-start /B cmd /C "%command%"
-for /f "tokens=2 delims=," %%a in ('tasklist /FI "IMAGENAME eq cmd.exe" /FO CSV /NH') do (
-    set "pid=%%a"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Started process with PID: %cyan_fg_strong%!pid!%reset%
-    echo !pid!>>"%~dp0bin\logs\pids.txt"
-    goto :st_found_pid
-)
-:st_found_pid
-endlocal
-
-REM Check if SSL info file exists and set the command accordingly
-set "sslPathsFound=false"
-if exist "%SSL_INFO_FILE%" (
-    for /f %%i in ('type "%SSL_INFO_FILE%"') do (
-        set "sslPathsFound=true"
-        goto :ST_SSL_Start
-    )
-)
-
-:ST_SSL_Start
-if "%sslPathsFound%"=="true" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched with SSL in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %functions_dir%\launch\log_wrapper.bat ssl"
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %functions_dir%\launch\log_wrapper.bat"
-)
-
-
-rem Clear the old log file
-set "log_file=%~dp0bin\logs\st_console_output.log"
-del "%log_file%"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Waiting for log file to be created...
-:wait_for_log
-timeout /t 3 > nul
-if not exist "%log_file%" (
-    goto :wait_for_log
-)
-
-goto :scan_log
-
-:scan_log
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Log file found: %log_file%. Scanning log for errors...
-
-:loop
-REM Use PowerShell to search for the error message
-powershell -Command "try { $content = Get-Content '%log_file%' -Raw; if ($content -match 'Error: Cannot find module') { exit 1 } elseif ($content -match 'SillyTavern is listening on:') { exit 0 } else { exit 2 } } catch { exit 2 }"
-set "ps_errorlevel=%errorlevel%"
-
-if %ps_errorlevel% equ 0 (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern Launched Successfully. Returning home...%reset%
-    timeout /t 10
-    goto :home
-) else if %ps_errorlevel% equ 1 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Node.js Code: MODULE_NOT_FOUND%reset%
-    goto :attemptnodefix
-) else (
-    timeout /t 3 > nul
-    goto :loop
-)
-
-:attemptnodefix
-set /p "choice=Run troubleshooter to fix this error? [Y/n]: "
-    if /i "%choice%"=="" set choice=Y
-    if /i "%choice%"=="Y" (
-        call :remove_node_modules
-    )
-
-:start_st_rl
-REM Check if the folder exists
-if not exist "%st_install_path%" (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Directory:%reset% %red_bg%SillyTavern%reset% %red_fg_strong%not found.%reset%
-    echo %red_fg_strong%Please make sure SillyTavern is located in: %~dp0%reset%
-    pause
-    goto :home
-)
-REM Check if Node.js is installed
-node --version > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] node command not found in PATH.%reset%
-    echo %red_fg_strong%Node.js is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install Node.js go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install Node.js%reset%
-    pause
-    goto :home
-)
-
-REM Check if SSL info file exists and set the command accordingly
-if exist "%SSL_INFO_FILE%" (
-    for /f "skip=0 tokens=*" %%i in ('type "%SSL_INFO_FILE%"') do (
-        goto :sslPathsFoundRL
-    )
-    :sslPathsFoundRL
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched with SSL in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js --ssl && pause && popd"
-    start "" "%~dp0SillyTavern\Remote-Link.cmd"
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
-    start "" "%~dp0SillyTavern\Remote-Link.cmd"
 )
 goto :home
 
@@ -5358,17 +5232,53 @@ set /p troubleshooting_choice=Choose Your Destiny:
 
 REM ############## TROUBLESHOOTING - BACKEND ##################
 if "%troubleshooting_choice%"=="1" (
-    call :remove_node_modules
+    set "caller=troubleshooting"
+    call %functions_dir%\troubleshooting\remove_node_modules.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :troubleshooting
+    )
 ) else if "%troubleshooting_choice%"=="2" (
-    call :remove_pip_cache
+    set "caller=troubleshooting"
+    call %functions_dir%\troubleshooting\remove_pip_cache.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :troubleshooting
+    )
 ) else if "%troubleshooting_choice%"=="3" (
-    call :unresolved_unmerged
+    set "caller=troubleshooting"
+    call %functions_dir%\troubleshooting\unresolved_unmerged.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :troubleshooting
+    )
 ) else if "%troubleshooting_choice%"=="4" (
-    call :export_dxdiag
+    set "caller=troubleshooting"
+    call %functions_dir%\troubleshooting\export_dxdiag.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :troubleshooting
+    )
 ) else if "%troubleshooting_choice%"=="5" (
-    call :find_app_port
+    set "caller=troubleshooting"
+    call %functions_dir%\troubleshooting\find_app_port.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :troubleshooting
+    )
 ) else if "%troubleshooting_choice%"=="6" (
-    call :onboarding_flow
+    set "caller=troubleshooting"
+    call %functions_dir%\troubleshooting\onboarding_flow.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :troubleshooting
+    )
 ) else if "%troubleshooting_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -5377,128 +5287,6 @@ if "%troubleshooting_choice%"=="1" (
     pause
     goto :troubleshooting
 )
-
-
-
-
-
-:remove_node_modules
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing node_modules folder...
-cd /d "%st_install_path%"
-rmdir /s /q "node_modules"
-del package-lock.json
-call npm cache clean --force
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% node_modules successfully removed.
-pause
-goto :troubleshooting
-
-
-:remove_pip_cache
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Clearing pip cache...
-pip cache purge
-if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Could not clear the pip cache.%reset%
-    echo Please try again.
-    pause
-    goto :troubleshooting
-)
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%The pip cache has been cleared successfully.%reset%
-pause
-goto :troubleshooting
-
-
-:unresolved_unmerged
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Trying to resolve unresolved conflicts in the working directory or unmerged files...
-cd /d "%st_install_path%"
-git merge --abort
-git reset --hard
-git pull --rebase --autostash
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Done.
-pause
-goto :troubleshooting
-
-
-:export_dxdiag
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Exporting DirectX Diagnostic Tool information...
-dxdiag /t "%~dp0bin\dxdiag_info.txt"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%You can find the dxdiag_info.txt at: "%~dp0bin\dxdiag_info.txt"%reset%
-pause
-goto :troubleshooting
-
-
-REM Function to find and display the application using the specified port
-:find_app_port
-cls
-setlocal EnableDelayedExpansion
-set /p port_choice="(0 to cancel)Insert port number: "
-
-if "%port_choice%"=="0" goto :troubleshooting
-
-REM Check if the input is a number
-set "valid=true"
-for /f "delims=0123456789" %%i in ("!port_choice!") do set "valid=false"
-if "!valid!"=="false" (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input: Not a number.%reset%
-    pause
-    goto :troubleshooting
-)
-
-REM Check if the port is within range
-if !port_choice! gtr 65535 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Port out of range. There are only 65,535 possible port numbers.%reset%
-    echo [0-1023]: These ports are reserved for system services or commonly used protocols.
-    echo [1024-49151]: These ports can be used by user processes or applications.
-    echo [49152-65535]: These ports are available for use by any application or service on the system.
-    pause
-    goto :troubleshooting
-)
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Searching for application using port: !port_choice!...
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr /r "\<!port_choice!\>"') do (
-    set pid=%%a
-)
-
-if defined pid (
-    for /f "tokens=2*" %%b in ('tasklist /fi "PID eq !pid!" /fo list ^| find "Image Name"') do (
-        set app_name=%%c
-        echo Application Name: %cyan_fg_strong%!app_name!%reset%
-        echo PID of Port !port_choice!: %cyan_fg_strong%!pid!%reset%
-
-        REM Fetch the page title for the specified port
-        call :fetch_page_title !port_choice!
-        if defined PAGE_TITLE (
-            echo Title of Application: %cyan_fg_strong%!PAGE_TITLE!%reset%
-        ) else (
-            echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN]%reset% Could not retrieve page title.
-        )
-    )
-) else (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN]%reset% Port: !port_choice! not found.
-)
-endlocal
-pause
-goto :troubleshooting
-
-:fetch_page_title
-setlocal
-set "PORT=%1"
-set "URL=http://localhost:%PORT%"
-
-REM Use JScript to fetch and parse the title
-for /f "delims=" %%I in ('cscript /nologo "%functions_dir%\troubleshooting\fetch_title.js" "%URL%"') do (
-    set "PAGE_TITLE=%%I"
-)
-
-endlocal & set "PAGE_TITLE=%PAGE_TITLE%"
-goto :EOF
-
-:onboarding_flow
-set ONBOARDING_FLOW_VALUE=
-set /p ONBOARDING_FLOW_VALUE="Enter new value for Onboarding Flow (true/false): "
-yq eval -i ".firstRun = %ONBOARDING_FLOW_VALUE%" "%st_install_path%\public\settings.json"
-goto :troubleshooting
-
-
 
 
 

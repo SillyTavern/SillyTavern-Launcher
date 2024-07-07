@@ -5,6 +5,6 @@ text-completion/
 image-generation/
 voice-generation/
 xtts/
-bin/
+bin/*
 !bin/functions/
 !bin/functions/**
