@@ -8,3 +8,5 @@ xtts/
 bin/*
 !bin/functions/
 !bin/functions/**
+*.txt
+*.logs
