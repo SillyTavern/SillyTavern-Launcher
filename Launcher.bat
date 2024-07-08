@@ -106,34 +106,46 @@ set "ooba_apiport_trigger=false"
 set "ooba_verbose_trigger=false"
 
 REM Define variables for install locations (Core Utilities)
+set "stl_root=%~dp0"
 set "st_install_path=%~dp0SillyTavern"
 set "extras_install_path=%~dp0SillyTavern-extras"
 set "st_backup_path=%~dp0SillyTavern-backups"
 
 REM Define variables for install locations (Image Generation)
-set "sdwebui_install_path=%~dp0image-generation\stable-diffusion-webui"
-set "sdwebuiforge_install_path=%~dp0image-generation\stable-diffusion-webui-forge"
-set "comfyui_install_path=%~dp0image-generation\ComfyUI"
-set "fooocus_install_path=%~dp0image-generation\Fooocus"
+set "image_generation_dir=%~dp0image-generation"
+set "sdwebui_install_path=%image_generation_dir%\stable-diffusion-webui"
+set "sdwebuiforge_install_path=%image_generation_dir%\stable-diffusion-webui-forge"
+set "comfyui_install_path=%image_generation_dir%\ComfyUI"
+set "fooocus_install_path=%image_generation_dir%\Fooocus"
 
 REM Define variables for install locations (Text Completion)
-set "ooba_install_path=%~dp0text-completion\text-generation-webui"
-set "koboldcpp_install_path=%~dp0text-completion\dev-koboldcpp"
-set "llamacpp_install_path=%~dp0text-completion\dev-llamacpp"
-set "tabbyapi_install_path=%~dp0text-completion\tabbyAPI"
+set "text_completion_dir=%~dp0text-completion"
+set "ooba_install_path=%text_completion_dir%\text-generation-webui"
+set "koboldcpp_install_path=%text_completion_dir%\dev-koboldcpp"
+set "llamacpp_install_path=%text_completion_dir%\dev-llamacpp"
+set "tabbyapi_install_path=%text_completion_dir%\tabbyAPI"
 
 REM Define variables for install locations (Voice Generation)
-set "alltalk_install_path=%~dp0voice-generation\alltalk_tts"
-set "xtts_install_path=%~dp0voice-generation\xtts"
-set "rvc_install_path=%~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI"
+set "voice_generation_dir=%~dp0voice-generation"
+set "alltalk_install_path=%voice_generation_dir%\alltalk_tts"
+set "xtts_install_path=%voice_generation_dir%\xtts"
+set "rvc_install_path=%voice_generation_dir%\Retrieval-based-Voice-Conversion-WebUI"
 
-REM Define variables for the directories
-set "stl_root=%~dp0"
-set "log_dir=%~dp0bin\logs"
-set "functions_dir=%~dp0bin\functions"
-set "toolbox_dir=%~dp0bin\functions\Toolbox"
-set "troubleshooting_dir=%~dp0bin\functions\Toolbox\Troubleshooting"
-set "backup_dir=%~dp0bin\functions\Toolbox\Backup"
+REM Define variables for the core directories
+set "bin_dir=%~dp0bin"
+set "log_dir=%bin_dir%\logs"
+set "functions_dir=%bin_dir%\functions"
+
+REM Define variables for the directories for Toolbox
+set "toolbox_dir=%functions_dir%\Toolbox"
+set "troubleshooting_dir=%toolbox_dir%\Troubleshooting"
+set "backup_dir=%toolbox_dir%\Backup"
+
+REM Define variables for the directories for App Installer
+set "app_installer_image_generation_dir=%functions_dir%\Toolbox\App_Installer\Image_Generation"
+set "app_installer_text_completion_dir=%functions_dir%\Toolbox\App_Installer\Text_Completion"
+set "app_installer_voice_generation_dir=%functions_dir%\Toolbox\App_Installer\Voice_Generation"
+
 
 REM Define variables for logging
 set "logs_stl_console_path=%log_dir%\stl.log"
@@ -1534,7 +1546,7 @@ set /p app_installer_txt_comp_choice=Choose Your Destiny:
 REM ######## APP INSTALLER TEXT COMPLETION - BACKEND ##########
 if "%app_installer_txt_comp_choice%"=="1" (
     set "caller=app_installer_text_completion"
-    call %functions_dir%\Toolbox\App_Installer\Text_Completion\install_ooba.bat
+    call %app_installer_text_completion_dir%\install_ooba.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -1545,7 +1557,13 @@ if "%app_installer_txt_comp_choice%"=="1" (
 ) else if "%app_installer_txt_comp_choice%"=="3" (
     call :install_tabbyapi_menu
 ) else if "%app_installer_txt_comp_choice%"=="4" (
-    call :install_llamacpp
+    set "caller=app_installer_text_completion"
+    call %app_installer_text_completion_dir%\install_llamacpp.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :app_installer_text_completion
+    )
 ) else if "%app_installer_txt_comp_choice%"=="0" (
     goto :app_installer
 ) else (
@@ -1574,9 +1592,21 @@ set /p app_installer_koboldcpp_choice=Choose Your Destiny:
 
 REM ######## APP INSTALLER KOBOLDCPP - BACKEND ##########
 if "%app_installer_koboldcpp_choice%"=="1" (
-    call :install_koboldcpp
+    set "caller=app_installer_text_completion_koboldcpp"
+    call %app_installer_text_completion_dir%\install_koboldcpp.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :install_koboldcpp_menu
+    )
 ) else if "%app_installer_koboldcpp_choice%"=="2" (
-    call :install_koboldcpp_raw
+    set "caller=app_installer_text_completion_koboldcpp"
+    call %app_installer_text_completion_dir%\install_koboldcpp_raw.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :install_koboldcpp_menu
+    )
 ) else if "%app_installer_koboldcpp_choice%"=="0" (
     goto :app_installer_text_completion
 ) else (
@@ -1585,181 +1615,6 @@ if "%app_installer_koboldcpp_choice%"=="1" (
     pause
     goto :install_koboldcpp_menu
 )
-
-
-:install_koboldcpp
-title STL [INSTALL KOBOLDCPP]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install koboldcpp%reset%
-echo -------------------------------------------------------------
-REM GPU menu - Frontend
-echo What is your GPU?
-echo 1. NVIDIA
-echo 2. AMD
-echo 0. Cancel
-
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-REM Get GPU information
-for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-    set "gpu_info=!gpu_info! %%i"
-)
-
-echo.
-echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
-echo.
-
-endlocal
-set /p gpu_choice=Enter number corresponding to your GPU: 
-
-REM GPU menu - Backend
-REM Set the GPU choice in an environment variable for choise callback
-set "GPU_CHOICE=%gpu_choice%"
-
-REM Check the user's response
-if "%gpu_choice%"=="1" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
-    goto :install_koboldcpp_pre
-) else if "%gpu_choice%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
-    goto :install_koboldcpp_pre
-) else if "%gpu_choice%"=="0" (
-    goto :install_koboldcpp_menu
-) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
-    echo %red_bg%[%time%]%reset% %echo_invalidinput%
-    pause
-    goto :install_koboldcpp
-)
-
-:install_koboldcpp_pre
-REM Check if text-completion folder exists
-if not exist "%~dp0text-completion" (
-    mkdir "%~dp0text-completion"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
-)
-
-REM Check if dev-koboldcpp folder exists
-if not exist "%koboldcpp_install_path%" (
-    mkdir "%koboldcpp_install_path%"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-koboldcpp"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-koboldcpp" folder already exists.%reset%
-)
-cd /d "%koboldcpp_install_path%"
-
-REM Use the GPU choice made earlier to install koboldcpp
-if "%GPU_CHOICE%"=="1" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
-    curl -L -o "%koboldcpp_install_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
-    start "" "koboldcpp.exe"
-    goto :install_koboldcpp_final
-) else if "%GPU_CHOICE%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp_rocm.exe for: %cyan_fg_strong%AMD%reset% 
-    curl -L -o "%koboldcpp_install_path%\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
-    start "" "koboldcpp_rocm.exe"
-    goto :install_koboldcpp_final
-)
-
-:install_koboldcpp_final
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed koboldcpp%reset%
-pause
-goto :app_installer_text_completion
-
-:install_koboldcpp_raw
-title STL [INSTALL KOBOLDCPP RAW]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install koboldcpp RAW%reset%
-echo -------------------------------------------------------------
-
-REM Check if the folder exists
-if not exist "%w64devkit_install_path%" (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] w64devkit not found.%reset%
-    echo %red_fg_strong%w64devkit is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install w64devkit go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install w64devkit%reset%
-    pause
-    goto :app_installer_core_utilities
-)
-
-REM Activate the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named koboldcpp
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%koboldcpp%reset%
-call conda create -n koboldcpp python=3.11 -y
-
-REM Activate the conda environment named koboldcpp 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%koboldcpp%reset%
-call conda activate koboldcpp
-
-REM Install pip requirements
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements
-pip install pyinstaller
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing koboldcpp...
-cd /d "%~dp0"
-
-REM Check if the folder exists
-if not exist "%~dp0text-completion" (
-    mkdir "%~dp0text-completion"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
-)
-
-
-REM Check if the folder exists
-if not exist "%koboldcpp_install_path%" (
-    mkdir "%koboldcpp_install_path%"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-koboldcpp"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-koboldcpp" folder already exists.%reset%
-)
-cd /d "%koboldcpp_install_path%"
-
-REM Check if file exists
-if not exist "make.sh" (
-    echo make -C "${1}" > "make.sh"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created new file: "make.sh"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "make.sh" already exists.%reset%
-)
-
-set max_retries=3
-set retry_count=0
-
-:retry_install_koboldcpp
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the koboldcpp repository...
-git clone https://github.com/LostRuins/koboldcpp.git
-
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_install_koboldcpp
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
-    pause
-    goto :app_installer_text_completion
-)
-
-REM Add new lines to CMakeLists.txt
-cd /d "koboldcpp"
-echo add_compile_options("$<$<C_COMPILER_ID:MSVC>:-utf-8>")>> CMakeLists.txt
-echo add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:-utf-8>")>> CMakeLists.txt
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% successfully added new lines to: CMakeLists.txt
-
-make
-PyInstaller --noconfirm --onefile --clean --console --collect-all customtkinter --icon "./niko.ico" --add-data "./winclinfo.exe;." --add-data "./OpenCL.dll;." --add-data "./klite.embd;." --add-data "./kcpp_docs.embd;." --add-data "./koboldcpp_default.dll;." --add-data "./koboldcpp_openblas.dll;." --add-data "./koboldcpp_failsafe.dll;." --add-data "./koboldcpp_noavx2.dll;." --add-data "./libopenblas.dll;." --add-data "./koboldcpp_clblast.dll;." --add-data "./koboldcpp_clblast_noavx2.dll;." --add-data "./koboldcpp_vulkan_noavx2.dll;." --add-data "./clblast.dll;." --add-data "./koboldcpp_vulkan.dll;." --add-data "./vulkan-1.dll;." --add-data "./rwkv_vocab.embd;." --add-data "./rwkv_world_vocab.embd;." "./koboldcpp.py" -n "koboldcpp.exe"
-start "" "koboldcpp.exe"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed koboldcpp%reset%
-pause
-goto :app_installer_text_completion
 
 
 REM ############################################################
@@ -1788,7 +1643,13 @@ set /p app_installer_tabbyapi_choice=Choose Your Destiny:
 
 REM ##### APP INSTALLER TABBYAPI - BACKEND ######
 if "%app_installer_tabbyapi_choice%"=="1" (
-    call :install_tabbyapi
+    set "caller=app_installer_text_completion_tabbyapi"
+    call %app_installer_text_completion_dir%\install_tabbyapi.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :install_tabbyapi_menu
+    )
 ) else if "%app_installer_tabbyapi_choice%"=="2" (
     goto :install_tabbyapi_model_menu
 ) else if "%app_installer_tabbyapi_choice%"=="0" (
@@ -1799,124 +1660,6 @@ if "%app_installer_tabbyapi_choice%"=="1" (
     pause
     goto :install_tabbyapi_menu
 )
-
-:install_tabbyapi
-title STL [INSTALL TABBYAPI]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install TabbyAPI%reset%
-echo -------------------------------------------------------------
-REM GPU menu - Frontend
-echo What is your GPU?
-echo 1. NVIDIA
-echo 2. AMD
-echo 0. Cancel
-
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-REM Get GPU information
-for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-    set "gpu_info=!gpu_info! %%i"
-)
-
-echo.
-echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
-echo.
-
-endlocal
-set /p gpu_choice=Enter number corresponding to your GPU: 
-
-REM GPU menu - Backend
-REM Set the GPU choice in an environment variable for choise callback
-set "GPU_CHOICE=%gpu_choice%"
-
-REM Check the user's response
-if "%gpu_choice%"=="1" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
-    goto :install_tabbyapi_pre
-) else if "%gpu_choice%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
-    goto :install_tabbyapi_pre
-) else if "%gpu_choice%"=="0" (
-    goto :app_installer_text_completion
-) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
-    echo %red_bg%[%time%]%reset% %echo_invalidinput%
-    pause
-    goto :install_tabbyapi
-)
-
-:install_tabbyapi_pre
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing TabbyAPI...
-
-REM Check if the folder exists
-if not exist "%~dp0text-completion" (
-    mkdir "%~dp0text-completion"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
-)
-cd /d "%~dp0text-completion"
-
-set max_retries=3
-set retry_count=0
-
-:retry_install_tabbyapi
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the tabbyAPI repository...
-git clone https://github.com/theroyallab/tabbyAPI.git
-
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_install_tabbyapi
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
-    pause
-    goto :app_installer_text_completion
-)
-
-REM Activate the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named tabbyapi
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%tabbyapi%reset%
-call conda create -n tabbyapi python=3.11 -y
-
-REM Activate the conda environment named tabbyapi 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%tabbyapi%reset%
-call conda activate tabbyapi
-
-cd /d "%tabbyapi_install_path%"
-REM Use the GPU choice made earlier to install requirements for tabbyapi
-if "%GPU_CHOICE%"=="1" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[tabbyapi]%reset% %blue_fg_strong%[INFO]%reset% Setting TabbyAPI to use NVIDIA GPUs: %cyan_fg_strong%tabbyapi%reset%
-    echo cu121 > "gpu_lib.txt" 
-    goto :install_tabbyapi_final
-) else if "%GPU_CHOICE%"=="2" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[tabbyapi]%reset% %blue_fg_strong%[INFO]%reset% Setting TabbyAPI to use AMD GPUs: %cyan_fg_strong%tabbyapi%reset%
-    echo amd > "gpu_lib.txt" 
-    goto :install_tabbyapi_final
-)
-
-:install_tabbyapi_final
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downgrading numpy to: %cyan_fg_strong%1.26.4%reset%
-pip install numpy==1.26.4
-
-echo Loading solely the API may not be your optimal usecase. 
-echo Therefore, a config.yml exists to tune initial launch parameters and other configuration options.
-echo.
-echo A config.yml file is required for overriding project defaults. 
-echo If you are okay with the defaults, you don't need a config file!
-echo.
-echo If you do want a config file, copy over config_sample.yml to config.yml. All the fields are commented, 
-echo so make sure to read the descriptions and comment out or remove fields that you don't need.
-echo.
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been installed successfully.%reset%
-pause
-goto :install_tabbyapi_menu
 
 
 REM ############################################################
@@ -2160,67 +1903,6 @@ pause
 goto :install_tabbyapi_model_menu
 
 
-
-:install_llamacpp
-title STL [INSTALL LLAMACPP]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install llamacpp%reset%
-echo -------------------------------------------------------------
-
-REM Check if the folder exists
-if not exist "%w64devkit_install_path%" (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] w64devkit not found.%reset%
-    echo %red_fg_strong%w64devkit is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install w64devkit go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install w64devkit%reset%
-    pause
-    goto :app_installer_core_utilities
-)
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing llamacpp...
-cd /d "%~dp0"
-
-REM Check if the folder exists
-if not exist "%~dp0text-completion" (
-    mkdir "%~dp0text-completion"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
-)
-
-
-REM Check if the folder exists
-if not exist "%llamacpp_install_path%" (
-    mkdir "%llamacpp_install_path%"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "dev-llamacpp"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-llamacpp" folder already exists.%reset%
-)
-cd /d "%llamacpp_install_path%"
-
-set max_retries=3
-set retry_count=0
-
-:retry_install_llamacpp
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the llamacpp repository...
-git clone https://github.com/ggerganov/llama.cpp.git
-
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_install_llamacpp
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
-    pause
-    goto :app_installer_text_completion
-)
-
-cd /d "llama.cpp"
-
-make
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed llamacpp%reset%
-pause
-goto :app_installer_text_completion
-
-
 REM ############################################################
 REM ######## APP INSTALLER VOICE GENERATION - FRONTEND #########
 REM ############################################################
@@ -2240,11 +1922,29 @@ set /p app_installer_voice_gen_choice=Choose Your Destiny:
 
 REM ######## APP INSTALLER VOICE GENERATION - BACKEND #########
 if "%app_installer_voice_gen_choice%"=="1" (
-    call :install_alltalk
+    set "caller=app_installer_voice_generation"
+    call %app_installer_voice_generation_dir%\install_alltalk.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :app_installer_voice_generation
+    )
 ) else if "%app_installer_voice_gen_choice%"=="2" (
-    goto :install_xtts
+    set "caller=app_installer_voice_generation"
+    call %app_installer_voice_generation_dir%\install_xtts.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :app_installer_voice_generation
+    )
 ) else if "%app_installer_voice_gen_choice%"=="3" (
-    goto :install_rvc
+    set "caller=app_installer_voice_generation"
+    call %app_installer_voice_generation_dir%\install_rvc.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :app_installer_voice_generation
+    )
 ) else if "%app_installer_voice_gen_choice%"=="0" (
     goto :app_installer
 ) else (
@@ -2254,367 +1954,6 @@ if "%app_installer_voice_gen_choice%"=="1" (
     goto :app_installer_voice_generation
 )
 
-
-:install_alltalk
-title STL [INSTALL ALLTALK]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Voice Generation / Install AllTalk%reset%
-echo ---------------------------------------------------------------
-REM GPU menu - Frontend
-echo What is your GPU?
-echo 1. NVIDIA
-echo 2. AMD
-echo 0. Cancel
-
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-REM Get GPU information
-for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-    set "gpu_info=!gpu_info! %%i"
-)
-
-echo.
-echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
-echo.
-
-endlocal
-set /p gpu_choice=Enter number corresponding to your GPU: 
-
-REM GPU menu - Backend
-REM Set the GPU choice in an environment variable for choise callback
-set "GPU_CHOICE=%gpu_choice%"
-
-REM Check the user's response
-if "%gpu_choice%"=="1" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
-    goto :install_alltalk_pre
-) else if "%gpu_choice%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
-    goto :install_alltalk_pre
-) else if "%gpu_choice%"=="0" (
-    goto :app_installer_voice_generation
-) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
-    pause
-    goto :install_alltalk
-)
-:install_alltalk_pre
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AllTalk...
-
-REM Check if the folder exists
-if not exist "%~dp0voice-generation" (
-    mkdir "%~dp0voice-generation"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
-)
-cd /d "%~dp0voice-generation"
-
-set max_retries=3
-set retry_count=0
-
-:retry_install_alltalk
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning alltalk_tts repository...
-git clone https://github.com/erew123/alltalk_tts.git
-
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_install_alltalk
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
-    pause
-    goto :home
-)
-cd /d "%alltalk_install_path%"
-
-REM Activate the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named alltalk
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%alltalk%reset%
-call conda create -n alltalk python=3.11.5 -y
-
-REM Activate the alltalk environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%alltalk%reset%
-call conda activate alltalk
-
-REM Use the GPU choice made earlier to install requirements for alltalk
-if "%GPU_CHOICE%"=="1" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%alltalk%reset%
-    pip install torch==2.2.0+cu121 torchaudio==2.2.0+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing deepspeed...
-    curl -LO https://github.com/erew123/alltalk_tts/releases/download/DeepSpeed-14.0/deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
-    pip install deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
-    del deepspeed-0.14.0+ce78a63-cp311-cp311-win_amd64.whl
-    goto :install_alltalk_final
-) else if "%GPU_CHOICE%"=="2" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%alltalk%reset%
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-    goto :install_alltalk_final
-)
-:install_alltalk_final
-echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[alltalk]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements from requirements_standalone.txt
-pip install -r system\requirements\requirements_standalone.txt
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%AllTalk installed successfully%reset%
-pause
-goto :app_installer_voice_generation
-
-
-:install_xtts
-title STL [INSTALL XTTS]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Voice Generation / Install XTTS%reset%
-echo ---------------------------------------------------------------
-REM GPU menu - Frontend
-echo What is your GPU?
-echo 1. NVIDIA
-echo 2. AMD
-echo 3. None CPU-only mode
-echo 0. Cancel
-
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-REM Get GPU information
-for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-    set "gpu_info=!gpu_info! %%i"
-)
-
-echo.
-echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
-echo.
-
-endlocal
-set /p gpu_choice=Enter number corresponding to your GPU: 
-
-REM GPU menu - Backend
-REM Set the GPU choice in an environment variable for choise callback
-set "GPU_CHOICE=%gpu_choice%"
-
-REM Check the user's response
-if "%gpu_choice%"=="1" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
-    goto :install_xtts_pre
-) else if "%gpu_choice%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to AMD
-    goto :install_xtts_pre
-) else if "%gpu_choice%"=="3" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Using CPU-only mode
-    goto :install_xtts_pre
-) else if "%gpu_choice%"=="0" (
-    goto :installer
-) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
-    pause
-    goto :install_xtts
-)
-:install_xtts_pre
-REM Check if the folder exists
-if not exist "%~dp0voice-generation" (
-    mkdir "%~dp0voice-generation"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
-)
-cd /d "%~dp0voice-generation"
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
-
-REM Activate the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named xtts
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%xtts%reset%
-call conda create -n xtts python=3.10 -y
-
-REM Activate the xtts environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%xtts%reset%
-call conda activate xtts
-
-REM Use the GPU choice made earlier to install requirements for XTTS
-if "%GPU_CHOICE%"=="1" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
-    pip install torch==2.1.1+cu118 torchvision==0.16.1+cu118  torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
-    goto :install_xtts_final
-) else if "%GPU_CHOICE%"=="2" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-    goto :install_xtts_final
-) else if "%GPU_CHOICE%"=="3" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing CPU-only version of PyTorch in conda enviroment: %cyan_fg_strong%xtts%reset%
-    pip install torch torchvision torchaudio
-    goto :install_xtts_final
-)
-:install_xtts_final
-REM Clone the xtts-api-server repository for voice examples
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning xtts-api-server repository...
-git clone https://github.com/daswer123/xtts-api-server.git
-cd /d "xtts-api-server"
-
-REM Create requirements-custom.txt to install pip requirements
-echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Creating file: requirements-custom.txt%reset%
-echo xtts-api-server > requirements-custom.txt
-echo pydub >> requirements-custom.txt
-echo stream2sentence >> requirements-custom.txt
-echo spacy==3.7.4 >> requirements-custom.txt
-
-REM Install pip requirements
-echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[xtts]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements in conda enviroment: %cyan_fg_strong%xtts%reset%
-pip install -r requirements-custom.txt
-
-REM Create folders for xtts
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
-mkdir "%xtts_install_path%"
-mkdir "%xtts_install_path%\speakers"
-mkdir "%xtts_install_path%\output"
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
-xcopy "%~dp0voice-generation\xtts-api-server\example\*" "%xtts_install_path%\speakers\" /y /e
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
-cd /d "%~dp0"
-rmdir /s /q "%~dp0voice-generation\xtts-api-server"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
-pause
-goto :app_installer_voice_generation
-
-
-:install_rvc
-title STL [INSTALL RVC]
-cls
-echo %blue_fg_strong%/ Home / Install RVC%reset%
-echo ---------------------------------------------------------------
-REM GPU menu - Frontend
-echo What is your GPU?
-echo 1. NVIDIA
-echo 2. AMD
-echo 3. AMD/Intel DirectML
-echo 4. Intel Arc IPEX
-echo 0. Cancel
-
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-REM Get GPU information
-for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-    set "gpu_info=!gpu_info! %%i"
-)
-
-echo.
-echo %blue_bg%╔════ GPU INFO ═════════════════════════════════╗%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%║* %gpu_info:~1%                   ║%reset%
-echo %blue_bg%║                                               ║%reset%
-echo %blue_bg%╚═══════════════════════════════════════════════╝%reset%
-echo.
-
-endlocal
-set /p gpu_choice=Enter number corresponding to your GPU: 
-
-REM GPU menu - Backend
-REM Set the GPU choice in an environment variable for choise callback
-set "GPU_CHOICE=%gpu_choice%"
-
-REM Check the user's response
-if "%gpu_choice%"=="1" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to: NVIDIA
-    goto :install_rvc_pre
-) else if "%gpu_choice%"=="2" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to: AMD
-    goto :install_rvc_pre
-) else if "%gpu_choice%"=="3" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to: AMD/Intel DirectML
-    goto :install_rvc_pre
-) else if "%gpu_choice%"=="4" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to: Intel Arc IPEX
-    goto :install_rvc_pre
-) else if "%gpu_choice%"=="0" (
-    goto :app_installer_voice_generation
-) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Invalid input. Please enter a valid number.%reset%
-    pause
-    goto :install_rvc
-)
-:install_rvc_pre
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing RVC...
-
-REM Check if the folder exists
-if not exist "%~dp0voice-generation" (
-    mkdir "%~dp0voice-generation"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
-)
-cd /d "%~dp0voice-generation"
-
-set max_retries=3
-set retry_count=0
-
-:retry_install_rvc
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the Retrieval-based-Voice-Conversion-WebUI repository...
-git clone https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI.git
-
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_install_rvc
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
-    pause
-    goto :home
-)
-cd /d "%rvc_install_path%"
-
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named rvc
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%rvc%reset%
-call conda create -n rvc python=3.10.6 -y
-
-REM Activate the rvc environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%rvc%reset%
-call conda activate rvc
-
-REM Use the GPU choice made earlier to install requirements for RVC
-if "%GPU_CHOICE%"=="1" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version from requirements.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
-    pip install -r requirements.txt
-    pip install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
-    goto :install_rvc_final
-) else if "%GPU_CHOICE%"=="2" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version from requirements-amd.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
-    pip install -r requirements-amd.txt
-    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
-    goto :install_rvc_final
-) else if "%GPU_CHOICE%"=="3" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD/Intel DirectML version from requirements-dml.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
-    pip install -r requirements-dml.txt
-    goto :install_rvc_final
-) else if "%GPU_CHOICE%"=="4" (
-    echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing Intel Arc IPEX version from  requirements-ipex.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
-    pip install -r requirements-ipex.txt
-    goto :install_rvc_final
-)
-:install_rvc_final
-REM Install pip packages that are not in requirements list
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip modules for GUI
-pip install FreeSimpleGUI
-pip install sounddevice
-
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%RVC successfully installed.%reset%
-pause
-goto :app_installer_voice_generation
 
 
 REM ############################################################
@@ -2641,9 +1980,21 @@ if "%app_installer_img_gen_choice%"=="1" (
 ) else if "%app_installer_img_gen_choice%"=="2" (
     goto :install_sdwebuiforge_menu
 ) else if "%app_installer_img_gen_choice%"=="3" (
-    goto :install_comfyui
+    set "caller=app_installer_image_generation"
+    call %app_installer_image_generation_dir%\install_comfyui.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :app_installer_image_generation
+    )
 ) else if "%app_installer_img_gen_choice%"=="4" (
-    goto :install_fooocus
+    set "caller=app_installer_image_generation"
+    call %app_installer_image_generation_dir%\install_fooocus.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :app_installer_image_generation
+    )
 ) else if "%app_installer_img_gen_choice%"=="0" (
     goto :app_installer
 ) else (
@@ -2681,7 +2032,13 @@ set /p app_installer_sdwebui_choice=Choose Your Destiny:
 
 REM ##### APP INSTALLER STABLE DIFUSSION WEBUI - BACKEND ######
 if "%app_installer_sdwebui_choice%"=="1" (
-    call :install_sdwebui
+    set "caller=app_installer_image_generation"
+    call %app_installer_image_generation_dir%\install_sdwebui.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :install_sdwebui_menu
+    )
 ) else if "%app_installer_sdwebui_choice%"=="2" (
     goto :install_sdwebui_extensions
 ) else if "%app_installer_sdwebui_choice%"=="3" (
@@ -2694,60 +2051,6 @@ if "%app_installer_sdwebui_choice%"=="1" (
     pause
     goto :install_sdwebui_menu
 )
-
-
-:install_sdwebui
-title STL [INSTALL STABLE DIFFUSION WEBUI]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation / Install Stable Diffusion web UI%reset%
-echo -------------------------------------------------------------
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Stable Diffusion web UI...
-
-REM Check if the folder exists
-if not exist "%~dp0image-generation" (
-    mkdir "%~dp0image-generation"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "image-generation"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "image-generation" folder already exists.%reset%
-)
-cd /d "%~dp0image-generation"
-
-
-set max_retries=3
-set retry_count=0
-:retry_install_sdwebui
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the stable-diffusion-webui repository...
-git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui.git
-
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_install_sdwebui
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
-    pause
-    goto :app_installer_image_generation
-)
-cd /d "stable-diffusion-webui"
-
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named sdwebui
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%sdwebui%reset%
-call conda create -n sdwebui python=3.10.6 -y
-
-REM Activate the sdwebui environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebui%reset%
-call conda activate sdwebui
-
-REM Install pip requirements
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements
-pip install civitdl
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Stable Diffusion web UI installed Successfully.%reset%
-pause
-goto :install_sdwebui_menu
 
 
 :install_sdwebui_extensions
@@ -2935,7 +2238,13 @@ set /p app_installer_sdwebuiforge_choice=Choose Your Destiny:
 
 REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE - BACKEND ###
 if "%app_installer_sdwebuiforge_choice%"=="1" (
-    call :install_sdwebuiforge
+    set "caller=app_installer_image_generation"
+    call %app_installer_image_generation_dir%\install_comfyuiforge.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :install_sdwebuiforge_menu
+    )
 ) else if "%app_installer_sdwebuiforge_choice%"=="2" (
     goto :install_sdwebuiforge_extensions
 ) else if "%app_installer_sdwebuiforge_choice%"=="3" (
@@ -2948,60 +2257,6 @@ if "%app_installer_sdwebuiforge_choice%"=="1" (
     pause
     goto :install_sdwebuiforge_menu
 )
-
-
-:install_sdwebuiforge
-title STL [INSTALL STABLE DIFFUSION WEBUI]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install Stable Diffusion web UI Forge%reset%
-echo -------------------------------------------------------------
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Stable Diffusion web UI Forge...
-
-REM Check if the folder exists
-if not exist "%~dp0image-generation" (
-    mkdir "%~dp0image-generation"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "image-generation"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "image-generation" folder already exists.%reset%
-)
-cd /d "%~dp0image-generation"
-
-
-set max_retries=3
-set retry_count=0
-:retry_install_sdwebuiforge
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the stable-diffusion-webui-forge repository...
-git clone https://github.com/lllyasviel/stable-diffusion-webui-forge.git
-
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_install_sdwebuiforge
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
-    pause
-    goto :app_installer_image_generation
-)
-cd /d "stable-diffusion-webui-forge"
-
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named sdwebuiforge
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
-call conda create -n sdwebuiforge python=3.10.6 -y
-
-REM Activate the sdwebuiforge environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
-call conda activate sdwebuiforge
-
-REM Install pip requirements
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements
-pip install civitdl
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Stable Diffusion WebUI Forge installed Successfully.%reset%
-pause
-goto :install_sdwebuiforge_menu
 
 
 :install_sdwebuiforge_extensions
@@ -3148,124 +2403,6 @@ civitdl %civitaimodelid% -s basic "models\Stable-diffusion"
 pause
 goto :install_sdwebuiforge_model_menu
 
-
-:install_comfyui
-title STL [INSTALL COMFYUI]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation / Install ComfyUI%reset%
-echo -------------------------------------------------------------
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing ComfyUI...
-
-REM Check if the folder exists
-if not exist "%~dp0image-generation" (
-    mkdir "%~dp0image-generation"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "image-generation"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "image-generation" folder already exists.%reset%
-)
-cd /d "%~dp0image-generation"
-
-
-set max_retries=3
-set retry_count=0
-:retry_install_comfyui
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the ComfyUI repository...
-git clone https://github.com/comfyanonymous/ComfyUI.git
-
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_install_comfyui
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
-    pause
-    goto :app_installer_image_generation
-)
-cd /d "%comfyui_install_path%"
-
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named comfyui
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%comfyui%reset%
-call conda create -n comfyui python=3.11 -y
-
-REM Activate the comfyui environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment %cyan_fg_strong%comfyui%reset
-call conda activate comfyui
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
-pip install -r requirements.txt
-pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu121
-
-REM Clone extensions for ComfyUI
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for ComfyUI...
-cd /d "%comfyui_install_path%\custom_nodes"
-git clone https://github.com/ltdrdata/ComfyUI-Manager.git
-
-REM Installs better upscaler models
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Better Upscaler models...
-cd /d "%comfyui_install_path%\models"
-mkdir ESRGAN && cd ESRGAN
-curl -o 4x-AnimeSharp.pth https://huggingface.co/konohashinobi4/4xAnimesharp/resolve/main/4x-AnimeSharp.pth
-curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
-
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ComfyUI successfully installed.%reset%
-pause
-goto :app_installer_image_generation
-
-
-:install_fooocus
-title STL [INSTALL FOOOCUS]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation / Install Fooocus%reset%
-echo -------------------------------------------------------------
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Fooocus...
-
-REM Check if the folder exists
-if not exist "%~dp0image-generation" (
-    mkdir "%~dp0image-generation"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "image-generation"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "image-generation" folder already exists.%reset%
-)
-cd /d "%~dp0image-generation"
-
-set max_retries=3
-set retry_count=0
-:retry_install_fooocus
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the Fooocus repository...
-git clone https://github.com/lllyasviel/Fooocus.git
-
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_install_fooocus
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
-    pause
-    goto :app_installer_image_generation
-)
-cd /d "%fooocus_install_path%"
-
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named fooocus
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%fooocus%reset%
-call conda create -n fooocus python=3.10 -y
-
-REM Activate the fooocus environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment %cyan_fg_strong%fooocus%reset%
-call conda activate fooocus
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
-pip install -r requirements_versions.txt
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Fooocus successfully installed.%reset%
-pause
-goto :app_installer_image_generation
 
 
 REM ############################################################
