@@ -128,6 +128,7 @@ set "xtts_install_path=%~dp0voice-generation\xtts"
 set "rvc_install_path=%~dp0voice-generation\Retrieval-based-Voice-Conversion-WebUI"
 
 REM Define variables for the directories
+set "stl_root=%~dp0"
 set "log_dir=%~dp0bin\logs\"
 set "functions_dir=%~dp0bin\functions"
 set "toolbox_dir=%~dp0bin\functions\Toolbox"
@@ -1531,7 +1532,13 @@ set /p app_installer_txt_comp_choice=Choose Your Destiny:
 
 REM ######## APP INSTALLER TEXT COMPLETION - BACKEND ##########
 if "%app_installer_txt_comp_choice%"=="1" (
-    call :install_ooba
+    set "caller=app_installer_text_completion"
+    call %functions_dir%\Toolbox\App_Installer\Text_Completion\install_ooba.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :app_installer_text_completion
+    )
 ) else if "%app_installer_txt_comp_choice%"=="2" (
     call :install_koboldcpp_menu
 ) else if "%app_installer_txt_comp_choice%"=="3" (
@@ -1546,48 +1553,6 @@ if "%app_installer_txt_comp_choice%"=="1" (
     pause
     goto :app_installer_text_completion
 )
-
-
-:install_ooba
-title STL [INSTALL OOBABOOGA]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install oobabooga%reset%
-echo -------------------------------------------------------------
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% installing Text generation web UI oobabooga...
-
-REM Check if the folder exists
-if not exist "%~dp0text-completion" (
-    mkdir "%~dp0text-completion"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
-)
-cd /d "%~dp0text-completion"
-
-
-set max_retries=3
-set retry_count=0
-
-:retry_install_ooba
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the text-generation-webui repository...
-git clone https://github.com/oobabooga/text-generation-webui.git
-
-if %errorlevel% neq 0 (
-    set /A retry_count+=1
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_install_ooba
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to clone repository after %max_retries% retries.%reset%
-    pause
-    goto :app_installer_text_completion
-)
-
-cd /d "%ooba_install_path%"
-start "" "start_windows.bat"
-echo When the installation is finished:
-pause
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Text generation web UI oobabooga Installed Successfully.%reset%
-goto :app_installer_text_completion
-
 
 
 REM ############################################################
