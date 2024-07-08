@@ -31,7 +31,7 @@ if %errorlevel% neq 0 (
     pause
     goto :app_installer_image_generation
 )
-cd /d "stable-diffusion-webui"
+cd /d "%sdwebui_install_path%"
 
 REM Run conda activate from the Miniconda installation
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...

@@ -15,33 +15,13 @@ if not exist "%w64devkit_install_path%" (
     goto :app_installer_core_utilities
 )
 
-REM Activate the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Create a Conda environment named koboldcpp
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%koboldcpp%reset%
-call conda create -n koboldcpp python=3.11 -y
-
-REM Activate the conda environment named koboldcpp 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%koboldcpp%reset%
-call conda activate koboldcpp
-
-REM Install pip requirements
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements
-pip install pyinstaller
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing koboldcpp...
-cd /d "%~dp0"
-
 REM Check if the folder exists
-if not exist "%~dp0text-completion" (
-    mkdir "%~dp0text-completion"
+if not exist "%text_completion_dir%" (
+    mkdir "%text_completion_dir%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
 )
-
 
 REM Check if the folder exists
 if not exist "%koboldcpp_install_path%" (
@@ -59,6 +39,24 @@ if not exist "make.sh" (
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "make.sh" already exists.%reset%
 )
+
+REM Activate the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Create a Conda environment named koboldcpp
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%koboldcpp%reset%
+call conda create -n koboldcpp python=3.11 -y
+
+REM Activate the conda environment named koboldcpp 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%koboldcpp%reset%
+call conda activate koboldcpp
+
+REM Install pip requirements
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements
+pip install pyinstaller
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing koboldcpp...
 
 set max_retries=3
 set retry_count=0

@@ -53,13 +53,13 @@ if "%gpu_choice%"=="1" (
 )
 :install_xtts_pre
 REM Check if the folder exists
-if not exist "%~dp0voice-generation" (
-    mkdir "%~dp0voice-generation"
+if not exist "%voice_generation_dir%" (
+    mkdir "%voice_generation_dir%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
 )
-cd /d "%~dp0voice-generation"
+cd /d "%voice_generation_dir%"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
 
@@ -113,11 +113,10 @@ mkdir "%xtts_install_path%\speakers"
 mkdir "%xtts_install_path%\output"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
-xcopy "%~dp0voice-generation\xtts-api-server\example\*" "%xtts_install_path%\speakers\" /y /e
+xcopy "%voice_generation_dir%\xtts-api-server\example\*" "%xtts_install_path%\speakers\" /y /e
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
-cd /d "%~dp0"
-rmdir /s /q "%~dp0voice-generation\xtts-api-server"
+rmdir /s /q "%voice_generation_dir%\xtts-api-server"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
 pause
 

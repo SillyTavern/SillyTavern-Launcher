@@ -16,6 +16,7 @@ if not exist "%image_generation_dir%" (
 )
 cd /d "%image_generation_dir%"
 
+
 set max_retries=3
 set retry_count=0
 :retry_install_fooocus

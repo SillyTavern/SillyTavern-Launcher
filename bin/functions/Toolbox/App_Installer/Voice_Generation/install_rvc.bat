@@ -59,13 +59,13 @@ if "%gpu_choice%"=="1" (
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing RVC...
 
 REM Check if the folder exists
-if not exist "%~dp0voice-generation" (
-    mkdir "%~dp0voice-generation"
+if not exist "%voice_generation_dir%" (
+    mkdir "%voice_generation_dir%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
 )
-cd /d "%~dp0voice-generation"
+cd /d "%voice_generation_dir%"
 
 set max_retries=3
 set retry_count=0

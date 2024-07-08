@@ -15,17 +15,13 @@ if not exist "%w64devkit_install_path%" (
     goto :app_installer_core_utilities
 )
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing llamacpp...
-cd /d "%~dp0"
-
 REM Check if the folder exists
-if not exist "%~dp0text-completion" (
-    mkdir "%~dp0text-completion"
+if not exist "%text_completion_dir%" (
+    mkdir "%text_completion_dir%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "text-completion"  
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "text-completion" folder already exists.%reset%
 )
-
 
 REM Check if the folder exists
 if not exist "%llamacpp_install_path%" (
@@ -35,6 +31,8 @@ if not exist "%llamacpp_install_path%" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "dev-llamacpp" folder already exists.%reset%
 )
 cd /d "%llamacpp_install_path%"
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing llamacpp...
 
 set max_retries=3
 set retry_count=0
