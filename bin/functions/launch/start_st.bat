@@ -24,7 +24,7 @@ start /B cmd /C "%command%"
 for /f "tokens=2 delims=," %%a in ('tasklist /FI "IMAGENAME eq cmd.exe" /FO CSV /NH') do (
     set "pid=%%a"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Started process with PID: %cyan_fg_strong%!pid!%reset%
-    echo !pid!>>"%log_dir%pids.txt"
+    echo !pid!>>"%log_dir%\pids.txt"
     goto :st_found_pid
 )
 :st_found_pid
@@ -96,7 +96,7 @@ set /p "choice=Run troubleshooter to fix this error? (If yes, close any open Sil
 if /i "%choice%"=="" set choice=Y
 if /i "%choice%"=="Y" (
     set "caller=home"
-    call "%troubleshooting_dir%remove_node_modules.bat"
+    call "%troubleshooting_dir%\remove_node_modules.bat"
     if %errorlevel% equ 0 goto :home
 )
 exit /b 1

@@ -59,7 +59,7 @@ set "PORT=%1"
 set "URL=http://localhost:%PORT%"
 
 REM Use JScript to fetch and parse the title
-for /f "delims=" %%I in ('cscript /nologo "%troubleshooting_dir%fetch_title.js" "%URL%"') do (
+for /f "delims=" %%I in ('cscript /nologo "%troubleshooting_dir%\fetch_title.js" "%URL%"') do (
     set "PAGE_TITLE=%%I"
 )
 

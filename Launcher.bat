@@ -129,14 +129,15 @@ set "rvc_install_path=%~dp0voice-generation\Retrieval-based-Voice-Conversion-Web
 
 REM Define variables for the directories
 set "stl_root=%~dp0"
-set "log_dir=%~dp0bin\logs\"
+set "log_dir=%~dp0bin\logs"
 set "functions_dir=%~dp0bin\functions"
 set "toolbox_dir=%~dp0bin\functions\Toolbox"
 set "troubleshooting_dir=%~dp0bin\functions\Toolbox\Troubleshooting"
+set "backup_dir=%~dp0bin\functions\Toolbox\Backup"
 
 REM Define variables for logging
-set "logs_stl_console_path=%log_dir%stl.log"
-set "logs_st_console_path=%log_dir%st_console_output.log"
+set "logs_stl_console_path=%log_dir%\stl.log"
+set "logs_st_console_path=%log_dir%\st_console_output.log"
 
 
 REM Create the logs folder if it doesn't exist
@@ -5204,7 +5205,7 @@ set /p troubleshooting_choice=Choose Your Destiny:
 REM ############## TROUBLESHOOTING - BACKEND ##################
 if "%troubleshooting_choice%"=="1" (
     set "caller=troubleshooting"
-    call %functions_dir%\Toolbox\Troubleshooting\remove_node_modules.bat
+    call %troubleshooting_dir%\remove_node_modules.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5212,7 +5213,7 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="2" (
     set "caller=troubleshooting"
-    call %functions_dir%\Toolbox\Troubleshooting\remove_pip_cache.bat
+    call %troubleshooting_dir%\remove_pip_cache.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5220,7 +5221,7 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="3" (
     set "caller=troubleshooting"
-    call %functions_dir%\Toolbox\Troubleshooting\fix_github_conflicts.bat
+    call %troubleshooting_dir%\fix_github_conflicts.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5228,7 +5229,7 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="4" (
     set "caller=troubleshooting"
-    call %functions_dir%\Toolbox\Troubleshooting\export_dxdiag.bat
+    call %troubleshooting_dir%\export_dxdiag.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5236,7 +5237,7 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="5" (
     set "caller=troubleshooting"
-    call %functions_dir%\Toolbox\Troubleshooting\find_app_port.bat
+    call %troubleshooting_dir%\find_app_port.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5244,7 +5245,7 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="6" (
     set "caller=troubleshooting"
-    call %functions_dir%\Toolbox\Troubleshooting\onboarding_flow.bat
+    call %troubleshooting_dir%\onboarding_flow.bat
         if %errorlevel% equ 1 (
         goto :home
     ) else (
@@ -5338,9 +5339,21 @@ set /p backup_choice=Choose Your Destiny:
 
 REM ################# BACKUP - BACKEND ########################
 if "%backup_choice%"=="1" (
-    call :create_backup
+    set "caller=backup"
+    call %backup_dir%\create_backup.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :backup
+    )
 ) else if "%backup_choice%"=="2" (
-    call :restore_backup
+    set "caller=backup"
+    call %backup_dir%\restore_backup.bat
+        if %errorlevel% equ 1 (
+        goto :home
+    ) else (
+        goto :backup
+    )
 ) else if "%backup_choice%"=="0" (
     goto :toolbox
 ) else (
@@ -5349,87 +5362,6 @@ if "%backup_choice%"=="1" (
     pause
     goto :backup
 )
-
-:create_backup
-title STL [CREATE-BACKUP]
-REM Create a backup using 7zip
-7z a "%st_backup_path%\backup_.7z" ^
-    "data\default-user\*" ^
-
-
-REM Get current date and time components
-for /f "tokens=1-3 delims=/- " %%d in ("%date%") do (
-    set "day=%%d"
-    set "month=%%e"
-    set "year=%%f"
-)
-
-for /f "tokens=1-2 delims=:." %%h in ("%time%") do (
-    set "hour=%%h"
-    set "minute=%%i"
-)
-
-REM Pad single digits with leading zeros
-setlocal enabledelayedexpansion
-set "day=0!day!"
-set "month=0!month!"
-set "hour=0!hour!"
-set "minute=0!minute!"
-
-set "formatted_date=%month:~-2%-%day:~-2%-%year%_%hour:~-2%%minute:~-2%"
-
-REM Rename the backup file with the formatted date and time
-rename "%st_backup_path%\backup_.7z" "backup_%formatted_date%.7z"
-
-endlocal
-
-
-echo %green_fg_strong%Backup created at %st_backup_path%%reset%
-pause
-endlocal
-goto :backup
-
-
-:restore_backup
-title STL [RESTORE-BACKUP]
-
-echo List of available backups:
-echo =========================
-
-setlocal enabledelayedexpansion
-set "backup_count=0"
-
-for %%F in ("%st_backup_path%\backup_*.7z") do (
-    set /a "backup_count+=1"
-    set "backup_files[!backup_count!]=%%~nF"
-    echo !backup_count!. %cyan_fg_strong%%%~nF%reset%
-)
-
-echo =========================
-set /p "restore_choice=(0 to cancel)Enter number of backup to restore: "
-
-if "%restore_choice%"=="0" goto :backup
-
-if "%restore_choice%" geq "1" (
-    if "%restore_choice%" leq "%backup_count%" (
-        set "selected_backup=!backup_files[%restore_choice%]!"
-        echo Restoring backup !selected_backup!...
-        REM Extract the contents of the "data" folder directly into the existing "data" folder
-        7z x "%st_backup_path%\!selected_backup!.7z" -o"temp" -aoa
-        xcopy /y /e "temp\data\*" "%st_install_path%\data\"
-        rmdir /s /q "temp"
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%!selected_backup! restored successfully.%reset%
-    ) else (
-        echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
-        echo %red_bg%[%time%]%reset% %echo_invalidinput%
-    )
-) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
-    echo %red_bg%[%time%]%reset% %echo_invalidinput%
-)
-
-pause
-goto :backup
 
 
 REM ############################################################
