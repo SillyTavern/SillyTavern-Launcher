@@ -1,6 +1,11 @@
 @echo off
 
 :onboarding_flow
+title STL [ONBOARDING FLOW]
+cls
+echo %blue_fg_strong%/ Home / Toolbox / Troubleshooting / Set Onboarding Flow%reset%
+echo ---------------------------------------------------------------
+
 REM Scan for user folders
 set "user_folders="
 for /d %%d in ("%st_install_path%\data\*") do (
@@ -31,8 +36,9 @@ if %user_count%==1 (
 
 :select_user_folder
 REM Prompt user to select a folder
+echo 0. Cancel
 set "selected_user_folder="
-set /p user_choice="Select a user folder (1-%user_count%) or press 0 to exit: "
+set /p user_choice="Select a folder to apply the setting: "
 
 REM Check if the user wants to exit
 if "%user_choice%"=="0" (
@@ -49,8 +55,9 @@ for /l %%i in (1,1,%user_count%) do (
 )
 
 if "%selected_user_folder%"=="" (
-    echo Invalid selection. Please enter a number between 1 and %user_count%, or press 0 to exit.
-    goto select_user_folder
+    echo %red_fg_strong%[ERROR] Invalid selection. Please enter a number between 1 and %user_count%, or press 0 to cancel.%reset%
+    pause
+    goto :onboarding_flow
 )
 
 :skip_user_selection
