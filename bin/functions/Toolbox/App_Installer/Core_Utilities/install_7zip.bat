@@ -35,13 +35,11 @@ if %zip7_path_exists% neq 0 (
     echo %blue_fg_strong%[INFO] 7-Zip already exists in PATH.%reset%
 )
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%7-Zip installed successfully. You need to restart the launcher for it to become active.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%7-Zip installed successfully.%reset%
+
 REM Prompt user to restart
-echo Restarting launcher in 5 seconds...
+echo Restarting launcher...
 timeout /t 5
 cd /d %stl_root%
 start %stl_root%Launcher.bat
 exit
-
-
-

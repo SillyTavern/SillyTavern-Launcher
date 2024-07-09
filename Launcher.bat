@@ -1546,10 +1546,12 @@ set /p app_installer_txt_comp_choice=Choose Your Destiny:
 REM ######## APP INSTALLER TEXT COMPLETION - BACKEND ##########
 if "%app_installer_txt_comp_choice%"=="1" (
     set "caller=app_installer_text_completion"
-    call %app_installer_text_completion_dir%\install_ooba.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    if exist "%app_installer_text_completion_dir%\install_ooba.bat" (
+        call %app_installer_text_completion_dir%\install_ooba.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_ooba.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_ooba.bat not found in: %app_installer_text_completion_dir%%reset%
+        pause
         goto :app_installer_text_completion
     )
 ) else if "%app_installer_txt_comp_choice%"=="2" (
@@ -1558,10 +1560,12 @@ if "%app_installer_txt_comp_choice%"=="1" (
     call :install_tabbyapi_menu
 ) else if "%app_installer_txt_comp_choice%"=="4" (
     set "caller=app_installer_text_completion"
-    call %app_installer_text_completion_dir%\install_llamacpp.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    if exist "%app_installer_text_completion_dir%\install_llamacpp.bat" (
+        call %app_installer_text_completion_dir%\install_llamacpp.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_llamacpp.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_llamacpp.bat not found in: %app_installer_text_completion_dir%%reset%
+        pause
         goto :app_installer_text_completion
     )
 ) else if "%app_installer_txt_comp_choice%"=="0" (
@@ -1593,18 +1597,22 @@ set /p app_installer_koboldcpp_choice=Choose Your Destiny:
 REM ######## APP INSTALLER KOBOLDCPP - BACKEND ##########
 if "%app_installer_koboldcpp_choice%"=="1" (
     set "caller=app_installer_text_completion_koboldcpp"
-    call %app_installer_text_completion_dir%\install_koboldcpp.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    if exist "%app_installer_text_completion_dir%\install_koboldcpp.bat" (
+        call %app_installer_text_completion_dir%\install_koboldcpp.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_koboldcpp.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_koboldcpp.bat not found in: %app_installer_text_completion_dir%%reset%
+        pause
         goto :install_koboldcpp_menu
     )
 ) else if "%app_installer_koboldcpp_choice%"=="2" (
     set "caller=app_installer_text_completion_koboldcpp"
-    call %app_installer_text_completion_dir%\install_koboldcpp_raw.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    if exist "%app_installer_text_completion_dir%\install_koboldcpp_raw.bat" (
+        call %app_installer_text_completion_dir%\install_koboldcpp_raw.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_koboldcpp_raw.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_koboldcpp_raw.bat not found in: %app_installer_text_completion_dir%%reset%
+        pause
         goto :install_koboldcpp_menu
     )
 ) else if "%app_installer_koboldcpp_choice%"=="0" (
@@ -1644,10 +1652,12 @@ set /p app_installer_tabbyapi_choice=Choose Your Destiny:
 REM ##### APP INSTALLER TABBYAPI - BACKEND ######
 if "%app_installer_tabbyapi_choice%"=="1" (
     set "caller=app_installer_text_completion_tabbyapi"
-    call %app_installer_text_completion_dir%\install_tabbyapi.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    if exist "%app_installer_text_completion_dir%\install_tabbyapi.bat" (
+        call %app_installer_text_completion_dir%\install_tabbyapi.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_tabbyapi.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_tabbyapi.bat not found in: %app_installer_text_completion_dir%%reset%
+        pause
         goto :install_tabbyapi_menu
     )
 ) else if "%app_installer_tabbyapi_choice%"=="2" (
@@ -1923,26 +1933,32 @@ set /p app_installer_voice_gen_choice=Choose Your Destiny:
 REM ######## APP INSTALLER VOICE GENERATION - BACKEND #########
 if "%app_installer_voice_gen_choice%"=="1" (
     set "caller=app_installer_voice_generation"
-    call %app_installer_voice_generation_dir%\install_alltalk.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    if exist "%app_installer_voice_generation_dir%\install_alltalk.bat" (
+        call %app_installer_voice_generation_dir%\install_alltalk.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_alltalk.bat not found in: %app_installer_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_alltalk.bat not found in: %app_installer_voice_generation_dir%%reset%
+        pause
         goto :app_installer_voice_generation
     )
 ) else if "%app_installer_voice_gen_choice%"=="2" (
     set "caller=app_installer_voice_generation"
-    call %app_installer_voice_generation_dir%\install_xtts.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    if exist "%app_installer_voice_generation_dir%\install_xtts.bat" (
+        call %app_installer_voice_generation_dir%\install_xtts.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_xtts.bat not found in: %app_installer_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_xtts.bat not found in: %app_installer_voice_generation_dir%%reset%
+        pause
         goto :app_installer_voice_generation
     )
 ) else if "%app_installer_voice_gen_choice%"=="3" (
     set "caller=app_installer_voice_generation"
-    call %app_installer_voice_generation_dir%\install_rvc.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    if exist "%app_installer_voice_generation_dir%\install_rvc.bat" (
+        call %app_installer_voice_generation_dir%\install_rvc.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_rvc.bat not found in: %app_installer_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_rvc.bat not found in: %app_installer_voice_generation_dir%%reset%
+        pause
         goto :app_installer_voice_generation
     )
 ) else if "%app_installer_voice_gen_choice%"=="0" (
@@ -1981,18 +1997,22 @@ if "%app_installer_img_gen_choice%"=="1" (
     goto :install_sdwebuiforge_menu
 ) else if "%app_installer_img_gen_choice%"=="3" (
     set "caller=app_installer_image_generation"
-    call %app_installer_image_generation_dir%\install_comfyui.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    if exist "%app_installer_image_generation_dir%\install_comfyui.bat" (
+        call %app_installer_image_generation_dir%\install_comfyui.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_comfyui.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_comfyui.bat not found in: %app_installer_image_generation_dir%%reset%
+        pause
         goto :app_installer_image_generation
     )
 ) else if "%app_installer_img_gen_choice%"=="4" (
     set "caller=app_installer_image_generation"
-    call %app_installer_image_generation_dir%\install_fooocus.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    if exist "%app_installer_image_generation_dir%\install_fooocus.bat" (
+        call %app_installer_image_generation_dir%\install_fooocus.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_fooocus.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_fooocus.bat not found in: %app_installer_image_generation_dir%%reset%
+        pause
         goto :app_installer_image_generation
     )
 ) else if "%app_installer_img_gen_choice%"=="0" (
@@ -2032,11 +2052,13 @@ set /p app_installer_sdwebui_choice=Choose Your Destiny:
 
 REM ##### APP INSTALLER STABLE DIFUSSION WEBUI - BACKEND ######
 if "%app_installer_sdwebui_choice%"=="1" (
-    set "caller=app_installer_image_generation"
-    call %app_installer_image_generation_dir%\install_sdwebui.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    set "caller=app_installer_image_generation_sdwebui"
+    if exist "%app_installer_image_generation_dir%\install_sdwebui.bat" (
+        call %app_installer_image_generation_dir%\install_sdwebui.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_sdwebui.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_sdwebui.bat not found in: %app_installer_image_generation_dir%%reset%
+        pause
         goto :install_sdwebui_menu
     )
 ) else if "%app_installer_sdwebui_choice%"=="2" (
@@ -2238,11 +2260,13 @@ set /p app_installer_sdwebuiforge_choice=Choose Your Destiny:
 
 REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE - BACKEND ###
 if "%app_installer_sdwebuiforge_choice%"=="1" (
-    set "caller=app_installer_image_generation"
-    call %app_installer_image_generation_dir%\install_comfyuiforge.bat
-        if %errorlevel% equ 1 (
-        goto :home
+    set "caller=app_installer_image_generation_sdwebuiforge"
+    if exist "%app_installer_image_generation_dir%\install_sdwebuiforge.bat" (
+        call %app_installer_image_generation_dir%\install_sdwebuiforge.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: install_sdwebuiforge.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_sdwebuiforge.bat not found in: %app_installer_image_generation_dir%%reset%
+        pause
         goto :install_sdwebuiforge_menu
     )
 ) else if "%app_installer_sdwebuiforge_choice%"=="2" (
@@ -2428,20 +2452,89 @@ set /p app_installer_core_util_choice=Choose Your Destiny:
 
 REM ######## APP INSTALLER CORE UTILITIES - BACKEND ###########
 if "%app_installer_core_util_choice%"=="1" (
-    set "caller=install_7zip"
-    call %app_installer_core_utilities_dir%\install_7zip.bat
+    set "caller=app_installer_core_utilities"
+    if exist "%app_installer_core_utilities_dir%\install_7zip.bat" (
+        call %app_installer_core_utilities_dir%\install_7zip.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_7zip.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_7zip.bat not found in: %app_installer_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_installer_core_utilities
+    )
 ) else if "%app_installer_core_util_choice%"=="2" (
-    call :install_ffmpeg
+    set "caller=app_installer_core_utilities"
+    if exist "%app_installer_core_utilities_dir%\install_ffmpeg.bat" (
+        call %app_installer_core_utilities_dir%\install_ffmpeg.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_ffmpeg.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_ffmpeg.bat not found in: %app_installer_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_installer_core_utilities
+    )
 ) else if "%app_installer_core_util_choice%"=="3" (
-    call :install_nodejs
+    set "caller=app_installer_core_utilities"
+    if exist "%app_installer_core_utilities_dir%\install_nodejs.bat" (
+        call %app_installer_core_utilities_dir%\install_nodejs.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_nodejs.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_nodejs.bat not found in: %app_installer_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_installer_core_utilities
+    )
 ) else if "%app_installer_core_util_choice%"=="4" (
-    call :install_yq
+    set "caller=app_installer_core_utilities"
+    if exist "%app_installer_core_utilities_dir%\install_yq.bat" (
+        call %app_installer_core_utilities_dir%\install_yq.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_yq.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_yq.bat not found in: %app_installer_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_installer_core_utilities
+    )
 ) else if "%app_installer_core_util_choice%"=="5" (
-    call :install_vsbuildtools
+    set "caller=app_installer_core_utilities"
+    if exist "%app_installer_core_utilities_dir%\install_vsbuildtools.bat" (
+        call %app_installer_core_utilities_dir%\install_vsbuildtools.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_vsbuildtools.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_vsbuildtools.bat not found in: %app_installer_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_installer_core_utilities
+    )
 ) else if "%app_installer_core_util_choice%"=="6" (
-    call :install_cudatoolkit
+    set "caller=app_installer_core_utilities"
+    if exist "%app_installer_core_utilities_dir%\install_cudatoolkit.bat" (
+        call %app_installer_core_utilities_dir%\install_cudatoolkit.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_cudatoolkit.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_cudatoolkit.bat not found in: %app_installer_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_installer_core_utilities
+    )
 ) else if "%app_installer_core_util_choice%"=="7" (
-    call :install_w64devkit
+    set "caller=app_installer_core_utilities"
+    if exist "%app_installer_core_utilities_dir%\install_w64devkit.bat" (
+        call %app_installer_core_utilities_dir%\install_w64devkit.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_w64devkit.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_w64devkit.bat not found in: %app_installer_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_installer_core_utilities
+    )
 ) else if "%app_installer_core_util_choice%"=="0" (
     goto :app_installer
 ) else (
@@ -2450,195 +2543,6 @@ if "%app_installer_core_util_choice%"=="1" (
     pause
     goto :app_installer_core_utilities
 )
-
-
-
-
-
-:install_ffmpeg
-title STL [INSTALL-FFMPEG]
-REM Check if 7-Zip is installed
-7z > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
-    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
-    pause
-    goto :app_installer_core_utilities
-)
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading FFmpeg archive...
-curl -L -o "%ffmpeg_download_path%" "%ffmpeg_download_url%"
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating ffmpeg directory if it doesn't exist...
-if not exist "%ffmpeg_install_path%" (
-    mkdir "%ffmpeg_install_path%"
-)
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extracting FFmpeg archive...
-7z x "%ffmpeg_download_path%" -o"%ffmpeg_install_path%"
-
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving FFmpeg contents to C:\ffmpeg...
-for /d %%i in ("%ffmpeg_install_path%\ffmpeg-*-full_build") do (
-    xcopy "%%i\bin" "%ffmpeg_install_path%\bin" /E /I /Y
-    xcopy "%%i\doc" "%ffmpeg_install_path%\doc" /E /I /Y
-    xcopy "%%i\presets" "%ffmpeg_install_path%\presets" /E /I /Y
-    rd "%%i" /S /Q
-)
-
-rem Get the current PATH value from the registry
-for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
-
-rem Check if the paths are already in the current PATH
-echo %current_path% | find /i "%ffmpeg_path_bin%" > nul
-set "ff_path_exists=%errorlevel%"
-
-setlocal enabledelayedexpansion
-
-REM Append the new paths to the current PATH only if they don't exist
-if %ff_path_exists% neq 0 (
-    set "new_path=%current_path%;%ffmpeg_path_bin%"
-    echo.
-    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
-    echo.
-    echo [DEBUG] "ffmpeg_path_bin is:%cyan_fg_strong% %ffmpeg_path_bin%%reset%"
-    echo.
-    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
-
-    REM Update the PATH value in the registry
-    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
-
-    REM Update the PATH value for the current session
-    setx PATH "!new_path!" > nul
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg added to PATH.%reset%
-) else (
-    set "new_path=%current_path%"
-    echo %blue_fg_strong%[INFO] ffmpeg already exists in PATH.%reset%
-)
-del "%ffmpeg_download_path%"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg installed successfully. Please restart the Launcher.%reset%
-pause
-exit
-
-
-:install_nodejs
-title STL [INSTALL-NODEJS]
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Node.js...
-winget install -e --id OpenJS.NodeJS
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js is installed. Please restart the Launcher.%reset%
-pause
-exit
-
-:install_yq
-title STL [INSTALL-YQ]
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing yq...
-winget install -e --id MikeFarah.yq
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%yq is installed. Please restart the Launcher.%reset%
-pause
-exit
-
-:install_vsbuildtools
-REM Check if file exists
-if not exist "%~dp0bin\vs_buildtools.exe" (
-    REM Check if the folder exists
-    if not exist "%~dp0bin" (
-        mkdir "%~dp0bin"
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "bin"  
-    ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "bin" folder already exists.%reset%
-    )
-    curl -L -o "%~dp0bin\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "vs_buildtools.exe" file already exists. Downloading latest version...%reset%
-    del "%~dp0bin\vs_buildtools.exe"
-    curl -L -o "%~dp0bin\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-)
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Visual Studio BuildTools 2022...
-start "" "%~dp0bin\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%When install is finished please restart the Launcher.%reset%
-pause
-exit
-
-
-:install_cudatoolkit
-REM Check if file exists
-if not exist "%temp%\cuda_12.4.0_windows_network.exe" (
-    curl -L -o "%temp%\cuda_12.4.0_windows_network.exe" "https://developer.download.nvidia.com/compute/cuda/12.4.0/network_installers/cuda_12.4.0_windows_network.exe"
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "cuda_12.4.0_windows_network.exe" file already exists.%reset%
-)
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing CUDA Toolkit...
-start "" "%temp%\cuda_12.4.0_windows_network.exe" visual_studio_integration_12.4
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%When install is finished please restart the Launcher.%reset%
-
-REM If CUDA Toolkit fails to install then copy all files from MSBuildExtensions into BuildCustomizations
-REM xcopy /s /i /y "%ProgramFiles%\NVIDIA GPU Computing Toolkit\CUDA\v12.4\extras\visual_studio_integration\MSBuildExtensions\*" "%ProgramFiles%\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations"
-pause
-exit
-
-:install_w64devkit
-REM Check if 7-Zip is installed
-7z > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] 7z command not found in PATH.%reset%
-    echo %red_fg_strong%7-Zip is not installed or not found in the system PATH.%reset%
-    echo %red_fg_strong%To install 7-Zip go to:%reset% %blue_bg%/ Toolbox / App Installer / Core Utilities / Install 7-Zip%reset%
-    pause
-    goto :app_installer_core_utilities
-)
-
-REM Check if the folder exists
-if exist "%w64devkit_install_path%" (
-    REM Remove w64devkit folder if it already exist
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing w64devkit installation...
-    rmdir /s /q "%w64devkit_install_path%"
-)
-
-REM Download w64devkit zip archive
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading w64devkit...
-curl -L -o "%w64devkit_download_path%" "%w64devkit_download_url%"
-
-REM Extract w64devkit zip archive
-7z x "%w64devkit_download_path%" -o"C:\"
-
-REM Remove leftovers
-del "%w64devkit_download_path%"
-
-REM Get the current PATH value from the registry
-for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
-
-REM Check if the paths are already in the current PATH
-echo %current_path% | find /i "%w64devkit_path_bin%" > nul
-set "ff_path_exists=%errorlevel%"
-
-setlocal enabledelayedexpansion
-
-REM Append the new paths to the current PATH only if they don't exist
-if %ff_path_exists% neq 0 (
-    set "new_path=%current_path%;%w64devkit_path_bin%"
-    echo.
-    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
-    echo.
-    echo [DEBUG] "w64devkit_path_bin is:%cyan_fg_strong% %w64devkit_path_bin%%reset%"
-    echo.
-    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
-
-    REM Update the PATH value in the registry
-    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
-
-    REM Update the PATH value for the current session
-    setx PATH "!new_path!" > nul
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit added to PATH.%reset%
-) else (
-    set "new_path=%current_path%"
-    echo %blue_fg_strong%[INFO] w64devkit already exists in PATH.%reset%
-)
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit is installed. Please restart the Launcher.%reset%
-pause
-exit
 
 
 REM ############################################################
@@ -4306,50 +4210,68 @@ set /p troubleshooting_choice=Choose Your Destiny:
 REM ############## TROUBLESHOOTING - BACKEND ##################
 if "%troubleshooting_choice%"=="1" (
     set "caller=troubleshooting"
-    call %troubleshooting_dir%\remove_node_modules.bat
-        if %errorlevel% equ 1 (
-        goto :home
+
+    if exist "%troubleshooting_dir%\remove_node_modules.bat" (
+        call %troubleshooting_dir%\remove_node_modules.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: remove_node_modules.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] remove_node_modules.bat not found in: %troubleshooting_dir%%reset%
+        pause
         goto :troubleshooting
     )
 ) else if "%troubleshooting_choice%"=="2" (
     set "caller=troubleshooting"
-    call %troubleshooting_dir%\remove_pip_cache.bat
-        if %errorlevel% equ 1 (
-        goto :home
+
+    if exist "%troubleshooting_dir%\remove_pip_cache.bat" (
+        call %troubleshooting_dir%\remove_pip_cache.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: remove_pip_cache.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] remove_pip_cache.bat not found in: %troubleshooting_dir%%reset%
+        pause
         goto :troubleshooting
     )
 ) else if "%troubleshooting_choice%"=="3" (
     set "caller=troubleshooting"
-    call %troubleshooting_dir%\fix_github_conflicts.bat
-        if %errorlevel% equ 1 (
-        goto :home
+
+    if exist "%troubleshooting_dir%\fix_github_conflicts.bat" (
+        call %troubleshooting_dir%\fix_github_conflicts.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: fix_github_conflicts.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] fix_github_conflicts.bat not found in: %troubleshooting_dir%%reset%
+        pause
         goto :troubleshooting
     )
 ) else if "%troubleshooting_choice%"=="4" (
     set "caller=troubleshooting"
-    call %troubleshooting_dir%\export_dxdiag.bat
-        if %errorlevel% equ 1 (
-        goto :home
+
+    if exist "%troubleshooting_dir%\export_dxdiag.bat" (
+        call %troubleshooting_dir%\export_dxdiag.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: export_dxdiag.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] export_dxdiag.bat not found in: %troubleshooting_dir%%reset%
+        pause
         goto :troubleshooting
     )
 ) else if "%troubleshooting_choice%"=="5" (
     set "caller=troubleshooting"
-    call %troubleshooting_dir%\find_app_port.bat
-        if %errorlevel% equ 1 (
-        goto :home
+
+    if exist "%troubleshooting_dir%\find_app_port.bat" (
+        call %troubleshooting_dir%\find_app_port.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: find_app_port.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] find_app_port.bat not found in: %troubleshooting_dir%%reset%
+        pause
         goto :troubleshooting
     )
 ) else if "%troubleshooting_choice%"=="6" (
     set "caller=troubleshooting"
-    call %troubleshooting_dir%\onboarding_flow.bat
-        if %errorlevel% equ 1 (
-        goto :home
+
+    if exist "%troubleshooting_dir%\onboarding_flow.bat" (
+        call %troubleshooting_dir%\onboarding_flow.bat
     ) else (
+        echo [%DATE% %TIME%] ERROR: onboarding_flow.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] onboarding_flow.bat not found in: %troubleshooting_dir%%reset%
+        pause
         goto :troubleshooting
     )
 ) else if "%troubleshooting_choice%"=="0" (
@@ -4439,8 +4361,15 @@ echo 2. Cancel
 set /p zip_choice="Would you like to install 7-Zip Now? (this will require a launcher restart after install): "
 REM Check if the user wants to install 7-Zip
 if "%zip_choice%"=="1" (
-set "caller=backup"
-call "%app_installer_core_utilities_dir%\install_7zip.bat"
+    set "caller=backup"
+    if exist "%app_installer_core_utilities_dir%\install_7zip.bat" (
+        call %app_installer_core_utilities_dir%\install_7zip.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_7zip.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_7zip.bat not found in: %app_installer_core_utilities_dir%%reset%
+        pause
+        goto :toolbox
+    )
 ) else (
     echo 7-Zip not installed, cannot create backups...
     pause
