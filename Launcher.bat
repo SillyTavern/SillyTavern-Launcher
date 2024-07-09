@@ -4347,8 +4347,7 @@ REM Check if 7-Zip is installed
 7z > nul 2>&1
 if %errorlevel% neq 0 (
     goto :7zip_prompt
-)
-else (
+) else (
     goto :backup_options
 )
 
@@ -4376,6 +4375,7 @@ if "%zip_choice%"=="1" (
     goto :toolbox
 )
 cls
+
 :backup_options
 echo %blue_fg_strong%/ Home / Toolbox / Backup%reset%
 echo -------------------------------------------------------------

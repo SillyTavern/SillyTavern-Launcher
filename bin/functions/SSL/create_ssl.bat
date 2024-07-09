@@ -17,16 +17,15 @@ if "%silentMode%"=="true" (
     set "outputRedirection="
 )
 
-:: Set the SSL certificate directory and files
-set "SILLYTAVERN_DIR=%~dp0..\..\..\SillyTavern"
-set "CERT_DIR=%SILLYTAVERN_DIR%\certs"
+REM Set the SSL certificate directory and files
+set "CERT_DIR=%st_install_path%\certs"
 set "CERT_FILE=%CERT_DIR%\cert.pem"
 set "KEY_FILE=%CERT_DIR%\privkey.pem"
 set "CERT_INFO_FILE=%CERT_DIR%\SillyTavernSSLInfo.txt"
 set "ERROR_LOG=%CERT_DIR%\error_log.txt"
 
 :: Check if the SillyTavern directory exists
-if not exist "%SILLYTAVERN_DIR%" (
+if not exist "%st_install_path%" (
     echo Please install SillyTavern first.
     if "%pauseRequired%"=="true" pause
     endlocal

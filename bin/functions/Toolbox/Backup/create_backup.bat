@@ -63,10 +63,10 @@ set "escaped_st_install_path=%st_install_path:\=\\%"
 REM Prompt user for custom name
 set "use_custom_name=N"
 set "custom_name="
-set /p rename_choice="Do you want to give the backup file a custom name? (default is backup_datetime) (Y/N): "
+set /p rename_choice="Give backup file a custom name? (Default is st_backup_DATE_TIME.7z) [Y/N]: "
 if /i "%rename_choice%"=="Y" (
     set "use_custom_name=Y"
-    set /p custom_name="Enter the custom name for the backup file (without extension): "
+    set /p custom_name="Enter custom name for backup file (without extension): "
 ) else if "%rename_choice%"=="" (
     set "use_custom_name=N"
 )
@@ -96,7 +96,7 @@ if "%use_custom_name%"=="Y" (
 REM Create a backup using 7zip
 7z a "%st_backup_path%\%backup_filename%" "%st_install_path%\data\%selected_user_folder%\*"
 
-echo %green_fg_strong%Backup created at %st_backup_path%\%backup_filename%%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Backup created at %st_backup_path%\%backup_filename%%reset%
 
 pause
 endlocal
