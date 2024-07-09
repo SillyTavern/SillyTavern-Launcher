@@ -9,7 +9,7 @@ echo =========================
 setlocal enabledelayedexpansion
 set "backup_count=0"
 
-for %%F in ("%st_backup_path%\backup_*.7z") do (
+for %%F in ("%st_backup_path%\st_backup_*.7z") do (
     set /a "backup_count+=1"
     set "backup_files[!backup_count!]=%%~nF"
     echo !backup_count!. %cyan_fg_strong%%%~nF%reset%
