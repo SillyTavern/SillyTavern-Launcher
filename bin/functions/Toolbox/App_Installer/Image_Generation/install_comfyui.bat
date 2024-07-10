@@ -64,9 +64,4 @@ curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/mai
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ComfyUI successfully installed.%reset%
 pause
-
-if "%caller%"=="home" (
-    exit /b 1
-) else (
-    exit /b 0
-)
+goto :app_installer_image_generation

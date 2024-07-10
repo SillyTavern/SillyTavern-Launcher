@@ -117,11 +117,7 @@ xcopy "%voice_generation_dir%\xtts-api-server\example\*" "%xtts_install_path%\sp
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
 rmdir /s /q "%voice_generation_dir%\xtts-api-server"
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
 pause
-
-if "%caller%"=="home" (
-    exit /b 1
-) else (
-    exit /b 0
-)
+goto :app_installer_voice_generation

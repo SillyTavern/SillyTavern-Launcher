@@ -122,7 +122,6 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip modul
 pip install FreeSimpleGUI
 pip install sounddevice
 
-
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%RVC successfully installed.%reset%
 pause
 goto :app_installer_voice_generation

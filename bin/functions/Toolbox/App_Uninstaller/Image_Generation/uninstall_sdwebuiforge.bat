@@ -20,7 +20,7 @@ if /i "%confirmation%"=="Y" (
     call conda deactivate
     call conda remove --name sdwebuiforge --all -y
     call conda clean -a -y
-
+    
     REM Remove the folder stable-diffusion-webui
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the stable-diffusion-webui-forge directory...
     cd /d "%~dp0"

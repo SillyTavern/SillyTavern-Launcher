@@ -83,9 +83,4 @@ if "%GPU_CHOICE%"=="1" (
 :install_koboldcpp_final
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed koboldcpp%reset%
 pause
-
-if "%caller%"=="home" (
-    exit /b 1
-) else (
-    exit /b 0
-)
+goto :app_installer_text_completion

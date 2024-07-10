@@ -1554,6 +1554,7 @@ if "%app_installer_txt_comp_choice%"=="1" (
     set "caller=app_installer_text_completion"
     if exist "%app_installer_text_completion_dir%\install_ooba.bat" (
         call %app_installer_text_completion_dir%\install_ooba.bat
+        goto :app_installer_text_completion
     ) else (
         echo [%DATE% %TIME%] ERROR: install_ooba.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_ooba.bat not found in: %app_installer_text_completion_dir%%reset%
@@ -1568,6 +1569,7 @@ if "%app_installer_txt_comp_choice%"=="1" (
     set "caller=app_installer_text_completion"
     if exist "%app_installer_text_completion_dir%\install_llamacpp.bat" (
         call %app_installer_text_completion_dir%\install_llamacpp.bat
+        goto :app_installer_text_completion
     ) else (
         echo [%DATE% %TIME%] ERROR: install_llamacpp.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_llamacpp.bat not found in: %app_installer_text_completion_dir%%reset%
@@ -1605,6 +1607,7 @@ if "%app_installer_koboldcpp_choice%"=="1" (
     set "caller=app_installer_text_completion_koboldcpp"
     if exist "%app_installer_text_completion_dir%\install_koboldcpp.bat" (
         call %app_installer_text_completion_dir%\install_koboldcpp.bat
+        goto :app_installer_text_completion
     ) else (
         echo [%DATE% %TIME%] ERROR: install_koboldcpp.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_koboldcpp.bat not found in: %app_installer_text_completion_dir%%reset%
@@ -1615,6 +1618,7 @@ if "%app_installer_koboldcpp_choice%"=="1" (
     set "caller=app_installer_text_completion_koboldcpp"
     if exist "%app_installer_text_completion_dir%\install_koboldcpp_raw.bat" (
         call %app_installer_text_completion_dir%\install_koboldcpp_raw.bat
+        goto :app_installer_text_completion
     ) else (
         echo [%DATE% %TIME%] ERROR: install_koboldcpp_raw.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_koboldcpp_raw.bat not found in: %app_installer_text_completion_dir%%reset%
@@ -1660,6 +1664,7 @@ if "%app_installer_tabbyapi_choice%"=="1" (
     set "caller=app_installer_text_completion_tabbyapi"
     if exist "%app_installer_text_completion_dir%\install_tabbyapi.bat" (
         call %app_installer_text_completion_dir%\install_tabbyapi.bat
+        goto :install_tabbyapi_menu
     ) else (
         echo [%DATE% %TIME%] ERROR: install_tabbyapi.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_tabbyapi.bat not found in: %app_installer_text_completion_dir%%reset%
@@ -1941,6 +1946,7 @@ if "%app_installer_voice_gen_choice%"=="1" (
     set "caller=app_installer_voice_generation"
     if exist "%app_installer_voice_generation_dir%\install_alltalk.bat" (
         call %app_installer_voice_generation_dir%\install_alltalk.bat
+        goto :app_installer_voice_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: install_alltalk.bat not found in: %app_installer_voice_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_alltalk.bat not found in: %app_installer_voice_generation_dir%%reset%
@@ -1951,6 +1957,7 @@ if "%app_installer_voice_gen_choice%"=="1" (
     set "caller=app_installer_voice_generation"
     if exist "%app_installer_voice_generation_dir%\install_xtts.bat" (
         call %app_installer_voice_generation_dir%\install_xtts.bat
+        goto :app_installer_voice_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: install_xtts.bat not found in: %app_installer_voice_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_xtts.bat not found in: %app_installer_voice_generation_dir%%reset%
@@ -1961,6 +1968,7 @@ if "%app_installer_voice_gen_choice%"=="1" (
     set "caller=app_installer_voice_generation"
     if exist "%app_installer_voice_generation_dir%\install_rvc.bat" (
         call %app_installer_voice_generation_dir%\install_rvc.bat
+        goto :app_installer_voice_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: install_rvc.bat not found in: %app_installer_voice_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_rvc.bat not found in: %app_installer_voice_generation_dir%%reset%
@@ -2005,6 +2013,7 @@ if "%app_installer_img_gen_choice%"=="1" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_comfyui.bat" (
         call %app_installer_image_generation_dir%\install_comfyui.bat
+        goto :app_installer_image_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: install_comfyui.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_comfyui.bat not found in: %app_installer_image_generation_dir%%reset%
@@ -2015,6 +2024,7 @@ if "%app_installer_img_gen_choice%"=="1" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_fooocus.bat" (
         call %app_installer_image_generation_dir%\install_fooocus.bat
+        goto :app_installer_image_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: install_fooocus.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_fooocus.bat not found in: %app_installer_image_generation_dir%%reset%
@@ -2061,6 +2071,7 @@ if "%app_installer_sdwebui_choice%"=="1" (
     set "caller=app_installer_image_generation_sdwebui"
     if exist "%app_installer_image_generation_dir%\install_sdwebui.bat" (
         call %app_installer_image_generation_dir%\install_sdwebui.bat
+        goto :install_sdwebui_menu
     ) else (
         echo [%DATE% %TIME%] ERROR: install_sdwebui.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_sdwebui.bat not found in: %app_installer_image_generation_dir%%reset%
@@ -2269,6 +2280,7 @@ if "%app_installer_sdwebuiforge_choice%"=="1" (
     set "caller=app_installer_image_generation_sdwebuiforge"
     if exist "%app_installer_image_generation_dir%\install_sdwebuiforge.bat" (
         call %app_installer_image_generation_dir%\install_sdwebuiforge.bat
+        goto :install_sdwebuiforge_menu
     ) else (
         echo [%DATE% %TIME%] ERROR: install_sdwebuiforge.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_sdwebuiforge.bat not found in: %app_installer_image_generation_dir%%reset%
@@ -2465,7 +2477,7 @@ if "%app_installer_core_util_choice%"=="1" (
         echo [%DATE% %TIME%] ERROR: install_7zip.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_7zip.bat not found in: %app_installer_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_installer_core_utilities
     )
@@ -2477,7 +2489,7 @@ if "%app_installer_core_util_choice%"=="1" (
         echo [%DATE% %TIME%] ERROR: install_ffmpeg.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_ffmpeg.bat not found in: %app_installer_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_installer_core_utilities
     )
@@ -2489,7 +2501,7 @@ if "%app_installer_core_util_choice%"=="1" (
         echo [%DATE% %TIME%] ERROR: install_nodejs.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_nodejs.bat not found in: %app_installer_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_installer_core_utilities
     )
@@ -2501,7 +2513,7 @@ if "%app_installer_core_util_choice%"=="1" (
         echo [%DATE% %TIME%] ERROR: install_yq.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_yq.bat not found in: %app_installer_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_installer_core_utilities
     )
@@ -2513,7 +2525,7 @@ if "%app_installer_core_util_choice%"=="1" (
         echo [%DATE% %TIME%] ERROR: install_vsbuildtools.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_vsbuildtools.bat not found in: %app_installer_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_installer_core_utilities
     )
@@ -2525,7 +2537,7 @@ if "%app_installer_core_util_choice%"=="1" (
         echo [%DATE% %TIME%] ERROR: install_cudatoolkit.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_cudatoolkit.bat not found in: %app_installer_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_installer_core_utilities
     )
@@ -2537,7 +2549,7 @@ if "%app_installer_core_util_choice%"=="1" (
         echo [%DATE% %TIME%] ERROR: install_w64devkit.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_w64devkit.bat not found in: %app_installer_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_installer_core_utilities
     )
@@ -2613,11 +2625,12 @@ if "%app_uninstaller_text_completion_choice%"=="1" (
     set "caller=app_uninstaller_text_completion"
     if exist "%app_uninstaller_text_completion_dir%\uninstall_ooba.bat" (
         call %app_uninstaller_text_completion_dir%\uninstall_ooba.bat
+        goto :app_uninstaller_text_completion
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_ooba.bat not found in: %app_uninstaller_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_ooba.bat not found in: %app_uninstaller_text_completion_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_text_completion
     )
@@ -2625,11 +2638,12 @@ if "%app_uninstaller_text_completion_choice%"=="1" (
     set "caller=app_uninstaller_text_completion"
     if exist "%app_uninstaller_text_completion_dir%\uninstall_koboldcpp.bat" (
         call %app_uninstaller_text_completion_dir%\uninstall_koboldcpp.bat
+        goto :app_uninstaller_text_completion
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_koboldcpp.bat not found in: %app_uninstaller_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_koboldcpp.bat not found in: %app_uninstaller_text_completion_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_text_completion
     )
@@ -2637,11 +2651,12 @@ if "%app_uninstaller_text_completion_choice%"=="1" (
     set "caller=app_uninstaller_text_completion"
     if exist "%app_uninstaller_text_completion_dir%\uninstall_tabbyapi.bat" (
         call %app_uninstaller_text_completion_dir%\uninstall_tabbyapi.bat
+        goto :app_uninstaller_text_completion
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_tabbyapi.bat not found in: %app_uninstaller_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_tabbyapi.bat not found in: %app_uninstaller_text_completion_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_text_completion
     )
@@ -2649,11 +2664,12 @@ if "%app_uninstaller_text_completion_choice%"=="1" (
     set "caller=app_uninstaller_text_completion"
     if exist "%app_uninstaller_text_completion_dir%\uninstall_llamacpp.bat" (
         call %app_uninstaller_text_completion_dir%\uninstall_llamacpp.bat
+        goto :app_uninstaller_text_completion
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_llamacpp.bat not found in: %app_uninstaller_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_llamacpp.bat not found in: %app_uninstaller_text_completion_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_text_completion
     )
@@ -2690,11 +2706,12 @@ if "%app_uninstaller_voice_gen_choice%"=="1" (
     set "caller=app_uninstaller_voice_generation"
     if exist "%app_uninstaller_voice_generation_dir%\uninstall_alltalk.bat" (
         call %app_uninstaller_voice_generation_dir%\uninstall_alltalk.bat
+        goto :app_uninstaller_voice_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_alltalk.bat not found in: %app_uninstaller_voice_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_alltalk.bat not found in: %app_uninstaller_voice_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_voice_generation
     )
@@ -2702,11 +2719,12 @@ if "%app_uninstaller_voice_gen_choice%"=="1" (
     set "caller=app_uninstaller_voice_generation"
     if exist "%app_uninstaller_voice_generation_dir%\uninstall_xtts.bat" (
         call %app_uninstaller_voice_generation_dir%\uninstall_xtts.bat
+        goto :app_uninstaller_voice_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_xtts.bat not found in: %app_uninstaller_voice_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_xtts.bat not found in: %app_uninstaller_voice_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_voice_generation
     )
@@ -2714,11 +2732,12 @@ if "%app_uninstaller_voice_gen_choice%"=="1" (
     set "caller=app_uninstaller_voice_generation"
     if exist "%app_uninstaller_voice_generation_dir%\uninstall_rvc.bat" (
         call %app_uninstaller_voice_generation_dir%\uninstall_rvc.bat
+        goto :app_uninstaller_voice_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_rvc.bat not found in: %app_uninstaller_voice_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_rvc.bat not found in: %app_uninstaller_voice_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_voice_generation
     )
@@ -2756,11 +2775,12 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
     set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_sdwebui.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_sdwebui.bat
+        goto :app_uninstaller_image_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_sdwebui.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_sdwebui.bat not found in: %app_uninstaller_image_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_image_generation
     )
@@ -2768,11 +2788,12 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
     set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_sdwebuiforge.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_sdwebuiforge.bat
+        goto :app_uninstaller_image_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_sdwebuiforge.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_sdwebuiforge.bat not found in: %app_uninstaller_image_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_image_generation
     )
@@ -2780,11 +2801,12 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
     set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_comfyui.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_comfyui.bat
+        goto :app_uninstaller_image_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_comfyui.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_comfyui.bat not found in: %app_uninstaller_image_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_image_generation
     )
@@ -2792,11 +2814,12 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
     set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_fooocus.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_fooocus.bat
+        goto :app_uninstaller_image_generation
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_fooocus.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_fooocus.bat not found in: %app_uninstaller_image_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_image_generation
     )
@@ -2837,11 +2860,12 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_extras.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_extras.bat
+        goto :app_uninstaller_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_extras.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_extras.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_core_utilities
     )
@@ -2849,11 +2873,12 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_st.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_st.bat
+        goto :app_uninstaller_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_st.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_st.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_core_utilities
     )
@@ -2861,11 +2886,12 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_7zip.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_7zip.bat
+        goto :app_uninstaller_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_7zip.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_7zip.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_core_utilities
     )
@@ -2873,11 +2899,12 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_ffmpeg.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_ffmpeg.bat
+        goto :app_uninstaller_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_ffmpeg.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_ffmpeg.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_core_utilities
     )
@@ -2885,11 +2912,12 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_nodejs.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_nodejs.bat
+        goto :app_uninstaller_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_nodejs.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_nodejs.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_core_utilities
     )
@@ -2897,11 +2925,12 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_yq.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_yq.bat
+        goto :app_uninstaller_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_yq.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_yq.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_core_utilities
     )
@@ -2909,11 +2938,12 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_cudatoolkit.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_cudatoolkit.bat
+        goto :app_uninstaller_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_cudatoolkit.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_cudatoolkit.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_core_utilities
     )
@@ -2921,11 +2951,12 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_vsbuildtools.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_vsbuildtools.bat
+        goto :app_uninstaller_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_vsbuildtools.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_vsbuildtools.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_core_utilities
     )
@@ -2933,11 +2964,12 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_w64devkit.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_w64devkit.bat
+        goto :app_uninstaller_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_w64devkit.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_w64devkit.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
-        git pull %stl_root%
+        git pull
         pause
         goto :app_uninstaller_core_utilities
     )

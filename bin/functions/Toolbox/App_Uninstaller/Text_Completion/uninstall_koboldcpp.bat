@@ -27,6 +27,7 @@ if /i "%confirmation%"=="Y" (
     rmdir /s /q "%koboldcpp_install_path%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the w64devkit directory...
     rmdir /s /q "%w64devkit_install_path%" 
+
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp has been uninstalled successfully.%reset%
     pause
     goto :app_uninstaller_text_completion

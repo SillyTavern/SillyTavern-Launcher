@@ -37,12 +37,9 @@ cd /d "%ooba_install_path%"
 start "" "start_windows.bat"
 echo %yellow_fg_strong%[INFO]%reset% Another Command Window will open, wait for the installation to finish then
 pause
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Text generation web UI oobabooga Installed Successfully.%reset%
 pause
 
 :ooba_install_exit
-if "%caller%"=="home" (
-    exit /b 1
-) else (
-    exit /b 0
-)
+goto :app_installer_text_completion

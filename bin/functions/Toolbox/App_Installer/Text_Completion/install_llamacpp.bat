@@ -49,15 +49,9 @@ if %errorlevel% neq 0 (
     pause
     goto :app_installer_text_completion
 )
-
 cd /d "llama.cpp"
-
 make
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed llamacpp%reset%
 pause
-
-if "%caller%"=="home" (
-    exit /b 1
-) else (
-    exit /b 0
-)
+goto :app_installer_text_completion

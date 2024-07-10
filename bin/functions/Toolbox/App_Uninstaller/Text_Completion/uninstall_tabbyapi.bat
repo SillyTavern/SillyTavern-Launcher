@@ -25,6 +25,7 @@ if /i "%confirmation%"=="Y" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the tabbyAPI directory...
     cd /d "%~dp0"
     rmdir /s /q "%tabbyapi_install_path%"
+
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been uninstalled successfully.%reset%
     pause
     goto :app_uninstaller_text_completion
