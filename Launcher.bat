@@ -147,6 +147,12 @@ set "app_installer_text_completion_dir=%functions_dir%\Toolbox\App_Installer\Tex
 set "app_installer_voice_generation_dir=%functions_dir%\Toolbox\App_Installer\Voice_Generation"
 set "app_installer_core_utilities_dir=%functions_dir%\Toolbox\App_Installer\Core_Utilities"
 
+REM Define variables for the directories for App Uninstaller
+set "app_uninstaller_image_generation_dir=%functions_dir%\Toolbox\App_Uninstaller\Image_Generation"
+set "app_uninstaller_text_completion_dir=%functions_dir%\Toolbox\App_Uninstaller\Text_Completion"
+set "app_uninstaller_voice_generation_dir=%functions_dir%\Toolbox\App_Uninstaller\Voice_Generation"
+set "app_uninstaller_core_utilities_dir=%functions_dir%\Toolbox\App_Uninstaller\Core_Utilities"
+
 REM Define variables for logging
 set "logs_stl_console_path=%log_dir%\stl.log"
 set "logs_st_console_path=%log_dir%\st_console_output.log"
@@ -2545,6 +2551,7 @@ if "%app_installer_core_util_choice%"=="1" (
 )
 
 
+
 REM ############################################################
 REM ############## APP UNINSTALLER - FRONTEND ##################
 REM ############################################################
@@ -2582,6 +2589,7 @@ if "%app_uninstaller_choice%"=="1" (
 )
 
 
+
 REM ############################################################
 REM ######## APP UNINSTALLER TEXT COMPLETION - FRONTEND ########
 REM ############################################################
@@ -2598,18 +2606,58 @@ echo 3. UNINSTALL TabbyAPI
 echo 4. UNINSTALL llamacpp
 echo 0. Back
 
-set /p app_uninstaller_txt_comp_choice=Choose Your Destiny: 
+set /p app_uninstaller_text_completion_choice=Choose Your Destiny: 
 
 REM ####### APP UNINSTALLER TEXT COMPLETION - BACKEND ##########
-if "%app_uninstaller_txt_comp_choice%"=="1" (
-    call :uninstall_ooba
-) else if "%app_uninstaller_txt_comp_choice%"=="2" (
-    call :uninstall_koboldcpp
-) else if "%app_uninstaller_txt_comp_choice%"=="3" (
-    call :uninstall_tabbyapi
-) else if "%app_uninstaller_txt_comp_choice%"=="4" (
-    call :uninstall_llamacpp
-) else if "%app_uninstaller_txt_comp_choice%"=="0" (
+if "%app_uninstaller_text_completion_choice%"=="1" (
+    set "caller=app_uninstaller_text_completion"
+    if exist "%app_uninstaller_text_completion_dir%\uninstall_ooba.bat" (
+        call %app_uninstaller_text_completion_dir%\uninstall_ooba.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_ooba.bat not found in: %app_uninstaller_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_ooba.bat not found in: %app_uninstaller_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_text_completion
+    )
+) else if "%app_uninstaller_text_completion_choice%"=="2" (
+    set "caller=app_uninstaller_text_completion"
+    if exist "%app_uninstaller_text_completion_dir%\uninstall_koboldcpp.bat" (
+        call %app_uninstaller_text_completion_dir%\uninstall_koboldcpp.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_koboldcpp.bat not found in: %app_uninstaller_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_koboldcpp.bat not found in: %app_uninstaller_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_text_completion
+    )
+) else if "%app_uninstaller_text_completion_choice%"=="3" (
+    set "caller=app_uninstaller_text_completion"
+    if exist "%app_uninstaller_text_completion_dir%\uninstall_tabbyapi.bat" (
+        call %app_uninstaller_text_completion_dir%\uninstall_tabbyapi.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_tabbyapi.bat not found in: %app_uninstaller_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_tabbyapi.bat not found in: %app_uninstaller_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_text_completion
+    )
+) else if "%app_uninstaller_text_completion_choice%"=="4" (
+    set "caller=app_uninstaller_text_completion"
+    if exist "%app_uninstaller_text_completion_dir%\uninstall_llamacpp.bat" (
+        call %app_uninstaller_text_completion_dir%\uninstall_llamacpp.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_llamacpp.bat not found in: %app_uninstaller_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_llamacpp.bat not found in: %app_uninstaller_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_text_completion
+    )
+) else if "%app_uninstaller_text_completion_choice%"=="0" (
     goto :app_uninstaller
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
@@ -2618,135 +2666,6 @@ if "%app_uninstaller_txt_comp_choice%"=="1" (
     goto :app_uninstaller_text_completion
 )
 
-
-:uninstall_ooba
-title STL [UNINSTALL OOBABOOGA]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of Text generation web UI oobabooga                        ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the folder text-generation-webui
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the text-generation-webui directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%ooba_install_path%"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Text generation web UI oobabooga has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_text_completion
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_text_completion
-)
-
-
-:uninstall_koboldcpp
-title STL [UNINSTALL KOBOLDCPP]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of koboldcpp                                               ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%koboldcpp%reset%
-    call conda deactivate
-    call conda remove --name koboldcpp --all -y
-    call conda clean -a -y
-
-    REM Remove the folder koboldcpp
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the koboldcpp directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%koboldcpp_install_path%"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the w64devkit directory...
-    rmdir /s /q "%w64devkit_install_path%" 
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_text_completion
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_text_completion
-)
-
-
-:uninstall_tabbyapi
-title STL [UNINSTALL TABBYAPI]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of TabbyAPI                                                ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%tabbyapi%reset%
-    call conda deactivate
-    call conda remove --name tabbyapi --all -y
-    call conda clean -a -y
-
-    REM Remove the folder tabbyAPI
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the tabbyAPI directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%tabbyapi_install_path%"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_text_completion
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_text_completion
-)
-
-
-:uninstall_llamacpp
-title STL [UNINSTALL LLAMACPP]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of llamacpp                                                ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the folder
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the llamacpp directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%llamacpp_install_path%"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%llamacpp has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_text_completion
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_text_completion
-)
 
 
 REM ############################################################
@@ -2768,11 +2687,41 @@ set /p app_uninstaller_voice_gen_choice=Choose Your Destiny:
 
 REM ######## APP UNINSTALLER VOICE GENERATION - BACKEND #########
 if "%app_uninstaller_voice_gen_choice%"=="1" (
-    call :uninstall_alltalk
+    set "caller=app_uninstaller_voice_generation"
+    if exist "%app_uninstaller_voice_generation_dir%\uninstall_alltalk.bat" (
+        call %app_uninstaller_voice_generation_dir%\uninstall_alltalk.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_alltalk.bat not found in: %app_uninstaller_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_alltalk.bat not found in: %app_uninstaller_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_voice_generation
+    )
 ) else if "%app_uninstaller_voice_gen_choice%"=="2" (
-    goto :uninstall_xtts
+    set "caller=app_uninstaller_voice_generation"
+    if exist "%app_uninstaller_voice_generation_dir%\uninstall_xtts.bat" (
+        call %app_uninstaller_voice_generation_dir%\uninstall_xtts.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_xtts.bat not found in: %app_uninstaller_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_xtts.bat not found in: %app_uninstaller_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_voice_generation
+    )
 ) else if "%app_uninstaller_voice_gen_choice%"=="3" (
-    goto :uninstall_rvc
+    set "caller=app_uninstaller_voice_generation"
+    if exist "%app_uninstaller_voice_generation_dir%\uninstall_rvc.bat" (
+        call %app_uninstaller_voice_generation_dir%\uninstall_rvc.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_rvc.bat not found in: %app_uninstaller_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_rvc.bat not found in: %app_uninstaller_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_voice_generation
+    )
 ) else if "%app_uninstaller_voice_gen_choice%"=="0" (
     goto :app_uninstaller
 ) else (
@@ -2782,112 +2731,6 @@ if "%app_uninstaller_voice_gen_choice%"=="1" (
     goto :app_uninstaller_voice_generation
 )
 
-:uninstall_alltalk
-title STL [UNINSTALL ALLTALK]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of AllTalk                                                 ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%alltalk%reset%
-    call conda deactivate
-    call conda remove --name alltalk --all -y
-    call conda clean -a -y
-
-    REM Remove the folder
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the alltalk directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%alltalk_install_path%"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%AllTalk has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_voice_generation
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_voice_generation
-)
-
-
-:uninstall_xtts
-title STL [UNINSTALL XTTS]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of XTTS                                                    ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%xtts%reset%
-    call conda deactivate
-    call conda remove --name xtts --all -y
-    call conda clean -a -y
-
-    REM Remove the folder
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%xtts_install_path%"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_voice_generation
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_voice_generation
-)
-
-
-:uninstall_rvc
-title STL [UNINSTALL RVC]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of RVC                                                    ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%rvc%reset%
-    call conda deactivate
-    call conda remove --name rvc --all -y
-    call conda clean -a -y
-
-    REM Remove the folder
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Retrieval-based-Voice-Conversion-WebUI directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%rvc_install_path%"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%RVC has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_voice_generation
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_voice_generation
-)
 
 
 REM ############################################################
@@ -2910,162 +2753,58 @@ set /p app_uninstaller_img_gen_choice=Choose Your Destiny:
 
 REM ######## APP UNINSTALLER IMAGE GENERATION - BACKEND #########
 if "%app_uninstaller_img_gen_choice%"=="1" (
-    call :uninstall_sdwebui
+    set "caller=app_uninstaller_image_generation"
+    if exist "%app_uninstaller_image_generation_dir%\uninstall_sdwebui.bat" (
+        call %app_uninstaller_image_generation_dir%\uninstall_sdwebui.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_sdwebui.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_sdwebui.bat not found in: %app_uninstaller_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_image_generation
+    )
 ) else if "%app_uninstaller_img_gen_choice%"=="2" (
-    goto :uninstall_sdwebuiforge
+    set "caller=app_uninstaller_image_generation"
+    if exist "%app_uninstaller_image_generation_dir%\uninstall_sdwebuiforge.bat" (
+        call %app_uninstaller_image_generation_dir%\uninstall_sdwebuiforge.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_sdwebuiforge.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_sdwebuiforge.bat not found in: %app_uninstaller_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_image_generation
+    )
 ) else if "%app_uninstaller_img_gen_choice%"=="3" (
-    goto :uninstall_comfyui
+    set "caller=app_uninstaller_image_generation"
+    if exist "%app_uninstaller_image_generation_dir%\uninstall_comfyui.bat" (
+        call %app_uninstaller_image_generation_dir%\uninstall_comfyui.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_comfyui.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_comfyui.bat not found in: %app_uninstaller_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_image_generation
+    )
 ) else if "%app_uninstaller_img_gen_choice%"=="4" (
-    goto :uninstall_fooocus
+    set "caller=app_uninstaller_image_generation"
+    if exist "%app_uninstaller_image_generation_dir%\uninstall_fooocus.bat" (
+        call %app_uninstaller_image_generation_dir%\uninstall_fooocus.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_fooocus.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_fooocus.bat not found in: %app_uninstaller_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_image_generation
+    )
 ) else if "%app_uninstaller_img_gen_choice%"=="0" (
     goto :app_uninstaller
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
-    pause
-    goto :app_uninstaller_image_generation
-)
-
-
-:uninstall_sdwebui
-title STL [UNINSTALL STABLE DIFUSSION WEBUI]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of Stable Diffusion web UI                                 ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%sdwebui%reset%
-    call conda deactivate
-    call conda remove --name sdwebui --all -y
-    call conda clean -a -y
-
-    REM Remove the folder stable-diffusion-webui
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the stable-diffusion-webui directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%sdwebui_install_path%"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Stable Diffusion web UI has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_image_generation
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_image_generation
-)
-
-
-:uninstall_sdwebuiforge
-title STL [UNINSTALL STABLE DIFUSSION WEBUI FORGE]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of Stable Diffusion web UI Forge                           ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%sdwebuiforge%reset%
-    call conda deactivate
-    call conda remove --name sdwebuiforge --all -y
-    call conda clean -a -y
-
-    REM Remove the folder stable-diffusion-webui
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the stable-diffusion-webui-forge directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%sdwebuiforge_install_path%"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Stable Diffusion web UI Forge has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_image_generation
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_image_generation
-)
-
-
-:uninstall_comfyui
-title STL [UNINSTALL COMFYUI]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of ComfyUI                                                 ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%comfyui%reset%
-    call conda deactivate
-    call conda remove --name comfyui --all -y
-    call conda clean -a -y
-
-    REM Remove the folder ComfyUI
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the ComfyUI directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%comfyui_install_path%"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ComfyUI has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_image_generation
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_image_generation
-)
-
-
-:uninstall_fooocus
-title STL [UNINSTALL FOOOCUS]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of Fooocus                                                 ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%fooocus%reset%
-    call conda deactivate
-    call conda remove --name fooocus --all -y
-    call conda clean -a -y
-
-    REM Remove the folder Fooocus
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Fooocus directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%fooocus_install_path%"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Fooocus has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_image_generation
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
     pause
     goto :app_uninstaller_image_generation
 )
@@ -3095,23 +2834,113 @@ set /p app_uninstaller_core_util_choice=Choose Your Destiny:
 
 REM ######## APP UNINSTALLER CORE UTILITIES - BACKEND #########
 if "%app_uninstaller_core_util_choice%"=="1" (
-    call :uninstall_extras
-) else if "%app_uninstaller_core_util_choice%"=="2" (
-    call :uninstall_st
-) else if "%app_uninstaller_core_util_choice%"=="3" (
-    call :uninstall_7zip
-) else if "%app_uninstaller_core_util_choice%"=="4" (
-    call :uninstall_ffmpeg
-) else if "%app_uninstaller_core_util_choice%"=="5" (
-    call :uninstall_nodejs
-) else if "%app_uninstaller_core_util_choice%"=="6" (
-    call :uninstall_yq
-) else if "%app_uninstaller_core_util_choice%"=="7" (
-    call :uninstall_cudatoolkit
-) else if "%app_uninstaller_core_util_choice%"=="8" (
-    call :uninstall_vsbuildtools
-) else if "%app_uninstaller_core_util_choice%"=="9" (
-    call :uninstall_w64devkit
+    set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_extras.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_extras.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_extras.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_extras.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_core_utilities
+    )
+) else if "%app_ununinstaller_core_util_choice%"=="2" (
+    set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\ununinstall_st.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_st.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_st.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_st.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_core_utilities
+    )
+) else if "%app_ununinstaller_core_util_choice%"=="3" (
+    set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_7zip.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_7zip.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_7zip.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_7zip.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_core_utilities
+    )
+) else if "%app_ununinstaller_core_util_choice%"=="4" (
+    set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_ffmpeg.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_ffmpeg.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_ffmpeg.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_ffmpeg.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_core_utilities
+    )
+) else if "%app_ununinstaller_core_util_choice%"=="5" (
+    set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_nodejs.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_nodejs.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_nodejs.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_nodejs.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_core_utilities
+    )
+) else if "%app_ununinstaller_core_util_choice%"=="6" (
+    set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_yq.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_yq.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_yq.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_yq.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_core_utilities
+    )
+) else if "%app_ununinstaller_core_util_choice%"=="7" (
+    set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_cudatoolkit.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_cudatoolkit.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_cudatoolkit.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_cudatoolkit.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_core_utilities
+    )
+) else if "%app_ununinstaller_core_util_choice%"=="8" (
+    set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_vsbuildtools.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_vsbuildtools.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_vsbuildtools.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_vsbuildtools.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_core_utilities
+    )
+) else if "%app_ununinstaller_core_util_choice%"=="9" (
+    set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_w64devkit.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_w64devkit.bat
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_w64devkit.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_w64devkit.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull %stl_root%
+        pause
+        goto :app_uninstaller_core_utilities
+    )
 ) else if "%app_uninstaller_core_util_choice%"=="0" (
     goto :app_uninstaller
 ) else (
@@ -3120,167 +2949,6 @@ if "%app_uninstaller_core_util_choice%"=="1" (
     pause
     goto :app_uninstaller_core_utilities
 )
-
-
-:uninstall_extras
-title STL [UNINSTALL EXTRAS]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of Extras                                                  ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the Conda environment
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the Conda enviroment: %cyan_fg_strong%extras%reset%
-    call conda deactivate
-    call conda remove --name extras --all -y
-    call conda clean -a -y
-
-    REM Remove the folder SillyTavern-extras
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern-extras directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%extras_install_path%"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_core_utilities
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_core_utilities
-)
-
-
-:uninstall_st
-title STL [UNINSTALL ST]
-setlocal enabledelayedexpansion
-chcp 65001 > nul
-
-REM Confirm with the user before proceeding
-echo.
-echo %red_bg%╔════ DANGER ZONE ══════════════════════════════════════════════════════════════════════════════╗%reset%
-echo %red_bg%║ WARNING: This will delete all data of SillyTavern                                             ║%reset%
-echo %red_bg%║ If you want to keep any data, make sure to create a backup before proceeding.                 ║%reset%
-echo %red_bg%╚═══════════════════════════════════════════════════════════════════════════════════════════════╝%reset%
-echo.
-set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
-if /i "%confirmation%"=="Y" (
-
-    REM Remove the folder SillyTavern
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the SillyTavern directory...
-    cd /d "%~dp0"
-    rmdir /s /q "%st_install_path%"
-
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern has been uninstalled successfully.%reset%
-    pause
-    goto :app_uninstaller_core_utilities
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstall canceled.
-    pause
-    goto :app_uninstaller_core_utilities
-)
-
-
-:uninstall_7zip
-title STL [UNINSTALL-7ZIP]
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling 7-Zip...
-winget uninstall --id 7zip.7zip
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%7-Zip has been uninstalled successfully.%reset%
-pause
-goto :app_uninstaller_core_utilities
-
-
-:uninstall_ffmpeg
-title STL [UNINSTALL-FFMPEG]
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling ffmpeg...
-rmdir /s /q "%ffmpeg_install_path%"
-
-setlocal EnableDelayedExpansion
-rem Get the current PATH value from the registry
-for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
-
-rem Remove the path from the current PATH if it exists
-set "new_path=!current_path:%ffmpeg_path_bin%=!"
-
-REM Update the PATH value in the registry
-reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
-
-REM Update the PATH value for the current session
-setx PATH "!new_path!" > nul
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg removed from PATH.%reset%
-endlocal
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ffmpeg has been uninstalled successfully.%reset%
-pause
-goto :app_uninstaller_core_utilities
-
-
-:uninstall_nodejs
-title STL [UNINSTALL-NODEJS]
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling Node.js...
-winget uninstall --id OpenJS.NodeJS
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js has been uninstalled successfully.%reset%
-pause
-goto :app_uninstaller_core_utilities
-
-
-:uninstall_yq
-title STL [UNINSTALL-YQ]
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling yq...
-winget uninstall --id MikeFarah.yq
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%yq has been uninstalled successfully.%reset%
-pause
-goto :app_uninstaller_core_utilities
-
-
-:uninstall_cudatoolkit
-title STL [UNINSTALL-CUDATOOLKIT]
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling CUDA Toolkit...
-winget uninstall --id Nvidia.CUDA
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%CUDA Toolkit has been uninstalled successfully.%reset%
-pause
-goto :app_uninstaller_core_utilities
-
-
-:uninstall_vsbuildtools
-title STL [UNINSTALL-VSBUILDTOOLS]
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling Visual Studio BuildTools 2022...
-winget uninstall --id Microsoft.VisualStudio.2022.BuildTools
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Visual Studio BuildTools 2022 has been uninstalled successfully.%reset%
-pause
-goto :app_uninstaller_core_utilities
-
-
-:uninstall_w64devkit
-title STL [UNINSTALL-VSBUILDTOOLS]
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Uninstalling w64devkit...
-rmdir /s /q "%w64devkit_install_path%"
-
-setlocal EnableDelayedExpansion
-REM Get the current PATH value from the registry
-for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
-
-REM Remove the path from the current PATH if it exists
-set "new_path=!current_path:%w64devkit_path_bin%=!"
-
-REM Update the PATH value in the registry
-reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
-
-REM Update the PATH value for the current session
-setx PATH "!new_path!" > nul
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit removed from PATH.%reset%
-endlocal
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%w64devkit has been uninstalled successfully.%reset%
-pause
-goto :app_uninstaller_core_utilities
 
 
 REM ############################################################
