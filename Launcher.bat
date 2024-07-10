@@ -196,7 +196,7 @@ for /f %%i in ('git rev-list HEAD..%stl_current_branch%@{upstream}') do (
 )
 
 REM If no updates are available, skip the update process
-echo %blue_fg_strong%[INFO] Launcher already up to date.%reset%
+echo [ %green_fg_strong%OK%reset% ] SillyTavern-Launcher is up to date.%reset%
 goto :startupcheck_no_update
 
 :startupcheck_found_update
@@ -294,41 +294,41 @@ if %ff_path_exists% neq 0 (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%winget added to PATH.%reset%
 ) else (
     set "new_path=%current_path%"
-    echo %blue_fg_strong%[INFO] winget already exists in PATH.%reset%
+    echo [ %green_fg_strong%OK%reset% ] Found PATH: winget%reset%
 )
 
-REM Check if Winget is installed; if not, then install it
+REM Check if winget is installed; if not, then install it
 winget --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Winget is not installed on this system.%reset%
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget is not installed on this system.%reset%
     REM Check if the folder exists
     if not exist "%~dp0bin" (
         mkdir "%~dp0bin"
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "bin"  
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created directory: "bin"  
     ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "bin" folder already exists.%reset%
+        echo [ %green_fg_strong%OK%reset% ] Found directory: "bin"%reset%
     )
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Winget...
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing winget...
     curl -L -o "%~dp0bin\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
     start "" "%~dp0bin\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Winget installed successfully. Please restart the Launcher.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%winget installed successfully. Please restart the Launcher.%reset%
     pause
     exit
 ) else (
-    echo %blue_fg_strong%[INFO] Winget is already installed.%reset%
+    echo [ %green_fg_strong%OK%reset% ] Found app: %cyan_fg_strong%winget%reset%
 )
 
 REM Check if Git is installed if not then install git
 git --version > nul 2>&1
 if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Git is not installed on this system.%reset%
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Git using Winget...
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Git using winget...
     winget install -e --id Git.Git
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Git is installed. Please restart the Launcher.%reset%
     pause
     exit
 ) else (
-    echo %blue_fg_strong%[INFO] Git is already installed.%reset%
+    echo [ %green_fg_strong%OK%reset% ] Found app: %cyan_fg_strong%Git%reset%
 )
 
 REM Get the current PATH value from the registry
@@ -356,7 +356,7 @@ if %ff_path_exists% neq 0 (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%miniconda3 added to PATH.%reset%
 ) else (
     set "new_path=%current_path%"
-    echo %blue_fg_strong%[INFO] miniconda3 already exists in PATH.%reset%
+    echo [ %green_fg_strong%OK%reset% ] Found PATH: miniconda3%reset%
 )
 
 REM Check if Miniconda3 is installed if not then install Miniconda3
@@ -365,13 +365,13 @@ if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Miniconda3 is not installed on this system. Could not find command: conda%reset%
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Checking if Miniconda3 exists in app list...
     winget uninstall --id Anaconda.Miniconda3
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using Winget...
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using winget...
     winget install -e --id Anaconda.Miniconda3
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Miniconda3 installed successfully. Please restart the Installer.%reset%
     pause
     exit
 ) else (
-    echo %blue_fg_strong%[INFO] Miniconda3 is already installed.%reset%
+    echo [ %green_fg_strong%OK%reset% ] Found app: %cyan_fg_strong%Miniconda3%reset%
 )
 
 REM Run PowerShell command to retrieve VRAM size and divide by 1GB
@@ -1082,7 +1082,7 @@ echo 2. App Installer
 echo 3. App Uninstaller
 echo 4. Editor
 echo 5. Backup
-echo 6. Switch branch
+echo 6. Switch Branch
 echo 7. Troubleshooting
 echo 8. Reset Custom Shortcut
 echo 0. Back
@@ -3039,7 +3039,7 @@ set /p editor_txt_comp_choice=Choose Your Destiny:
 
 REM ####### EDITOR TEXT COMPLETION - BACKEND ##########
 if "%editor_txt_comp_choice%"=="1" (
-    call :edit_ooba_modules
+    call :edit_ooba
 ) else if "%editor_txt_comp_choice%"=="2" (
     call :edit_koboldcpp
 ) else if "%editor_txt_comp_choice%"=="3" (
@@ -3057,25 +3057,17 @@ REM ############################################################################
 REM ##################################################################################################################################################
 REM ##################################################################################################################################################
 
-
-REM Function to print module options with color based on their status
-:printModule
-if "%2"=="true" (
-    echo %green_fg_strong%%1 [Enabled]%reset%
-) else (
-    echo %red_fg_strong%%1 [Disabled]%reset%
-)
-exit /b
-
 REM ############################################################
 REM ############## EDIT OOBA MODULES - FRONTEND ################
 REM ############################################################
-:edit_ooba_modules
+:edit_ooba
 title STL [EDIT OOBA MODULES]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Editor / Text Completion / Edit OOBA Modules%reset%
 echo -------------------------------------------------------------
 echo Choose OOBA modules to enable or disable (e.g., "1 2 4" to enable extensions openai, listen, and api-port)
+
+
 
 REM Display module options with colors based on their status
 call :printModule "1. extensions openai (--extensions openai)" %ooba_extopenai_trigger%
@@ -3190,13 +3182,17 @@ if defined modules_enable (
 
 REM Save the constructed Python command to modules-ooba for testing
 echo ooba_start_command=%python_command%>>%ooba_modules_path%
-goto :edit_ooba_modules
+goto :edit_ooba
 
+REM Function to print module options with color based on their status
+:printModule
+if "%2"=="true" (
+    echo %green_fg_strong%%1 [Enabled]%reset%
+) else (
+    echo %red_fg_strong%%1 [Disabled]%reset%
+)
+exit /b
 
-:edit_koboldcpp
-echo COMING SOON
-pause
-goto :editor_text_completion
 
 
 :edit_tabbyapi
