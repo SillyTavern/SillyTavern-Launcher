@@ -2830,10 +2830,10 @@ echo 8. UNINSTALL Visual Studio BuildTools
 echo 9. UNINSTALL w64devkit
 echo 0. Back
 
-set /p app_uninstaller_core_util_choice=Choose Your Destiny: 
+set /p app_uninstaller_core_utilities_choice=Choose Your Destiny: 
 
 REM ######## APP UNINSTALLER CORE UTILITIES - BACKEND #########
-if "%app_uninstaller_core_util_choice%"=="1" (
+if "%app_uninstaller_core_utilities_choice%"=="1" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_extras.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_extras.bat
@@ -2845,9 +2845,9 @@ if "%app_uninstaller_core_util_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_ununinstaller_core_util_choice%"=="2" (
+) else if "%app_uninstaller_core_utilities_choice%"=="2" (
     set "caller=app_uninstaller_core_utilities"
-    if exist "%app_uninstaller_core_utilities_dir%\ununinstall_st.bat" (
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_st.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_st.bat
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_st.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
@@ -2857,7 +2857,7 @@ if "%app_uninstaller_core_util_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_ununinstaller_core_util_choice%"=="3" (
+) else if "%app_uninstaller_core_utilities_choice%"=="3" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_7zip.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_7zip.bat
@@ -2869,7 +2869,7 @@ if "%app_uninstaller_core_util_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_ununinstaller_core_util_choice%"=="4" (
+) else if "%app_uninstaller_core_utilities_choice%"=="4" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_ffmpeg.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_ffmpeg.bat
@@ -2881,7 +2881,7 @@ if "%app_uninstaller_core_util_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_ununinstaller_core_util_choice%"=="5" (
+) else if "%app_uninstaller_core_utilities_choice%"=="5" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_nodejs.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_nodejs.bat
@@ -2893,7 +2893,7 @@ if "%app_uninstaller_core_util_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_ununinstaller_core_util_choice%"=="6" (
+) else if "%app_uninstaller_core_utilities_choice%"=="6" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_yq.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_yq.bat
@@ -2905,7 +2905,7 @@ if "%app_uninstaller_core_util_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_ununinstaller_core_util_choice%"=="7" (
+) else if "%app_uninstaller_core_utilities_choice%"=="7" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_cudatoolkit.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_cudatoolkit.bat
@@ -2917,7 +2917,7 @@ if "%app_uninstaller_core_util_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_ununinstaller_core_util_choice%"=="8" (
+) else if "%app_uninstaller_core_utilities_choice%"=="8" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_vsbuildtools.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_vsbuildtools.bat
@@ -2929,7 +2929,7 @@ if "%app_uninstaller_core_util_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_ununinstaller_core_util_choice%"=="9" (
+) else if "%app_uninstaller_core_utilities_choice%"=="9" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_w64devkit.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_w64devkit.bat
