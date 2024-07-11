@@ -15,6 +15,8 @@ for /d %%d in ("%st_install_path%\data\*") do (
     )
 )
 
+echo Detected accounts:
+echo ================================
 REM Remove the trailing pipe character
 set "user_folders=%user_folders:~0,-1%"
 
@@ -22,11 +24,12 @@ REM Split user_folders into an array
 set i=1
 set "user_count=0"
 for %%a in (%user_folders:|= %) do (
-    echo !i!. %%a
+    echo !i!. %cyan_fg_strong%%%a%reset%
     set "user_folder_!i!=%%a"
     set /a i+=1
     set /a user_count+=1
 )
+echo ================================
 
 REM If only one user folder is found, skip the selection
 if %user_count%==1 (
@@ -37,6 +40,7 @@ if %user_count%==1 (
 :select_user_folder
 REM Prompt user to select a folder
 echo 0. Cancel
+echo.
 set "selected_user_folder="
 set /p user_choice="Select a folder to backup: "
 

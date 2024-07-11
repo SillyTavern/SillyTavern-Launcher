@@ -3070,12 +3070,12 @@ if "%editor_text_completion_choice%"=="1" (
     )
 ) else if "%editor_text_completion_choice%"=="2" (
     set "caller=editor_text_completion"
-    if exist "%editor_text_completion_dir%\edit_ooba_modules.bat" (
-        call %editor_text_completion_dir%\edit_ooba_modules.bat
+    if exist "%editor_text_completion_dir%\edit_koboldcpp_modules.bat" (
+        call %editor_text_completion_dir%\edit_koboldcpp_modules.bat
         goto :editor_text_completion
     ) else (
-        echo [%DATE% %TIME%] ERROR: edit_ooba_modules.bat not found in: %editor_text_completion_dir% >> %logs_stl_console_path%
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_ooba_modules.bat not found in: %editor_text_completion_dir%%reset%
+        echo [%DATE% %TIME%] ERROR: edit_koboldcpp_modules.bat not found in: %editor_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_koboldcpp_modules.bat not found in: %editor_text_completion_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
@@ -3083,12 +3083,12 @@ if "%editor_text_completion_choice%"=="1" (
     )
 ) else if "%editor_text_completion_choice%"=="3" (
     set "caller=editor_text_completion"
-    if exist "%editor_text_completion_dir%\edit_ooba_modules.bat" (
-        call %editor_text_completion_dir%\edit_ooba_modules.bat
+    if exist "%editor_text_completion_dir%\edit_tabbyapi_modules.bat" (
+        call %editor_text_completion_dir%\edit_tabbyapi_modules.bat
         goto :editor_text_completion
     ) else (
-        echo [%DATE% %TIME%] ERROR: edit_ooba_modules.bat not found in: %editor_text_completion_dir% >> %logs_stl_console_path%
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_ooba_modules.bat not found in: %editor_text_completion_dir%%reset%
+        echo [%DATE% %TIME%] ERROR: edit_tabbyapi_modules.bat.bat not found in: %editor_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_tabbyapi_modules.bat not found in: %editor_text_completion_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
