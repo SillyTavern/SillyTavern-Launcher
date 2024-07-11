@@ -13,7 +13,7 @@ REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title STL [STARTUP CHECK]
 setlocal
 
-set "stl_version=V1.2.1"
+set "stl_version=1.2.1"
 set "stl_title_pid=STL [TROUBLESHOOTING]"
 
 REM ANSI Escape Code for Colors
@@ -152,6 +152,12 @@ set "app_uninstaller_image_generation_dir=%functions_dir%\Toolbox\App_Uninstalle
 set "app_uninstaller_text_completion_dir=%functions_dir%\Toolbox\App_Uninstaller\Text_Completion"
 set "app_uninstaller_voice_generation_dir=%functions_dir%\Toolbox\App_Uninstaller\Voice_Generation"
 set "app_uninstaller_core_utilities_dir=%functions_dir%\Toolbox\App_Uninstaller\Core_Utilities"
+
+REM Define variables for the directories for Editor
+set "editor_image_generation_dir=%functions_dir%\Toolbox\Editor\Image_Generation"
+set "editor_text_completion_dir=%functions_dir%\Toolbox\Editor\Text_Completion"
+set "editor_voice_generation_dir=%functions_dir%\Toolbox\Editor\Voice_Generation"
+set "editor_core_utilities_dir=%functions_dir%\Toolbox\Editor\Core_Utilities"
 
 REM Define variables for logging
 set "logs_stl_console_path=%log_dir%\stl.log"
@@ -1200,7 +1206,18 @@ if not defined ooba_start_command (
     echo.
     echo %blue_bg%We will redirect you to the Edit OOBA Modules menu.%reset%
     pause
-    goto :edit_ooba_modules
+    set "caller=editor_text_completion"
+    if exist "%editor_text_completion_dir%\edit_ooba_modules.bat" (
+        call %editor_text_completion_dir%\edit_ooba_modules.bat
+        goto :app_launcher_text_completion
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_ooba_modules.bat not found in: %editor_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_ooba_modules.bat not found in: %editor_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_launcher_text_completion
+    )
 )
 
 set "ooba_start_command=%ooba_start_command:ooba_start_command=%"
@@ -3035,16 +3052,49 @@ echo 2. Edit koboldcpp
 echo 3. Edit TabbyAPI
 echo 0. Back
 
-set /p editor_txt_comp_choice=Choose Your Destiny: 
+set /p editor_text_completion_choice=Choose Your Destiny: 
 
 REM ####### EDITOR TEXT COMPLETION - BACKEND ##########
-if "%editor_txt_comp_choice%"=="1" (
-    call :edit_ooba
-) else if "%editor_txt_comp_choice%"=="2" (
-    call :edit_koboldcpp
-) else if "%editor_txt_comp_choice%"=="3" (
-    call :edit_tabbyapi
-) else if "%editor_txt_comp_choice%"=="0" (
+if "%editor_text_completion_choice%"=="1" (
+    set "caller=editor_text_completion"
+    if exist "%editor_text_completion_dir%\edit_ooba_modules.bat" (
+        call %editor_text_completion_dir%\edit_ooba_modules.bat
+        goto :editor_text_completion
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_ooba_modules.bat not found in: %editor_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_ooba_modules.bat not found in: %editor_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :editor_text_completion
+    )
+) else if "%editor_text_completion_choice%"=="2" (
+    set "caller=editor_text_completion"
+    if exist "%editor_text_completion_dir%\edit_ooba_modules.bat" (
+        call %editor_text_completion_dir%\edit_ooba_modules.bat
+        goto :editor_text_completion
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_ooba_modules.bat not found in: %editor_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_ooba_modules.bat not found in: %editor_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :editor_text_completion
+    )
+) else if "%editor_text_completion_choice%"=="3" (
+    set "caller=editor_text_completion"
+    if exist "%editor_text_completion_dir%\edit_ooba_modules.bat" (
+        call %editor_text_completion_dir%\edit_ooba_modules.bat
+        goto :editor_text_completion
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_ooba_modules.bat not found in: %editor_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_ooba_modules.bat not found in: %editor_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :editor_text_completion
+    )
+) else if "%editor_text_completion_choice%"=="0" (
     goto :editor
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
@@ -3052,160 +3102,6 @@ if "%editor_txt_comp_choice%"=="1" (
     pause
     goto :editor_text_completion
 )
-
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-
-REM ############################################################
-REM ############## EDIT OOBA MODULES - FRONTEND ################
-REM ############################################################
-:edit_ooba
-title STL [EDIT OOBA MODULES]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Text Completion / Edit OOBA Modules%reset%
-echo -------------------------------------------------------------
-echo Choose OOBA modules to enable or disable (e.g., "1 2 4" to enable extensions openai, listen, and api-port)
-
-
-
-REM Display module options with colors based on their status
-call :printModule "1. extensions openai (--extensions openai)" %ooba_extopenai_trigger%
-call :printModule "2. listen (--listen)" %ooba_listen_trigger%
-call :printModule "3. listen-port (--listen-port 7910)" %ooba_listenport_trigger%
-call :printModule "4. api-port (--api-port 7911)" %ooba_apiport_trigger%
-call :printModule "5. autolaunch (--autolaunch)" %ooba_autolaunch_trigger%
-call :printModule "6. verbose (--verbose)" %ooba_verbose_trigger%
-
-echo 00. Quick Start Text generation web UI oobabooga
-echo 0. Back
-
-set "python_command="
-
-set /p ooba_module_choices=Choose modules to enable/disable: 
-
-REM Handle the user's module choices and construct the Python command
-for %%i in (%ooba_module_choices%) do (
-    if "%%i"=="1" (
-        if "%ooba_extopenai_trigger%"=="true" (
-            set "ooba_extopenai_trigger=false"
-        ) else (
-            set "ooba_extopenai_trigger=true"
-        )
-
-    ) else if "%%i"=="2" (
-        if "%ooba_listen_trigger%"=="true" (
-            set "ooba_listen_trigger=false"
-        ) else (
-            set "ooba_listen_trigger=true"
-        )
-
-    ) else if "%%i"=="3" (
-        if "%ooba_listenport_trigger%"=="true" (
-            set "ooba_listenport_trigger=false"
-        ) else (
-            set "ooba_listenport_trigger=true"
-        )
-
-    ) else if "%%i"=="4" (
-        if "%ooba_apiport_trigger%"=="true" (
-            set "ooba_apiport_trigger=false"
-        ) else (
-            set "ooba_apiport_trigger=true"
-        )
-
-    ) else if "%%i"=="5" (
-        if "%ooba_autolaunch_trigger%"=="true" (
-            set "ooba_autolaunch_trigger=false"
-        ) else (
-            set "ooba_autolaunch_trigger=true"
-        )
-    ) else if "%%i"=="6" (
-        if "%ooba_verbose_trigger%"=="true" (
-            set "ooba_verbose_trigger=false"
-        ) else (
-            set "ooba_verbose_trigger=true"
-        )
-
-    ) else if "%%i"=="00" (
-        goto :start_ooba
-
-    ) else if "%%i"=="0" (
-        goto :editor_text_completion
-    )
-)
-
-REM Save the module flags to modules-ooba
-echo ooba_extopenai_trigger=%ooba_extopenai_trigger%>%ooba_modules_path%
-echo ooba_listen_trigger=%ooba_listen_trigger%>>%ooba_modules_path%
-echo ooba_listenport_trigger=%ooba_listenport_trigger%>>%ooba_modules_path%
-echo ooba_apiport_trigger=%ooba_apiport_trigger%>>%ooba_modules_path%
-echo ooba_autolaunch_trigger=%ooba_autolaunch_trigger%>>%ooba_modules_path%
-echo ooba_verbose_trigger=%ooba_verbose_trigger%>>%ooba_modules_path%
-
-
-REM remove modules_enable
-set "modules_enable="
-
-REM Compile the Python command
-set "python_command=start start_windows.bat"
-if "%ooba_extopenai_trigger%"=="true" (
-    set "python_command=%python_command% --extensions openai"
-)
-if "%ooba_listen_trigger%"=="true" (
-    set "python_command=%python_command% --listen"
-)
-if "%ooba_listenport_trigger%"=="true" (
-    set "python_command=%python_command% --listen-port 7910"
-)
-if "%ooba_apiport_trigger%"=="true" (
-    set "python_command=%python_command% --api-port 7911"
-)
-if "%ooba_autolaunch_trigger%"=="true" (
-    set "python_command=%python_command% --auto-launch"
-)
-if "%ooba_verbose_trigger%"=="true" (
-    set "python_command=%python_command% --verbose"
-)
-
-
-REM is modules_enable empty?
-if defined modules_enable (
-    REM remove last comma
-    set "modules_enable=%modules_enable:~0,-1%"
-)
-
-REM command completed
-if defined modules_enable (
-    set "python_command=%python_command% --enable-modules=%modules_enable%"
-)
-
-REM Save the constructed Python command to modules-ooba for testing
-echo ooba_start_command=%python_command%>>%ooba_modules_path%
-goto :edit_ooba
-
-REM Function to print module options with color based on their status
-:printModule
-if "%2"=="true" (
-    echo %green_fg_strong%%1 [Enabled]%reset%
-) else (
-    echo %red_fg_strong%%1 [Disabled]%reset%
-)
-exit /b
-
-
-
-:edit_tabbyapi
-echo COMING SOON
-pause
-goto :editor_text_completion
-
-
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-
-
 
 REM ############################################################
 REM ######## EDITOR VOICE GENERATION - FRONTEND ################
@@ -3220,12 +3116,21 @@ echo What would you like to do?
 echo 1. Edit XTTS Modules
 echo 0. Back
 
-set /p editor_voice_gen_choice=Choose Your Destiny: 
+set /p editor_voice_generation_choice=Choose Your Destiny: 
 
 REM ######## EDITOR VOICE GENERATION - BACKEND #########
-if "%editor_voice_gen_choice%"=="1" (
-    call :edit_xtts_modules
-) else if "%editor_voice_gen_choice%"=="0" (
+if "%editor_voice_generation_choice%"=="1" (
+    set "caller=editor_voice_generation"
+    if exist "%editor_voice_generation_dir%\edit_xtts_modules.bat" (
+        call %editor_voice_generation_dir%\edit_xtts_modules.bat
+        goto :editor_voice_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_xtts_modules.bat not found in: %editor_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_xtts_modules.bat not found in: %editor_voice_generation_dir%%reset%
+        pause
+        goto :editor_voice_generation
+    )
+) else if "%editor_voice_generation_choice%"=="0" (
     goto :editor
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
@@ -3233,143 +3138,6 @@ if "%editor_voice_gen_choice%"=="1" (
     pause
     goto :editor_voice_generation
 )
-
-
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-
-REM Function to print module options with color based on their status
-:printModule
-if "%2"=="true" (
-    echo %green_fg_strong%%1 [Enabled]%reset%
-) else (
-    echo %red_fg_strong%%1 [Disabled]%reset%
-)
-exit /b
-
-
-REM ############################################################
-REM ############## EDIT XTTS MODULES - FRONTEND ################
-REM ############################################################
-:edit_xtts_modules
-title STL [EDIT XTTS MODULES]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit XTTS Modules%reset%
-echo -------------------------------------------------------------
-echo Choose XTTS modules to enable or disable (e.g., "1 2 4" to enable Cuda, hs, and cache)
-
-REM Display module options with colors based on their status
-call :printModule "1. cuda (--device cuda)" %xtts_cuda_trigger%
-call :printModule "2. hs (-hs 0.0.0.0)" %xtts_hs_trigger%
-call :printModule "3. deepspeed (--deepspeed)" %xtts_deepspeed_trigger%
-call :printModule "4. cache (--use-cache)" %xtts_cache_trigger%
-call :printModule "5. listen (--listen)" %xtts_listen_trigger%
-call :printModule "6. model (--model-source local)" %xtts_model_trigger%
-echo 00. Quick Start XTTS
-echo 0. Back
-
-set "python_command="
-
-set /p xtts_module_choices=Choose modules to enable/disable: 
-
-REM Handle the user's module choices and construct the Python command
-for %%i in (%xtts_module_choices%) do (
-    if "%%i"=="1" (
-        if "%xtts_cuda_trigger%"=="true" (
-            set "xtts_cuda_trigger=false"
-        ) else (
-            set "xtts_cuda_trigger=true"
-        )
-
-    ) else if "%%i"=="2" (
-        if "%xtts_hs_trigger%"=="true" (
-            set "xtts_hs_trigger=false"
-        ) else (
-            set "xtts_hs_trigger=true"
-        )
-
-    ) else if "%%i"=="3" (
-        if "%xtts_deepspeed_trigger%"=="true" (
-            set "xtts_deepspeed_trigger=false"
-        ) else (
-            set "xtts_deepspeed_trigger=true"
-        )
-
-    ) else if "%%i"=="4" (
-        if "%xtts_cache_trigger%"=="true" (
-            set "xtts_cache_trigger=false"
-        ) else (
-            set "xtts_cache_trigger=true"
-        )
-
-    ) else if "%%i"=="5" (
-        if "%xtts_listen_trigger%"=="true" (
-            set "xtts_listen_trigger=false"
-        ) else (
-            set "xtts_listen_trigger=true"
-        )
-    ) else if "%%i"=="6" (
-        if "%xtts_model_trigger%"=="true" (
-            set "xtts_model_trigger=false"
-        ) else (
-            set "xtts_model_trigger=true"
-        )
-
-    ) else if "%%i"=="00" (
-        goto :start_xtts
-
-    ) else if "%%i"=="0" (
-        goto :editor_voice_generation
-    )
-)
-
-REM Save the module flags to modules-xtts
-echo xtts_cuda_trigger=%xtts_cuda_trigger%>%xtts_modules_path%
-echo xtts_hs_trigger=%xtts_hs_trigger%>>%xtts_modules_path%
-echo xtts_deepspeed_trigger=%xtts_deepspeed_trigger%>>%xtts_modules_path%
-echo xtts_cache_trigger=%xtts_cache_trigger%>>%xtts_modules_path%
-echo xtts_listen_trigger=%xtts_listen_trigger%>>%xtts_modules_path%
-echo xtts_model_trigger=%xtts_model_trigger%>>%xtts_modules_path%
-
-REM remove modules_enable
-set "modules_enable="
-
-REM Compile the Python command
-set "python_command=python -m xtts_api_server"
-if "%xtts_cuda_trigger%"=="true" (
-    set "python_command=%python_command% --device cuda"
-)
-if "%xtts_hs_trigger%"=="true" (
-    set "python_command=%python_command% -hs 0.0.0.0"
-)
-if "%xtts_deepspeed_trigger%"=="true" (
-    set "python_command=%python_command% --deepspeed"
-)
-if "%xtts_cache_trigger%"=="true" (
-    set "python_command=%python_command% --use-cache"
-)
-if "%xtts_listen_trigger%"=="true" (
-    set "python_command=%python_command% --listen"
-)
-if "%xtts_model_trigger%"=="true" (
-    set "python_command=%python_command% --model-source local"
-)
-
-REM is modules_enable empty?
-if defined modules_enable (
-    REM remove last comma
-    set "modules_enable=%modules_enable:~0,-1%"
-)
-
-REM command completed
-if defined modules_enable (
-    set "python_command=%python_command% --enable-modules=%modules_enable%"
-)
-
-REM Save the constructed Python command to modules-xtts for testing
-echo xtts_start_command=%python_command%>>%xtts_modules_path%
-goto :edit_xtts_modules
 
 
 REM ############################################################
@@ -3388,18 +3156,54 @@ echo 3. Edit ComfyUI
 echo 4. Edit Fooocus
 echo 0. Back
 
-set /p editor_img_gen_choice=Choose Your Destiny: 
+set /p editor_image_generation_choice=Choose Your Destiny: 
 
 REM ######## EDITOR IMAGE GENERATION - BACKEND #########
-if "%editor_img_gen_choice%"=="1" (
-    call :edit_sdwebui_modules
-) else if "%editor_img_gen_choice%"=="2" (
-    goto :edit_sdwebuiforge
-) else if "%editor_img_gen_choice%"=="3" (
-    goto :edit_comfyui
-) else if "%editor_img_gen_choice%"=="4" (
-    goto :edit_fooocus
-) else if "%editor_img_gen_choice%"=="0" (
+if "%editor_image_generation_choice%"=="1" (
+    set "caller=editor_image_generation"
+    if exist "%editor_image_generation_dir%\edit_sdwebui_modules.bat" (
+        call %editor_image_generation_dir%\edit_sdwebui_modules.bat
+        goto :editor_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_sdwebui_modules.bat not found in: %editor_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_sdwebui_modules.bat not found in: %editor_image_generation_dir%%reset%
+        pause
+        goto :editor_image_generation
+    )
+) else if "%editor_image_generation_choice%"=="2" (
+    set "caller=editor_image_generation"
+    if exist "%editor_image_generation_dir%\edit_sdwebuiforge_modules.bat" (
+        call %editor_image_generation_dir%\edit_sdwebuiforge_modules.bat
+        goto :editor_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_sdwebuiforge_modules.bat not found in: %editor_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_sdwebuiforge_modules.bat not found in: %editor_image_generation_dir%%reset%
+        pause
+        goto :editor_image_generation
+    )
+) else if "%editor_image_generation_choice%"=="3" (
+    set "caller=editor_image_generation"
+    if exist "%editor_image_generation_dir%\edit_comfyui_modules.bat" (
+        call %editor_image_generation_dir%\edit_comfyui_modules.bat
+        goto :editor_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_comfyui_modules.bat not found in: %editor_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_comfyui_modules.bat not found in: %editor_image_generation_dir%%reset%
+        pause
+        goto :editor_image_generation
+    )
+) else if "%editor_image_generation_choice%"=="4" (
+    set "caller=editor_image_generation"
+    if exist "%editor_image_generation_dir%\edit_fooocus_modules.bat" (
+        call %editor_image_generation_dir%\edit_fooocus_modules.bat
+        goto :editor_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_fooocus_modules.bat not found in: %editor_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_fooocus_modules.bat not found in: %editor_image_generation_dir%%reset%
+        pause
+        goto :editor_image_generation
+    )
+) else if "%editor_image_generation_choice%"=="0" (
     goto :editor
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
@@ -3407,197 +3211,6 @@ if "%editor_img_gen_choice%"=="1" (
     pause
     goto :editor_image_generation
 )
-
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-
-
-REM Function to print module options with color based on their status
-:printModule
-if "%2"=="true" (
-    echo %green_fg_strong%%1 [Enabled]%reset%
-) else (
-    echo %red_fg_strong%%1 [Disabled]%reset%
-)
-exit /b
-
-REM ############################################################
-REM ############## EDIT SDWEBUI MODULES - FRONTEND #############
-REM ############################################################
-:edit_sdwebui_modules
-title STL [EDIT SDWEBUI MODULES]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Image Generation / Edit SDWEBUI Modules%reset%
-echo -------------------------------------------------------------
-echo Choose SDWEBUI modules to enable or disable (e.g., "1 2 4" to enable autolaunch, api, and opt-sdp-attention)
-
-REM Display module options with colors based on their status
-call :printModule "1. autolaunch (--autolaunch)" %sdwebui_autolaunch_trigger%
-call :printModule "2. api (--api)" %sdwebui_api_trigger%
-call :printModule "3. port (--port 7900)" %sdwebui_port_trigger%
-call :printModule "4. opt-sdp-attention (--opt-sdp-attention)" %sdwebui_optsdpattention_trigger%
-call :printModule "5. listen (--listen)" %sdwebui_listen_trigger%
-call :printModule "6. theme dark (--theme dark)" %sdwebui_themedark_trigger%
-call :printModule "7. skip torchcudatest (--skip-torch-cuda-test)" %sdwebui_skiptorchcudatest_trigger%
-call :printModule "8. low vram (--lowvram)" %sdwebui_lowvram_trigger%
-call :printModule "9. med vram (--medvram)" %sdwebui_medvram_trigger%
-echo 00. Quick Start Stable Diffusion WebUI
-echo 0. Back
-
-set "python_command="
-
-set /p xtts_module_choices=Choose modules to enable/disable: 
-
-REM Handle the user's module choices and construct the Python command
-for %%i in (%xtts_module_choices%) do (
-    if "%%i"=="1" (
-        if "%sdwebui_autolaunch_trigger%"=="true" (
-            set "sdwebui_autolaunch_trigger=false"
-        ) else (
-            set "sdwebui_autolaunch_trigger=true"
-        )
-
-    ) else if "%%i"=="2" (
-        if "%sdwebui_api_trigger%"=="true" (
-            set "sdwebui_api_trigger=false"
-        ) else (
-            set "sdwebui_api_trigger=true"
-        )
-
-    ) else if "%%i"=="3" (
-        if "%sdwebui_port_trigger%"=="true" (
-            set "sdwebui_port_trigger=false"
-        ) else (
-            set "sdwebui_port_trigger=true"
-        )
-
-    ) else if "%%i"=="4" (
-        if "%sdwebui_optsdpattention_trigger%"=="true" (
-            set "sdwebui_optsdpattention_trigger=false"
-        ) else (
-            set "sdwebui_optsdpattention_trigger=true"
-        )
-
-    ) else if "%%i"=="5" (
-        if "%sdwebui_listen_trigger%"=="true" (
-            set "sdwebui_listen_trigger=false"
-        ) else (
-            set "sdwebui_listen_trigger=true"
-        )
-    ) else if "%%i"=="6" (
-        if "%sdwebui_themedark_trigger%"=="true" (
-            set "sdwebui_themedark_trigger=false"
-        ) else (
-            set "sdwebui_themedark_trigger=true"
-        )
-    ) else if "%%i"=="7" (
-        if "%sdwebui_skiptorchcudatest_trigger%"=="true" (
-            set "sdwebui_skiptorchcudatest_trigger=false"
-        ) else (
-            set "sdwebui_skiptorchcudatest_trigger=true"
-        )
-    ) else if "%%i"=="8" (
-        if "%sdwebui_lowvram_trigger%"=="true" (
-            set "sdwebui_lowvram_trigger=false"
-        ) else (
-            set "sdwebui_lowvram_trigger=true"
-        )
-    ) else if "%%i"=="9" (
-        if "%sdwebui_medvram_trigger%"=="true" (
-            set "sdwebui_medvram_trigger=false"
-        ) else (
-            set "sdwebui_medvram_trigger=true"
-        )
-
-    ) else if "%%i"=="00" (
-        goto :start_sdwebui
-
-    ) else if "%%i"=="0" (
-        goto :editor_image_generation
-    )
-)
-
-REM Save the module flags to modules-sdwebui
-echo sdwebui_autolaunch_trigger=%sdwebui_autolaunch_trigger%>%sdwebui_modules_path%
-echo sdwebui_api_trigger=%sdwebui_api_trigger%>>%sdwebui_modules_path%
-echo sdwebui_port_trigger=%sdwebui_port_trigger%>>%sdwebui_modules_path%
-echo sdwebui_optsdpattention_trigger=%sdwebui_optsdpattention_trigger%>>%sdwebui_modules_path%
-echo sdwebui_listen_trigger=%sdwebui_listen_trigger%>>%sdwebui_modules_path%
-echo sdwebui_themedark_trigger=%sdwebui_themedark_trigger%>>%sdwebui_modules_path%
-echo sdwebui_skiptorchcudatest_trigger=%sdwebui_skiptorchcudatest_trigger%>>%sdwebui_modules_path%
-echo sdwebui_lowvram_trigger=%sdwebui_lowvram_trigger%>>%sdwebui_modules_path%
-echo sdwebui_medvram_trigger=%sdwebui_medvram_trigger%>>%sdwebui_modules_path%
-
-REM remove modules_enable
-set "modules_enable="
-
-REM Compile the Python command
-set "python_command=python launch.py"
-if "%sdwebui_autolaunch_trigger%"=="true" (
-    set "python_command=%python_command% --autolaunch"
-)
-if "%sdwebui_api_trigger%"=="true" (
-    set "python_command=%python_command% --api"
-)
-if "%sdwebui_port_trigger%"=="true" (
-    set "python_command=%python_command% --port 7900"
-)
-if "%sdwebui_optsdpattention_trigger%"=="true" (
-    set "python_command=%python_command% --opt-sdp-attention"
-)
-if "%sdwebui_listen_trigger%"=="true" (
-    set "python_command=%python_command% --listen"
-)
-if "%sdwebui_themedark_trigger%"=="true" (
-    set "python_command=%python_command% --theme dark"
-)
-if "%sdwebui_skiptorchcudatest_trigger%"=="true" (
-    set "python_command=%python_command% --skip-torch-cuda-test"
-)
-if "%sdwebui_lowvram_trigger%"=="true" (
-    set "python_command=%python_command% --lowvram"
-)
-if "%sdwebui_medvram_trigger%"=="true" (
-    set "python_command=%python_command% --medvram"
-)
-
-REM is modules_enable empty?
-if defined modules_enable (
-    REM remove last comma
-    set "modules_enable=%modules_enable:~0,-1%"
-)
-
-REM command completed
-if defined modules_enable (
-    set "python_command=%python_command% --enable-modules=%modules_enable%"
-)
-
-REM Save the constructed Python command to modules-sdwebui for testing
-echo sdwebui_start_command=%python_command%>>%sdwebui_modules_path%
-goto :edit_sdwebui_modules
-
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-
-
-:edit_sdwebuiforge
-echo COMING SOON
-pause
-goto :editor_image_generation
-
-
-:edit_comfyui
-echo COMING SOON
-pause
-goto :editor_image_generation
-
-
-:edit_fooocus
-echo COMING SOON
-pause
-goto :editor_image_generation
 
 
 REM ############################################################
@@ -3629,35 +3242,58 @@ echo 3. Edit Extras
 echo 4. Edit Environment Variables
 echo 0. Back
 
-set /p editor_core_util_choice=Choose Your Destiny: 
+set /p editor_core_utilities_choice=Choose Your Destiny: 
 
 REM ######## EDITOR CORE UTILITIES - FRONTEND ##################
-if "%editor_core_util_choice%"=="1" (
-    call :edit_st_config
-) else if "%editor_core_util_choice%"=="2" (
+if "%editor_core_utilities_choice%"=="1" (
+    set "caller=editor_core_utilities"
+    if exist "%editor_core_utilities_dir%\edit_st_config.bat" (
+        call %editor_core_utilities_dir%\edit_st_config.bat
+        goto :editor_core_utilities
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_st_config.bat not found in: %editor_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_st_config.bat not found in: %editor_core_utilities_dir%%reset%
+        pause
+        goto :editor_core_utilities
+    )
+) else if "%editor_core_utilities_choice%"=="2" (
     call :create_st_ssl
-) else if "%editor_core_util_choice%"=="3" (
-    call :edit_extras_modules
-) else if "%editor_core_util_choice%"=="4" (
-    call :edit_env_var
-) else if "%editor_core_util_choice%"=="0" (
-    goto :editor
-) else if "%editor_core_util_choice%"=="8" (
+) else if "%editor_core_utilities_choice%"=="3" (
+    set "caller=editor_core_utilities"
+    if exist "%editor_core_utilities_dir%\edit_extras_modules.bat" (
+        call %editor_core_utilities_dir%\edit_extras_modules.bat
+        goto :editor_core_utilities
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_extras_modules.bat not found in: %editor_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_extras_modules.bat not found in: %editor_core_utilities_dir%%reset%
+        pause
+        goto :editor_core_utilities
+    )
+) else if "%editor_core_utilities_choice%"=="4" (
+    set "caller=editor_core_utilities"
+    if exist "%editor_core_utilities_dir%\edit_env_var.bat" (
+        call %editor_core_utilities_dir%\edit_env_var.bat
+        goto :editor_core_utilities
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_env_var.bat not found in: %editor_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_env_var.bat not found in: %editor_core_utilities_dir%%reset%
+        pause
+        goto :editor_core_utilities
+    )
+) else if "%editor_core_utilities_choice%"=="8" (
     goto :delete_st_ssl
-) else if "%editor_core_util_choice%"=="9" (
+) else if "%editor_core_utilities_choice%"=="9" (
     echo Opening SillyTavernai.com SSL Info Page
     start "" "https://sillytavernai.com/launcher-ssl"
     goto :editor_core_utilities
+) else if "%editor_core_utilities_choice%"=="0" (
+    goto :editor
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
     goto :editor_core_utilities
 )
-
-:edit_st_config
-start "" "%st_install_path%\config.yaml"
-goto :editor_core_utilities
 
 :create_st_ssl
 call "%functions_dir%\SSL\create_ssl.bat" no-pause
@@ -3686,191 +3322,6 @@ if exist "%CERTS_DIR%" (
     echo  %red_fg_strong%The SillyTavern\certs folder does not exist.%reset%
 )
 pause
-goto :editor_core_utilities
-
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-
-REM Function to print module options with color based on their status
-:printModule
-if "%2"=="true" (
-    echo %green_fg_strong%%1 [Enabled]%reset%
-) else (
-    echo %red_fg_strong%%1 [Disabled]%reset%
-)
-exit /b
-
-REM ############################################################
-REM ############## EDIT EXTRAS MODULES - FRONTEND ##############
-REM ############################################################
-:edit_extras_modules
-title STL [EDIT EXTRAS MODULES]
-cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Edit Extras Modules%reset%
-echo -------------------------------------------------------------
-echo Choose extras modules to enable or disable (e.g., "1 2 4" to enable Cuda, RVC, and Caption)
-
-REM Display module options with colors based on their status
-call :printModule "1. Cuda (--cuda)" %cuda_trigger%
-call :printModule "2. RVC (--enable-modules=rvc --rvc-save-file --max-content-length=1000)" %rvc_trigger%
-call :printModule "3. talkinghead (--enable-modules=talkinghead --talkinghead-gpu)" %talkinghead_trigger%
-call :printModule "4. caption (--enable-modules=caption)" %caption_trigger%
-call :printModule "5. summarize (--enable-modules=summarize)" %summarize_trigger%
-call :printModule "6. listen (--listen)" %listen_trigger%
-call :printModule "7. whisper (--enable-modules=whisper-stt)" %whisper_trigger%
-call :printModule "8. Edge-tts (--enable-modules=edge-tts)" %edge_tts_trigger%
-call :printModule "9. Websearch (--enable-modules=websearch)" %websearch_trigger%
-echo 00. Quick Start Extras
-echo 0. Back
-
-set "python_command="
-
-set /p module_choices=Choose modules to enable/disable: 
-
-REM Handle the user's module choices and construct the Python command
-for %%i in (%module_choices%) do (
-    if "%%i"=="1" (
-        if "%cuda_trigger%"=="true" (
-            set "cuda_trigger=false"
-        ) else (
-            set "cuda_trigger=true"
-        )
-
-    ) else if "%%i"=="2" (
-        if "%rvc_trigger%"=="true" (
-            set "rvc_trigger=false"
-        ) else (
-            set "rvc_trigger=true"
-        )
-
-    ) else if "%%i"=="3" (
-        if "%talkinghead_trigger%"=="true" (
-            set "talkinghead_trigger=false"
-        ) else (
-            set "talkinghead_trigger=true"
-        )
-
-    ) else if "%%i"=="4" (
-        if "%caption_trigger%"=="true" (
-            set "caption_trigger=false"
-        ) else (
-            set "caption_trigger=true"
-        )
-
-    ) else if "%%i"=="5" (
-        if "%summarize_trigger%"=="true" (
-            set "summarize_trigger=false"
-        ) else (
-            set "summarize_trigger=true"
-        )
-    ) else if "%%i"=="6" (
-        if "%listen_trigger%"=="true" (
-            set "listen_trigger=false"
-        ) else (
-            set "listen_trigger=true"
-        )
-
-    ) else if "%%i"=="7" (
-        if "%whisper_trigger%"=="true" (
-            set "whisper_trigger=false"
-        ) else (
-            set "whisper_trigger=true"
-        )
-
-    ) else if "%%i"=="8" (
-        if "%edge_tts_trigger%"=="true" (
-            set "edge_tts_trigger=false"
-        ) else (
-            set "edge_tts_trigger=true"
-        )
-
-    ) else if "%%i"=="9" (
-        if "%websearch_trigger%"=="true" (
-            set "websearch_trigger=false"
-        ) else (
-            set "websearch_trigger=true"
-        )
-
-    ) else if "%%i"=="00" (
-        goto :start_extras
-
-    ) else if "%%i"=="0" (
-        goto :editor_core_utilities
-    )
-)
-
-REM Save the module flags
-echo cuda_trigger=%cuda_trigger%>%extras_modules_path%
-echo rvc_trigger=%rvc_trigger%>>%extras_modules_path%
-echo talkinghead_trigger=%talkinghead_trigger%>>%extras_modules_path%
-echo caption_trigger=%caption_trigger%>>%extras_modules_path%
-echo summarize_trigger=%summarize_trigger%>>%extras_modules_path%
-echo listen_trigger=%listen_trigger%>>%extras_modules_path%
-echo whisper_trigger=%whisper_trigger%>>%extras_modules_path%
-echo edge_tts_trigger=%edge_tts_trigger%>>%extras_modules_path%
-echo websearch_trigger=%websearch_trigger%>>%extras_modules_path%
-
-
-REM remove modules_enable
-set "modules_enable="
-
-REM Compile the Python command
-set "python_command=python server.py"
-if "%listen_trigger%"=="true" (
-    set "python_command=%python_command% --listen"
-)
-if "%cuda_trigger%"=="true" (
-    set "python_command=%python_command% --cuda"
-)
-if "%rvc_trigger%"=="true" (
-    set "python_command=%python_command% --rvc-save-file --max-content-length=1000"
-    set "modules_enable=%modules_enable%rvc,"
-)
-if "%talkinghead_trigger%"=="true" (
-    set "python_command=%python_command% --talkinghead-gpu"
-    set "modules_enable=%modules_enable%talkinghead,"
-)
-if "%caption_trigger%"=="true" (
-    set "modules_enable=%modules_enable%caption,"
-)
-if "%summarize_trigger%"=="true" (
-    set "modules_enable=%modules_enable%summarize,"
-)
-if "%whisper_trigger%"=="true" (
-    set "modules_enable=%modules_enable%whisper-stt,"
-)
-if "%edge_tts_trigger%"=="true" (
-    set "modules_enable=%modules_enable%edge-tts,"
-)
-if "%websearch_trigger%"=="true" (
-    set "modules_enable=%modules_enable%websearch,"
-)
-
-REM is modules_enable empty?
-if defined modules_enable (
-    REM remove last comma
-    set "modules_enable=%modules_enable:~0,-1%"
-)
-
-REM command completed
-if defined modules_enable (
-    set "python_command=%python_command% --enable-modules=%modules_enable%"
-)
-
-REM Save the constructed Python command to modules-extras for testing
-echo extras_start_command=%python_command%>>%extras_modules_path%
-goto :edit_extras_modules
-
-
-
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-REM ##################################################################################################################################################
-
-
-:edit_env_var
-start "" rundll32.exe sysdm.cpl,EditEnvironmentVariables
 goto :editor_core_utilities
 
 
