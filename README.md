@@ -26,12 +26,20 @@ cmd /c winget install -e --id Git.Git
 ```shell
 git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher && start installer.bat
 ```
+中文版
+```shell
+git clone https://github.com/vircus/SillyTavern-Launcher-zh.git && cd SillyTavern-Launcher && start installer.bat
+```
 
 ## 🐧 Linux
 1. 打开你喜欢的终端并安装 git
 2. Git 克隆 Sillytavern-Launcher：
 ```shell
 git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher
+```
+中文版：
+```shell
+git clone https://github.com/vircus/SillyTavern-Launcher-zh.git && cd SillyTavern-Launcher
 ```
 3. 以以下方式开始 installer.sh：
 ```shell
@@ -55,6 +63,10 @@ brew install git
 3. Git 克隆 Sillytavern-Launcher：
 ```shell
 git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher
+```
+中文版：
+```shell
+git clone https://github.com/vircus/SillyTavern-Launcher-zh.git && cd SillyTavern-Launcher
 ```
 4. 以以下方式开始 installer.sh：
 ```shell
