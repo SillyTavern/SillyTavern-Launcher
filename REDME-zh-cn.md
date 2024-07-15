@@ -31,6 +31,8 @@ git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTav
 git clone https://github.com/vircus/SillyTavern-Launcher-zh.git && cd SillyTavern-Launcher && start installer.bat
 ```
 
+推销下我自己的分支，建设中[纯中文界面汉化版](https://github.com/vircus/SillyTavern-Launcher-zh/)
+
 ## 🐧 Linux
 1. 打开你喜欢的终端并安装 git
 2. Git 克隆 Sillytavern-Launcher：
@@ -76,6 +78,7 @@ chmod +x install.sh && ./install.sh
 ```shell
 chmod +x launcher.sh && ./launcher.sh
 ```
+
 
 ✨ # 特性
 * 能够自动安装带有可选应用的核心app：
