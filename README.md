@@ -15,56 +15,58 @@
 [![GitHub Pull Requests](https://img.shields.io/github/issues-pr/SillyTavern/SillyTavern-Launcher.svg)](https://github.com/SillyTavern/SillyTavern-Launcher/pulls)
 </div>
 
-# 🔧 Installation
-## 🪟 Windows
-1.  On your keyboard: press **`WINDOWS + R`** to open Run dialog box. Then, run the following command to install git:
+🔧 # 安装
+## 🪟 window
+方法一
+1.安装git（安装过git可以跳过），在键盘上：按“WINDOWS + R”打开“运行”对话框。然后，运行以下命令安装 git：
 ```shell
 cmd /c winget install -e --id Git.Git
 ```
-2. On your keyboard: press **`WINDOWS + E`** to open File Explorer, then navigate to the folder where you want to install the launcher. Once in the desired folder, type `cmd` into the address bar and press enter. Then, run the following command:
+2. 在键盘上：按“WINDOWS + E”** 打开文件资源管理器，然后导航到要安装启动器的文件夹。进入所需文件夹后，在地址栏中键入“cmd”，然后按回车键。然后，运行以下命令：
 ```shell
 git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher && start installer.bat
 ```
 
 ## 🐧 Linux
-1. Open your favorite terminal and install git
-2. Git clone the Sillytavern-Launcher with: 
+1. 打开你喜欢的终端并安装 git
+2. Git 克隆 Sillytavern-Launcher：
 ```shell
 git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher
 ```
-3. Start the installer.sh with: 
+3. 以以下方式开始 installer.sh：
 ```shell
 chmod +x install.sh && ./install.sh
 ```
-4. After installation start the launcher.sh with: 
+4. 安装后，通过以下方式启动 launcher.sh：
 ```shell
 chmod +x launcher.sh && ./launcher.sh
 ```
 
+
 ## 🍎 Mac
-1. Open a terminal and install brew with: 
+1. 打开终端并安装 brew：
 ```shell
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+/bin/bash -c “$（curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh）”
 ```
-2. Install git with: 
+2. 使用以下命令安装 git：
 ```shell
 brew install git
 ```
-3. Git clone the Sillytavern-Launcher with: 
+3. Git 克隆 Sillytavern-Launcher：
 ```shell
 git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher
 ```
-4. Start the installer.sh with: 
+4. 以以下方式开始 installer.sh：
 ```shell
 chmod +x install.sh && ./install.sh
 ```
-5. After installation start the launcher.sh with: 
+5. 安装后，通过以下方式启动 launcher.sh：
 ```shell
 chmod +x launcher.sh && ./launcher.sh
 ```
 
-# ✨ Features
-* Ability to automatically install Core apps with optional apps:
+✨ # 特性
+* 能够自动安装带有可选应用的核心app：
   * SillyTavern,
   * Extras,
   * XTTS,
@@ -75,28 +77,28 @@ chmod +x launcher.sh && ./launcher.sh
   * Visual Studio BuildTools,
   * CUDA Toolkit
 
-* Ability to automaticly install Text Completion apps:
+* 能够自动安装文本完成应用程序：
   * Text generation web UI oobabooga
   * koboldcpp
   * TabbyAPI
 
-* Ability to automaticly install Image Generation apps:
+* 能够自动安装图像生成应用程序：
   * Stable Diffusion web UI
   * Stable Diffusion web UI Forge
   * ComfyUI
   * Fooocus
 
-* Auto update all apps
-* Backup and Restore SillyTavern
-* Switch branch
-* Module editors
-* App installer & uninstaller to manage applications
-* Troubleshooting menu to fix most common problems
+*自动更新所有应用程序
+*备份和恢复SillyTavern
+* 开关分支
+* 模块编辑器
+* 应用程序安装程序和卸载程序来管理应用程序
+* 故障排除菜单可解决最常见的问题
 
-# Questions or suggestions?
+#问题或建议？
 
-| [![][discord-shield-badge]][discord-link] | [Join our Discord community!](https://discord.gg/sillytavern) Get support, share characters and prompts. |
-| :---------------------------------------- | :------------------------------------------------------------------------------------------------------- |
+|[![][discord-shield-badge]][discord-link] |[加入我们的 Discord 社区！（https://discord.gg/sillytavern）获得支持，分享角色和提示。|
+|:---------------------------------------- |:------------------------------------------------------------------------------------------------------- |
 
 # Screenshots
 <img width="400" alt="image" src="https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/96775287-df23-4976-980f-a0ce4dead9a5">
