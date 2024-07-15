@@ -32,6 +32,7 @@ REM Normal Background Colors
 set "red_bg=[41m"
 set "blue_bg=[44m"
 set "yellow_bg=[43m"
+set "green_bg=[42m"
 
 REM Environment Variables (winget)
 set "winget_path=%userprofile%\AppData\Local\Microsoft\WindowsApps"
@@ -221,8 +222,6 @@ if /i "%update_choice%"=="Y" (
     goto :startupcheck_no_update
 )
 
-
-
 :startupcheck_no_update
 title STL [STARTUP CHECK]
 REM Check if the folder exists
@@ -321,7 +320,7 @@ if %errorlevel% neq 0 (
     pause
     exit
 ) else (
-    echo [ %green_fg_strong%OK%reset% ] Found app: %cyan_fg_strong%winget%reset%
+    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%winget%reset% from app: App Installer
 )
 
 REM Check if Git is installed if not then install git
@@ -334,7 +333,7 @@ if %errorlevel% neq 0 (
     pause
     exit
 ) else (
-    echo [ %green_fg_strong%OK%reset% ] Found app: %cyan_fg_strong%Git%reset%
+    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%git%reset% from app: Git
 )
 
 REM Get the current PATH value from the registry
@@ -377,7 +376,7 @@ if %errorlevel% neq 0 (
     pause
     exit
 ) else (
-    echo [ %green_fg_strong%OK%reset% ] Found app: %cyan_fg_strong%Miniconda3%reset%
+    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%conda%reset% from app: Miniconda3
 )
 
 REM Run PowerShell command to retrieve VRAM size and divide by 1GB
