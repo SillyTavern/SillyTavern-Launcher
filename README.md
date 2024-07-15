@@ -97,7 +97,7 @@ chmod +x launcher.sh && ./launcher.sh
 
 #问题或建议？
 
-|[![][discord-shield-badge]][discord-link] |[加入我们的 Discord 社区！]（https://discord.gg/sillytavern）获得支持，分享角色和提示。|
+|[![][discord-shield-badge]][discord-link] |[加入我们的 Discord 社区！](https://discord.gg/sillytavern)获得支持，分享角色和提示。|
 |:---------------------------------------- |:------------------------------------------------------------------------------------------------------- |
 
 # Screenshots
