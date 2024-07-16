@@ -193,6 +193,33 @@ echo "%CD%"| findstr /R /C:"[!#\$%&()\*+,;<=>?@\[\]\^`{|}~]" >nul && (
     exit /b 1
 )
 
+
+REM Check if Git is installed; if not, then install Git with fallback of powershell
+git --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] App command: "git" from app: "Git" NOT FOUND. Git is not installed or added to PATH%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Git using winget...
+    winget install -e --id Git.Git
+
+    if %errorlevel% neq 0 (
+        echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget failed to install Git or is not installed.%reset%
+
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Git using powershell...
+        powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://github.com/git-for-windows/git/releases/download/v2.45.2.windows.1/Git-2.45.2-64-bit.exe', '%bin_dir%\git.exe')"
+
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing git...
+        start /wait %bin_dir%\git.exe /VERYSILENT /NORESTART
+        
+        del %bin_dir%\git.exe
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Git installed successfully.%reset%
+    ) else (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Git installed successfully.%reset%
+    )
+) else (
+    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%"git"%reset% from app: "Git"
+)
+
+
 REM Check if launcher has updates
 title STL [UPDATE ST-LAUNCHER]
 git fetch origin
@@ -281,60 +308,21 @@ set "ff_path_exists=%errorlevel%"
 
 setlocal enabledelayedexpansion
 
-REM Append the new paths to the current PATH only if they don't exist
+REM Check if winget exists in PATH
 if %ff_path_exists% neq 0 (
-    set "new_path=%current_path%;%winget_path%"
-    echo.
-    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
-    echo.
-    echo [DEBUG] "winget_path is:%cyan_fg_strong% %winget_path%%reset%"
-    echo.
-    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
-
-    REM Update the PATH value in the registry
-    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
-
-    REM Update the PATH value for the current session
-    setx PATH "!new_path!" > nul
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%winget added to PATH.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%winget NOT FOUND in PATH: %cyan_fg_strong%%winget_path%%reset%
 ) else (
-    set "new_path=%current_path%"
     echo [ %green_fg_strong%OK%reset% ] Found PATH: winget%reset%
 )
 
 REM Check if winget is installed; if not, then install it
 winget --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget is not installed on this system.%reset%
-    REM Check if the folder exists
-    if not exist "%~dp0bin" (
-        mkdir "%~dp0bin"
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created directory: "bin"  
-    ) else (
-        echo [ %green_fg_strong%OK%reset% ] Found directory: "bin"%reset%
-    )
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing winget...
-    curl -L -o "%~dp0bin\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    start "" "%~dp0bin\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%winget installed successfully. Please restart the Launcher.%reset%
-    pause
-    exit
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] App command: "winget" from app: "App Installer" NOT FOUND. The app is not installed or added to PATH.
 ) else (
-    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%winget%reset% from app: App Installer
+    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%"winget"%reset% from app: "App Installer"
 )
 
-REM Check if Git is installed if not then install git
-git --version > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Git is not installed on this system.%reset%
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Git using winget...
-    winget install -e --id Git.Git
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Git is installed. Please restart the Launcher.%reset%
-    pause
-    exit
-) else (
-    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%git%reset% from app: Git
-)
 
 REM Get the current PATH value from the registry
 for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
@@ -343,38 +331,17 @@ REM Check if the paths are already in the current PATH
 echo %current_path% | find /i "%miniconda_path%" > nul
 set "ff_path_exists=%errorlevel%"
 
-REM Append the new paths to the current PATH only if they don't exist
+REM Check if miniconda3 exists in PATH
 if %ff_path_exists% neq 0 (
-    set "new_path=%current_path%;%miniconda_path%;%miniconda_path_mingw%;%miniconda_path_usrbin%;%miniconda_path_bin%;%miniconda_path_scripts%"
-    echo.
-    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
-    echo.
-    echo [DEBUG] "miniconda_path is:%cyan_fg_strong% %miniconda_path%%reset%"
-    echo.
-    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
-
-    REM Update the PATH value in the registry
-    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
-
-    REM Update the PATH value for the current session
-    setx PATH "!new_path!" > nul
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%miniconda3 added to PATH.%reset%
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] miniconda3 NOT FOUND in PATH:%reset% %cyan_fg_strong%%miniconda_path%;%miniconda_path_mingw%;%miniconda_path_usrbin%;%miniconda_path_bin%;%miniconda_path_scripts%%reset%
 ) else (
-    set "new_path=%current_path%"
     echo [ %green_fg_strong%OK%reset% ] Found PATH: miniconda3%reset%
 )
 
 REM Check if Miniconda3 is installed if not then install Miniconda3
 call conda --version > nul 2>&1
 if %errorlevel% neq 0 (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Miniconda3 is not installed on this system. Could not find command: conda%reset%
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Checking if Miniconda3 exists in app list...
-    winget uninstall --id Anaconda.Miniconda3
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using winget...
-    winget install -e --id Anaconda.Miniconda3
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Miniconda3 installed successfully. Please restart the Installer.%reset%
-    pause
-    exit
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] App command: "conda" from app: "Miniconda3" NOT FOUND. Miniconda3 is not installed or added to PATH.%reset%
 ) else (
     echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%conda%reset% from app: Miniconda3
 )

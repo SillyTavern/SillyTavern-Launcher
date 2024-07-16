@@ -30,6 +30,10 @@ set "red_bg=[41m"
 set "blue_bg=[44m"
 set "yellow_bg=[43m"
 
+REM Define variables for the core directories
+set "bin_dir=%~dp0bin"
+set "log_dir=%bin_dir%\logs"
+
 REM Environment Variables (winget)
 set "winget_path=%userprofile%\AppData\Local\Microsoft\WindowsApps"
 
@@ -56,6 +60,11 @@ set "st_shortcutName=SillyTavern.lnk"
 set "st_startIn=%~dp0"
 set "st_comment=SillyTavern"
 
+REM Create the logs folder if it doesn't exist
+if not exist "%log_dir%" (
+    mkdir "%log_dir%"
+)
+
 cd /d "%~dp0"
 
 REM Check if folder path has no spaces
@@ -76,77 +85,116 @@ echo "%CD%"| findstr /R /C:"[!#\$%&()\*+,;<=>?@\[\]\^`{|}~]" >nul && (
     exit /b 1
 )
 
-REM Get the current PATH value from the registry
-for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
 
-REM Check if the paths are already in the current PATH
-echo %current_path% | find /i "%winget_path%" > nul
-set "ff_path_exists=%errorlevel%"
-
-setlocal enabledelayedexpansion
-
-REM Append the new paths to the current PATH only if they don't exist
-if %ff_path_exists% neq 0 (
-    set "new_path=%current_path%;%winget_path%"
-    echo.
-    echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
-    echo.
-    echo [DEBUG] "winget_path is:%cyan_fg_strong% %winget_path%%reset%"
-    echo.
-    echo [DEBUG] "new_path is:%cyan_fg_strong% !new_path!%reset%"
-
-    REM Update the PATH value in the registry
-    reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "!new_path!" /f
-
-    REM Update the PATH value for the current session
-    setx PATH "!new_path!" > nul
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%winget added to PATH.%reset%
-) else (
-    set "new_path=%current_path%"
-    echo %blue_fg_strong%[INFO] winget already exists in PATH.%reset%
-)
-
-REM Check if Winget is installed; if not, then install it
+REM Check if Winget is installed; if not, then prompt the user to install it
 winget --version > nul 2>&1
 if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Winget is not installed on this system.%reset%
-    REM Check if the folder exists
-    if not exist "%~dp0bin" (
-        mkdir "%~dp0bin"
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "bin"  
-    ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "bin" folder already exists.%reset%
-    )
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Winget...
-    curl -L -o "%~dp0bin\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" "https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    start "" "%~dp0bin\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Winget installed successfully. Please restart the Launcher.%reset%
-    pause
-    exit
-) else (
-    echo %blue_fg_strong%[INFO] Winget is already installed.%reset%
-)
-endlocal
+    set /p install_winget_choice="Install Winget? [Y/n]: "
+    if /i "%install_winget_choice%"=="" set install_winget_choice=Y
+    if /i "%install_winget_choice%"=="Y" (
 
-REM Check if Git is installed if not then install git
+        REM Ensure the bin directory exists
+        if not exist "%bin_dir%" (
+            mkdir "%bin_dir%"
+            echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "bin"
+        )
+
+        REM Download the Winget installer into the bin directory
+        powershell -Command "Invoke-RestMethod -Uri 'https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle' -OutFile '%bin_dir%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle'"
+
+        REM Install Winget
+        start /wait "%bin_dir%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+
+        REM Clean up the installer
+        del "%bin_dir%\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+
+        REM Get the current PATH value from the registry
+        for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
+
+        REM Check if the winget path is already in the current PATH
+        echo %current_path% | find /i "%winget_path%" > nul
+        if %errorlevel% neq 0 (
+            set "new_path=%current_path%;%winget_path%"
+            echo.
+            echo [DEBUG] "current_path is:%cyan_fg_strong% %current_path%%reset%"
+            echo.
+            echo [DEBUG] "winget_path is:%cyan_fg_strong% %winget_path%%reset%"
+            echo.
+            echo [DEBUG] "new_path is:%cyan_fg_strong% %new_path%%reset%"
+
+            REM Update the PATH value in the registry
+            reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "%new_path%" /f
+
+            REM Update the PATH value for the current session
+            setx PATH "%new_path%" > nul
+            echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Winget added to PATH.%reset%
+        ) else (
+            echo [ %green_fg_strong%OK%reset% ] Found PATH: winget%reset%
+        )
+
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Winget installed successfully. Please restart the Installer.%reset%
+        pause
+        exit
+    ) else (
+        echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Winget installation skipped by user.%reset%
+    )
+) else (
+    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%winget%reset% from app: App Installer
+)
+
+REM Check if Git is installed; if not, then install Git with fallback of powershell
 git --version > nul 2>&1
 if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Git is not installed on this system.%reset%
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Git using Winget...
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Git using winget...
     winget install -e --id Git.Git
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Git installed successfully. Please restart the Installer.%reset%
-    pause
-    exit
+
+    if %errorlevel% neq 0 (
+        echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget failed to install Git or is not installed.%reset%
+
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Git using powershell...
+        powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://github.com/git-for-windows/git/releases/download/v2.45.2.windows.1/Git-2.45.2-64-bit.exe', '%bin_dir%\git.exe')"
+
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing git...
+        start /wait %bin_dir%\git.exe /VERYSILENT /NORESTART
+        
+        del %bin_dir%\git.exe
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Git installed successfully.%reset%
+    ) else (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Git installed successfully.%reset%
+    )
 ) else (
-    echo %blue_fg_strong%[INFO] Git is already installed.%reset%
+    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%git%reset% from app: Git
+)
+
+REM Check if Miniconda3 is installed; if not, then install Miniconda3 with fallback of PowerShell
+call conda --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Miniconda3 is not installed on this system.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using PowerShell...
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Miniconda3...
+    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe', '%bin_dir%\Miniconda3-latest-Windows-x86_64.exe')"
+
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3...
+    start /wait %bin_dir%\Miniconda3-latest-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /AddToPath=1 /S
+
+
+    del %bin_dir%\Miniconda3-latest-Windows-x86_64.exe
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Miniconda3 installed successfully.%reset%
+
+) else (
+    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%conda%reset% from app: Miniconda3
 )
 
 REM Get the current PATH value from the registry
 for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
 
-REM Check if the paths are already in the current PATH
+REM Check if the paths are in the current PATH
 echo %current_path% | find /i "%miniconda_path%" > nul
 set "ff_path_exists=%errorlevel%"
+
 
 setlocal enabledelayedexpansion
 
@@ -168,20 +216,7 @@ if %ff_path_exists% neq 0 (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%miniconda3 added to PATH.%reset%
 ) else (
     set "new_path=%current_path%"
-    echo %blue_fg_strong%[INFO] miniconda3 already exists in PATH.%reset%
-)
-
-REM Check if Miniconda3 is installed if not then install Miniconda3
-call conda --version > nul 2>&1
-if %errorlevel% neq 0 (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Miniconda3 is not installed on this system.%reset%
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using Winget...
-    winget install -e --id Anaconda.Miniconda3
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Miniconda3 installed successfully. Please restart the Installer.%reset%
-    pause
-    exit
-) else (
-    echo %blue_fg_strong%[INFO] Miniconda3 is already installed.%reset%
+    echo [ %green_fg_strong%OK%reset% ] Found PATH: miniconda3%reset%
 )
 
 REM Check if Python App Execution Aliases exist
@@ -190,7 +225,7 @@ if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe" (
     powershell.exe Remove-Item "%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe" -Force
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Removed Execution Alias for python.exe%reset%
 ) else (
-    echo %blue_fg_strong%[INFO] Execution Alias for python.exe was already removed.%reset%
+    echo [ %green_fg_strong%OK%reset% ] Nothing to remove for Execution Alias of python.exe %reset%
 )
 
 REM Check if python3.exe App Execution Alias exists
@@ -199,9 +234,9 @@ if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\python3.exe" (
     powershell.exe Remove-Item "%LOCALAPPDATA%\Microsoft\WindowsApps\python3.exe" -Force
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Removed Execution Alias for python3.exe%reset%
 ) else (
-    echo %blue_fg_strong%[INFO] Execution Alias for python3.exe was already removed.%reset%
+    echo [ %green_fg_strong%OK%reset% ] Nothing to remove for Execution Alias of python3.exe %reset%
 )
-
+pause
 
 REM Installer menu - Frontend
 :installer
@@ -444,21 +479,55 @@ echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[I
 pip install -r requirements-rvc.txt
 pip install tensorboardX
 
+REM Install Microsoft.VCRedist.2015+.x64 using winget with fallback of powershell
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
 winget install -e --id Microsoft.VCRedist.2015+.x64
+if %errorlevel% neq 0 (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget is not installed or failed to install Microsoft.VCRedist.2015+.x64%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Attempting to install Microsoft.VCRedist.2015+.x64 using powershell...
 
+    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/c7707d68-d6ce-4479-973e-e2a3dc4341fe/1AD7988C17663CC742B01BEF1A6DF2ED1741173009579AD50A94434E54F56073/VC_redist.x64.exe', '%bin_dir%\VC_redist.x64.exe')"
+    if %errorlevel% neq 0 (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to download VC_redist.x64.exe.%reset%
+    )
+
+    start /wait %bin_dir%\VC_redist.x64.exe /install /quiet /norestart
+    if %errorlevel% neq 0 (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to install VC_redist.x64.exe.%reset%
+    )
+    del %bin_dir%\VC_redist.x64.exe
+)
+
+REM Install Microsoft.VCRedist.2015+.x86 using winget fallback of powershell
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
 winget install -e --id Microsoft.VCRedist.2015+.x86
+if %errorlevel% neq 0 (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget is not installed or failed to install Microsoft.VCRedist.2015+.x86%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Attempting to install Microsoft.VCRedist.2015+.x86 using powershell...
+
+    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/71c6392f-8df5-4b61-8d50-dba6a525fb9d/510FC8C2112E2BC544FB29A72191EABCC68D3A5A7468D35D7694493BC8593A79/VC_redist.x86.exe', '%bin_dir%\VC_redist.x86.exe')"
+    if %errorlevel% neq 0 (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to download VC_redist.x86.exe.%reset%
+    )
+
+    start /wait %bin_dir%\VC_redist.x86.exe /install /quiet /norestart
+    if %errorlevel% neq 0 (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to install VC_redist.x86.exe.%reset%
+    )
+    del %bin_dir%\VC_redist.x86.exe
+)
+
 
 REM Check if file exists
-if not exist "%temp%\vs_buildtools.exe" (
-    curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "vs_buildtools.exe" file already exists.%reset%
+if exist "%bin_dir%\vs_buildtools.exe" (
+    REM Remove file if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing file...
+    del "%bin_dir%\vs_buildtools.exe"
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
+powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://aka.ms/vs/17/release/vs_BuildTools.exe', '%bin_dir%\vs_buildtools.exe')"
+start "" "%bin_dir%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
 
@@ -815,20 +884,54 @@ echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[extras]%reset% %blue_fg_strong%[I
 pip install -r requirements-rvc.txt
 pip install tensorboardX
 
+REM Install Microsoft.VCRedist.2015+.x64 using winget
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x64...
 winget install -e --id Microsoft.VCRedist.2015+.x64
+if %errorlevel% neq 0 (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget is not installed or failed to install Microsoft.VCRedist.2015+.x64%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Attempting to install Microsoft.VCRedist.2015+.x64 using powershell...
 
+    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/c7707d68-d6ce-4479-973e-e2a3dc4341fe/1AD7988C17663CC742B01BEF1A6DF2ED1741173009579AD50A94434E54F56073/VC_redist.x64.exe', '%bin_dir%\VC_redist.x64.exe')"
+    if %errorlevel% neq 0 (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to download VC_redist.x64.exe.%reset%
+    )
+
+    start /wait %bin_dir%\VC_redist.x64.exe /install /quiet /norestart
+    if %errorlevel% neq 0 (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to install VC_redist.x64.exe.%reset%
+    )
+    del %bin_dir%\VC_redist.x64.exe
+)
+
+REM Install Microsoft.VCRedist.2015+.x86 using winget
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Microsoft.VCRedist.2015+.x86...
 winget install -e --id Microsoft.VCRedist.2015+.x86
+if %errorlevel% neq 0 (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget is not installed or failed to install Microsoft.VCRedist.2015+.x86%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Attempting to install Microsoft.VCRedist.2015+.x86 using powershell...
+
+    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/71c6392f-8df5-4b61-8d50-dba6a525fb9d/510FC8C2112E2BC544FB29A72191EABCC68D3A5A7468D35D7694493BC8593A79/VC_redist.x86.exe', '%bin_dir%\VC_redist.x86.exe')"
+    if %errorlevel% neq 0 (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to download VC_redist.x86.exe.%reset%
+    )
+
+    start /wait %bin_dir%\VC_redist.x86.exe /install /quiet /norestart
+    if %errorlevel% neq 0 (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to install VC_redist.x86.exe.%reset%
+    )
+    del %bin_dir%\VC_redist.x86.exe
+)
 
 REM Check if file exists
-if not exist "%temp%\vs_buildtools.exe" (
-    curl -L -o "%temp%\vs_buildtools.exe" "https://aka.ms/vs/17/release/vs_BuildTools.exe"
-) else (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "vs_buildtools.exe" file already exists.%reset%
+if exist "%bin_dir%\vs_buildtools.exe" (
+    REM Remove file if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing file...
+    del "%bin_dir%\vs_buildtools.exe"
 )
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-start "" "%temp%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
+powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://aka.ms/vs/17/release/vs_BuildTools.exe', '%bin_dir%\vs_buildtools.exe')"
+start "" "%bin_dir%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
 
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
