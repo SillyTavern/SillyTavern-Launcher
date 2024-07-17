@@ -13,7 +13,7 @@ REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title STL [STARTUP CHECK]
 setlocal
 
-set "stl_version=1.2.1"
+set "stl_version=24.1.2.2"
 set "stl_title_pid=STL [TROUBLESHOOTING]"
 
 REM ANSI Escape Code for Colors

@@ -236,7 +236,6 @@ if exist "%LOCALAPPDATA%\Microsoft\WindowsApps\python3.exe" (
 ) else (
     echo [ %green_fg_strong%OK%reset% ] Nothing to remove for Execution Alias of python3.exe %reset%
 )
-pause
 
 REM Installer menu - Frontend
 :installer
