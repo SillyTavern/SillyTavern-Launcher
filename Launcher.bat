@@ -1716,9 +1716,9 @@ echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / TabbyA
 echo -------------------------------------------------------------
 echo What would you like to do?
 
-echo 1. Install Hathor_Aleph-L3-8B-v0.72-exl2 [V0.72 RP, Cybersecurity, Programming, Biology/Anatomy UNCENSORED]
-echo 2. Install Hathor_Stable-L3-8B-v0.5-exl2 [V0.5 RP, Cybersecurity, Programming, Biology/Anatomy UNCENSORED]
-echo 3. Install Hathor-L3-8B-v.01-exl2 [V0.1 RP UNCENSORED]
+echo 1. Install Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2 [V0.85 RP, STEM Intruction/Dialogs, Opus instructons, mixture light/classical novel UNCENSORED]
+echo 2. Install Hathor_Aleph-L3-8B-v0.72-exl2 [V0.72 RP, Cybersecurity, Programming, Biology/Anatomy UNCENSORED]
+echo 3. Install Hathor_Stable-L3-8B-v0.5-exl2 [V0.5 RP, Cybersecurity, Programming, Biology/Anatomy UNCENSORED]
 echo 4. Install a custom model
 echo 0. Back
 
@@ -1726,11 +1726,11 @@ set /p app_installer_tabbyapi_model_choice=Choose Your Destiny:
 
 REM ######## APP INSTALLER TABBYAPI Models - BACKEND #########
 if "%app_installer_tabbyapi_model_choice%"=="1" (
-    call :install_tabbyapi_model_hathorv07
+    call :install_tabbyapi_model_hathorv085
 ) else if "%app_installer_tabbyapi_model_choice%"=="2" (
-    goto :install_tabbyapi_model_hathorv05
+    goto :install_tabbyapi_model_hathorv07
 ) else if "%app_installer_tabbyapi_model_choice%"=="3" (
-    goto :install_tabbyapi_model_hathorv01
+    goto :install_tabbyapi_model_hathorv05
 ) else if "%app_installer_tabbyapi_model_choice%"=="4" (
     goto :install_tabbyapi_model_custom
 ) else if "%app_installer_tabbyapi_model_choice%"=="0" (
@@ -1738,6 +1738,64 @@ if "%app_installer_tabbyapi_model_choice%"=="1" (
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :install_tabbyapi_model_menu
+)
+
+:install_tabbyapi_model_hathorv085
+cd /d "%tabbyapi_install_path%\models"
+REM Install model Based on VRAM Size
+if %VRAM% lss 8 (
+echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Sorry... You need atleast 8GB VRAM or more to run a local LLM%reset%
+pause
+goto :install_tabbyapi_model_menu
+) else if %VRAM% lss 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+REM Check if model exists
+if exist "Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2" (
+    REM Remove model if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
+    rmdir /s /q "Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2"
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model size bits: 5.0
+echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or more, depending on your internet speed.%reset%
+echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
+git clone https://huggingface.co/Nitral-AI/Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2%reset%
+goto :install_tabbyapi_model_hathor_presets
+
+) else if %VRAM% equ 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+REM Check if model exists
+if exist "Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2" (
+    REM Remove model if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
+    rmdir /s /q "Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2"
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model size bits: 5.0
+echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or more, depending on your internet speed.%reset%
+echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
+git clone https://huggingface.co/Nitral-AI/Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2%reset%
+goto :install_tabbyapi_model_hathor_presets
+
+) else if %VRAM% gtr 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+REM Check if model exists
+if exist "Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2" (
+    REM Remove model if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
+    rmdir /s /q "Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2"
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model size bits: 5.0
+echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or more, depending on your internet speed.%reset%
+echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
+git clone https://huggingface.co/Nitral-AI/Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2%reset%
+goto :install_tabbyapi_model_hathor_presets
+
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] An unexpected amount of VRAM detected or unable to detect VRAM. Check your system specifications.%reset%
     pause
     goto :install_tabbyapi_model_menu
 )
@@ -1763,8 +1821,8 @@ echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or 
 echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
 git clone --single-branch --branch 5_0 https://huggingface.co/bartowski/Hathor_Aleph-L3-8B-v0.72-exl2 Hathor_Aleph-L3-8B-v0.72-exl2-5_0
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Stable-L3-8B-v0.5-exl2%reset%
-pause
-goto :install_tabbyapi_model_menu
+goto :install_tabbyapi_model_hathor_presets
+
 ) else if %VRAM% equ 12 (
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 REM Check if model exists
@@ -1778,8 +1836,8 @@ echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or 
 echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
 git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor_Aleph-L3-8B-v0.72-exl2 Hathor_Aleph-L3-8B-v0.72-exl2-6_5
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Aleph-L3-8B-v0.72-exl2-6_5%reset%
-pause
-goto :install_tabbyapi_model_menu
+goto :install_tabbyapi_model_hathor_presets
+
 ) else if %VRAM% gtr 12 (
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 REM Check if model exists
@@ -1793,8 +1851,8 @@ echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or 
 echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
 git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor_Aleph-L3-8B-v0.72-exl2 Hathor_Aleph-L3-8B-v0.72-exl2-6_5
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Aleph-L3-8B-v0.72-exl2-6_5%reset%
-pause
-goto :install_tabbyapi_model_menu
+goto :install_tabbyapi_model_hathor_presets
+
 ) else (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] An unexpected amount of VRAM detected or unable to detect VRAM. Check your system specifications.%reset%
     pause
@@ -1821,8 +1879,8 @@ echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or 
 echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
 git clone --single-branch --branch 5_0 https://huggingface.co/bartowski/Hathor_Stable-L3-8B-v0.5-exl2 Hathor_Stable-L3-8B-v0.5-exl2-5_0
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Stable-L3-8B-v0.5-exl2%reset%
-pause
-goto :install_tabbyapi_model_menu
+goto :install_tabbyapi_model_hathor_presets
+
 ) else if %VRAM% equ 12 (
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 REM Check if model exists
@@ -1838,8 +1896,8 @@ echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or 
 echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
 git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor_Stable-L3-8B-v0.5-exl2 Hathor_Stable-L3-8B-v0.5-exl2-6_5
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Stable-L3-8B-v0.5-exl2%reset%
-pause
-goto :install_tabbyapi_model_menu
+goto :install_tabbyapi_model_hathor_presets
+
 ) else if %VRAM% gtr 12 (
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 REM Check if model exists
@@ -1855,66 +1913,90 @@ echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or 
 echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
 git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor_Stable-L3-8B-v0.5-exl2 Hathor_Stable-L3-8B-v0.5-exl2-6_5
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Stable-L3-8B-v0.5-exl2%reset%
-pause
-goto :install_tabbyapi_model_menu
+goto :install_tabbyapi_model_hathor_presets
 ) else (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] An unexpected amount of VRAM detected or unable to detect VRAM. Check your system specifications.%reset%
     pause
     goto :install_tabbyapi_model_menu
 )
 
-
-:install_tabbyapi_model_hathorv01
+:install_tabbyapi_model_hathor_presets
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hathor presets...
 cd /d "%tabbyapi_install_path%\models"
-REM Install model Based on VRAM Size
-if %VRAM% lss 8 (
-echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Sorry... You need atleast 8GB VRAM or more to run a local LLM%reset%
-pause
-goto :install_tabbyapi_model_menu
-) else if %VRAM% lss 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
-REM Check if model exists
-if exist "Hathor-L3-8B-v.01-exl2-5_0" (
-    REM Remove model if it already exists
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
-    rmdir /s /q "Hathor-L3-8B-v.01-exl2-5_0"
+git clone https://huggingface.co/Nitral-AI/Hathor_Presets
+
+
+REM Scan for user folders
+set "user_folders="
+for /d %%d in ("%st_install_path%\data\*") do (
+    if /i not "%%~nxd"=="_storage" if /i not "%%~nxd"=="_uploads" (
+        set "user_folders=!user_folders!%%~nxd|"
+    )
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Downloading model size bits: 5.0
-git clone --single-branch --branch 5_0 https://huggingface.co/bartowski/Hathor-L3-8B-v.01-exl2 Hathor-L3-8B-v.01-exl2-5_0
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor-L3-8B-v.01-exl2%reset%
-pause
-goto :install_tabbyapi_model_menu
-) else if %VRAM% equ 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
-REM Check if model exists
-if exist "Hathor-L3-8B-v.01-exl2-6_5" (
-    REM Remove model if it already exists
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
-    rmdir /s /q "Hathor-L3-8B-v.01-exl2-6_5"
+
+echo Detected accounts:
+echo ================================
+REM Remove the trailing pipe character
+set "user_folders=%user_folders:~0,-1%"
+
+REM Split user_folders into an array
+set i=1
+set "user_count=0"
+for %%a in (%user_folders:|= %) do (
+    echo !i!. %cyan_fg_strong%%%a%reset%
+    set "user_folder_!i!=%%a"
+    set /a i+=1
+    set /a user_count+=1
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Downloading model size bits: 6.0
-git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor-L3-8B-v.01-exl2 Hathor-L3-8B-v.01-exl2-6_5
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor-L3-8B-v.01-exl2%reset%
-pause
-goto :install_tabbyapi_model_menu
-) else if %VRAM% gtr 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
-REM Check if model exists
-if exist "Hathor-L3-8B-v.01-exl2-6_5" (
-    REM Remove model if it already exists
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
-    rmdir /s /q "Hathor-L3-8B-v.01-exl2-6_5"
+echo ================================
+
+REM If only one user folder is found, skip the selection
+if %user_count%==1 (
+    set "selected_user_folder=!user_folder_1!"
+    goto skip_user_selection
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Downloading model size bits: 6.0
-git clone --single-branch --branch 6_5 https://huggingface.co/bartowski/Hathor-L3-8B-v.01-exl2 Hathor-L3-8B-v.01-exl2-6_5
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor-L3-8B-v.01-exl2%reset%
-pause
-goto :install_tabbyapi_model_menu
-) else (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] An unexpected amount of VRAM detected or unable to detect VRAM. Check your system specifications.%reset%
+
+:select_user_folder
+REM Prompt user to select a folder
+echo 0. Cancel
+echo.
+set "selected_user_folder="
+set /p user_choice="Select a folder to import presets: "
+
+REM Check if the user wants to exit
+if "%user_choice%"=="0" (
+    exit /b 0
+)
+
+REM Get the selected folder name
+for /l %%i in (1,1,%user_count%) do (
+    if "%user_choice%"=="%%i" set "selected_user_folder=!user_folder_%%i!"
+)
+
+if "%selected_user_folder%"=="" (
+    echo %red_fg_strong%[ERROR] Invalid selection. Please enter a number between 1 and %user_count%, or press 0 to cancel.%reset%
     pause
-    goto :install_tabbyapi_model_menu
+    goto :create_backup
 )
+
+:skip_user_selection
+REM Replace backslashes with double backslashes in st_install_path
+set "escaped_st_install_path=%st_install_path:\=\\%"
+
+REM move presets into user folder
+move /Y "%tabbyapi_install_path%\models\Hathor_Presets\Hathor-Llama-3_Theme.json" "%st_install_path%\data\%selected_user_folder%\themes"
+move /Y "%tabbyapi_install_path%\models\Hathor_Presets\Hathor_Llama-3_Context.json" "%st_install_path%\data\%selected_user_folder%\context"
+move /Y "%tabbyapi_install_path%\models\Hathor_Presets\Hathor_Llama-3_Instruct.json" "%st_install_path%\data\%selected_user_folder%\instruct"
+move /Y "%tabbyapi_install_path%\models\Hathor_Presets\Hathor_Llama-3_Text-Completion-Preset.json" "%st_install_path%\data\%selected_user_folder%\TextGen Settings"
+
+REM Remove leftovers
+rd /S /Q "%tabbyapi_install_path%\models\Hathor_Presets"
+
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hathor presets at %st_install_path%\data\%selected_user_folder%\%reset%
+pause
+goto :install_tabbyapi_model_menu
+
 
 :install_tabbyapi_model_custom
 cls
