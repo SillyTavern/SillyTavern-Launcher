@@ -1659,7 +1659,8 @@ echo -------------------------------------------------------------
 echo What would you like to do?
 
 echo 1. Install TabbyAPI
-echo 2. Models [Install Options]
+echo 2. Install ST-tabbyAPI-loader Extension
+echo 3. Models [Install Options]
 echo 0. Back
 
 set /p app_installer_tabbyapi_choice=Choose Your Destiny: 
@@ -1677,6 +1678,17 @@ if "%app_installer_tabbyapi_choice%"=="1" (
         goto :install_tabbyapi_menu
     )
 ) else if "%app_installer_tabbyapi_choice%"=="2" (
+    set "caller=app_installer_text_completion_tabbyapi"
+    if exist "%app_installer_text_completion_dir%\install_tabbyapi_st_ext.bat" (
+        call %app_installer_text_completion_dir%\install_tabbyapi_st_ext.bat
+        goto :install_tabbyapi_menu
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_tabbyapi_st_ext.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_tabbyapi_st_ext.bat not found in: %app_installer_text_completion_dir%%reset%
+        pause
+        goto :install_tabbyapi_menu
+    )
+) else if "%app_installer_tabbyapi_choice%"=="3" (
     goto :install_tabbyapi_model_menu
 ) else if "%app_installer_tabbyapi_choice%"=="0" (
     goto :app_installer_text_completion
