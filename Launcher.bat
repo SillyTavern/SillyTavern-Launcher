@@ -308,6 +308,16 @@ set "ff_path_exists=%errorlevel%"
 
 setlocal enabledelayedexpansion
 
+REM Check for Node.js
+node --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] App command: "node" from app: "Node.js" NOT FOUND. The app is not installed or added to PATH.
+    set "node_version=%red_bg%Node.js not installed or not found in system PATH.%reset%"
+) else (
+    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%"node"%reset% from app: "Node.js"
+    for /f "tokens=*" %%i in ('node --version') do set node_version=%%i
+)
+
 REM Check if winget exists in PATH
 if %ff_path_exists% neq 0 (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%winget NOT FOUND in PATH: %cyan_fg_strong%%winget_path%%reset%
@@ -408,13 +418,16 @@ echo 6. Support
 echo 7. More info about LLM models your GPU can run.
 echo 0. Exit
 
-echo ======== VERSION STATUS =========
+
 REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
+
+echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status_st%
 echo STL Version: %stl_version%
 echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+echo Node.js: %node_version%
 echo =================================
 
 set "choice="
