@@ -427,19 +427,20 @@ if exist "%SSL_INFO_FILE%" (
 echo %blue_fg_strong%/ Home%reset%
 echo -------------------------------------------------------------
 echo What would you like to do?
-echo 1. Start SillyTavern%sslOptionSuffix%
-echo 2. Start SillyTavern With Remote Link%sslOptionSuffix%
+echo 1. Update and Start SillyTavern%sslOptionSuffix%
+echo 2. Start SillyTavern%sslOptionSuffix%
+echo 3. Start SillyTavern With Remote Link%sslOptionSuffix%
 REM Check if the custom shortcut file exists and is not empty
 set "custom_name=Create Custom App Shortcut to Launch with SillyTavern"  ; Initialize to default
 if exist "%~dp0bin\settings\custom-shortcut.txt" (
     set /p custom_name=<"%~dp0bin\settings\custom-shortcut.txt"
     if "!custom_name!"=="" set "custom_name=Create Custom Shortcut"
 )
-echo 3. %custom_name%
-echo 4. Update Manager
-echo 5. Toolbox
-echo 6. Support
-echo 7. More info about LLM models your GPU can run.
+echo 4. %custom_name%
+echo 5. Update Manager
+echo 6. Toolbox
+echo 7. Support
+echo 8. More info about LLM models your GPU can run.
 echo 0. Exit
 
 
@@ -462,26 +463,49 @@ if not defined choice set "choice=1"
 
 REM ################## HOME - BACKEND #########################
 if "%choice%"=="1" (
-    call %functions_dir%\launch\start_st.bat
-    if %errorlevel% equ 1 goto :home
+    set "caller=home"
+    if exist "%functions_dir%\launch\update_start_st.bat" (
+        call %functions_dir%\launch\update_start_st.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: update_start_st.bat not found in: %functions_dir%\launch\ >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] update_start_st.bat not found in: %functions_dir%\launch\%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
 ) else if "%choice%"=="2" (
+    set "caller=home"
+    if exist "%functions_dir%\launch\start_st.bat" (
+        call %functions_dir%\launch\start_st.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_st.bat not found in: %functions_dir%\launch\ >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_st.bat not found in: %functions_dir%\launch\%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
+) else if "%choice%"=="3" (
     start "" "%~dp0SillyTavern\Remote-Link.cmd"
     echo "SillyTavern Remote Link Cloudflare Tunnel Launched"
     call %functions_dir%\launch\start_st.bat
     if %errorlevel% equ 1 goto :home
-) else if "%choice%"=="3" (
+) else if "%choice%"=="4" (
     if exist "%~dp0bin\settings\custom-shortcut.txt" (
         call :launch_custom_shortcut
     ) else (
         call :create_custom_shortcut
     )
-) else if "%choice%"=="4" (
-    call :update_manager
 ) else if "%choice%"=="5" (
-    call :toolbox
+    call :update_manager
 ) else if "%choice%"=="6" (
-    call :support
+    call :toolbox
 ) else if "%choice%"=="7" (
+    call :support
+) else if "%choice%"=="8" (
     set "caller=home"
     if exist "%functions_dir%\launch\info_vram.bat" (
         call %functions_dir%\launch\info_vram.bat
