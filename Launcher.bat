@@ -106,6 +106,15 @@ set "ooba_listenport_trigger=false"
 set "ooba_apiport_trigger=false"
 set "ooba_verbose_trigger=false"
 
+REM Define variables to track module status (TABBYAPI)
+set "tabbyapi_modules_path=%~dp0bin\settings\modules-tabbyapi.txt"
+set "tabbyapi_selectedmodelname_trigger=false"
+set "tabbyapi_ignoreupdate_trigger=false"
+set "tabbyapi_port_trigger=false"
+set "tabbyapi_host_trigger=false"
+set "tabbyapi_maxseqlen_trigger=false"
+set "ooba_verbose_trigger=false"
+
 REM Define variables for install locations (Core Utilities)
 set "stl_root=%~dp0"
 set "st_install_path=%~dp0SillyTavern"
@@ -153,6 +162,12 @@ set "app_uninstaller_image_generation_dir=%functions_dir%\Toolbox\App_Uninstalle
 set "app_uninstaller_text_completion_dir=%functions_dir%\Toolbox\App_Uninstaller\Text_Completion"
 set "app_uninstaller_voice_generation_dir=%functions_dir%\Toolbox\App_Uninstaller\Voice_Generation"
 set "app_uninstaller_core_utilities_dir=%functions_dir%\Toolbox\App_Uninstaller\Core_Utilities"
+
+REM Define variables for the directories for App Launcher
+set "app_launcher_image_generation_dir=%functions_dir%\Toolbox\App_Launcherr\Image_Generation"
+set "app_launcher_text_completion_dir=%functions_dir%\Toolbox\App_Launcher\Text_Completion"
+set "app_launcher_voice_generation_dir=%functions_dir%\Toolbox\App_Launcher\Voice_Generation"
+set "app_launcher_core_utilities_dir=%functions_dir%\Toolbox\App_Launcher\Core_Utilities"
 
 REM Define variables for the directories for Editor
 set "editor_image_generation_dir=%functions_dir%\Toolbox\Editor\Image_Generation"
@@ -297,6 +312,15 @@ if not exist %ooba_modules_path% (
 )
 REM Load modules-ooba flags from modules-ooba
 for /f "tokens=*" %%a in (%ooba_modules_path%) do set "%%a"
+
+
+REM Create modules-tabbyapi if it doesn't exist
+if not exist %tabbyapi_modules_path% (
+    type nul > %tabbyapi_modules_path%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created text file: "modules-tabbyapi.txt"  
+)
+REM Load modules-tabbyapi flags from modules-tabbyapi
+for /f "tokens=*" %%a in (%tabbyapi_modules_path%) do set "%%a"
 
 
 REM Get the current PATH value from the registry
@@ -1239,17 +1263,18 @@ goto :home
 
 
 :start_tabbyapi
-REM Run conda activate from the Miniconda installation
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Activate the extras environment
-call conda activate tabbyapi
-
-REM Start TabbyAPI with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% TabbyAPI launched in a new window.
-
-start cmd /k "title TabbyAPI && cd /d %tabbyapi_install_path% && python start.py"
-goto :home
+    set "caller=app_launcher_text_completion"
+    if exist "%app_launcher_text_completion_dir%\start_tabbyapi.bat" (
+        call %app_launcher_text_completion_dir%\start_tabbyapi.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_tabbyapi.bat not found in: %app_launcher_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_tabbyapi.bat not found in: %app_launcher_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+)
 
 
 REM ############################################################
