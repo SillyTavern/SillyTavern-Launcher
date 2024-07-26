@@ -453,6 +453,16 @@ call "%troubleshooting_dir%\detect_vpn.bat" > "%log_dir%\vpn_status.txt"
 set /p "vpnStatus="<"%log_dir%\vpn_status.txt"
 del "%log_dir%\vpn_status.txt"
 
+REM Call the home_port_check.bat script
+call "%troubleshooting_dir%\home_port_check.bat"
+
+REM Read the port status from the log file
+set "portStatus="
+for /f "delims=" %%x in (%log_dir%\port_8000_status.log) do (
+    set "portStatus=%%x"
+)
+
+
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status_st%
@@ -461,6 +471,7 @@ echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 echo Node.js: %node_version%
 echo ======== COMPATIBILITY STATUS =========
 echo %vpnStatus%
+echo %portStatus%
 echo =================================
 set "choice="
 set /p "choice=Choose Your Destiny (default is 1): "
