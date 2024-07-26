@@ -5,9 +5,6 @@ REM Initialize variables
 set "vpnDetected=false"
 setlocal enabledelayedexpansion
 
-REM Define log directory
-set "log_dir=C:\Users\Hayden\Documents\GitHub\SillyTavern-Launcher\bin\logs"
-
 REM Create a troubleshooting log
 set "logfile=%log_dir%\troubleshooting_vpn_detection.log"
 echo Troubleshooting VPN detection log > "%logfile%"
