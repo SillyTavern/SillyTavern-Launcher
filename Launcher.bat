@@ -3141,7 +3141,7 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_uninstaller_core_util_choice%"=="0" (
+) else if "%app_uninstaller_core_utilities_choice%"=="0" (
     goto :app_uninstaller
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
