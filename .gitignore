@@ -10,3 +10,4 @@ bin/*
 !bin/functions/**
 *.txt
 *.logs
+/bin/functions/Toolbox/Troubleshooting/telemetry/venv

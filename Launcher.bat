@@ -447,14 +447,21 @@ echo 0. Exit
 REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
 
+
+REM Call the VPN detection script
+call "%troubleshooting_dir%\detect_vpn.bat" > "%log_dir%\vpn_status.txt"
+set /p "vpnStatus="<"%log_dir%\vpn_status.txt"
+del "%log_dir%\vpn_status.txt"
+
 echo ======== VERSION STATUS =========
 echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
 echo SillyTavern: %update_status_st%
 echo STL Version: %stl_version%
 echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
 echo Node.js: %node_version%
+echo ======== COMPATIBILITY STATUS =========
+echo %vpnStatus%
 echo =================================
-
 set "choice="
 set /p "choice=Choose Your Destiny (default is 1): "
 
@@ -531,6 +538,10 @@ if "%choice%"=="1" (
         pause
         goto :home
     )
+) else if "%choice%"=="000" (
+        call %troubleshooting_dir%\restart_stl.bat
+        goto :home
+
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%

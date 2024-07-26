@@ -52,24 +52,30 @@ REM Clear the old log file if it exists
 if exist "%logs_st_console_path%" (
     del "%logs_st_console_path%"
 )
-REM Wait for log file to be created, timeout after 60 seconds (20 iterations of 3 seconds)
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Waiting for SillyTavern to fully launch...
+REM Wait for log file to be created, timeout after 30 seconds (10 iterations of 3 seconds)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Waiting for 30 seconds for SillyTavern to fully launch...
 set "counter=0"
 :wait_for_log
 timeout /t 3 > nul
 set /a counter+=1
 if not exist "%logs_st_console_path%" (
-    if %counter% lss 20 (
+    if %counter% lss 10 (
         goto :wait_for_log
     ) else (
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Log file not found, something went wrong. Close all SillyTavern command windows and try again.
-        pause
-        goto :home
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Log file not found, something went wrong. Launching ST with fallback method.
+        goto :fallback
     )
 )
 
-
 goto :scan_log
+
+:fallback
+REM Fallback to %st_install_path% and start
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Fallback: Starting SillyTavern from %st_install_path%...
+start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call Start.bat"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern should now be launching in a new window, if you still receive errors please contact the launcher devs in the #launcher-help channel on discord.
+timeout /t 10
+exit /b 1
 
 :scan_log
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Log file found, scanning log for errors...
