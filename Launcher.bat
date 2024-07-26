@@ -3519,9 +3519,9 @@ set /p troubleshooting_choice=Choose Your Destiny:
 REM ############## TROUBLESHOOTING - BACKEND ##################
 if "%troubleshooting_choice%"=="1" (
     set "caller=troubleshooting"
-
     if exist "%troubleshooting_dir%\remove_node_modules.bat" (
         call %troubleshooting_dir%\remove_node_modules.bat
+        goto :troubleshooting
     ) else (
         echo [%DATE% %TIME%] ERROR: remove_node_modules.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] remove_node_modules.bat not found in: %troubleshooting_dir%%reset%
@@ -3530,9 +3530,9 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="2" (
     set "caller=troubleshooting"
-
     if exist "%troubleshooting_dir%\remove_pip_cache.bat" (
         call %troubleshooting_dir%\remove_pip_cache.bat
+        goto :troubleshooting
     ) else (
         echo [%DATE% %TIME%] ERROR: remove_pip_cache.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] remove_pip_cache.bat not found in: %troubleshooting_dir%%reset%
@@ -3541,9 +3541,9 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="3" (
     set "caller=troubleshooting"
-
     if exist "%troubleshooting_dir%\fix_github_conflicts.bat" (
         call %troubleshooting_dir%\fix_github_conflicts.bat
+        goto :troubleshooting
     ) else (
         echo [%DATE% %TIME%] ERROR: fix_github_conflicts.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] fix_github_conflicts.bat not found in: %troubleshooting_dir%%reset%
@@ -3552,9 +3552,9 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="4" (
     set "caller=troubleshooting"
-
     if exist "%troubleshooting_dir%\export_dxdiag.bat" (
         call %troubleshooting_dir%\export_dxdiag.bat
+        goto :troubleshooting
     ) else (
         echo [%DATE% %TIME%] ERROR: export_dxdiag.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] export_dxdiag.bat not found in: %troubleshooting_dir%%reset%
@@ -3563,9 +3563,9 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="5" (
     set "caller=troubleshooting"
-
     if exist "%troubleshooting_dir%\find_app_port.bat" (
         call %troubleshooting_dir%\find_app_port.bat
+        goto :troubleshooting
     ) else (
         echo [%DATE% %TIME%] ERROR: find_app_port.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] find_app_port.bat not found in: %troubleshooting_dir%%reset%
@@ -3574,9 +3574,9 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="6" (
     set "caller=troubleshooting"
-
     if exist "%troubleshooting_dir%\onboarding_flow.bat" (
         call %troubleshooting_dir%\onboarding_flow.bat
+        goto :troubleshooting
     ) else (
         echo [%DATE% %TIME%] ERROR: onboarding_flow.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] onboarding_flow.bat not found in: %troubleshooting_dir%%reset%
