@@ -34,10 +34,10 @@ if defined pid (
             )
         )
     ) else (
-        set "portStatus=Port 8000 not in use"
+        set "portStatus=Port Status: %green_fg_strong%8000 not in use%reset%"
     )
 ) else (
-    set "portStatus=Port 8000 not in use"
+    set "portStatus=Port Status: %green_fg_strong%8000 not in use%reset%"
 )
 
 echo !portStatus!
