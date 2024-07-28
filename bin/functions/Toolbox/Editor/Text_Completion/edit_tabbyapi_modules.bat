@@ -143,7 +143,7 @@ for /l %%i in (1,1,%model_count%) do (
 
 
 REM Set the model and enable the trigger
-set "selected_tabbyapi_model_folder=!tabbyapi_model_folder_%%i!"
+set "selected_tabbyapi_model_folder=!selected_tabbyapi_model_folder!"
 set "selected_tabbyapi_model_folder_trigger=true"
 call :save_tabbyapi_modules
 goto :edit_tabbyapi_modules
