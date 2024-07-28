@@ -1,5 +1,5 @@
 @echo off
-REM This script detects if a VPN is active by checking network adapters using netsh and an external IP check.
+REM This script detects if a VPN is active by checking network adapters using netsh.
 
 REM Initialize variables
 set "vpnDetected=false"
@@ -73,34 +73,6 @@ for /f "skip=3 tokens=1,2,3,4,* delims= " %%a in ('netsh interface show interfac
             goto :vpn_found
         )
     )
-)
-
-REM Check external IP for VPN status if no VPN detected yet
-if "%vpnDetected%"=="false" (
-    echo No VPN adapter detected locally, checking external IP... >> "%logfile%"
-    
-    REM Get the external IP address
-    for /f "delims=" %%i in ('curl -s --max-time 5 https://api.ipify.org') do set "externalIP=%%i"
-    echo External IP: !externalIP! >> "%logfile%"
-
-    REM Check the external IP for VPN status using proxycheck.io
-    set "apiResponse="
-    for /f "delims=" %%i in ('curl -s --max-time 5 "https://proxycheck.io/v2/!externalIP!?vpn=2"') do set "apiResponse=!apiResponse! %%i"
-    echo ProxyCheck API Response: !apiResponse! >> "%logfile%"
-
-    REM Write the API response to a temporary file
-    echo !apiResponse! > "%log_dir%\vpn_check.json"
-
-    REM Parse the JSON response to find the proxy value
-    for /f "delims=" %%a in ('type %log_dir%\vpn_check.json') do (
-        set "line=%%a"
-        if "!line!"=="proxy:" (
-            set "vpnDetected=true"
-            echo VPN detected based on external IP check. >> "%logfile%"
-            goto :vpn_found
-        )
-    )
-    echo No VPN detected based on external IP check. >> "%logfile%"
 )
 
 :vpn_found

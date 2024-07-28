@@ -380,10 +380,7 @@ if %errorlevel% neq 0 (
     echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%conda%reset% from app: Miniconda3
 )
 
-REM Run PowerShell command to retrieve VRAM size and divide by 1GB
-for /f "usebackq tokens=*" %%i in (`powershell -Command "$qwMemorySize = (Get-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*' -Name HardwareInformation.qwMemorySize -ErrorAction SilentlyContinue).'HardwareInformation.qwMemorySize'; if ($null -ne $qwMemorySize -and $qwMemorySize -is [array]) { $qwMemorySize = [double]$qwMemorySize[0] } else { $qwMemorySize = [double]$qwMemorySize }; if ($null -ne $qwMemorySize) { [math]::Round($qwMemorySize/1GB) } else { 'Property not found' }"`) do (
-    set "VRAM=%%i"
-)
+
 
 REM Check if the SillyTavern folder exists
 if not exist "%st_install_path%" (
@@ -414,6 +411,7 @@ REM ############################################################
 :no_st_install_path
 cd /d "%st_install_path%"
 title STL [HOME]
+
 cls
 
 set "SSL_INFO_FILE=%~dp0\SillyTavern\certs\SillyTavernSSLInfo.txt"
@@ -425,56 +423,76 @@ if exist "%SSL_INFO_FILE%" (
 )
 
 echo %blue_fg_strong%/ Home%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. Update and Start SillyTavern%sslOptionSuffix%
-echo 2. Start SillyTavern%sslOptionSuffix%
-echo 3. Start SillyTavern With Remote Link%sslOptionSuffix%
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
+echo    1. Update ^& Start SillyTavern%sslOptionSuffix%
+echo    2. Start SillyTavern%sslOptionSuffix%
+echo    3. Start SillyTavern With Remote Link%sslOptionSuffix%
 REM Check if the custom shortcut file exists and is not empty
 set "custom_name=Create Custom App Shortcut to Launch with SillyTavern"  ; Initialize to default
 if exist "%~dp0bin\settings\custom-shortcut.txt" (
     set /p custom_name=<"%~dp0bin\settings\custom-shortcut.txt"
     if "!custom_name!"=="" set "custom_name=Create Custom Shortcut"
 )
-echo 4. %custom_name%
-echo 5. Update Manager
-echo 6. Toolbox
-echo 7. Support
-echo 8. More info about LLM models your GPU can run.
-echo 0. Exit
-
+echo    4. %custom_name%
+echo    5. Update Manager
+echo    6. Toolbox
+echo    7. Troubleshooting ^& Support
+echo    8. More info about LLM models your GPU can run.
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Exit
 
 REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
 
+REM Set the counter file
+set counter_file=%log_dir%\gpu_counter.txt
 
-REM Call the VPN detection script
-call "%troubleshooting_dir%\detect_vpn.bat" > "%log_dir%\vpn_status.txt"
-set /p "vpnStatus="<"%log_dir%\vpn_status.txt"
-del "%log_dir%\vpn_status.txt"
+REM Initialize or increment the counter
+if exist %counter_file% (
+    for /f "delims=" %%x in (%counter_file%) do set /a counter=%%x + 1
+) else (
+    set counter=1
+)
 
-REM Call the home_port_check.bat script
-call "%troubleshooting_dir%\home_port_check.bat"
+REM If counter reaches 10, reset and delete the GPU info file
+if !counter! geq 10 (
+    set counter=0
+    del "%log_dir%\gpu_info_output.txt"
+)
+REM Save the counter back to the file
+echo !counter! > %counter_file%
 
-REM Read the port status from the log file
-set "portStatus="
-for /f "delims=" %%x in (%log_dir%\port_8000_status.log) do (
-    set "portStatus=%%x"
+REM Check if gpu_info_output.txt exists and call GPU detection script if not
+if not exist "%log_dir%\gpu_info_output.txt" (
+    call "%troubleshooting_dir%\gpu_info.bat" > "%log_dir%\gpu_info_output.txt"
+)
+
+REM Read the content of gpu_info_output.txt into gpuInfo
+if exist "%log_dir%\gpu_info_output.txt" (
+    for /f "delims=" %%x in (%log_dir%\gpu_info_output.txt) do (
+        set "gpuInfo=%%x"
+    )
+) else (
+    set "gpuInfo=GPU Info not found"
 )
 
 
-echo ======== VERSION STATUS =========
-echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
-echo SillyTavern: %update_status_st%
-echo STL Version: %stl_version%
-echo GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
-echo Node.js: %node_version%
-echo ======== COMPATIBILITY STATUS =========
-echo %vpnStatus%
-echo %portStatus%
-echo =================================
-set "choice="
-set /p "choice=Choose Your Destiny (default is 1): "
+echo %yellow_fg_strong% ______________________________________________________________%reset%
+echo %yellow_fg_strong%^| Version ^& Compatibility Status:                              ^|%reset%
+echo    SillyTavern - Branch: %cyan_fg_strong%!current_branch! %reset%^| Status: %cyan_fg_strong%!update_status_st!%reset%
+echo    STL Version: %cyan_fg_strong%!stl_version!%reset%
+echo    !gpuInfo!
+echo    Node.js: %cyan_fg_strong%!node_version!%reset%
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "choice=%BS%   Choose Your Destiny (default is 1): "
 
 REM Default to choice 1 if no input is provided
 if not defined choice set "choice=1"
@@ -522,7 +540,7 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="6" (
     call :toolbox
 ) else if "%choice%"=="7" (
-    call :support
+    call :troubleshooting
 ) else if "%choice%"=="8" (
     set "caller=home"
     if exist "%functions_dir%\launch\info_vram.bat" (
@@ -560,6 +578,7 @@ if "%choice%"=="1" (
     goto :home
 )
 goto :home
+
 
 REM ############################################################
 REM ############## UPDATE MANAGER - FRONTEND ###################
@@ -1160,8 +1179,7 @@ echo 3. App Uninstaller
 echo 4. Editor
 echo 5. Backup
 echo 6. Switch Branch
-echo 7. Troubleshooting
-echo 8. Reset Custom Shortcut
+echo 7. Reset Custom Shortcut
 echo 0. Back
 
 set /p toolbox_choice=Choose Your Destiny: 
@@ -1180,8 +1198,6 @@ if "%toolbox_choice%"=="1" (
 ) else if "%toolbox_choice%"=="6" (
     call :switch_branch
 ) else if "%toolbox_choice%"=="7" (
-    call :troubleshooting
-) else if "%toolbox_choice%"=="8" (
     call :reset_custom_shortcut
 ) else if "%toolbox_choice%"=="0" (
     goto :home
@@ -3484,7 +3500,7 @@ REM Check if the SillyTavern\certs folder exists and delete it if it does
 set "CERTS_DIR=%~dp0SillyTavern\certs"
 
 if exist "%CERTS_DIR%" (
-    echo %blue_fg_strong%Deleting %CERTS_DIR% ...%reset%
+    echo %blue_fg_strong%Del eting %CERTS_DIR% ...%reset%
     rmdir /s /q "%CERTS_DIR%"
     if errorlevel 0 (
         echo  %green_fg_strong%The SillyTavern\certs folder has been successfully deleted.%reset%
@@ -3499,32 +3515,64 @@ goto :editor_core_utilities
 
 
 REM ############################################################
-REM ############## TROUBLESHOOTING - FRONTEND ##################
+REM ########## TROUBLESHOOTING & SUPPORT - FRONTEND ############
 REM ############################################################
 :troubleshooting
-title STL [TROUBLESHOOTING]
+title STL [TROUBLESHOOTING ^& SUPPORT]
+@echo off
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Troubleshooting%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. Remove node_modules folder
-echo 2. Clear pip cache
-echo 3. Fix unresolved conflicts or unmerged files [SillyTavern]
-echo 4. Export dxdiag info
-echo 5. Find what app is using port
-echo 6. Set Onboarding Flow
-echo 0. Back
+echo %blue_fg_strong%/ Home / Toolbox / Troubleshooting ^& Support%reset%
+setlocal enabledelayedexpansion
 
-REM Retrieve the PID of the current script using PowerShell TEMPORARY DISABLED UNTIL A BETTER WAY IS FOUND
+REM Call the VPN detection script
+call "%troubleshooting_dir%\detect_vpn.bat" > "%log_dir%\vpn_status.txt"
+set /p "vpnStatus="<"%log_dir%\vpn_status.txt"
+del "%log_dir%\vpn_status.txt"
 
-REM for /f "delims=" %%G in ('powershell -NoProfile -Command "Get-Process | Where-Object { $_.MainWindowTitle -eq '%stl_title_pid%' } | Select-Object -ExpandProperty Id"') do (
-REM     set "stl_PID=%%~G"
-REM )
-REM echo ======== INFO BOX ===============
-REM echo STL PID: %cyan_fg_strong%%stl_PID%%reset%
-REM echo =================================
+REM Call the home port check script
+call "%troubleshooting_dir%\home_port_check.bat" > "%log_dir%\port_8000_status.txt"
+set /p "portStatus="<"%log_dir%\port_8000_status.txt
+del "%log_dir%\port_8000_status.txt"
 
-set /p troubleshooting_choice=Choose Your Destiny: 
+REM Get the current Git branch
+for /f %%i in ('git branch --show-current') do set current_branch=%%i
+
+echo %yellow_fg_strong% ______________________________________________________________%reset%
+echo %yellow_fg_strong%^| Version ^& Compatibility Status:                              ^|%reset%
+echo    SillyTavern - Branch: %cyan_fg_strong%!current_branch! %reset%^| Status: %cyan_fg_strong%!update_status_st!%reset%
+echo    STL Version: %cyan_fg_strong%!stl_version!%reset%
+echo    !gpuInfo!
+echo    Node.js: %cyan_fg_strong%!node_version!%reset%
+echo    !vpnStatus!
+echo    !portStatus!
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Troubleshooting ^& Repair Options:                            ^|%reset%
+
+echo    1. Remove node_modules folder
+echo    2. Clear pip cache
+echo    3. Fix unresolved conflicts or unmerged files [SillyTavern]
+echo    4. Export dxdiag info
+echo    5. Find what app is using port
+echo    6. Set Onboarding Flow
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Support Options:                                             ^|%reset%
+echo    7. Report an Issue
+echo    8. SillyTavern Documentation
+echo    9. Get Help on Discord 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "troubleshooting_choice=%BS%   Choose Your Destiny: "
+
 
 
 REM ############## TROUBLESHOOTING - BACKEND ##################
@@ -3594,8 +3642,23 @@ if "%troubleshooting_choice%"=="1" (
         pause
         goto :troubleshooting
     )
+) else if "%troubleshooting_choice%"=="7" (
+    call :issue_report
+) else if "%troubleshooting_choice%"=="8" (
+    call :documentation
+) else if "%troubleshooting_choice%"=="9" (
+    call :discord
 ) else if "%troubleshooting_choice%"=="0" (
-    goto :toolbox
+    goto :home
+) else if "%choice%"=="99" (
+    set "caller=home"
+    if exist "%troubleshooting_dir%\find_app_port.bat" (
+        call %troubleshooting_dir%\find_app_port.bat 8000 
+    ) else (
+        echo [%DATE% %TIME%] ERROR: find_app_port.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] find_app_port.bat not found in: %troubleshooting_dir%%reset%
+        pause
+    )
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
@@ -3603,6 +3666,18 @@ if "%troubleshooting_choice%"=="1" (
     goto :troubleshooting
 )
 
+:issue_report
+start "" "https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose"
+goto :troubleshooting
+
+:documentation
+start "" "https://docs.sillytavern.app/"
+goto :troubleshooting
+
+:discord
+start "" "https://discord.gg/sillytavern"
+goto :troubleshooting
+endlocal
 
 
 REM ############################################################
@@ -3731,54 +3806,6 @@ if "%backup_choice%"=="1" (
     pause
     goto :backup
 )
-
-
-REM ############################################################
-REM ############## SUPPORT - FRONTEND ##########################
-REM ############################################################
-:support
-title STL [SUPPORT]
-cls
-echo %blue_fg_strong%/ Home / Support%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. I want to report a issue
-echo 2. Documentation
-echo 3. Discord
-echo 0. Back
-
-set /p support_choice=Choose Your Destiny: 
-
-REM ############## SUPPORT - BACKEND ##########################
-if "%support_choice%"=="1" (
-    call :issue_report
-) else if "%support_choice%"=="2" (
-    call :documentation
-) else if "%support_choice%"=="3" (
-    call :discord
-) else if "%support_choice%"=="0" (
-    goto :home
-) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
-    echo %red_bg%[%time%]%reset% %echo_invalidinput%
-    pause
-    goto :support
-)
-
-:issue_report
-start "" "https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose"
-goto :support
-
-:documentation
-start "" "https://docs.sillytavern.app/"
-goto :support
-
-:discord
-start "" "https://discord.gg/sillytavern"
-goto :support
-
-
-
 
 REM ############################################################
 REM ############ CREATE CUSTOM SHORTCUT - FRONTEND #############

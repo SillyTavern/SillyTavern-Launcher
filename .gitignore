@@ -11,3 +11,6 @@ bin/*
 *.txt
 *.logs
 /bin/functions/Toolbox/Troubleshooting/telemetry/venv
+bin/functions/Toolbox/Troubleshooting/detect_vpn - OLD.bat
+bin/functions/Toolbox/Troubleshooting/home_port_check - OLD.bat
+bin/functions/Toolbox/Troubleshooting/gpu_info - CUDA DETECT IN DEV.bat

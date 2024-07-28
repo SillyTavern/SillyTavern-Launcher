@@ -4,7 +4,12 @@ REM Function to find and display the application using the specified port
 :find_app_port
 cls
 setlocal EnableDelayedExpansion
-set /p port_choice="(0 to cancel)Insert port number: "
+
+if "%~1"=="" (
+    set /p port_choice="(0 to cancel)Insert port number: "
+) else (
+    set "port_choice=%~1"
+)
 
 if "%port_choice%"=="0" goto :troubleshooting
 
@@ -72,5 +77,3 @@ if "%caller%"=="home" (
 ) else (
     exit /b 0
 )
-
-
