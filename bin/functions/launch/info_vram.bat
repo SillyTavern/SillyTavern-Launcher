@@ -8,17 +8,19 @@ REM Get GPU information
 for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
     set "gpu_info=!gpu_info! %%i"
 )
+
+
 cls
 echo %blue_fg_strong%^| ^> / Home / VRAM ^& LLM Info                                                                           ^|%reset%
 echo %blue_fg_strong% ======================================================================================================%reset%   
 REM Recommendations Based on VRAM Size
-if %VRAM% lss 8 (
+if %UVRAM% lss 8 (
     echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - It's recommended to stick with APIs like OpenAI, Claude or OpenRouter for LLM usage, 
+    echo %cyan_fg_strong%GPU VRAM: %UVRAM% GB%reset% - It's recommended to stick with APIs like OpenAI, Claude or OpenRouter for LLM usage, 
     echo Local models will result in memory error or perform a REAL SLOW output
-) else if %VRAM% lss 12 (
+) else if %UVRAM% lss 12 (
     echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Great for 7B and 8B models. Check info below for BPW
+    echo %cyan_fg_strong%GPU VRAM: %UVRAM% GB%reset% - Great for 7B and 8B models. Check info below for BPW
     endlocal
     echo.
     echo ╔══ EXL2 - RECOMMENDED BPW [Bits Per Weight] ═════════════════════════════════════════════════════════════════════════════════╗
@@ -39,9 +41,9 @@ if %VRAM% lss 8 (
     echo ║ 3.5    ║ 3.5  ║ 6.0          ║ 6.4 GB    ║ 6.8 GB    ║ 7.8 GB     ║ 9.9 GB     ║ Lower quality, only use if you have to.    ║
     echo ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
     echo.
-) else if %VRAM% lss 22 (
+) else if %UVRAM% lss 22 (
     echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Great for 7B, 8B and 13B models. Check info below for BPW
+    echo %cyan_fg_strong%GPU VRAM: %UVRAM% GB%reset% - Great for 7B, 8B and 13B models. Check info below for BPW
     endlocal
     echo.
     echo ╔══ EXL2 - RECOMMENDED BPW [Bits Per Weight] ═════════════════════════════════════════════════════════════════════════════════╗
@@ -62,9 +64,9 @@ if %VRAM% lss 8 (
     echo ║ 3.5    ║ 3.5  ║ 6.0          ║ 6.4 GB    ║ 6.8 GB    ║ 7.8 GB     ║ 9.9 GB     ║ Lower quality, only use if you have to.    ║
     echo ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
     echo.
-) else if %VRAM% lss 25 (
+) else if %UVRAM% lss 25 (
     echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Great for 7B, 8B, 13B and 30B models, Check info below for BPW
+    echo %cyan_fg_strong%GPU VRAM: %UVRAM% GB%reset% - Great for 7B, 8B, 13B and 30B models, Check info below for BPW
     endlocal
     echo.
     echo ╔══ EXL2 - RECOMMENDED BPW [Bits Per Weight] ═════════════════════════════════════════════════════════════════════════════════╗
@@ -85,9 +87,9 @@ if %VRAM% lss 8 (
     echo ║ 3.5    ║ 3.5  ║ 6.0          ║ 6.4 GB    ║ 6.8 GB    ║ 7.8 GB     ║ 9.9 GB     ║ Lower quality, only use if you have to.    ║
     echo ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
     echo.
-) else if %VRAM% gtr 25 (
+) else if %UVRAM% gtr 25 (
     echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
-    echo %cyan_fg_strong%GPU VRAM: %VRAM% GB%reset% - Great for 7B, 8B, 13B, 30B and 70B models. Check info below for BPW
+    echo %cyan_fg_strong%GPU VRAM: %UVRAM% GB%reset% - Great for 7B, 8B, 13B, 30B and 70B models. Check info below for BPW
     endlocal
     echo.
     echo ╔══ EXL2 - RECOMMENDED BPW [Bits Per Weight] ═════════════════════════════════════════════════════════════════════════════════╗
@@ -115,7 +117,7 @@ if %VRAM% lss 8 (
 set /p "info_vram_choice=Check for compatible models on VRAM calculator website? [Y/N]: "
 if /i "%info_vram_choice%"=="Y" (
     REM Open website in default browser
-    start https://sillytavernai.com/llm-model-vram-calculator/?vram=%VRAM%
+    start https://sillytavernai.com/llm-model-vram-calculator/?vram=%UVRAM%
     goto :home
 ) else if /i "%info_vram_choice%"=="N" (
     goto :home

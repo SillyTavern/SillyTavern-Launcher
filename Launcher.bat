@@ -388,6 +388,10 @@ if not exist "%st_install_path%" (
     goto :no_st_install_path
 )
 
+REM Run PowerShell command to retrieve VRAM size and divide by 1GB
+for /f "usebackq tokens=*" %%i in (`powershell -Command "$qwMemorySize = (Get-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*' -Name HardwareInformation.qwMemorySize -ErrorAction SilentlyContinue).'HardwareInformation.qwMemorySize'; if ($null -ne $qwMemorySize -and $qwMemorySize -is [array]) { $qwMemorySize = [double]$qwMemorySize[0] } else { $qwMemorySize = [double]$qwMemorySize }; if ($null -ne $qwMemorySize) { [math]::Round($qwMemorySize/1GB) } else { 'Property not found' }"`) do (
+    set "UVRAM=%%i"
+)
 
 REM Change the current directory to 'sillytavern' folder
 cd /d "%st_install_path%"
@@ -2024,12 +2028,12 @@ if "%app_installer_tabbyapi_model_choice%"=="1" (
 :install_tabbyapi_model_hathor
 cd /d "%tabbyapi_install_path%\models"
 REM Install model Based on VRAM Size
-if %VRAM% lss 8 (
+if %UVRAM% lss 8 (
 echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Sorry... You need atleast 8GB VRAM or more to run a local LLM%reset%
 pause
 goto :install_tabbyapi_model_menu
-) else if %VRAM% lss 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+) else if %UVRAM% lss 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
 REM Check if model exists
 if exist "Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2" (
     REM Remove model if it already exists
@@ -2043,8 +2047,8 @@ git clone https://huggingface.co/Nitral-AI/Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2%reset%
 goto :install_tabbyapi_model_hathor_presets
 
-) else if %VRAM% equ 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+) else if %UVRAM% equ 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
 REM Check if model exists
 if exist "Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2" (
     REM Remove model if it already exists
@@ -2058,8 +2062,8 @@ git clone https://huggingface.co/Nitral-AI/Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2%reset%
 goto :install_tabbyapi_model_hathor_presets
 
-) else if %VRAM% gtr 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+) else if %UVRAM% gtr 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
 REM Check if model exists
 if exist "Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2" (
     REM Remove model if it already exists
@@ -2083,12 +2087,12 @@ goto :install_tabbyapi_model_hathor_presets
 :install_tabbyapi_model_stheno
 cd /d "%tabbyapi_install_path%\models"
 REM Install model Based on VRAM Size
-if %VRAM% lss 8 (
+if %UVRAM% lss 8 (
 echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Sorry... You need atleast 8GB VRAM or more to run a local LLM%reset%
 pause
 goto :install_tabbyapi_model_menu
-) else if %VRAM% lss 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+) else if %UVRAM% lss 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
 REM Check if model exists
 if exist "L3-8B-Stheno-v3.2-exl2-5_0" (
     REM Remove model if it already exists
@@ -2103,8 +2107,8 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Suc
 pause
 goto :install_tabbyapi_model_menu
 
-) else if %VRAM% equ 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+) else if %UVRAM% equ 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
 REM Check if model exists
 if exist "L3-8B-Stheno-v3.2-exl2-6_5" (
     REM Remove model if it already exists
@@ -2119,8 +2123,8 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Suc
 pause
 goto :install_tabbyapi_model_menu
 
-) else if %VRAM% gtr 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+) else if %UVRAM% gtr 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
 REM Check if model exists
 if exist "L3-8B-Stheno-v3.2-exl2-6_5" (
     REM Remove model if it already exists
@@ -2145,12 +2149,12 @@ https://huggingface.co/bartowski/Replete-Coder-Instruct-8b-Merged-exl2
 :install_tabbyapi_model_repletecoder
 cd /d "%tabbyapi_install_path%\models"
 REM Install model Based on VRAM Size
-if %VRAM% lss 8 (
+if %UVRAM% lss 8 (
 echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Sorry... You need atleast 8GB VRAM or more to run a local LLM%reset%
 pause
 goto :install_tabbyapi_model_menu
-) else if %VRAM% lss 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+) else if %UVRAM% lss 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
 REM Check if model exists
 if exist "Replete-Coder-Instruct-8b-Merged-exl2-5_0" (
     REM Remove model if it already exists
@@ -2165,8 +2169,8 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Suc
 pause
 goto :install_tabbyapi_model_menu
 
-) else if %VRAM% equ 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+) else if %UVRAM% equ 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
 REM Check if model exists
 if exist "Replete-Coder-Instruct-8b-Merged-exl2-6_5" (
     REM Remove model if it already exists
@@ -2183,8 +2187,8 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Suc
 pause
 goto :install_tabbyapi_model_menu
 
-) else if %VRAM% gtr 12 (
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%VRAM% GB%reset%
+) else if %UVRAM% gtr 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
 REM Check if model exists
 if exist "Replete-Coder-Instruct-8b-Merged-exl2-6_5" (
     REM Remove model if it already exists
