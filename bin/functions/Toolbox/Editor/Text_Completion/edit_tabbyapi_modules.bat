@@ -19,8 +19,6 @@ set "tabbyapi_start_command=!tabbyapi_start_command:tabbyapi_start_command=!"
 echo Preview: %cyan_fg_strong%!tabbyapi_start_command!%reset%
 echo.
 
-echo %red_bg%WORK IN PROGRESS. NOT FINAL. OPTION 2 AND 4 ARE WORKING ALREADY. OTHERS WILL BE SOON%reset%
-
 REM Display module options with colors based on their status
 call :printModule "1. Load Model (--model-name !selected_tabbyapi_model_folder!)" !selected_tabbyapi_model_folder_trigger!
 call :printModule "2. Ignore Auto Upgrade (--ignore-upgrade)" !tabbyapi_ignoreupdate_trigger!
@@ -78,8 +76,6 @@ for %%i in (!tabbyapi_module_choices!) do (
             goto :edit_tabbyapi_modules
     )
     ) else if "%%i"=="0" (
-        echo testing
-        pause
         exit /b 1
     )
 )
@@ -105,17 +101,17 @@ set "tabbyapi_model_folders=%tabbyapi_model_folders:~0,-1%"
 
 REM Split tabbyapi_model_folders into an array
 set i=1
-set "user_count=0"
+set "model_count=0"
 for %%a in (%tabbyapi_model_folders:|= %) do (
     echo !i!. %cyan_fg_strong%%%a%reset%
     set "tabbyapi_model_folder_!i!=%%a"
     set /a i+=1
-    set /a user_count+=1
+    set /a model_count+=1
 )
 echo ================================================
 
 REM If only one user folder is found, skip the selection
-if %user_count%==1 (
+if %model_count%==1 (
     set "selected_tabbyapi_model_folder=!tabbyapi_model_folder_1!"
     goto skip_user_selection
 )
@@ -126,22 +122,36 @@ echo %red_fg_strong%00. Disable this module%reset%
 echo 0. Cancel
 echo.
 set "selected_tabbyapi_model_folder="
-set /p user_choice="Choose a model: "
+set /p tabbyapi_model_choice="Choose a model: "
 
 REM Check if the user wants to exit
-if "%user_choice%"=="0" (
+if "%tabbyapi_model_choice%"=="0" (
+    goto :edit_tabbyapi_modules
+)
+
+REM Handle 'Disable' selection
+if "!tabbyapi_model_choice!"=="00" (
+    set "selected_tabbyapi_model_folder_trigger=false"
+    call :save_tabbyapi_modules
     goto :edit_tabbyapi_modules
 )
 
 REM Get the selected folder name
-for /l %%i in (1,1,%user_count%) do (
-    if "%user_choice%"=="%%i" set "selected_tabbyapi_model_folder=!tabbyapi_model_folder_%%i!"
+for /l %%i in (1,1,%model_count%) do (
+    if "%tabbyapi_model_choice%"=="%%i" set "selected_tabbyapi_model_folder=!tabbyapi_model_folder_%%i!"
 )
 
+
+REM Set the model and enable the trigger
+set "selected_tabbyapi_model_folder=!tabbyapi_model_folder_%%i!"
+set "selected_tabbyapi_model_folder_trigger=true"
+call :save_tabbyapi_modules
+goto :edit_tabbyapi_modules
+
 if "%selected_tabbyapi_model_folder%"=="" (
-    echo %red_fg_strong%[ERROR] Invalid selection. Please enter a number between 1 and %user_count%, or press 0 to cancel.%reset%
+    echo %red_fg_strong%[ERROR] Invalid selection. Please enter a number between 1 and %model_count%, or press 0 to cancel.%reset%
     pause
-    goto :create_backup
+    goto :edit_tabbyapi_modules_loadmodel_menu
 )
 
 :skip_user_selection
@@ -203,24 +213,11 @@ if "!port_choice!"=="00" (
     goto :edit_tabbyapi_modules
 )
 
-REM Set format based on selection and enable the trigger
-if "!port_choice!" geq "1" if "!port_choice!" leq "!validChoiceMax!" (
-    set /a fcount=1
-    for %%a in (%port%) do (
-        if "!fcount!"=="!idx!" (
-            set "tabbyapi_port=%%a"
-            set "tabbyapi_port_trigger=true"
-            call :save_tabbyapi_modules
-            goto :edit_tabbyapi_modules
-        )
-        set /a fcount+=1
-    )
-) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
-    echo %red_bg%[%time%]%reset% %echo_invalidinput%
-    pause
-    goto :edit_tabbyapi_modules_port_menu
-)
+REM Set the port and enable the trigger
+set "tabbyapi_port=!port_choice!"
+set "tabbyapi_port_trigger=true"
+call :save_tabbyapi_modules
+goto :edit_tabbyapi_modules
 
 
 :edit_tabbyapi_modules_maxseqlen_menu
@@ -293,8 +290,11 @@ set /p tabbyapi_maxseqlen_custom="Insert Custom Max Seq Len Value: "
 
 if "%tabbyapi_maxseqlen_custom%"=="0" goto :edit_tabbyapi_modules_maxseqlen_menu
 
-pause
-goto :edit_tabbyapi_modules_maxseqlen_menu
+REM Set the maxseqlen and enable the trigger
+set "tabbyapi_maxseqlen=!tabbyapi_maxseqlen_custom!"
+set "tabbyapi_maxseqlen_trigger=true"
+call :save_tabbyapi_modules
+goto :edit_tabbyapi_modules
 
 
 
@@ -310,7 +310,12 @@ echo 0. Cancel
 echo. 
 set /p ropealpha_choice="Insert Rope Alpha number: "
 
-if "%ropealpha_choice%"=="0" goto :edit_tabbyapi_modules
+REM Check if input is empty
+if "%ropealpha_choice%"=="" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Input cannot be empty.%reset%
+    pause
+    goto :edit_tabbyapi_modules_ropealpha_menu
+)
 
 REM Check if the input is a number
 set "valid=true"
@@ -320,8 +325,6 @@ if "!valid!"=="false" (
     pause
     goto :edit_tabbyapi_modules_ropealpha_menu
 )
-
-
 
 REM Handle 'Cancel' selection
 if "!ropealpha_choice!"=="0" (
@@ -335,24 +338,11 @@ if "!ropealpha_choice!"=="00" (
     goto :edit_tabbyapi_modules
 )
 
-REM Set format based on selection and enable the trigger
-if "!ropealpha_choice!" geq "1" if "!ropealpha_choice!" leq "!validChoiceMax!" (
-    set /a fcount=1
-    for %%a in (%ropealpha%) do (
-        if "!fcount!"=="!idx!" (
-            set "tabbyapi_ropealpha=%%a"
-            set "tabbyapi_ropealpha_trigger=true"
-            call :save_tabbyapi_modules
-            goto :edit_tabbyapi_modules
-        )
-        set /a fcount+=1
-    )
-) else (
-    echo [%DATE% %TIME%] %log_invalidinput% >> %log_path%
-    echo %red_bg%[%time%]%reset% %echo_invalidinput%
-    pause
-    goto :edit_tabbyapi_modules_ropealpha_menu
-)
+REM Set the ropealpha and enable the trigger
+set "tabbyapi_ropealpha=!ropealpha_choice!"
+set "tabbyapi_ropealpha_trigger=true"
+call :save_tabbyapi_modules
+goto :edit_tabbyapi_modules
 
 
 
@@ -438,7 +428,7 @@ if "!tabbyapi_cachemode_trigger!"=="true" (
     set "python_command=!python_command! --cache-mode !tabbyapi_cachemode!"
 )
 
-REM Save all audio settings including the start command to modules-audio
+REM Save all settings including the start command to modules-tabbyapi.txt
 (
     echo selected_tabbyapi_model_folder_trigger=!selected_tabbyapi_model_folder_trigger!
     echo tabbyapi_ignoreupdate_trigger=!tabbyapi_ignoreupdate_trigger!
@@ -463,8 +453,8 @@ if defined modules_enable (
     set "python_command=%python_command% --enable-modules=%modules_enable%"
 )
 
-REM Save the constructed Python command to modules-tabbyapi for testing
-echo tabbyapi_start_command=%python_command%>>%tabbyapi_modules_path%
+REM Save the constructed Python command to modules-tabbyapi.txt for testing
+echo tabbyapi_start_command=%python_command% >> %tabbyapi_modules_path%
 goto :edit_tabbyapi_modules
 
 REM Function to print module options with color based on their status
