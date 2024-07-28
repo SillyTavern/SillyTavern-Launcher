@@ -9,8 +9,8 @@ for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') d
     set "gpu_info=!gpu_info! %%i"
 )
 cls
-echo %blue_fg_strong%/ Home / VRAM Info%reset%
-echo -------------------------------------------------------------
+echo %blue_fg_strong%^| ^> / Home / VRAM ^& LLM Info                                                                           ^|%reset%
+echo %blue_fg_strong% ======================================================================================================%reset%   
 REM Recommendations Based on VRAM Size
 if %VRAM% lss 8 (
     echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%

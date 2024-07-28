@@ -13,7 +13,7 @@ REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title STL [STARTUP CHECK]
 setlocal
 
-set "stl_version=24.1.2.5"
+set "stl_version=24.1.2.6"
 set "stl_title_pid=STL [TROUBLESHOOTING]"
 
 REM ANSI Escape Code for Colors
@@ -421,8 +421,9 @@ REM Check if the SSL info file exists and set the suffix
 if exist "%SSL_INFO_FILE%" (
     set "sslOptionSuffix= (With SSL)"
 )
-
-echo %blue_fg_strong%/ Home%reset%
+ 
+echo %blue_fg_strong%^| ^> / Home                                                      ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 echo    1. Update ^& Start SillyTavern%sslOptionSuffix%
@@ -586,17 +587,28 @@ REM ############################################################
 :update_manager
 title STL [UPDATE MANAGER]
 cls
-echo %blue_fg_strong%/ Home / Update Manager%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Update Manager                                    ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Text Completion
-echo 2. Voice Generation
-echo 3. Image Generation
-echo 4. Core Utilities
-echo 0. Back
+echo    1. Text Completion
+echo    2. Voice Generation
+echo    3. Image Generation
+echo    4. Core Utilities
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p update_manager_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "update_manager_choice=%BS%   Choose Your Destiny: "
+
 
 REM ############## UPDATE MANAGER - BACKEND ####################
 if "%update_manager_choice%"=="1" (
@@ -623,16 +635,28 @@ REM ############################################################
 :update_manager_text_completion
 title STL [UPDATE MANAGER TEXT COMPLETION]
 cls
-echo %blue_fg_strong%/ Home / Update Manager / Text Completion%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
 
-echo 1. Update Text generation web UI (oobabooga)
-echo 2. Update koboldcpp
-echo 3. Update TabbyAPI
-echo 0. Back
+echo %blue_fg_strong%^| ^> / Home / Update Manager / Text Completion                  ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-set /p update_manager_txt_comp_choice=Choose Your Destiny: 
+echo    1. Update Text generation web UI (oobabooga)
+echo    2. Update koboldcpp
+echo    3. Update TabbyAPI
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "update_manager_txt_comp_choice=%BS%   Choose Your Destiny: "
+
 
 REM ########## UPDATE MANAGER TEXT COMPLETION - BACKEND #########
 if "%update_manager_txt_comp_choice%"=="1" (
@@ -747,16 +771,26 @@ REM ############################################################
 :update_manager_voice_generation
 title STL [UPDATE MANAGER VOICE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Update Manager / Voice Generation%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Update Manager / Voice Generation                 ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
+echo    1. Update AllTalk
+echo    2. Update XTTS
+echo    3. Update RVC
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-echo 1. Update AllTalk
-echo 2. Update XTTS
-echo 3. Update RVC
-echo 0. Back
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
 
-set /p update_manager_voice_gen_choice=Choose Your Destiny: 
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "update_manager_voice_gen_choice=%BS%   Choose Your Destiny: "
+
 
 REM ########## UPDATE MANAGER TEXT COMPLETION - BACKEND ########
 if "%update_manager_voice_gen_choice%"=="1" (
@@ -854,17 +888,27 @@ REM ############################################################
 :update_manager_image_generation
 title STL [UPDATE MANAGER IMAGE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Update Manager / Image Generation%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
 
-echo 1. Update Stable Diffusion web UI
-echo 2. Update Stable Diffusion web UI Forge
-echo 3. Update ComfyUI
-echo 4. Update Fooocus
-echo 0. Back
+echo %blue_fg_strong%^| ^> / Home / Update Manager / Image Generation                 ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
+echo    1. Update Stable Diffusion web UI
+echo    2. Update Stable Diffusion web UI Forge
+echo    3. Update ComfyUI
+echo    4. Update Fooocus
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p update_manager_img_gen_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "update_manager_img_gen_choice=%BS%   Choose Your Destiny: "
 
 REM ######## UPDATE MANAGER IMAGE GENERATION - BACKEND #########
 if "%update_manager_img_gen_choice%"=="1" (
@@ -1006,18 +1050,29 @@ REM ############################################################
 :update_manager_core_utilities
 title STL [UPDATE MANAGER CORE UTILITIES]
 cls
-echo %blue_fg_strong%/ Home / Update Manager / Core Utilities%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. Update SillyTavern
-echo 2. Update Extras
-echo 3. Update 7-Zip
-echo 4. Update FFmpeg
-echo 5. Update Node.js
-echo 6. Update yq
-echo 0. Back
+echo %blue_fg_strong%^| ^> / Home / Update Manager / Core Utilities                   ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-set /p update_manager_core_util_choice=Choose Your Destiny: 
+echo    1. Update SillyTavern
+echo    2. Update Extras
+echo    3. Update 7-Zip
+echo    4. Update FFmpeg
+echo    5. Update Node.js
+echo    6. Update yq
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "update_manager_core_util_choice=%BS%   Choose Your Destiny: "
 
 REM ######## UPDATE MANAGER CORE UTILITIES - BACKEND #########
 if "%update_manager_core_util_choice%"=="1" (
@@ -1169,20 +1224,29 @@ REM ############################################################
 :toolbox
 title STL [TOOLBOX]
 cls
-echo %blue_fg_strong%/ Home / Toolbox%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-REM color 7
-echo 1. App Launcher
-echo 2. App Installer
-echo 3. App Uninstaller
-echo 4. Editor
-echo 5. Backup
-echo 6. Switch Branch
-echo 7. Reset Custom Shortcut
-echo 0. Back
+echo %blue_fg_strong%^| ^> / Home / Toolbox                                           ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
+echo    1. App Launcher
+echo    2. App Installer
+echo    3. App Uninstaller
+echo    4. Editor
+echo    5. Backup
+echo    6. Switch Branch
+echo    7. Reset Custom Shortcut
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p toolbox_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "toolbox_choice=%BS%   Choose Your Destiny: "
 
 REM ################# TOOLBOX - BACKEND #######################
 if "%toolbox_choice%"=="1" (
@@ -1215,18 +1279,27 @@ REM ############################################################
 :app_launcher
 title STL [APP LAUNCHER]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Launcher%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Launcher                            ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Text Completion
-echo 2. Voice Generation
-echo 3. Image Generation
-echo 4. Core Utilities
-echo 0. Back
+echo    1. Text Completion
+echo    2. Voice Generation
+echo    3. Image Generation
+echo    4. Core Utilities
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_launcher_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
 
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_launcher_choice=%BS%   Choose Your Destiny: "
 REM ############## APP INSTALLER - BACKEND ####################
 if "%app_launcher_choice%"=="1" (
     call :app_launcher_text_completion
@@ -1252,16 +1325,26 @@ REM ############################################################
 :app_launcher_text_completion
 title STL [APP LAUNCHER TEXT COMPLETION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Launcher / Text Completion%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Launcher / Text Completion          ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Start Text generation web UI (oobabooga)
-echo 2. Start koboldcpp
-echo 3. Start TabbyAPI
-echo 0. Back
+echo    1. Start Text generation web UI (oobabooga)
+echo    2. Start koboldcpp
+echo    3. Start TabbyAPI
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_launcher_txt_comp_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_launcher_txt_comp_choice=%BS%   Choose Your Destiny: "
 
 REM ########## APP LAUNCHER TEXT COMPLETION - BACKEND #########
 if "%app_launcher_txt_comp_choice%"=="1" (
@@ -1345,16 +1428,26 @@ REM ############################################################
 :app_launcher_voice_generation
 title STL [APP LAUNCHER VOICE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Launcher / Voice Generation%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Launcher / Voice Generation         ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Start AllTalk
-echo 2. Start XTTS
-echo 3. Start RVC
-echo 0. Back
+echo    1. Start AllTalk
+echo    2. Start XTTS
+echo    3. Start RVC
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_launcher_voice_gen_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_launcher_voice_gen_choice=%BS%   Choose Your Destiny: "
 
 REM ########## APP LAUNCHER TEXT COMPLETION - BACKEND #########
 if "%app_launcher_voice_gen_choice%"=="1" (
@@ -1427,17 +1520,27 @@ REM ############################################################
 :app_launcher_image_generation
 title STL [APP LAUNCHER IMAGE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Launcher / Image Generation%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Launcher / Image Generation         ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Start Stable Diffusion web UI
-echo 2. Start Stable Diffusion web UI Forge
-echo 3. Start ComfyUI
-echo 4. Start Fooocus
-echo 0. Back
+echo    1. Start Stable Diffusion web UI
+echo    2. Start Stable Diffusion web UI Forge
+echo    3. Start ComfyUI
+echo    4. Start Fooocus
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_launcher_img_gen_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_launcher_img_gen_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP LAUNCHER IMAGE GENERATION - BACKEND #########
 if "%app_launcher_img_gen_choice%"=="1" (
@@ -1546,14 +1649,24 @@ REM ############################################################
 :app_launcher_core_utilities
 title STL [APP LAUNCHER IMAGE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Launcher / Core Utilities%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Launcher / Core Utilities           ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
+echo    1. Start Extras
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-echo 1. Start Extras
-echo 0. Back
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
 
-set /p app_launcher_core_util_choice=Choose Your Destiny: 
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_launcher_core_util_choice=%BS%   Choose Your Destiny: "
+
 
 REM ######## APP LAUNCHER IMAGE GENERATION - BACKEND #########
 if "%app_launcher_core_util_choice%"=="1" (
@@ -1605,17 +1718,29 @@ REM ############################################################
 :app_installer
 title STL [APP INSTALLER]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer                           ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Text Completion
-echo 2. Voice Generation
-echo 3. Image Generation
-echo 4. Core Utilities
-echo 0. Back
+echo    1. Text Completion
+echo    2. Voice Generation
+echo    3. Image Generation
+echo    4. Core Utilities
 
-set /p app_installer_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_choice=%BS%   Choose Your Destiny: "
+
 
 REM ############## APP INSTALLER - BACKEND ####################
 if "%app_installer_choice%"=="1" (
@@ -1642,17 +1767,27 @@ REM ############################################################
 :app_installer_text_completion
 title STL [APP INSTALLER TEXT COMPLETION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Text Completion         ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Install Text generation web UI oobabooga
-echo 2. koboldcpp [Install options]
-echo 3. TabbyAPI [Install options]
-echo 4. Install llamacpp
-echo 0. Back
+echo    1. Install Text generation web UI oobabooga
+echo    2. koboldcpp [Install options]
+echo    3. TabbyAPI [Install options]
+echo    4. Install llamacpp
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_installer_txt_comp_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_txt_comp_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP INSTALLER TEXT COMPLETION - BACKEND ##########
 if "%app_installer_txt_comp_choice%"=="1" (
@@ -1697,15 +1832,26 @@ REM ############################################################
 :install_koboldcpp_menu
 title STL [APP INSTALLER KOBOLDCPP]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / koboldcpp%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
 
-echo 1. Install koboldcpp from prebuild .exe [Recommended]
-echo 2. Build dll files and compile the .exe installer [Advanced]
-echo 0. Back
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Text Completion / koboldcpp ^|%reset%
+echo %blue_fg_strong% ==================================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-set /p app_installer_koboldcpp_choice=Choose Your Destiny: 
+echo    1. Install koboldcpp from prebuild .exe [Recommended]
+echo    2. Build dll files and compile the .exe installer [Advanced]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_koboldcpp_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP INSTALLER KOBOLDCPP - BACKEND ##########
 if "%app_installer_koboldcpp_choice%"=="1" (
@@ -1754,16 +1900,26 @@ if exist "%tabbyapi_install_path%" (
 )
 
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / TabbyAPI %reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Text Completion / TabbyAPI ^|%reset%
+echo %blue_fg_strong% =================================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Install TabbyAPI
-echo 2. Install ST-tabbyAPI-loader Extension
-echo 3. Models [Install Options]
-echo 0. Back
+echo    1. Install TabbyAPI
+echo    2. Install ST-tabbyAPI-loader Extension
+echo    3. Models [Install Options]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_installer_tabbyapi_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_tabbyapi_choice=%BS%   Choose Your Destiny: "
 
 REM ##### APP INSTALLER TABBYAPI - BACKEND ######
 if "%app_installer_tabbyapi_choice%"=="1" (
@@ -1824,17 +1980,28 @@ call conda activate tabbyapi
 cd /d "%tabbyapi_install_path%"
 
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / TabbyAPI / Models%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Text Completion / TabbyAPI / Models ^|%reset%
+echo %blue_fg_strong% ===========================================================================%reset%   
+echo %cyan_fg_strong% ____________________________________________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                                                 ^|%reset%
 
-echo 1. Install Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2 [RP, General, UNCENSORED]
-echo 2. Install L3-8B-Stheno-v3.2-exl2 [RP, UNCENSORED]
-echo 3. Install Replete-Coder-Instruct-8b-Merged-exl2 [Programming, Cybersecurity, UNCENSORED]
-echo 4. Install a custom model
-echo 0. Back
+echo    1. Install Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2 [RP, General, UNCENSORED]
+echo    2. Install L3-8B-Stheno-v3.2-exl2 [RP, UNCENSORED]
+echo    3. Install Replete-Coder-Instruct-8b-Merged-exl2 [Programming, Cybersecurity, UNCENSORED]
+echo    4. Install a custom model
+echo %cyan_fg_strong% ____________________________________________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                                              ^|%reset%
+echo    0. Back
 
-set /p app_installer_tabbyapi_model_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ____________________________________________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                                                            ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_tabbyapi_model_choice=%BS%   Choose Your Destiny: "
+
 
 REM ######## APP INSTALLER TABBYAPI Models - BACKEND #########
 if "%app_installer_tabbyapi_model_choice%"=="1" (
@@ -2136,16 +2303,27 @@ REM ############################################################
 :app_installer_voice_generation
 title STL [APP INSTALLER VOICE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Voice Generation%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Voice Generation        ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Install AllTalk
-echo 2. Install XTTS
-echo 3. Install RVC
-echo 0. Back
+echo    1. Install AllTalk
+echo    2. Install XTTS
+echo    3. Install RVC
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_installer_voice_gen_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_voice_gen_choice=%BS%   Choose Your Destiny: "
+
 
 REM ######## APP INSTALLER VOICE GENERATION - BACKEND #########
 if "%app_installer_voice_gen_choice%"=="1" (
@@ -2198,17 +2376,27 @@ REM ############################################################
 :app_installer_image_generation
 title STL [APP INSTALLER IMAGE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Image Generation        ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Stable Diffusion web UI [Install options]
-echo 2. Stable Diffusion web UI Forge [Install options]
-echo 3. Install ComfyUI
-echo 4. Install Fooocus
-echo 0. Back
+echo    1. Stable Diffusion web UI [Install options]
+echo    2. Stable Diffusion web UI Forge [Install options]
+echo    3. Install ComfyUI
+echo    4. Install Fooocus
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_installer_img_gen_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_img_gen_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
 if "%app_installer_img_gen_choice%"=="1" (
@@ -2261,16 +2449,27 @@ if exist "%sdwebui_install_path%" (
 )
 
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation / Stable Diffusion web UI %reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Image Generation / Stable Diffusion Web UI ^|%reset%
+echo %blue_fg_strong% =================================================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Install Stable Diffusion web UI
-echo 2. Install Extensions
-echo 3. Models [Install Options]
-echo 0. Back
+echo    1. Install Stable Diffusion web UI
+echo    2. Install Extensions
+echo    3. Models [Install Options]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_installer_sdwebui_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_sdwebui_choice=%BS%   Choose Your Destiny: "
+
 
 REM ##### APP INSTALLER STABLE DIFUSSION WEBUI - BACKEND ######
 if "%app_installer_sdwebui_choice%"=="1" (
@@ -2359,18 +2558,28 @@ call conda activate sdwebui
 cd /d "%sdwebui_install_path%"
 
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Image Generation / Stable Diffusion web UI / Models%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Image Generation / Stable Diffusion web UI / Models ^|%reset%
+echo %blue_fg_strong% ==========================================================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Install Hassaku [ANIME MODEL]
-echo 2. Install YiffyMix [FURRY MODEL]
-echo 3. Install Perfect World [REALISM MODEL]
-echo 4. Install a custom model
-echo 5. Add API Key from civitai
-echo 0. Back
+echo    1. Install Hassaku [ANIME MODEL]
+echo    2. Install YiffyMix [FURRY MODEL]
+echo    3. Install Perfect World [REALISM MODEL]
+echo    4. Install a custom model
+echo    5. Add API Key from civitai
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_installer_sdwebui_model_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_sdwebui_model_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
 if "%app_installer_sdwebui_model_choice%"=="1" (
@@ -2470,16 +2679,27 @@ if exist "%sdwebuiforge_install_path%" (
 )
 
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Stable Diffusion web UI Forge %reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Stable Diffusion web UI Forge ^|%reset%
+echo %blue_fg_strong% ====================================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Install Stable Diffusion web UI Forge
-echo 2. Install Extensions
-echo 3. Models [Install Options]
-echo 0. Back
+echo    1. Install Stable Diffusion web UI Forge
+echo    2. Install Extensions
+echo    3. Models [Install Options]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_installer_sdwebuiforge_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_sdwebuiforge_choice=%BS%   Choose Your Destiny: "
+
 
 REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE - BACKEND ###
 if "%app_installer_sdwebuiforge_choice%"=="1" (
@@ -2568,17 +2788,27 @@ call conda activate sdwebuiforge
 cd /d "%sdwebuiforge_install_path%"
 
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / SDWEBUIFORGE Models%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / SDWEBUIFORGE Models     ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
 echo 1. Install Hassaku [ANIME MODEL]
 echo 2. Install YiffyMix [FURRY MODEL]
 echo 3. Install Perfect World [REALISM MODEL]
 echo 4. Install a custom model
-echo 0. Back
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_installer_sdwebuiforge_model_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_sdwebuiforge_model_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
 if "%app_installer_sdwebuiforge_model_choice%"=="1" (
@@ -2659,20 +2889,31 @@ REM ############################################################
 :app_installer_core_utilities
 title STL [APP INSTALLER CORE UTILITIES]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Installer / Core Utilities%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Core Utilities          ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Install 7-Zip
-echo 2. Install FFmpeg
-echo 3. Install Node.js
-echo 4. Install yq
-echo 5. Install Visual Studio BuildTools
-echo 6. Install CUDA Toolkit
-echo 7. Install w64devkit
-echo 0. Back
+echo    1. Install 7-Zip
+echo    2. Install FFmpeg
+echo    3. Install Node.js
+echo    4. Install yq
+echo    5. Install Visual Studio BuildTools
+echo    6. Install CUDA Toolkit
+echo    7. Install w64devkit
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_installer_core_util_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_core_util_choice=%BS%   Choose Your Destiny: "
+
 
 REM ######## APP INSTALLER CORE UTILITIES - BACKEND ###########
 if "%app_installer_core_util_choice%"=="1" (
@@ -2776,17 +3017,27 @@ REM ############################################################
 :app_uninstaller
 title STL [APP UNINSTALLER]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Uninstaller                         ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Text Completion
-echo 2. Voice Generation
-echo 3. Image Generation 
-echo 4. Core Utilities
-echo 0. Back
+echo    1. Text Completion
+echo    2. Voice Generation
+echo    3. Image Generation 
+echo    4. Core Utilities
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_uninstaller_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_uninstaller_choice=%BS%   Choose Your Destiny: "
 
 REM ############## APP UNINSTALLER - BACKEND ####################
 if "%app_uninstaller_choice%"=="1" (
@@ -2814,17 +3065,28 @@ REM ############################################################
 :app_uninstaller_text_completion
 title STL [APP UNINSTALLER TEXT COMPLETION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller / Text Completion%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Uninstaller / Text Completion       ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. UNINSTALL Text generation web UI oobabooga
-echo 2. UNINSTALL koboldcpp
-echo 3. UNINSTALL TabbyAPI
-echo 4. UNINSTALL llamacpp
-echo 0. Back
 
-set /p app_uninstaller_text_completion_choice=Choose Your Destiny: 
+echo    1. UNINSTALL Text generation web UI oobabooga
+echo    2. UNINSTALL koboldcpp
+echo    3. UNINSTALL TabbyAPI
+echo    4. UNINSTALL llamacpp
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_uninstaller_text_completion_choice=%BS%   Choose Your Destiny: "
 
 REM ####### APP UNINSTALLER TEXT COMPLETION - BACKEND ##########
 if "%app_uninstaller_text_completion_choice%"=="1" (
@@ -2896,16 +3158,27 @@ REM ############################################################
 :app_uninstaller_voice_generation
 title STL [APP UNINSTALLER VOICE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller / Voice Generation%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Uninstaller / Voice Generation      ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. UNINSTALL AllTalk
-echo 2. UNINSTALL XTTS
-echo 3. UNINSTALL rvc
-echo 0. Back
+echo    1. UNINSTALL AllTalk
+echo    2. UNINSTALL XTTS
+echo    3. UNINSTALL rvc
 
-set /p app_uninstaller_voice_gen_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_uninstaller_voice_gen_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP UNINSTALLER VOICE GENERATION - BACKEND #########
 if "%app_uninstaller_voice_gen_choice%"=="1" (
@@ -2964,17 +3237,27 @@ REM ############################################################
 :app_uninstaller_image_generation
 title STL [APP UNINSTALLER IMAGE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller / Image Generation%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Uninstaller / Image Generation      ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. UNINSTALL Stable Diffusion web UI
-echo 2. UNINSTALL Stable Diffusion web UI Forge
-echo 3. UNINSTALL ComfyUI
-echo 4. UNINSTALL Fooocus
-echo 0. Back
+echo    1. UNINSTALL Stable Diffusion web UI
+echo    2. UNINSTALL Stable Diffusion web UI Forge
+echo    3. UNINSTALL ComfyUI
+echo    4. UNINSTALL Fooocus
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p app_uninstaller_img_gen_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_uninstaller_img_gen_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP UNINSTALLER IMAGE GENERATION - BACKEND #########
 if "%app_uninstaller_img_gen_choice%"=="1" (
@@ -3045,21 +3328,34 @@ REM ############################################################
 :app_uninstaller_core_utilities
 title STL [APP UNINSTALLER CORE UTILITIES]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / App Uninstaller / Core Utilities%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. UNINSTALL Extras
-echo 2. UNINSTALL SillyTavern
-echo 3. UNINSTALL 7-Zip
-echo 4. UNINSTALL FFmpeg
-echo 5. UNINSTALL Node.js
-echo 6. UNINSTALL yq
-echo 7. UNINSTALL CUDA Toolkit
-echo 8. UNINSTALL Visual Studio BuildTools
-echo 9. UNINSTALL w64devkit
-echo 0. Back
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Uninstaller / Core Utilities        ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-set /p app_uninstaller_core_utilities_choice=Choose Your Destiny: 
+echo    1. UNINSTALL Extras
+echo    2. UNINSTALL SillyTavern
+echo    3. UNINSTALL 7-Zip
+echo    4. UNINSTALL FFmpeg
+echo    5. UNINSTALL Node.js
+echo    6. UNINSTALL yq
+echo    7. UNINSTALL CUDA Toolkit
+echo    8. UNINSTALL Visual Studio BuildTools
+echo    9. UNINSTALL w64devkit
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_uninstaller_core_utilities_choice=%BS%   Choose Your Destiny: "
+
 
 REM ######## APP UNINSTALLER CORE UTILITIES - BACKEND #########
 if "%app_uninstaller_core_utilities_choice%"=="1" (
@@ -3195,17 +3491,28 @@ REM ############################################################
 :editor
 title STL [EDITOR]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / Editor                                  ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Text Completion
-echo 2. Voice Generation 
-echo 3. Image Generation 
-echo 4. Core Utilities
-echo 0. Back
+echo    1. Text Completion
+echo    2. Voice Generation 
+echo    3. Image Generation 
+echo    4. Core Utilities
 
-set /p editor_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "editor_choice=%BS%   Choose Your Destiny: "
 
 REM ################# EDITOR - BACKEND ########################
 if "%editor_choice%"=="1" (
@@ -3232,16 +3539,28 @@ REM ############################################################
 :editor_text_completion
 title STL [EDITOR TEXT COMPLETION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Text Completion%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / Editor / Text Completion                ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Edit Text generation web UI oobabooga
-echo 2. Edit koboldcpp
-echo 3. Edit TabbyAPI
-echo 0. Back
+echo    1. Edit Text generation web UI oobabooga
+echo    2. Edit koboldcpp
+echo    3. Edit TabbyAPI
 
-set /p editor_text_completion_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "editor_text_completion_choice=%BS%   Choose Your Destiny: "
+
 
 REM ####### EDITOR TEXT COMPLETION - BACKEND ##########
 if "%editor_text_completion_choice%"=="1" (
@@ -3298,14 +3617,25 @@ REM ############################################################
 :editor_voice_generation
 title STL [EDITOR VOICE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Voice Generation%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / Editor / Voice Generation               ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Edit XTTS Modules
-echo 0. Back
+echo    1. Edit XTTS Modules
 
-set /p editor_voice_generation_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "editor_voice_generation_choice=%BS%   Choose Your Destiny: "
 
 REM ######## EDITOR VOICE GENERATION - BACKEND #########
 if "%editor_voice_generation_choice%"=="1" (
@@ -3335,17 +3665,27 @@ REM ############################################################
 :editor_image_generation
 title STL [EDITOR IMAGE GENERATION]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Image Generation%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
+echo %blue_fg_strong%^| ^> / Home / Toolbox / Editor / Image Generation               ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo 1. Edit Stable Diffusion web UI
-echo 2. Edit Stable Diffusion web UI Forge
-echo 3. Edit ComfyUI
-echo 4. Edit Fooocus
-echo 0. Back
+echo    1. Edit Stable Diffusion web UI
+echo    2. Edit Stable Diffusion web UI Forge
+echo    3. Edit ComfyUI
+echo    4. Edit Fooocus
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
 
-set /p editor_image_generation_choice=Choose Your Destiny: 
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "editor_image_generation_choice=%BS%   Choose Your Destiny: "
 
 REM ######## EDITOR IMAGE GENERATION - BACKEND #########
 if "%editor_image_generation_choice%"=="1" (
@@ -3422,16 +3762,28 @@ if exist "%SSL_INFO_FILE%" (
 
 )
 
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Core Utilities%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. Edit SillyTavern config.yaml
-echo %sslOption%
-echo 3. Edit Extras
-echo 4. Edit Environment Variables
-echo 0. Back
+echo %blue_fg_strong%^| ^> / Home / Toolbox / Editor / Core Utilities                                               ^|%reset%
+echo %blue_fg_strong% ============================================================================================%reset%   
+echo %cyan_fg_strong% ____________________________________________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                                                 ^|%reset%
 
-set /p editor_core_utilities_choice=Choose Your Destiny: 
+echo    1. Edit SillyTavern config.yaml
+echo    %sslOption%
+echo    3. Edit Extras
+echo    4. Edit Environment Variables
+
+echo %cyan_fg_strong% ____________________________________________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                                              ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ____________________________________________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                                                            ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "editor_core_utilities_choice=%BS%   Choose Your Destiny: "
 
 REM ######## EDITOR CORE UTILITIES - FRONTEND ##################
 if "%editor_core_utilities_choice%"=="1" (
@@ -3521,7 +3873,8 @@ REM ############################################################
 title STL [TROUBLESHOOTING ^& SUPPORT]
 @echo off
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Troubleshooting ^& Support%reset%
+echo %blue_fg_strong%^| ^> / Home / Toolbox / Troubleshooting ^& Support               ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
 setlocal enabledelayedexpansion
 
 REM Call the VPN detection script
@@ -3686,19 +4039,31 @@ REM ############################################################
 :switch_branch
 title STL [SWITCH-BRANCH]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Switch Branch%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. Switch to Release - SillyTavern
-echo 2. Switch to Staging - SillyTavern
-echo 0. Back
-
+echo %blue_fg_strong%^| ^> / Home / Toolbox / Switch Branch                          ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
 REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
-echo ======== VERSION STATUS =========
-echo SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
-echo =================================
-set /p branch_choice=Choose Your Destiny: 
+echo %yellow_fg_strong% ______________________________________________________________%reset%
+echo %yellow_fg_strong%^| Version Status:                                              ^|%reset%
+echo    SillyTavern branch: %cyan_fg_strong%%current_branch%%reset%
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
+echo    1. Switch to Release - SillyTavern
+echo    2. Switch to Staging - SillyTavern
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "branch_choice=%BS%   Choose Your Destiny: "
+
 
 REM ################# SWITCH BRANCH - BACKEND ########################
 if "%branch_choice%"=="1" (
@@ -3772,14 +4137,25 @@ if "%zip_choice%"=="1" (
 cls
 
 :backup_options
-echo %blue_fg_strong%/ Home / Toolbox / Backup%reset%
-echo -------------------------------------------------------------
-echo What would you like to do?
-echo 1. Create Backup
-echo 2. Restore Backup
-echo 0. Back
+echo %blue_fg_strong%^| ^> / Home Toolbox / Backup                                    ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-set /p backup_choice=Choose Your Destiny: 
+echo    1. Create Backup
+echo    2. Restore Backup
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "backup_choice=%BS%   Choose Your Destiny: "
 
 REM ################# BACKUP - BACKEND ########################
 if "%backup_choice%"=="1" (
