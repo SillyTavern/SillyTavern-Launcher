@@ -63,70 +63,62 @@ if "%discord_servers_choice%"=="1" (
 ) else if "%discord_servers_choice%"=="12" (
     call :discord_eleutherai
 ) else if "%discord_servers_choice%"=="0" (
-    exit /b 0
+    goto :exit_discord
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
-    goto :discord_servers_menu
 )
+
+goto :discord_servers_menu
 
 :discord_sillytavern
 start "" "https://discord.gg/sillytavern"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_tabbyapi
 start "" "https://discord.gg/sYQxnuD7Fj"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_koboldai
 start "" "https://discord.gg/UCyXV7NssH"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_textgenwebuiooba
 start "" "https://discord.gg/jwZCF2dPQN"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_mancer
 start "" "https://discord.gg/6DZaU9Gv9F"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_openrouter
 start "" "https://discord.gg/H9tjZYgauh"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_aihorde
 start "" "https://discord.gg/3DxrhksKzn"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_thebloke
 start "" "https://discord.gg/Jq4vkcDakD"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_pygmalionai
 start "" "https://discord.gg/pygmalionai"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_nousresearch
 start "" "https://discord.gg/jqVphNsB4H"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_rwkv
 start "" "https://discord.gg/bDSBUMeFpc"
-goto :discord_servers_menu
-
+goto :eof
 
 :discord_eleutherai
 start "" "https://discord.gg/zBGx3azzUn"
-goto :discord_servers_menu
+goto :eof
 
+:exit_discord
+goto :troubleshooting
