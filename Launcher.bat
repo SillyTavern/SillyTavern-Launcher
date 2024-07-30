@@ -3874,10 +3874,10 @@ REM ############################################################
 REM ########## TROUBLESHOOTING & SUPPORT - FRONTEND ############
 REM ############################################################
 :troubleshooting
-title STL [TROUBLESHOOTING ^& SUPPORT]
+title STL [TROUBLE ^& SUPPORT]
 @echo off
 cls
-echo %blue_fg_strong%^| ^> / Home / Toolbox / Troubleshooting ^& Support               ^|%reset%
+echo %blue_fg_strong%^| ^> / Home / Troubleshooting ^& Support                         ^|%reset%
 echo %blue_fg_strong% ==============================================================%reset%   
 setlocal enabledelayedexpansion
 
@@ -3916,7 +3916,7 @@ echo %cyan_fg_strong% __________________________________________________________
 echo %cyan_fg_strong%^| Support Options:                                             ^|%reset%
 echo    7. Report an Issue
 echo    8. SillyTavern Documentation
-echo    9. Get Help on Discord 
+echo    9. Discord servers
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -4004,10 +4004,18 @@ if "%troubleshooting_choice%"=="1" (
 ) else if "%troubleshooting_choice%"=="8" (
     call :documentation
 ) else if "%troubleshooting_choice%"=="9" (
-    call :discord
+    set "caller=home"
+    if exist "%troubleshooting_dir%\Support\discord.bat" (
+        call %troubleshooting_dir%\Support\discord.bat
+        goto :troubleshooting
+    ) else (
+        echo [%DATE% %TIME%] ERROR: discord.bat not found in: %troubleshooting_dir%\Support >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] discord.bat not found in: %troubleshooting_dir%\Support%reset%
+        pause
+    )
 ) else if "%troubleshooting_choice%"=="0" (
     goto :home
-) else if "%choice%"=="99" (
+) else if "%troubleshooting_choice%"=="99" (
     set "caller=home"
     if exist "%troubleshooting_dir%\find_app_port.bat" (
         call %troubleshooting_dir%\find_app_port.bat 8000 
@@ -4031,11 +4039,6 @@ goto :troubleshooting
 start "" "https://docs.sillytavern.app/"
 goto :troubleshooting
 
-:discord
-start "" "https://discord.gg/sillytavern"
-goto :troubleshooting
-endlocal
-
 
 REM ############################################################
 REM ############## SWITCH BRANCH - FRONTEND ####################
@@ -4043,7 +4046,7 @@ REM ############################################################
 :switch_branch
 title STL [SWITCH-BRANCH]
 cls
-echo %blue_fg_strong%^| ^> / Home / Toolbox / Switch Branch                          ^|%reset%
+echo %blue_fg_strong%^| ^> / Home / Toolbox / Switch Branch                           ^|%reset%
 echo %blue_fg_strong% ==============================================================%reset%   
 REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
