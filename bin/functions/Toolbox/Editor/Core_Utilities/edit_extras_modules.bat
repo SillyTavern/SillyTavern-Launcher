@@ -94,11 +94,13 @@ for %%i in (%module_choices%) do (
     ) else if "%%i"=="00" (
         set "caller=edit_extras_modules"
         if exist "%app_launcher_core_utilities_dir%\start_extras.bat" (
-        call %app_launcher_core_utilities_dir%\start_extras.bat
-        goto :eof
-
+            call %app_launcher_core_utilities_dir%\start_extras.bat
+            goto :eof
+        ) else (
+            echo "start_extras.bat not found"
+        )
     ) else if "%%i"=="0" (
-        goto :editor_core_utilities
+        goto :exit_edit_extras_modules
     )
 )
 
@@ -172,3 +174,6 @@ if "%2"=="true" (
     echo %red_fg_strong%%1 [Disabled]%reset%
 )
 exit /b
+
+:exit_edit_extras_modules
+goto :editor_core_utilities
