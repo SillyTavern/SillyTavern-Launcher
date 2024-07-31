@@ -61,9 +61,6 @@ set "w64devkit_download_path=%~dp0bin\w64devkit-1.22.0.zip"
 set "w64devkit_install_path=C:\w64devkit"
 set "w64devkit_path_bin=%w64devkit_install_path%\bin"
 
-REM Environment Variables (Node.js)
-set "node_installer_path=%temp%\NodejsInstaller.msi"
-
 REM Define variables to track module status (EXTRAS)
 set "extras_modules_path=%~dp0bin\settings\modules-extras.txt"
 set "cuda_trigger=false"

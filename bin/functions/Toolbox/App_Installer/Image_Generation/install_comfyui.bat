@@ -42,7 +42,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda envir
 call conda create -n comfyui python=3.11 -y
 
 REM Activate the comfyui environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment %cyan_fg_strong%comfyui%reset
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment %cyan_fg_strong%comfyui%reset%
 call conda activate comfyui
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
