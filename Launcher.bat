@@ -2927,6 +2927,7 @@ if "%app_installer_core_util_choice%"=="1" (
     set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_7zip.bat" (
         call %app_installer_core_utilities_dir%\install_7zip.bat
+        goto :app_installer_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: install_7zip.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_7zip.bat not found in: %app_installer_core_utilities_dir%%reset%
@@ -2939,6 +2940,7 @@ if "%app_installer_core_util_choice%"=="1" (
     set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_ffmpeg.bat" (
         call %app_installer_core_utilities_dir%\install_ffmpeg.bat
+        goto :app_installer_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: install_ffmpeg.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_ffmpeg.bat not found in: %app_installer_core_utilities_dir%%reset%
@@ -2951,6 +2953,7 @@ if "%app_installer_core_util_choice%"=="1" (
     set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_nodejs.bat" (
         call %app_installer_core_utilities_dir%\install_nodejs.bat
+        goto :app_installer_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: install_nodejs.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_nodejs.bat not found in: %app_installer_core_utilities_dir%%reset%
@@ -2963,6 +2966,7 @@ if "%app_installer_core_util_choice%"=="1" (
     set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_yq.bat" (
         call %app_installer_core_utilities_dir%\install_yq.bat
+        goto :app_installer_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: install_yq.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_yq.bat not found in: %app_installer_core_utilities_dir%%reset%
@@ -2975,6 +2979,7 @@ if "%app_installer_core_util_choice%"=="1" (
     set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_vsbuildtools.bat" (
         call %app_installer_core_utilities_dir%\install_vsbuildtools.bat
+        goto :app_installer_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: install_vsbuildtools.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_vsbuildtools.bat not found in: %app_installer_core_utilities_dir%%reset%
@@ -2987,6 +2992,7 @@ if "%app_installer_core_util_choice%"=="1" (
     set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_cudatoolkit.bat" (
         call %app_installer_core_utilities_dir%\install_cudatoolkit.bat
+        goto :app_installer_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: install_cudatoolkit.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_cudatoolkit.bat not found in: %app_installer_core_utilities_dir%%reset%
@@ -2999,6 +3005,7 @@ if "%app_installer_core_util_choice%"=="1" (
     set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_w64devkit.bat" (
         call %app_installer_core_utilities_dir%\install_w64devkit.bat
+        goto :app_installer_core_utilities
     ) else (
         echo [%DATE% %TIME%] ERROR: install_w64devkit.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_w64devkit.bat not found in: %app_installer_core_utilities_dir%%reset%
