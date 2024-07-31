@@ -7,10 +7,10 @@ REM ############################################################
 title STL [DISCORD SERVERS]
 cls
 echo %blue_fg_strong%^| ^> / Home / Troubleshooting ^& Support / Discord Servers       ^|%reset%
-echo %blue_fg_strong% ==============================================================%reset%   
+echo %blue_fg_strong% ==============================================================%reset%
+echo    1. Join SillyTavern
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Discord - LLM Backends:                                      ^|%reset%
-echo    1. Join SillyTavern
 echo    2. Join TabbyAPI
 echo    3. Join KoboldAI
 echo    4. Join Text Generation WEBUI ooba
@@ -63,7 +63,7 @@ if "%discord_servers_choice%"=="1" (
 ) else if "%discord_servers_choice%"=="12" (
     call :discord_eleutherai
 ) else if "%discord_servers_choice%"=="0" (
-    goto :exit_discord
+    goto :exit_discord_servers_menu
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
@@ -71,6 +71,7 @@ if "%discord_servers_choice%"=="1" (
 )
 
 goto :discord_servers_menu
+
 
 :discord_sillytavern
 start "" "https://discord.gg/sillytavern"
@@ -120,5 +121,5 @@ goto :eof
 start "" "https://discord.gg/zBGx3azzUn"
 goto :eof
 
-:exit_discord
+:exit_discord_servers_menu
 goto :troubleshooting

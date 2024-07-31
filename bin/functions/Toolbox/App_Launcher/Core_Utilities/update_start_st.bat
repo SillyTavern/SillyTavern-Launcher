@@ -18,6 +18,26 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+
+REM Update SillyTavern
+set max_retries=3
+set retry_count=0
+
+:retry_update_st
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SillyTavern...
+cd /d "%st_install_path%"
+call git pull
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_st
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SillyTavern repository after %max_retries% retries.%reset%
+    pause
+    goto :home
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern updated successfully.%reset%
+
+
 setlocal
 set "command=%~1"
 start /B cmd /C "%command%"
@@ -42,40 +62,34 @@ if exist "%SSL_INFO_FILE%" (
 :ST_SSL_Start
 if "%sslPathsFound%"=="true" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened with SSL in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %functions_dir%\launch\log_wrapper.bat ssl"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %functions_dir%\Home\log_wrapper.bat ssl"
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %functions_dir%\launch\log_wrapper.bat"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call %functions_dir%\Home\log_wrapper.bat"
 )
 
 REM Clear the old log file if it exists
 if exist "%logs_st_console_path%" (
     del "%logs_st_console_path%"
 )
-REM Wait for log file to be created, timeout after 30 seconds (10 iterations of 3 seconds)
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Waiting for 30 seconds for SillyTavern to fully launch...
+REM Wait for log file to be created, timeout after 60 seconds (20 iterations of 3 seconds)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Waiting for SillyTavern to fully launch...
 set "counter=0"
 :wait_for_log
 timeout /t 3 > nul
 set /a counter+=1
 if not exist "%logs_st_console_path%" (
-    if %counter% lss 10 (
+    if %counter% lss 20 (
         goto :wait_for_log
     ) else (
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Log file not found, something went wrong. Launching ST with fallback method.
-        goto :fallback
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Log file not found, something went wrong. Close all SillyTavern command windows and try again.
+        pause
+        goto :home
     )
 )
 
-goto :scan_log
 
-:fallback
-REM Fallback to %st_install_path% and start
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Fallback: Starting SillyTavern from %st_install_path%...
-start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && call Start.bat"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern should now be launching in a new window, if you still receive errors please contact the launcher devs in the #launcher-help channel on discord.
-timeout /t 10
-exit /b 1
+goto :scan_log
 
 :scan_log
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Log file found, scanning log for errors...

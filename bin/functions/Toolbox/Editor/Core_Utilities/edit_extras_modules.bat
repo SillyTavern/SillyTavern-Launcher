@@ -92,7 +92,10 @@ for %%i in (%module_choices%) do (
         )
 
     ) else if "%%i"=="00" (
-        goto :start_extras
+        set "caller=edit_extras_modules"
+        if exist "%app_launcher_core_utilities_dir%\start_extras.bat" (
+        call %app_launcher_core_utilities_dir%\start_extras.bat
+        goto :eof
 
     ) else if "%%i"=="0" (
         goto :editor_core_utilities

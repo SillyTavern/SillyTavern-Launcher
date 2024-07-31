@@ -426,7 +426,7 @@ if exist "%SSL_INFO_FILE%" (
     set "sslOptionSuffix= (With SSL)"
 )
  
-echo %blue_fg_strong%^| ^> / Home                                                      ^|%reset%
+echo %blue_fg_strong%^| ^> / Home                                                     ^|%reset%
 echo %blue_fg_strong% ==============================================================%reset%   
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
@@ -505,12 +505,12 @@ if not defined choice set "choice=1"
 REM ################## HOME - BACKEND #########################
 if "%choice%"=="1" (
     set "caller=home"
-    if exist "%functions_dir%\launch\update_start_st.bat" (
-        call %functions_dir%\launch\update_start_st.bat
+    if exist "%app_launcher_core_utilities_dir%\update_start_st.bat" (
+        call %app_launcher_core_utilities_dir%\update_start_st.bat
         goto :home
     ) else (
-        echo [%DATE% %TIME%] ERROR: update_start_st.bat not found in: %functions_dir%\launch\ >> %logs_stl_console_path%
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] update_start_st.bat not found in: %functions_dir%\launch\%reset%
+        echo [%DATE% %TIME%] ERROR: update_start_st.bat not found in: %app_launcher_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] update_start_st.bat not found in: %app_launcher_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
@@ -518,12 +518,12 @@ if "%choice%"=="1" (
     )
 ) else if "%choice%"=="2" (
     set "caller=home"
-    if exist "%functions_dir%\launch\start_st.bat" (
-        call %functions_dir%\launch\start_st.bat
+    if exist "%app_launcher_core_utilities_dir%\start_st.bat" (
+        call %app_launcher_core_utilities_dir%\start_st.bat
         goto :home
     ) else (
-        echo [%DATE% %TIME%] ERROR: start_st.bat not found in: %functions_dir%\launch\ >> %logs_stl_console_path%
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_st.bat not found in: %functions_dir%\launch\%reset%
+        echo [%DATE% %TIME%] ERROR: start_st.bat not found in: %app_launcher_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_st.bat not found in: %app_launcher_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
@@ -532,7 +532,7 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="3" (
     start "" "%~dp0SillyTavern\Remote-Link.cmd"
     echo "SillyTavern Remote Link Cloudflare Tunnel Launched"
-    call %functions_dir%\launch\start_st.bat
+    call %app_launcher_core_utilities_dir%\start_st.bat
     if %errorlevel% equ 1 goto :home
 ) else if "%choice%"=="4" (
     if exist "%~dp0bin\settings\custom-shortcut.txt" (
@@ -548,12 +548,12 @@ if "%choice%"=="1" (
     call :troubleshooting
 ) else if "%choice%"=="8" (
     set "caller=home"
-    if exist "%functions_dir%\launch\info_vram.bat" (
-        call %functions_dir%\launch\info_vram.bat
+    if exist "%functions_dir%\Home\info_vram.bat" (
+        call %functions_dir%\Home\info_vram.bat
         goto :home
     ) else (
-        echo [%DATE% %TIME%] ERROR: info_vram.bat not found in: %functions_dir%\launch >> %logs_stl_console_path%
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] info_vram.bat not found in: %functions_dir%\launch%reset%
+        echo [%DATE% %TIME%] ERROR: info_vram.bat not found in: %functions_dir%\Home >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] info_vram.bat not found in: %functions_dir%\Home%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
@@ -561,12 +561,12 @@ if "%choice%"=="1" (
     )
 ) else if "%choice%"=="0" (
     set "caller=home"
-    if exist "%functions_dir%\launch\exit_stl.bat" (
-        call %functions_dir%\launch\exit_stl.bat
+    if exist "%functions_dir%\Home\exit_stl.bat" (
+        call %functions_dir%\Home\exit_stl.bat
         goto :home
     ) else (
-        echo [%DATE% %TIME%] ERROR: exit_stl.bat not found in: %functions_dir%\launch >> %logs_stl_console_path%
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] exit_stl.bat not found in: %functions_dir%\launch%reset%
+        echo [%DATE% %TIME%] ERROR: exit_stl.bat not found in: %functions_dir%\Home >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] exit_stl.bat not found in: %functions_dir%\Home%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
@@ -1648,10 +1648,10 @@ goto :home
 
 
 REM ############################################################
-REM ######## APP LAUNCHER IMAGE GENERATION - FRONTEND ##########
+REM ######## APP LAUNCHER CORE UTILITIES - FRONTEND ##########
 REM ############################################################
 :app_launcher_core_utilities
-title STL [APP LAUNCHER IMAGE GENERATION]
+title STL [APP LAUNCHER CORE UTILITIES]
 cls
 echo %blue_fg_strong%^| ^> / Home / Toolbox / App Launcher / Core Utilities           ^|%reset%
 echo %blue_fg_strong% ==============================================================%reset%   
@@ -1669,13 +1669,50 @@ echo %cyan_fg_strong%^|                                                         
 for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
 
 :: Set the prompt with spaces
-set /p "app_launcher_core_util_choice=%BS%   Choose Your Destiny: "
+set /p "app_launcher_core_utilities_choice=%BS%   Choose Your Destiny: "
 
 
-REM ######## APP LAUNCHER IMAGE GENERATION - BACKEND #########
-if "%app_launcher_core_util_choice%"=="1" (
-    call :start_extras
-) else if "%app_launcher_core_util_choice%"=="0" (
+REM ######## APP LAUNCHER CORE UTILITIES - BACKEND #########
+if "%app_launcher_core_utilities_choice%"=="1" (
+    set "caller=app_launcher_core_utilities"
+
+    REM Read modules-extras and find the extras_start_command line
+    set "extras_start_command="
+
+    for /F "tokens=*" %%a in ('findstr /I "extras_start_command=" "%extras_modules_path%"') do (
+        set "%%a"
+    )
+
+    set "extras_start_command=%extras_start_command:extras_start_command=%"
+    if not defined extras_start_command (
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
+        echo %red_bg%Please make sure at least one of the modules are enabled from Edit Extras Modules.%reset%
+        echo.
+        echo %blue_bg%We will redirect you to the Edit Extras Modules menu.%reset%
+        pause
+        set "caller=editor_core_utilities"
+        if exist "%editor_core_utilities_dir%\edit_extras_modules.bat" (
+            call %editor_core_utilities_dir%\edit_extras_modules.bat
+            goto :app_launcher_core_utilities
+        ) else (
+            echo [%DATE% %TIME%] ERROR: edit_extras_modules.bat not found in: %editor_core_utilities_dir% >> %logs_stl_console_path%
+            echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_extras_modules.bat not found in: %editor_core_utilities_dir%%reset%
+            pause
+            goto :app_launcher_core_utilities
+        )
+    )
+    if exist "%app_launcher_core_utilities_dir%\start_extras.bat" (
+        call %app_launcher_core_utilities_dir%\start_extras.bat
+        goto :app_launcher_core_utilities
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_extras.bat not found in: %app_launcher_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_extras.bat not found in: %app_launcher_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_launcher_core_utilities
+)
+) else if "%app_launcher_core_utilities_choice%"=="0" (
     goto :app_launcher
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
@@ -1683,37 +1720,6 @@ if "%app_launcher_core_util_choice%"=="1" (
     pause
     goto :app_launcher_core_utilities
 )
-
-
-:start_extras
-REM Run conda activate from the Miniconda installation
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Activate the extras environment
-call conda activate extras
-
-REM Start SillyTavern Extras with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Extras launched in a new window.
-
-REM Read modules-extras and find the extras_start_command line
-set "extras_start_command="
-
-for /F "tokens=*" %%a in ('findstr /I "extras_start_command=" "%extras_modules_path%"') do (
-    set "%%a"
-)
-
-if not defined extras_start_command (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
-    echo %red_bg%Please make sure at least one of the modules are enabled from Edit Extras Modules.%reset%
-    echo.
-    echo %blue_bg%We will redirect you to the Edit Extras Modules menu.%reset%
-    pause
-    goto :edit_extras_modules
-)
-
-set "extras_start_command=%extras_start_command:extras_start_command=%"
-start cmd /k "title SillyTavern Extras && cd /d %extras_install_path% && %extras_start_command%"
-goto :home
 
 
 REM ############################################################
@@ -4004,7 +4010,7 @@ if "%troubleshooting_choice%"=="1" (
 ) else if "%troubleshooting_choice%"=="8" (
     call :documentation
 ) else if "%troubleshooting_choice%"=="9" (
-    set "caller=home"
+    set "caller=troubleshooting"
     if exist "%troubleshooting_dir%\Support\discord.bat" (
         call %troubleshooting_dir%\Support\discord.bat
         goto :troubleshooting
