@@ -45,9 +45,11 @@ REM Activate the comfyui environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment %cyan_fg_strong%comfyui%reset%
 call conda activate comfyui
 
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pytorch...
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu121
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
 pip install -r requirements.txt
-pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu121
 
 REM Clone extensions for ComfyUI
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for ComfyUI...
