@@ -4154,7 +4154,7 @@ if "%zip_choice%"=="1" (
 cls
 
 :backup_options
-echo %blue_fg_strong%^| ^> / Home Toolbox / Backup                                    ^|%reset%
+echo %blue_fg_strong%^| ^> / Home / Toolbox / Backup                                  ^|%reset%
 echo %blue_fg_strong% ==============================================================%reset%   
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%

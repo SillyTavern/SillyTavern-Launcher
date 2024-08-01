@@ -3,24 +3,26 @@
 :restore_backup
 title STL [RESTORE BACKUP]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Backup / Restore Backup%reset%
-echo ---------------------------------------------------------------
-
-
-echo Available backups:
-echo ================================
+echo %blue_fg_strong%^| ^> / Home / Toolbox / Backup / Restore Backup                 ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo.
+echo +==== Available backups ==================+
 setlocal enabledelayedexpansion
 set "backup_count=0"
 
 for %%F in ("%st_backup_path%\st_backup_*.7z") do (
     set /a "backup_count+=1"
     set "backup_files[!backup_count!]=%%~nF"
-    echo !backup_count!. %cyan_fg_strong%%%~nF%reset%
+    echo    !backup_count!. %cyan_fg_strong%%%~nF%reset%
 )
-echo ================================
-echo 0. Cancel
+echo +=========================================+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Cancel
 echo.
-set /p "restore_choice=Select backup to restore: "
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+set /p "restore_choice=%BS%   Select backup to restore: "
 
 if "%restore_choice%"=="0" goto :backup
 
