@@ -124,6 +124,7 @@ set "sdwebui_install_path=%image_generation_dir%\stable-diffusion-webui"
 set "sdwebuiforge_install_path=%image_generation_dir%\stable-diffusion-webui-forge"
 set "comfyui_install_path=%image_generation_dir%\ComfyUI"
 set "fooocus_install_path=%image_generation_dir%\Fooocus"
+set "invokeai_install_path=%image_generation_dir%\InvokeAI"
 
 REM Define variables for install locations (Text Completion)
 set "text_completion_dir=%~dp0text-completion"
@@ -898,6 +899,7 @@ echo    1. Update Stable Diffusion web UI
 echo    2. Update Stable Diffusion web UI Forge
 echo    3. Update ComfyUI
 echo    4. Update Fooocus
+echo    5. Update InvokeAI
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -920,6 +922,8 @@ if "%update_manager_img_gen_choice%"=="1" (
     goto :update_comfyui
 ) else if "%update_manager_img_gen_choice%"=="4" (
     goto :update_fooocus
+) else if "%update_manager_img_gen_choice%"=="5" (
+    goto :update_invokeai
 ) else if "%update_manager_img_gen_choice%"=="0" (
     goto :update_manager
 ) else (
@@ -1041,6 +1045,22 @@ if %errorlevel% neq 0 (
     goto :update_manager_image_generation
 )
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Fooocus updated successfully.%reset%
+pause
+goto :update_manager_image_generation
+
+
+:update_invokeai
+REM Check if InvokeAI directory exists
+if not exist "%invokeai_install_path%" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] InvokeAI directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating invokeai...
+call conda activate invokeai
+pip install --upgrade InvokeAI
+call conda deactivate
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%InvokeAI updated successfully.%reset%
 pause
 goto :update_manager_image_generation
 
@@ -1530,6 +1550,7 @@ echo    1. Start Stable Diffusion web UI
 echo    2. Start Stable Diffusion web UI Forge
 echo    3. Start ComfyUI
 echo    4. Start Fooocus
+echo    5. Start InvokeAI
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -1541,18 +1562,31 @@ echo %cyan_fg_strong%^|                                                         
 for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
 
 :: Set the prompt with spaces
-set /p "app_launcher_img_gen_choice=%BS%   Choose Your Destiny: "
+set /p "app_launcher_image_generation_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP LAUNCHER IMAGE GENERATION - BACKEND #########
-if "%app_launcher_img_gen_choice%"=="1" (
+if "%app_launcher_image_generation_choice%"=="1" (
     call :start_sdwebui
-) else if "%app_launcher_img_gen_choice%"=="2" (
+) else if "%app_launcher_image_generation_choice%"=="2" (
     goto :start_sdwebuiforge
-) else if "%app_launcher_img_gen_choice%"=="3" (
+) else if "%app_launcher_image_generation_choice%"=="3" (
     goto :start_comfyui
-) else if "%app_launcher_img_gen_choice%"=="4" (
+) else if "%app_launcher_image_generation_choice%"=="4" (
     goto :start_fooocus
-) else if "%app_launcher_img_gen_choice%"=="0" (
+) else if "%app_launcher_image_generation_choice%"=="5" (
+    set "caller=app_launcher_image_generation"
+    if exist "%app_launcher_image_generation_dir%\start_invokeai.bat" (
+        call %app_launcher_image_generation_dir%\start_invokeai.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_invokeai.bat not found in: app_launcher_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_invokeai.bat not found in: %app_launcher_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
+) else if "%app_launcher_image_generation_choice%"=="0" (
     goto :app_launcher
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
@@ -2392,6 +2426,7 @@ echo    1. Stable Diffusion web UI [Install options]
 echo    2. Stable Diffusion web UI Forge [Install options]
 echo    3. Install ComfyUI
 echo    4. Install Fooocus
+echo    5. Install InvokeAI
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -2403,14 +2438,14 @@ echo %cyan_fg_strong%^|                                                         
 for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
 
 :: Set the prompt with spaces
-set /p "app_installer_img_gen_choice=%BS%   Choose Your Destiny: "
+set /p "app_installer_image_generation_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
-if "%app_installer_img_gen_choice%"=="1" (
+if "%app_installer_image_generation_choice%"=="1" (
     call :install_sdwebui_menu
-) else if "%app_installer_img_gen_choice%"=="2" (
+) else if "%app_installer_image_generation_choice%"=="2" (
     goto :install_sdwebuiforge_menu
-) else if "%app_installer_img_gen_choice%"=="3" (
+) else if "%app_installer_image_generation_choice%"=="3" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_comfyui.bat" (
         call %app_installer_image_generation_dir%\install_comfyui.bat
@@ -2421,7 +2456,7 @@ if "%app_installer_img_gen_choice%"=="1" (
         pause
         goto :app_installer_image_generation
     )
-) else if "%app_installer_img_gen_choice%"=="4" (
+) else if "%app_installer_image_generation_choice%"=="4" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_fooocus.bat" (
         call %app_installer_image_generation_dir%\install_fooocus.bat
@@ -2432,7 +2467,18 @@ if "%app_installer_img_gen_choice%"=="1" (
         pause
         goto :app_installer_image_generation
     )
-) else if "%app_installer_img_gen_choice%"=="0" (
+) else if "%app_installer_image_generation_choice%"=="5" (
+    set "caller=app_installer_image_generation"
+    if exist "%app_installer_image_generation_dir%\install_invokeai.bat" (
+        call %app_installer_image_generation_dir%\install_invokeai.bat
+        goto :app_installer_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_invokeai.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_invokeai.bat not found in: %app_installer_image_generation_dir%%reset%
+        pause
+        goto :app_installer_image_generation
+    )
+) else if "%app_installer_image_generation_choice%"=="0" (
     goto :app_installer
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
@@ -3260,6 +3306,7 @@ echo    1. UNINSTALL Stable Diffusion web UI
 echo    2. UNINSTALL Stable Diffusion web UI Forge
 echo    3. UNINSTALL ComfyUI
 echo    4. UNINSTALL Fooocus
+echo    5. UNINSTALL InvokeAI
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -3321,6 +3368,19 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_fooocus.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_fooocus.bat not found in: %app_uninstaller_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_uninstaller_image_generation
+    )
+) else if "%app_uninstaller_img_gen_choice%"=="5" (
+    set "caller=app_uninstaller_image_generation"
+    if exist "%app_uninstaller_image_generation_dir%\uninstall_invokeai.bat" (
+        call %app_uninstaller_image_generation_dir%\uninstall_invokeai.bat
+        goto :app_uninstaller_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_invokeai.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_invokeai.bat not found in: %app_uninstaller_image_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
