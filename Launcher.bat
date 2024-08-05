@@ -334,10 +334,15 @@ REM Check for Node.js
 node --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] App command: "node" from app: "Node.js" NOT FOUND. The app is not installed or added to PATH.
-    set "node_version=%red_bg%Node.js not installed or not found in system PATH.%reset%"
+    set "node_version=%red_bg%[ERROR] Node.js not installed or not found in system PATH.%reset%"
 ) else (
-    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%"node"%reset% from app: "Node.js"
     for /f "tokens=*" %%i in ('node --version') do set node_version=%%i
+    set version=!node_version:v=!
+    for /f "tokens=1,2 delims=." %%a in ("!version!") do (
+        if %%a lss 18 (
+            set "node_version=!node_version! %red_bg%[ERROR] Node.js version is OUTDATED. Please update to Node.js v18 or higher.%reset%"
+        )
+    )
 )
 
 REM Check if winget exists in PATH
