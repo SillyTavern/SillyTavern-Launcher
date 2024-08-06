@@ -3969,12 +3969,16 @@ del "%log_dir%\port_8000_status.txt"
 REM Get the current Git branch
 for /f %%i in ('git branch --show-current') do set current_branch=%%i
 
+REM Get the current PowerShell version
+for /f "tokens=*" %%i in ('powershell -command "[string]::Join('.', $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor, $PSVersionTable.PSVersion.Build, $PSVersionTable.PSVersion.Revision)"') do set ps_version=%%i
+
 echo %yellow_fg_strong% ______________________________________________________________%reset%
 echo %yellow_fg_strong%^| Version ^& Compatibility Status:                              ^|%reset%
-echo    SillyTavern - Branch: %cyan_fg_strong%!current_branch! %reset%^| Status: %cyan_fg_strong%!update_status_st!%reset%
-echo    STL Version: %cyan_fg_strong%!stl_version!%reset%
+echo    SillyTavern Branch: %cyan_fg_strong%!current_branch! %reset%^| Status: %cyan_fg_strong%!update_status_st!%reset%
+echo    STL: %cyan_fg_strong%!stl_version!%reset%
 echo    !gpuInfo!
 echo    Node.js: %cyan_fg_strong%!node_version!%reset%
+echo    PowerShell: %cyan_fg_strong%!ps_version!%reset%
 echo    !vpnStatus!
 echo    !portStatus!
 
