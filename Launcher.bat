@@ -115,6 +115,7 @@ set "ooba_verbose_trigger=false"
 REM Define variables for install locations (Core Utilities)
 set "stl_root=%~dp0"
 set "st_install_path=%~dp0SillyTavern"
+set "st_package_json_path=%st_install_path%\package.json"
 set "extras_install_path=%~dp0SillyTavern-extras"
 set "st_backup_path=%~dp0SillyTavern-backups"
 
@@ -487,9 +488,28 @@ if exist "%log_dir%\gpu_info_output.txt" (
 )
 
 
+REM Read the package.json from SillyTavern and extract the version key value
+for /f "tokens=2 delims=:" %%a in ('findstr /c:"\"version\"" "%st_package_json_path%"') do (
+    set "st-version=%%a"
+)
+
+REM Remove leading and trailing whitespace and surrounding quotes
+for /f "tokens=* delims= " %%a in ("!st-version!") do (
+    set "st-version=%%a"
+)
+
+set st-version=%st-version:"=%
+set st-version=%st-version:,=%
+
+REM Check if the package.json file exists
+if not exist "%st_package_json_path%" (
+set "st-version=%red_bg%[ERROR] Cannot get ST version because package.json file not found in %st_install_path%%reset%"
+)
+
 echo %yellow_fg_strong% ______________________________________________________________%reset%
 echo %yellow_fg_strong%^| Version ^& Compatibility Status:                              ^|%reset%
 echo    SillyTavern - Branch: %cyan_fg_strong%!current_branch! %reset%^| Status: %cyan_fg_strong%!update_status_st!%reset%
+echo    SillyTavern: %cyan_fg_strong%!st-version!%reset%
 echo    STL Version: %cyan_fg_strong%!stl_version!%reset%
 echo    !gpuInfo!
 echo    Node.js: %cyan_fg_strong%!node_version!%reset%
@@ -3972,9 +3992,28 @@ for /f %%i in ('git branch --show-current') do set current_branch=%%i
 REM Get the current PowerShell version
 for /f "tokens=*" %%i in ('powershell -command "[string]::Join('.', $PSVersionTable.PSVersion.Major, $PSVersionTable.PSVersion.Minor, $PSVersionTable.PSVersion.Build, $PSVersionTable.PSVersion.Revision)"') do set ps_version=%%i
 
+REM Read the package.json file and extract the version key value
+for /f "tokens=2 delims=:" %%a in ('findstr /c:"\"version\"" "%st_package_json_path%"') do (
+    set "st-version=%%a"
+)
+
+REM Remove leading and trailing whitespace and surrounding quotes
+for /f "tokens=* delims= " %%a in ("!st-version!") do (
+    set "st-version=%%a"
+)
+
+set st-version=%st-version:"=%
+set st-version=%st-version:,=%
+
+REM Check if the package.json file exists
+if not exist "%st_package_json_path%" (
+set "st-version=%red_bg%[ERROR] Cannot get ST version because package.json file not found in %st_install_path%%reset%"
+)
+
 echo %yellow_fg_strong% ______________________________________________________________%reset%
 echo %yellow_fg_strong%^| Version ^& Compatibility Status:                              ^|%reset%
 echo    SillyTavern Branch: %cyan_fg_strong%!current_branch! %reset%^| Status: %cyan_fg_strong%!update_status_st!%reset%
+echo    SillyTavern: %cyan_fg_strong%!st-version!%reset%
 echo    STL: %cyan_fg_strong%!stl_version!%reset%
 echo    !gpuInfo!
 echo    Node.js: %cyan_fg_strong%!node_version!%reset%
