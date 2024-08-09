@@ -27,9 +27,11 @@ call :printModule "4. Host (--host 0.0.0.0)" !tabbyapi_host_trigger!
 call :printModule "5. Max Seq Len (--max-seq-len !tabbyapi_maxseqlen!)" !tabbyapi_maxseqlen_trigger!
 call :printModule "6. Rope Alpha (--rope-alpha !tabbyapi_ropealpha!)" !tabbyapi_ropealpha_trigger!
 call :printModule "7. Cache Mode (--cache-mode !tabbyapi_cachemode!)" !tabbyapi_cachemode_trigger!
+call :printModule "8. Update Dependencies (--update-deps)" !tabbyapi_updatedeps_trigger!
 
 echo.
-echo 00. Quick Start TabbyAPI
+echo 99. Open Models Folder
+echo 00. Start TabbyAPI
 echo 0. Back
 
 set /p tabbyapi_module_choices="Choose modules to enable/disable: "
@@ -62,6 +64,17 @@ for %%i in (!tabbyapi_module_choices!) do (
         call :edit_tabbyapi_modules_ropealpha_menu
     ) else if "%%i"=="7" (
         call :edit_tabbyapi_modules_cachemode_menu
+    ) else if "%%i"=="8" (
+        if "!tabbyapi_updatedeps_trigger!"=="true" (
+            set "tabbyapi_updatedeps_trigger=false"
+            call :save_tabbyapi_modules
+        ) else (
+            set "tabbyapi_updatedeps_trigger=true"
+            call :save_tabbyapi_modules
+        )
+    ) else if "%%i"=="99" (
+        start "" "%tabbyapi_install_path%\models"
+        goto :edit_tabbyapi_modules
     ) else if "%%i"=="00" (
         set "caller=app_launcher_text_completion"
         if exist "%app_launcher_text_completion_dir%\start_tabbyapi.bat" (
@@ -427,6 +440,9 @@ if "!tabbyapi_ropealpha_trigger!"=="true" (
 if "!tabbyapi_cachemode_trigger!"=="true" (
     set "python_command=!python_command! --cache-mode !tabbyapi_cachemode!"
 )
+if "!tabbyapi_updatedeps_trigger!"=="true" (
+    set "python_command=!python_command! --update-deps"
+)
 
 REM Save all settings including the start command to modules-tabbyapi.txt
 (
@@ -437,6 +453,7 @@ REM Save all settings including the start command to modules-tabbyapi.txt
     echo tabbyapi_maxseqlen_trigger=!tabbyapi_maxseqlen_trigger!
     echo tabbyapi_ropealpha_trigger=!tabbyapi_ropealpha_trigger!
     echo tabbyapi_cachemode_trigger=!tabbyapi_cachemode_trigger!
+    echo tabbyapi_updatedeps_trigger=!tabbyapi_updatedeps_trigger!
 ) > "%tabbyapi_modules_path%"
 
 REM remove modules_enable
