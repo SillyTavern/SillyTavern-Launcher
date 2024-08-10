@@ -123,12 +123,6 @@ for %%a in (%tabbyapi_model_folders:|= %) do (
 )
 echo ================================================
 
-REM If only one user folder is found, skip the selection
-if %model_count%==1 (
-    set "selected_tabbyapi_model_folder=!tabbyapi_model_folder_1!"
-    goto skip_user_selection
-)
-
 :select_tabbyapi_model_folder
 REM Prompt user to select a folder
 echo %red_fg_strong%00. Disable this module%reset%
@@ -154,30 +148,19 @@ for /l %%i in (1,1,%model_count%) do (
     if "%tabbyapi_model_choice%"=="%%i" set "selected_tabbyapi_model_folder=!tabbyapi_model_folder_%%i!"
 )
 
-
-REM Set the model and enable the trigger
-set "selected_tabbyapi_model_folder=!selected_tabbyapi_model_folder!"
-set "selected_tabbyapi_model_folder_trigger=true"
-call :save_tabbyapi_modules
-goto :edit_tabbyapi_modules
-
+REM Validate the selection
 if "%selected_tabbyapi_model_folder%"=="" (
     echo %red_fg_strong%[ERROR] Invalid selection. Please enter a number between 1 and %model_count%, or press 0 to cancel.%reset%
     pause
-    goto :edit_tabbyapi_modules_loadmodel_menu
+    goto :select_tabbyapi_model_folder
 )
 
 :skip_user_selection
 REM Replace backslashes with double backslashes in tabbyapi_install_path
 set "escaped_tabbyapi_install_path=%tabbyapi_install_path:\=\\%"
 
-
 REM save selected model in variable
 REM echo "%tabbyapi_install_path%\models\%selected_tabbyapi_model_folder%"
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Model selected at %tabbyapi_install_path%\models\%selected_tabbyapi_model_folder%%reset%
-
-pause
 goto :edit_tabbyapi_modules
 
 
