@@ -146,6 +146,7 @@ if "!tabbyapi_model_choice!"=="00" (
 REM Get the selected folder name
 for /l %%i in (1,1,%model_count%) do (
     if "%tabbyapi_model_choice%"=="%%i" set "selected_tabbyapi_model_folder=!tabbyapi_model_folder_%%i!"
+    set "selected_tabbyapi_model_folder_trigger=true"
 )
 
 REM Validate the selection

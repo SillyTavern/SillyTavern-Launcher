@@ -510,7 +510,7 @@ echo %yellow_fg_strong% ________________________________________________________
 echo %yellow_fg_strong%^| Version ^& Compatibility Status:                              ^|%reset%
 echo    SillyTavern - Branch: %cyan_fg_strong%!current_branch! %reset%^| Status: %cyan_fg_strong%!update_status_st!%reset%
 echo    SillyTavern: %cyan_fg_strong%!st-version!%reset%
-echo    STL Version: %cyan_fg_strong%!stl_version!%reset%
+echo    STL: %cyan_fg_strong%!stl_version!%reset%
 echo    !gpuInfo!
 echo    Node.js: %cyan_fg_strong%!node_version!%reset%
 echo %cyan_fg_strong% ______________________________________________________________%reset%
