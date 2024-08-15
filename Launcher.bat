@@ -122,7 +122,7 @@ set "st_backup_path=%~dp0SillyTavern-backups"
 REM Define variables for install locations (Image Generation)
 set "image_generation_dir=%~dp0image-generation"
 set "sdwebui_install_path=%image_generation_dir%\stable-diffusion-webui"
-set "sdwebuireforge_install_path=%image_generation_dir%\stable-diffusion-webui-reForge"
+set "sdwebuiforge_install_path=%image_generation_dir%\stable-diffusion-webui-forge"
 set "comfyui_install_path=%image_generation_dir%\ComfyUI"
 set "fooocus_install_path=%image_generation_dir%\Fooocus"
 set "invokeai_install_path=%image_generation_dir%\InvokeAI"
@@ -921,7 +921,7 @@ echo %blue_fg_strong% ==========================================================
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 echo    1. Update Stable Diffusion web UI
-echo    2. Update Stable Diffusion web UI reForge
+echo    2. Update Stable Diffusion web UI forge
 echo    3. Update ComfyUI
 echo    4. Update Fooocus
 echo    5. Update InvokeAI
@@ -942,7 +942,7 @@ REM ######## UPDATE MANAGER IMAGE GENERATION - BACKEND #########
 if "%update_manager_img_gen_choice%"=="1" (
     call :update_sdwebui
 ) else if "%update_manager_img_gen_choice%"=="2" (
-    goto :update_sdwebuireforge
+    goto :update_sdwebuiforge
 ) else if "%update_manager_img_gen_choice%"=="3" (
     goto :update_comfyui
 ) else if "%update_manager_img_gen_choice%"=="4" (
@@ -987,31 +987,31 @@ pause
 goto :update_manager_image_generation
 
 
-:update_sdwebuireforge
+:update_sdwebuiforge
 REM Check if the folder exists
-if not exist "%sdwebuireforge_install_path%" (
-    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] stable-diffusion-webui-reForge directory not found. Skipping update.%reset%
+if not exist "%sdwebuiforge_install_path%" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] stable-diffusion-webui-forge directory not found. Skipping update.%reset%
     pause
     goto :update_manager_image_generation
 )
 
-REM Update stable-diffusion-webui-reForge
+REM Update stable-diffusion-webui-forge
 set max_retries=3
 set retry_count=0
 
-:retry_update_sdwebuireforge
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating stable-diffusion-webui-reForge...
-cd /d "%sdwebuireforge_install_path%"
+:retry_update_sdwebuiforge
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating stable-diffusion-webui-forge...
+cd /d "%sdwebuiforge_install_path%"
 call git pull
 if %errorlevel% neq 0 (
     set /A retry_count+=1
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
-    if %retry_count% lss %max_retries% goto :retry_update_sdwebuireforge
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update stable-diffusion-webui-reForge repository after %max_retries% retries.%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_sdwebuiforge
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update stable-diffusion-webui-forge repository after %max_retries% retries.%reset%
     pause
     goto :update_manager_image_generation
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%stable-diffusion-webui-reForge updated successfully.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%stable-diffusion-webui-forge updated successfully.%reset%
 pause
 goto :update_manager_image_generation
 
@@ -1572,7 +1572,7 @@ echo %cyan_fg_strong% __________________________________________________________
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
 echo    1. Start Stable Diffusion web UI
-echo    2. Start Stable Diffusion web UI reForge
+echo    2. Start Stable Diffusion web UI forge
 echo    3. Start ComfyUI
 echo    4. Start Fooocus
 echo    5. Start InvokeAI
@@ -1593,7 +1593,7 @@ REM ######## APP LAUNCHER IMAGE GENERATION - BACKEND #########
 if "%app_launcher_image_generation_choice%"=="1" (
     call :start_sdwebui
 ) else if "%app_launcher_image_generation_choice%"=="2" (
-    goto :start_sdwebuireforge
+    goto :start_sdwebuiforge
 ) else if "%app_launcher_image_generation_choice%"=="3" (
     goto :start_comfyui
 ) else if "%app_launcher_image_generation_choice%"=="4" (
@@ -1656,21 +1656,21 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion Web
 start cmd /k "title SDWEBUI && cd /d %sdwebui_install_path% && %sdwebui_start_command%"
 goto :home
 
-:start_sdwebuireforge
-cd /d "%sdwebuireforge_install_path%"
+:start_sdwebuiforge
+cd /d "%sdwebuiforge_install_path%"
 
 REM Run conda activate from the Miniconda installation
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
 call "%miniconda_path%\Scripts\activate.bat"
 
 REM Activate the sdwebui environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuireforge%reset%
-call conda activate sdwebuireforge
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
+call conda activate sdwebuiforge
 
 REM Start Stable Diffusion WebUI Forge with desired configurations
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI Forge launched in a new window.
-REM start cmd /k "title sdwebuireforge && cd /d %sdwebuireforge_install_path% && %sdwebuireforge_start_command%"
-start cmd /k "title SDWEBUI-REFORGE && cd /d %sdwebuireforge_install_path% && python launch.py"
+REM start cmd /k "title sdwebuiforge && cd /d %sdwebuiforge_install_path% && %sdwebuiforge_start_command%"
+start cmd /k "title SDWEBUI-forge && cd /d %sdwebuiforge_install_path% && python launch.py"
 goto :home
 
 :start_comfyui
@@ -2448,7 +2448,7 @@ echo %cyan_fg_strong% __________________________________________________________
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
 echo    1. Stable Diffusion web UI [Install options]
-echo    2. Stable Diffusion web UI reForge [Install options]
+echo    2. Stable Diffusion web UI forge [Install options]
 echo    3. Install ComfyUI
 echo    4. Install Fooocus
 echo    5. Install InvokeAI
@@ -2469,7 +2469,7 @@ REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
 if "%app_installer_image_generation_choice%"=="1" (
     call :install_sdwebui_menu
 ) else if "%app_installer_image_generation_choice%"=="2" (
-    goto :install_sdwebuireforge_menu
+    goto :install_sdwebuiforge_menu
 ) else if "%app_installer_image_generation_choice%"=="3" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_comfyui.bat" (
@@ -2746,23 +2746,23 @@ goto :install_sdwebui_model_menu
 REM ############################################################
 REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE - FRONTEND ###
 REM ############################################################
-:install_sdwebuireforge_menu
-title STL [APP INSTALLER STABLE DIFUSSION WEBUI REFORGE]
+:install_sdwebuiforge_menu
+title STL [APP INSTALLER STABLE DIFUSSION WEBUI forge]
 
 REM Check if the folder exists
-if exist "%sdwebuireforge_install_path%" (
-    REM Activate the sdwebuireforge environment
+if exist "%sdwebuiforge_install_path%" (
+    REM Activate the sdwebuiforge environment
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment: %cyan_fg_strong%sdwebui%reset%
     call conda deactivate
 )
 
 cls
-echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Stable Diffusion web UI reForge ^|%reset%
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Stable Diffusion web UI forge ^|%reset%
 echo %blue_fg_strong% ====================================================================%reset%   
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo    1. Install Stable Diffusion web UI reForge
+echo    1. Install Stable Diffusion web UI forge
 echo    2. Install Extensions
 echo    3. Models [Install Options]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
@@ -2776,46 +2776,46 @@ echo %cyan_fg_strong%^|                                                         
 for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
 
 :: Set the prompt with spaces
-set /p "app_installer_sdwebuireforge_choice=%BS%   Choose Your Destiny: "
+set /p "app_installer_sdwebuiforge_choice=%BS%   Choose Your Destiny: "
 
 
 REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE - BACKEND ###
-if "%app_installer_sdwebuireforge_choice%"=="1" (
-    set "caller=app_installer_image_generation_sdwebuireforge"
-    if exist "%app_installer_image_generation_dir%\install_sdwebuireforge.bat" (
-        call %app_installer_image_generation_dir%\install_sdwebuireforge.bat
-        goto :install_sdwebuireforge_menu
+if "%app_installer_sdwebuiforge_choice%"=="1" (
+    set "caller=app_installer_image_generation_sdwebuiforge"
+    if exist "%app_installer_image_generation_dir%\install_sdwebuiforge.bat" (
+        call %app_installer_image_generation_dir%\install_sdwebuiforge.bat
+        goto :install_sdwebuiforge_menu
     ) else (
-        echo [%DATE% %TIME%] ERROR: install_sdwebuireforge.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_sdwebuireforge.bat not found in: %app_installer_image_generation_dir%%reset%
+        echo [%DATE% %TIME%] ERROR: install_sdwebuiforge.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_sdwebuiforge.bat not found in: %app_installer_image_generation_dir%%reset%
         pause
-        goto :install_sdwebuireforge_menu
+        goto :install_sdwebuiforge_menu
     )
-) else if "%app_installer_sdwebuireforge_choice%"=="2" (
-    goto :install_sdwebuireforge_extensions
-) else if "%app_installer_sdwebuireforge_choice%"=="3" (
-    goto :install_sdwebuireforge_model_menu
-) else if "%app_installer_sdwebuireforge_choice%"=="0" (
+) else if "%app_installer_sdwebuiforge_choice%"=="2" (
+    goto :install_sdwebuiforge_extensions
+) else if "%app_installer_sdwebuiforge_choice%"=="3" (
+    goto :install_sdwebuiforge_model_menu
+) else if "%app_installer_sdwebuiforge_choice%"=="0" (
     goto :app_installer_image_generation
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
-    goto :install_sdwebuireforge_menu
+    goto :install_sdwebuiforge_menu
 )
 
 
-:install_sdwebuireforge_extensions
+:install_sdwebuiforge_extensions
 REM Check if the folder exists
-if not exist "%sdwebuireforge_install_path%" (
+if not exist "%sdwebuiforge_install_path%" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion WebUI Forge is not installed. Please install it first.%reset%
     pause
-    goto :install_sdwebuireforge_menu
+    goto :install_sdwebuiforge_menu
 )
 
-REM Clone extensions for stable-diffusion-webui-reForge
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for stable-diffusion-webui-reForge...
-cd /d "%sdwebuireforge_install_path%\extensions"
+REM Clone extensions for stable-diffusion-webui-forge
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for stable-diffusion-webui-forge...
+cd /d "%sdwebuiforge_install_path%\extensions"
 git clone https://github.com/alemelis/sd-webui-ar.git
 git clone https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper.git
 git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git
@@ -2833,40 +2833,40 @@ git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git
 
 REM Installs better upscaler models
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Better Upscaler models...
-cd /d "%sdwebuireforge_install_path%\models"
+cd /d "%sdwebuiforge_install_path%\models"
 mkdir ESRGAN && cd ESRGAN
 curl -o 4x-AnimeSharp.pth https://huggingface.co/Kim2091/AnimeSharp/resolve/main/4x-AnimeSharp.pth
 curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
 pause
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extensions for Stable Diffusion WebUI Forge installed Successfully.%reset%
-goto :install_sdwebuireforge_menu
+goto :install_sdwebuiforge_menu
 
 
 REM ############################################################
 REM ##### APP INSTALLER SDWEBUI Models - FRONTEND ##############
 REM ############################################################
-:install_sdwebuireforge_model_menu
-title STL [APP INSTALLER sdwebuireforge MODELS]
+:install_sdwebuiforge_model_menu
+title STL [APP INSTALLER sdwebuiforge MODELS]
 
 REM Check if the folder exists
-if not exist "%sdwebuireforge_install_path%" (
+if not exist "%sdwebuiforge_install_path%" (
     echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion WebUI Forge is not installed. Please install it first.%reset%
     pause
-    goto :install_sdwebuireforge_menu
+    goto :install_sdwebuiforge_menu
 )
 
 REM Run conda activate from the Miniconda installation
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
 call "%miniconda_path%\Scripts\activate.bat"
 
-REM Activate the sdwebuireforge environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuireforge%reset%
-call conda activate sdwebuireforge
+REM Activate the sdwebuiforge environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
+call conda activate sdwebuiforge
 
-cd /d "%sdwebuireforge_install_path%"
+cd /d "%sdwebuiforge_install_path%"
 
 cls
-echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / sdwebuireforge Models     ^|%reset%
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / sdwebuiforge Models     ^|%reset%
 echo %blue_fg_strong% ==============================================================%reset%   
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
@@ -2886,35 +2886,35 @@ echo %cyan_fg_strong%^|                                                         
 for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
 
 :: Set the prompt with spaces
-set /p "app_installer_sdwebuireforge_model_choice=%BS%   Choose Your Destiny: "
+set /p "app_installer_sdwebuiforge_model_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
-if "%app_installer_sdwebuireforge_model_choice%"=="1" (
-    call :install_sdwebuireforge_model_hassaku
-) else if "%app_installer_sdwebuireforge_model_choice%"=="2" (
-    goto :install_sdwebuireforge_model_yiffymix
-) else if "%app_installer_sdwebuireforge_model_choice%"=="3" (
-    goto :install_sdwebuireforge_model_perfectworld
-) else if "%app_installer_sdwebuireforge_model_choice%"=="4" (
-    goto :install_sdwebuireforge_model_custom
-) else if "%app_installer_sdwebuireforge_model_choice%"=="0" (
-    goto :install_sdwebuireforge_menu
+if "%app_installer_sdwebuiforge_model_choice%"=="1" (
+    call :install_sdwebuiforge_model_hassaku
+) else if "%app_installer_sdwebuiforge_model_choice%"=="2" (
+    goto :install_sdwebuiforge_model_yiffymix
+) else if "%app_installer_sdwebuiforge_model_choice%"=="3" (
+    goto :install_sdwebuiforge_model_perfectworld
+) else if "%app_installer_sdwebuiforge_model_choice%"=="4" (
+    goto :install_sdwebuiforge_model_custom
+) else if "%app_installer_sdwebuiforge_model_choice%"=="0" (
+    goto :install_sdwebuiforge_menu
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
-    goto :install_sdwebuireforge_model_menu
+    goto :install_sdwebuiforge_model_menu
 )
 
-:install_sdwebuireforge_model_hassaku
+:install_sdwebuiforge_model_hassaku
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku Model...
 civitdl 2583 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
-goto :install_sdwebuireforge_model_menu
+goto :install_sdwebuiforge_model_menu
 
 
-:install_sdwebuireforge_model_yiffymix
+:install_sdwebuiforge_model_yiffymix
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Model...
 civitdl 3671 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
@@ -2927,22 +2927,22 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix
 civitdl 3671 -s basic "models\VAE"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%sdwebui_install_path%\models\VAE"%reset%
 pause
-goto :install_sdwebuireforge_model_menu
+goto :install_sdwebuiforge_model_menu
 
 
-:install_sdwebuireforge_model_perfectworld
+:install_sdwebuiforge_model_perfectworld
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
 civitdl 8281 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
-goto :install_sdwebuireforge_model_menu
+goto :install_sdwebuiforge_model_menu
 
 
-:install_sdwebuireforge_model_custom
+:install_sdwebuiforge_model_custom
 cls
 set /p civitaimodelid="(0 to cancel)Insert Model ID: "
 
-if "%civitaimodelid%"=="0" goto :install_sdwebuireforge_model_menu
+if "%civitaimodelid%"=="0" goto :install_sdwebuiforge_model_menu
 
 REM Check if the input is a valid number
 echo %civitaimodelid%| findstr /R "^[0-9]*$" > nul
@@ -2950,14 +2950,14 @@ if errorlevel 1 (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
-    goto :install_sdwebuireforge_model_custom
+    goto :install_sdwebuiforge_model_custom
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Downloading...
 civitdl %civitaimodelid% -s basic "models\Stable-diffusion"
 
 pause
-goto :install_sdwebuireforge_model_menu
+goto :install_sdwebuiforge_model_menu
 
 
 
@@ -3328,7 +3328,7 @@ echo %cyan_fg_strong% __________________________________________________________
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
 echo    1. UNINSTALL Stable Diffusion web UI
-echo    2. UNINSTALL Stable Diffusion web UI reForge
+echo    2. UNINSTALL Stable Diffusion web UI forge
 echo    3. UNINSTALL ComfyUI
 echo    4. UNINSTALL Fooocus
 echo    5. UNINSTALL InvokeAI
@@ -3361,12 +3361,12 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
     )
 ) else if "%app_uninstaller_img_gen_choice%"=="2" (
     set "caller=app_uninstaller_image_generation"
-    if exist "%app_uninstaller_image_generation_dir%\uninstall_sdwebuireforge.bat" (
-        call %app_uninstaller_image_generation_dir%\uninstall_sdwebuireforge.bat
+    if exist "%app_uninstaller_image_generation_dir%\uninstall_sdwebuiforge.bat" (
+        call %app_uninstaller_image_generation_dir%\uninstall_sdwebuiforge.bat
         goto :app_uninstaller_image_generation
     ) else (
-        echo [%DATE% %TIME%] ERROR: uninstall_sdwebuireforge.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_sdwebuireforge.bat not found in: %app_uninstaller_image_generation_dir%%reset%
+        echo [%DATE% %TIME%] ERROR: uninstall_sdwebuiforge.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_sdwebuiforge.bat not found in: %app_uninstaller_image_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
@@ -3770,7 +3770,7 @@ echo %cyan_fg_strong% __________________________________________________________
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
 echo    1. Edit Stable Diffusion web UI
-echo    2. Edit Stable Diffusion web UI reForge
+echo    2. Edit Stable Diffusion web UI forge
 echo    3. Edit ComfyUI
 echo    4. Edit Fooocus
 echo %cyan_fg_strong% ______________________________________________________________%reset%
@@ -3800,12 +3800,12 @@ if "%editor_image_generation_choice%"=="1" (
     )
 ) else if "%editor_image_generation_choice%"=="2" (
     set "caller=editor_image_generation"
-    if exist "%editor_image_generation_dir%\edit_sdwebuireforge_modules.bat" (
-        call %editor_image_generation_dir%\edit_sdwebuireforge_modules.bat
+    if exist "%editor_image_generation_dir%\edit_sdwebuiforge_modules.bat" (
+        call %editor_image_generation_dir%\edit_sdwebuiforge_modules.bat
         goto :editor_image_generation
     ) else (
-        echo [%DATE% %TIME%] ERROR: edit_sdwebuireforge_modules.bat not found in: %editor_image_generation_dir% >> %logs_stl_console_path%
-        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_sdwebuireforge_modules.bat not found in: %editor_image_generation_dir%%reset%
+        echo [%DATE% %TIME%] ERROR: edit_sdwebuiforge_modules.bat not found in: %editor_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_sdwebuiforge_modules.bat not found in: %editor_image_generation_dir%%reset%
         pause
         goto :editor_image_generation
     )
@@ -4353,7 +4353,7 @@ set "command4=call :start_alltalk"
 set "command5=call :start_xtts"
 set "command6=call :start_rvc"
 set "command7=call :start_sdwebui"
-set "command8=call :start_sdwebuireforge"
+set "command8=call :start_sdwebuiforge"
 set "command9=call :start_comfyui"
 set "command10=call :start_fooocus"
 
