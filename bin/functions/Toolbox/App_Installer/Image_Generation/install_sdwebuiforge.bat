@@ -5,8 +5,6 @@ title STL [INSTALL SDWEBUI FORGE]
 cls
 echo %blue_fg_strong%/ Home / Toolbox / App Installer / Text Completion / Install Stable Diffusion web UI forge%reset%
 echo -------------------------------------------------------------
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% forge now just installs Forge or stable-diffusion-webui-forge because forge is 
-pause
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Stable Diffusion web UI forge...
 
 REM Check if the folder exists
@@ -23,7 +21,7 @@ set max_retries=3
 set retry_count=0
 :retry_install_sdwebuiforge
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning the stable-diffusion-webui-forge repository...
-git clone https://github.com/Panchovix/stable-diffusion-webui-forge.git
+git clone https://github.com/lllyasviel/stable-diffusion-webui-forge.git
 
 if %errorlevel% neq 0 (
     set /A retry_count+=1
