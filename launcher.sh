@@ -1145,7 +1145,6 @@ editor() {
 remove_node_modules() {
     log_message "INFO" "Removing node_modules folder..."
     cd "$(dirname "$0")./SillyTavern"
-    rm -rf node_modules package-lock.json
     npm cache clean --force
     log_message "INFO" "node_modules successfully removed."
     read -p "Press Enter to continue..."
