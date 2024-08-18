@@ -82,7 +82,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Log file found, scan
 
 :loop
 REM Use PowerShell to search for the error message
-powershell -Command "try { $content = Get-Content '%logs_st_console_path%' -Raw; if ($content -match 'Error: Cannot find module') { exit 1 } elseif ($content -match 'SillyTavern is listening' -or $content -match 'Go to') { exit 0 } else { exit 2 } } catch { exit 2 }"
+powershell -Command "try { $content = Get-Content '%logs_st_console_path%' -Raw; if ($content -match 'Error: Cannot find module') { exit 1 } elseif ($content -match 'SillyTavern is listening' -or $content -match 'Go to' -or $content -match '\[\s*\r?\n\s*\x27') { exit 0 } else { exit 2 } } catch { exit 2 }"
 set "ps_errorlevel=%errorlevel%"
 
 if %ps_errorlevel% equ 0 (
