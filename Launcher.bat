@@ -2613,14 +2613,14 @@ goto :install_sdwebui_menu
 
 
 REM ############################################################
-REM ##### APP INSTALLER SDWEBUI Models - FRONTEND ##############
+REM ##### APP INSTALLER SDWEBUI MODELS - FRONTEND ##############
 REM ############################################################
 :install_sdwebui_model_menu
 title STL [APP INSTALLER SDWEBUI MODELS]
 
 REM Check if the folder exists
 if not exist "%sdwebui_install_path%" (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion Webui is not installed. Please install it first.%reset%
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion WebUI Forge is not installed. Please install it first.%reset%
     pause
     goto :install_sdwebui_menu
 )
@@ -2636,20 +2636,25 @@ call conda activate sdwebui
 cd /d "%sdwebui_install_path%"
 
 cls
-echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Image Generation / Stable Diffusion web UI / Models ^|%reset%
-echo %blue_fg_strong% ==========================================================================================%reset%   
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / sdwebui Models          ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%
+echo    1. Install a custom model 
 echo %cyan_fg_strong% ______________________________________________________________%reset%
-echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
-
-echo    1. Install Hassaku [ANIME MODEL]
-echo    2. Install YiffyMix [FURRY MODEL]
-echo    3. Install Perfect World [REALISM MODEL]
-echo    4. Install a custom model
-echo    5. Add API Key from civitai
+echo %cyan_fg_strong%^| SD 1.5 Models                                                ^|%reset%
+echo    2. Install Hassaku [ANIME MODEL]
+echo    3. Install YiffyMix [FURRY MODEL]
+echo    4. Install Perfect World [REALISM MODEL]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| SDXL Models                                                  ^|%reset%
+echo    5. Install Hassaku XL [ANIME MODEL]
+echo    6. Install AutismMix_confetti [FURRY MODEL]
+echo    7. Install Pony Realism [REALISM MODEL]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| FLUX Models                                                  ^|%reset%
+echo    NOT SUPPORTED YET.
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
-
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^|                                                              ^|%reset%
 
@@ -2661,15 +2666,21 @@ set /p "app_installer_sdwebui_model_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
 if "%app_installer_sdwebui_model_choice%"=="1" (
-    call :install_sdwebui_model_hassaku
+    call :install_sdwebui_model_custom
 ) else if "%app_installer_sdwebui_model_choice%"=="2" (
-    goto :install_sdwebui_model_yiffymix
+    goto :install_sdwebui_model_hassaku
 ) else if "%app_installer_sdwebui_model_choice%"=="3" (
-    goto :install_sdwebui_model_perfectworld
+    goto :install_sdwebui_model_yiffymix
 ) else if "%app_installer_sdwebui_model_choice%"=="4" (
-    goto :install_sdwebui_model_custom
+    goto :install_sdwebui_model_perfectworld
 ) else if "%app_installer_sdwebui_model_choice%"=="5" (
-    goto :install_sdwebui_model_apikey
+    goto :install_sdwebui_model_hassakuxl
+) else if "%app_installer_sdwebui_model_choice%"=="6" (
+    goto :install_sdwebui_model_autismMixconfetti
+) else if "%app_installer_sdwebui_model_choice%"=="7" (
+    goto :install_sdwebui_model_ponyrealism
+REM ) else if "%app_installer_sdwebui_model_choice%"=="8" (
+REM     goto :install_sdwebui_model_flux
 ) else if "%app_installer_sdwebui_model_choice%"=="0" (
     goto :install_sdwebui_menu
 ) else (
@@ -2709,6 +2720,38 @@ civitdl 8281 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebui_model_menu
+
+
+:install_sdwebui_model_hassakuxl
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+civitdl 376031 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebui_model_menu
+
+
+:install_sdwebui_model_autismMixconfetti
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+civitdl 288584 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebui_model_menu
+
+
+:install_sdwebui_model_ponyrealism
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+civitdl 372465 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebui_model_menu
+
+
+REM :install_sdwebui_model_flux
+REM echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+REM civitdl 638187 -s basic "models\Stable-diffusion"
+REM echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+REM pause
+REM goto :install_sdwebui_model_menu
 
 
 :install_sdwebui_model_custom
@@ -2843,10 +2886,10 @@ goto :install_sdwebuiforge_menu
 
 
 REM ############################################################
-REM ##### APP INSTALLER SDWEBUI Models - FRONTEND ##############
+REM ##### APP INSTALLER SDWEBUI FORGE Models - FRONTEND ########
 REM ############################################################
 :install_sdwebuiforge_model_menu
-title STL [APP INSTALLER sdwebuiforge MODELS]
+title STL [APP INSTALLER SDWEBUIFORGE MODELS]
 
 REM Check if the folder exists
 if not exist "%sdwebuiforge_install_path%" (
@@ -2867,18 +2910,24 @@ cd /d "%sdwebuiforge_install_path%"
 
 cls
 echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / sdwebuiforge Models     ^|%reset%
-echo %blue_fg_strong% ==============================================================%reset%   
+echo %blue_fg_strong% ==============================================================%reset%
+echo    1. Install a custom model 
 echo %cyan_fg_strong% ______________________________________________________________%reset%
-echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
-
-echo 1. Install Hassaku [ANIME MODEL]
-echo 2. Install YiffyMix [FURRY MODEL]
-echo 3. Install Perfect World [REALISM MODEL]
-echo 4. Install a custom model
+echo %cyan_fg_strong%^| SD 1.5 Models                                                ^|%reset%
+echo    2. Install Hassaku [ANIME MODEL]
+echo    3. Install YiffyMix [FURRY MODEL]
+echo    4. Install Perfect World [REALISM MODEL]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| SDXL Models                                                  ^|%reset%
+echo    5. Install Hassaku XL [ANIME MODEL]
+echo    6. Install AutismMix_confetti [FURRY MODEL]
+echo    7. Install Pony Realism [REALISM MODEL]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| FLUX Models                                                  ^|%reset%
+echo    8. Install Flux.1-Dev/Schnell BNB NF4 [REALISM MODEL]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
-
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^|                                                              ^|%reset%
 
@@ -2890,13 +2939,21 @@ set /p "app_installer_sdwebuiforge_model_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
 if "%app_installer_sdwebuiforge_model_choice%"=="1" (
-    call :install_sdwebuiforge_model_hassaku
+    call :install_sdwebuiforge_model_custom
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="2" (
-    goto :install_sdwebuiforge_model_yiffymix
+    goto :install_sdwebuiforge_model_hassaku
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="3" (
-    goto :install_sdwebuiforge_model_perfectworld
+    goto :install_sdwebuiforge_model_yiffymix
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="4" (
-    goto :install_sdwebuiforge_model_custom
+    goto :install_sdwebuiforge_model_perfectworld
+) else if "%app_installer_sdwebuiforge_model_choice%"=="5" (
+    goto :install_sdwebuiforge_model_hassakuxl
+) else if "%app_installer_sdwebuiforge_model_choice%"=="6" (
+    goto :install_sdwebuiforge_model_autismMixconfetti
+) else if "%app_installer_sdwebuiforge_model_choice%"=="7" (
+    goto :install_sdwebuiforge_model_ponyrealism
+) else if "%app_installer_sdwebuiforge_model_choice%"=="8" (
+    goto :install_sdwebuiforge_model_flux
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="0" (
     goto :install_sdwebuiforge_menu
 ) else (
@@ -2909,7 +2966,7 @@ if "%app_installer_sdwebuiforge_model_choice%"=="1" (
 :install_sdwebuiforge_model_hassaku
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku Model...
 civitdl 2583 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebuiforge_model_menu
 
@@ -2917,15 +2974,15 @@ goto :install_sdwebuiforge_model_menu
 :install_sdwebuiforge_model_yiffymix
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Model...
 civitdl 3671 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Config...
 civitdl 3671 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix VAE...
 civitdl 3671 -s basic "models\VAE"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%sdwebui_install_path%\models\VAE"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%sdwebuiforge_install_path%\models\VAE"%reset%
 pause
 goto :install_sdwebuiforge_model_menu
 
@@ -2933,7 +2990,39 @@ goto :install_sdwebuiforge_model_menu
 :install_sdwebuiforge_model_perfectworld
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
 civitdl 8281 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
+
+
+:install_sdwebuiforge_model_hassakuxl
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+civitdl 376031 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
+
+
+:install_sdwebuiforge_model_autismMixconfetti
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+civitdl 288584 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
+
+
+:install_sdwebuiforge_model_ponyrealism
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+civitdl 372465 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
+
+
+:install_sdwebuiforge_model_flux
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+civitdl 638187 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebuiforge_model_menu
 
