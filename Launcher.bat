@@ -2955,7 +2955,7 @@ REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
 if "%app_installer_sdwebuiforge_model_choice%"=="1" (
     call :install_sdwebuiforge_model_custom
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="2" (
-    goto :install_sdwebui_model_apikey
+    goto :install_sdwebuiforge_model_apikey
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="3" (
     goto :install_sdwebuiforge_model_hassaku
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="4" (
