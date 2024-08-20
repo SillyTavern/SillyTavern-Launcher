@@ -776,7 +776,7 @@ set max_retries=3
 set retry_count=0
 
 :retry_update_tabbyapi
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating tabbyAPI...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating tabbyAPI repository...
 cd /d "%tabbyapi_install_path%"
 call git pull
 if %errorlevel% neq 0 (
@@ -787,6 +787,9 @@ if %errorlevel% neq 0 (
     pause
     goto :update_manager_text_completion
 )
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating tabbyAPI Dependencies in a new window...
+start cmd /k "title UPDATE TABBYAPI && cd /d %tabbyapi_install_path% && python start.py --update-deps && echo [41m WARNING: DO NOT FOLLOW INSTRUCTIONS FROM ABOVE BECAUSE THAT IS ONLY FOR USERS THAT DID NOT USE SILLYTAVERN-LAUNCHER TO INSTALL TABBYAPI. UPDATE INSTALLED, YOU CAN CLOSE THIS WINDOW NOW.[0m"
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%tabbyAPI updated successfully.%reset%
 pause
 goto :update_manager_text_completion
@@ -1992,7 +1995,7 @@ if "%app_installer_tabbyapi_choice%"=="1" (
     set "caller=app_installer_text_completion_tabbyapi"
     if exist "%app_installer_text_completion_dir%\install_tabbyapi.bat" (
         call %app_installer_text_completion_dir%\install_tabbyapi.bat
-        goto :install_tabbyapi_menu
+        goto :update_tabbyapi
     ) else (
         echo [%DATE% %TIME%] ERROR: install_tabbyapi.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_tabbyapi.bat not found in: %app_installer_text_completion_dir%%reset%

@@ -115,6 +115,6 @@ echo If you do want a config file, copy over config_sample.yml to config.yml. Al
 echo so make sure to read the descriptions and comment out or remove fields that you don't need.
 echo.
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been installed successfully.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been installed successfully. Press any key to install update requirements%reset%
 pause
 goto :install_tabbyapi_menu
