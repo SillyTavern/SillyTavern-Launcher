@@ -787,10 +787,24 @@ if %errorlevel% neq 0 (
     pause
     goto :update_manager_text_completion
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating tabbyAPI Dependencies in a new window...
-start cmd /k "title UPDATE TABBYAPI && cd /d %tabbyapi_install_path% && python start.py --update-deps && echo [41m WARNING: DO NOT FOLLOW INSTRUCTIONS FROM ABOVE BECAUSE THAT IS ONLY FOR USERS THAT DID NOT USE SILLYTAVERN-LAUNCHER TO INSTALL TABBYAPI. UPDATE INSTALLED, YOU CAN CLOSE THIS WINDOW NOW.[0m"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating tabbyAPI Dependencies...
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%tabbyAPI updated successfully.%reset%
+REM Run the update process and log the output
+python start.py --update-deps > tabby_update_log.txt 2>&1
+
+REM Scan the log file for the specific success message
+findstr /c:"Dependencies updated. Please run TabbyAPI" tabby_update_log.txt >nul
+if %errorlevel% == 0 (
+    echo [42m[INFO] TabbyAPI Updated[0m
+) else (
+    echo [41m[ERROR] TabbyAPI Update Failed[0m
+)
+
+REM Delete the log file
+del tabby_update_log.txt
+
+REM Continue with the rest of the script
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%tabbyAPI update process complete.%reset%
 pause
 goto :update_manager_text_completion
 
