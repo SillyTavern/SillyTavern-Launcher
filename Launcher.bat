@@ -787,24 +787,25 @@ if %errorlevel% neq 0 (
     pause
     goto :update_manager_text_completion
 )
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating tabbyAPI Dependencies...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating TabbyAPI Dependencies...
+echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] This process could take a while, typically around 10 minutes or less. Please be patient and do not close this window until the update is complete.%reset%
 
 REM Run the update process and log the output
-python start.py --update-deps > tabby_update_log.txt 2>&1
+python start.py --update-deps > %log_dir%\tabby_update_log.txt 2>&1
 
 REM Scan the log file for the specific success message
-findstr /c:"Dependencies updated. Please run TabbyAPI" tabby_update_log.txt >nul
+findstr /c:"Dependencies updated. Please run TabbyAPI" %log_dir%\tabby_update_log.txt >nul
 if %errorlevel% == 0 (
-    echo [42m[INFO] TabbyAPI Updated[0m
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% TabbyAPI Updated
 ) else (
-    echo [41m[ERROR] TabbyAPI Update Failed[0m
+    echo %red_bg%[ERROR] TabbyAPI Update Failed%reset%
 )
 
 REM Delete the log file
-del tabby_update_log.txt
+del %log_dir%\tabby_update_log.txt
 
 REM Continue with the rest of the script
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%tabbyAPI update process complete.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI installed successfully.%reset%
 pause
 goto :update_manager_text_completion
 
@@ -2009,7 +2010,7 @@ if "%app_installer_tabbyapi_choice%"=="1" (
     set "caller=app_installer_text_completion_tabbyapi"
     if exist "%app_installer_text_completion_dir%\install_tabbyapi.bat" (
         call %app_installer_text_completion_dir%\install_tabbyapi.bat
-        goto :update_tabbyapi
+        goto :install_tabbyapi_menu
     ) else (
         echo [%DATE% %TIME%] ERROR: install_tabbyapi.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_tabbyapi.bat not found in: %app_installer_text_completion_dir%%reset%
@@ -2767,7 +2768,7 @@ goto :install_sdwebui_model_menu
 
 
 REM :install_sdwebui_model_flux
-REM echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+REM echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Flux...
 REM civitdl 638187 -s basic "models\Stable-diffusion"
 REM echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 REM pause
@@ -3053,7 +3054,7 @@ goto :install_sdwebuiforge_model_menu
 
 
 :install_sdwebuiforge_model_flux
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Flux...
 civitdl 638187 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 pause

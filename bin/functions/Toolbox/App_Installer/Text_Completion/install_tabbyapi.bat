@@ -115,6 +115,25 @@ echo If you do want a config file, copy over config_sample.yml to config.yml. Al
 echo so make sure to read the descriptions and comment out or remove fields that you don't need.
 echo.
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI has been installed successfully. Press any key to install update requirements%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI installed successfully.%reset%
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating TabbyAPI Dependencies...
+echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] This process could take a while, typically around 10 minutes or less. Please be patient and do not close this window until the update is complete.%reset%
+
+REM Run the update process and log the output
+python start.py --update-deps > %log_dir%\tabby_update_log.txt 2>&1
+
+REM Scan the log file for the specific success message
+findstr /c:"Dependencies updated. Please run TabbyAPI" %log_dir%\tabby_update_log.txt >nul
+if %errorlevel% == 0 (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% OK
+) else (
+    echo %red_bg%[ERROR] TabbyAPI Update Failed. Please run the installer again%reset%
+)
+
+REM Delete the log file
+del %log_dir%\tabby_update_log.txt
+
+REM Continue with the rest of the script
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%TabbyAPI Dependencies updated successfully.%reset%
 pause
-goto :install_tabbyapi_menu
