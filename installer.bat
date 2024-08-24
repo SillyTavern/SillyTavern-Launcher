@@ -168,6 +168,38 @@ if %errorlevel% neq 0 (
     echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%git%reset% from app: Git
 )
 
+
+REM Check if Node.js is installed
+node --version > nul 2>&1
+if %errorlevel% neq 0 (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Node.js is not installed on this system.%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Node.js using winget...
+    
+    winget install -e --id OpenJS.NodeJS.LTS
+    
+    if %errorlevel% neq 0 (
+        echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget failed to install Node.js or is not installed.%reset%
+
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Node.js using PowerShell...
+        powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://nodejs.org/dist/latest/node-v22.7.0-x64.msi', '%bin_dir%\nodejs.msi')"
+
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Node.js...
+        start /wait msiexec /i "%bin_dir%\nodejs.msi" /passive
+        
+        del "%bin_dir%\nodejs.msi"
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js installed successfully.%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Please restart installer.bat in order to activate node command%reset%
+        pause
+        exit
+    ) else (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js installed successfully.%reset%
+    )
+) else (
+    echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%node%reset% from app: Node.js
+)
+
+
+
 REM Check if Miniconda3 is installed; if not, then install Miniconda3 with fallback of PowerShell
 call conda --version > nul 2>&1
 if %errorlevel% neq 0 (
