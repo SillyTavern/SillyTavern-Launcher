@@ -126,6 +126,8 @@ set "sdwebuiforge_install_path=%image_generation_dir%\stable-diffusion-webui-for
 set "comfyui_install_path=%image_generation_dir%\ComfyUI"
 set "fooocus_install_path=%image_generation_dir%\Fooocus"
 set "invokeai_install_path=%image_generation_dir%\InvokeAI"
+set "ostrisaitoolkit_install_path=%image_generation_dir%\ai-toolkit"
+
 
 REM Define variables for install locations (Text Completion)
 set "text_completion_dir=%~dp0text-completion"
@@ -943,6 +945,7 @@ echo    2. Update Stable Diffusion web UI forge
 echo    3. Update ComfyUI
 echo    4. Update Fooocus
 echo    5. Update InvokeAI
+echo    6. Update Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -967,6 +970,8 @@ if "%update_manager_img_gen_choice%"=="1" (
     goto :update_fooocus
 ) else if "%update_manager_img_gen_choice%"=="5" (
     goto :update_invokeai
+) else if "%update_manager_img_gen_choice%"=="6" (
+    goto :update_ostrisaitoolkit
 ) else if "%update_manager_img_gen_choice%"=="0" (
     goto :update_manager
 ) else (
@@ -1104,6 +1109,36 @@ call conda activate invokeai
 pip install --upgrade InvokeAI
 call conda deactivate
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%InvokeAI updated successfully.%reset%
+pause
+goto :update_manager_image_generation
+
+
+:update_ostrisaitoolkit
+REM Check if ai-toolkit directory exists
+if not exist "%ostrisaitoolkit_install_path%" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] ai-toolkit directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+
+REM Update Ostris AI Toolkit
+set max_retries=3
+set retry_count=0
+
+:retry_update_ostrisaitoolkit
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating Ostris AI Toolkit...
+cd /d "%ostrisaitoolkit_install_path%"
+call git pull
+git submodule update --init --recursive
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_ostrisaitoolkit
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update Ostris AI Toolkit repository after %max_retries% retries.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Ostris AI Toolkit updated successfully.%reset%
 pause
 goto :update_manager_image_generation
 
@@ -2470,6 +2505,7 @@ echo    2. Stable Diffusion web UI forge [Install options]
 echo    3. Install ComfyUI
 echo    4. Install Fooocus
 echo    5. Install InvokeAI
+echo    6. Install Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -2518,6 +2554,17 @@ if "%app_installer_image_generation_choice%"=="1" (
     ) else (
         echo [%DATE% %TIME%] ERROR: install_invokeai.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_invokeai.bat not found in: %app_installer_image_generation_dir%%reset%
+        pause
+        goto :app_installer_image_generation
+    )
+) else if "%app_installer_image_generation_choice%"=="6" (
+    set "caller=app_installer_image_generation"
+    if exist "%app_installer_image_generation_dir%\install_ostris_aitoolkit.bat" (
+        call %app_installer_image_generation_dir%\install_ostris_aitoolkit.bat
+        goto :app_installer_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_ostris_aitoolkit.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_ostris_aitoolkit.bat not found in: %app_installer_image_generation_dir%%reset%
         pause
         goto :app_installer_image_generation
     )
@@ -3474,6 +3521,7 @@ echo    2. UNINSTALL Stable Diffusion web UI forge
 echo    3. UNINSTALL ComfyUI
 echo    4. UNINSTALL Fooocus
 echo    5. UNINSTALL InvokeAI
+echo    6. UNINSTALL Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -3548,6 +3596,19 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_invokeai.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_invokeai.bat not found in: %app_uninstaller_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_uninstaller_image_generation
+    )
+) else if "%app_uninstaller_img_gen_choice%"=="6" (
+    set "caller=app_uninstaller_image_generation"
+    if exist "%app_uninstaller_image_generation_dir%\uninstall_ostris_aitoolkit.bat" (
+        call %app_uninstaller_image_generation_dir%\uninstall_ostris_aitoolkit.bat
+        goto :app_uninstaller_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_ostris_aitoolkit.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_ostris_aitoolkit.bat not found in: %app_uninstaller_image_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
