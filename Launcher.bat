@@ -94,6 +94,19 @@ set "sdwebui_skiptorchcudatest_trigger=false"
 set "sdwebui_lowvram_trigger=false"
 set "sdwebui_medvram_trigger=false"
 
+REM Define variables to track module status (STABLE DIFUSSION WEBUI FORGE)
+set "sdwebuiforge_modules_path=%~dp0bin\settings\modules-sdwebuiforge.txt"
+set "sdwebuiforge_autolaunch_trigger=false"
+set "sdwebuiforge_api_trigger=false"
+set "sdwebuiforge_listen_trigger=false"
+set "sdwebuiforge_port_trigger=false"
+set "sdwebuiforge_optsdpattention_trigger=false"
+set "sdwebuiforge_themedark_trigger=false"
+set "sdwebuiforge_skiptorchcudatest_trigger=false"
+set "sdwebuiforge_lowvram_trigger=false"
+set "sdwebuiforge_medvram_trigger=false"
+set "sdwebuiforge_cudamalloc_trigger=false"
+
 REM Define variables to track module status (TEXT GENERATION WEBUI OOBABOOGA)
 set "ooba_modules_path=%~dp0bin\settings\modules-ooba.txt"
 set "ooba_autolaunch_trigger=false"
@@ -1716,14 +1729,31 @@ REM Run conda activate from the Miniconda installation
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
 call "%miniconda_path%\Scripts\activate.bat"
 
-REM Activate the sdwebui environment
+REM Activate the sdwebuiforge environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
 call conda activate sdwebuiforge
 
-REM Start Stable Diffusion WebUI Forge with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI Forge launched in a new window.
-REM start cmd /k "title sdwebuiforge && cd /d %sdwebuiforge_install_path% && %sdwebuiforge_start_command%"
-start cmd /k "title SDWEBUI-forge && cd /d %sdwebuiforge_install_path% && python launch.py"
+REM Read modules-sdwebuiforge and find the sdwebuiforge_start_command line
+set "sdwebuiforge_start_command="
+
+for /F "tokens=*" %%a in ('findstr /I "sdwebuiforge_start_command=" "%sdwebuiforge_modules_path%"') do (
+    set "%%a"
+)
+
+if not defined sdwebuiforge_start_command (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled.%reset%
+    echo %red_bg%Please make sure you enabled at least one of the modules from Edit SDWEBUI FORGE Modules.%reset%
+    echo.
+    echo %blue_bg%We will redirect you to the Edit SDWEBUI Modules menu.%reset%
+    pause
+    goto :edit_sdwebui_modules
+)
+
+set "sdwebuiforge_start_command=%sdwebuiforge_start_command:sdwebuiforge_start_command=%"
+
+REM Start Stable Diffusion WebUI with desired configurations
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI launched in a new window.
+start cmd /k "title SDWEBUI && cd /d %sdwebuiforge_install_path% && %sdwebuiforge_start_command%"
 goto :home
 
 :start_comfyui
