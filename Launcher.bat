@@ -1511,12 +1511,18 @@ goto :home
 
 
 :start_koboldcpp
-REM Start koboldcpp with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% koboldcpp launched in a new window.
-
-cd /d "%koboldcpp_install_path%"
-start "" "koboldcpp.exe"
-goto :home
+    set "caller=app_launcher_text_completion"
+    if exist "%app_launcher_text_completion_dir%\start_koboldcpp.bat" (
+        call %app_launcher_text_completion_dir%\start_koboldcpp.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_koboldcpp.bat not found in: %app_launcher_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_koboldcpp.bat not found in: %app_launcher_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+)
 
 
 :start_tabbyapi
