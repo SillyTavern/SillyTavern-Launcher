@@ -96,7 +96,18 @@ for %%i in (%xtts_module_choices%) do (
         )
 
     ) else if "%%i"=="00" (
-        goto :start_sdwebuiforge
+        set "caller=app_launcher_image_generation"
+        if exist "%app_launcher_image_generation_dir%\start_sdwebuiforge.bat" (
+            call %app_launcher_image_generation_dir%\start_sdwebuiforge.bat
+            goto :home
+        ) else (
+            echo [%DATE% %TIME%] ERROR: start_sdwebuiforge.bat not found in: app_launcher_image_generation_dir% >> %logs_stl_console_path%
+            echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_sdwebuiforge.bat not found in: %app_launcher_image_generation_dir%%reset%
+            echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+            git pull
+            pause
+            goto :edit_sdwebuiforge_modules
+        )
 
     ) else if "%%i"=="0" (
         goto :editor_image_generation

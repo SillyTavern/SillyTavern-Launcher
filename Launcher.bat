@@ -178,7 +178,7 @@ set "app_uninstaller_voice_generation_dir=%functions_dir%\Toolbox\App_Uninstalle
 set "app_uninstaller_core_utilities_dir=%functions_dir%\Toolbox\App_Uninstaller\Core_Utilities"
 
 REM Define variables for the directories for App Launcher
-set "app_launcher_image_generation_dir=%functions_dir%\Toolbox\App_Launcherr\Image_Generation"
+set "app_launcher_image_generation_dir=%functions_dir%\Toolbox\App_Launcher\Image_Generation"
 set "app_launcher_text_completion_dir=%functions_dir%\Toolbox\App_Launcher\Text_Completion"
 set "app_launcher_voice_generation_dir=%functions_dir%\Toolbox\App_Launcher\Voice_Generation"
 set "app_launcher_core_utilities_dir=%functions_dir%\Toolbox\App_Launcher\Core_Utilities"
@@ -1657,9 +1657,31 @@ set /p "app_launcher_image_generation_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP LAUNCHER IMAGE GENERATION - BACKEND #########
 if "%app_launcher_image_generation_choice%"=="1" (
-    call :start_sdwebui
+    set "caller=app_launcher_image_generation"
+    if exist "%app_launcher_image_generation_dir%\start_sdwebui.bat" (
+        call %app_launcher_image_generation_dir%\start_sdwebui.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_sdwebui.bat not found in: app_launcher_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_sdwebui.bat not found in: %app_launcher_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
 ) else if "%app_launcher_image_generation_choice%"=="2" (
-    goto :start_sdwebuiforge
+    set "caller=app_launcher_image_generation"
+    if exist "%app_launcher_image_generation_dir%\start_sdwebuiforge.bat" (
+        call %app_launcher_image_generation_dir%\start_sdwebuiforge.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_sdwebuiforge.bat not found in: app_launcher_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_sdwebuiforge.bat not found in: %app_launcher_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
 ) else if "%app_launcher_image_generation_choice%"=="3" (
     goto :start_comfyui
 ) else if "%app_launcher_image_generation_choice%"=="4" (
@@ -1687,74 +1709,7 @@ if "%app_launcher_image_generation_choice%"=="1" (
 )
 
 
-:start_sdwebui
-cd /d "%sdwebui_install_path%"
 
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Activate the sdwebui environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebui%reset%
-call conda activate sdwebui
-
-
-REM Read modules-sdwebui and find the sdwebui_start_command line
-set "sdwebui_start_command="
-
-for /F "tokens=*" %%a in ('findstr /I "sdwebui_start_command=" "%sdwebui_modules_path%"') do (
-    set "%%a"
-)
-
-if not defined sdwebui_start_command (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled.%reset%
-    echo %red_bg%Please make sure you enabled at least one of the modules from Edit SDWEBUI Modules.%reset%
-    echo.
-    echo %blue_bg%We will redirect you to the Edit SDWEBUI Modules menu.%reset%
-    pause
-    goto :edit_sdwebui_modules
-)
-
-set "sdwebui_start_command=%sdwebui_start_command:sdwebui_start_command=%"
-
-REM Start Stable Diffusion WebUI with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI launched in a new window.
-start cmd /k "title SDWEBUI && cd /d %sdwebui_install_path% && %sdwebui_start_command%"
-goto :home
-
-:start_sdwebuiforge
-cd /d "%sdwebuiforge_install_path%"
-
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Activate the sdwebuiforge environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforge%reset%
-call conda activate sdwebuiforge
-
-REM Read modules-sdwebuiforge and find the sdwebuiforge_start_command line
-set "sdwebuiforge_start_command="
-
-for /F "tokens=*" %%a in ('findstr /I "sdwebuiforge_start_command=" "%sdwebuiforge_modules_path%"') do (
-    set "%%a"
-)
-
-if not defined sdwebuiforge_start_command (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled.%reset%
-    echo %red_bg%Please make sure you enabled at least one of the modules from Edit SDWEBUI FORGE Modules.%reset%
-    echo.
-    echo %blue_bg%We will redirect you to the Edit SDWEBUI Modules menu.%reset%
-    pause
-    goto :edit_sdwebui_modules
-)
-
-set "sdwebuiforge_start_command=%sdwebuiforge_start_command:sdwebuiforge_start_command=%"
-
-REM Start Stable Diffusion WebUI with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Stable Diffusion WebUI launched in a new window.
-start cmd /k "title SDWEBUI && cd /d %sdwebuiforge_install_path% && %sdwebuiforge_start_command%"
-goto :home
 
 :start_comfyui
 REM Run conda activate from the Miniconda installation
