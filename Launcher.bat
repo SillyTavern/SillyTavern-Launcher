@@ -13,7 +13,7 @@ REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title STL [STARTUP CHECK]
 setlocal
 
-set "stl_version=24.1.3.0"
+set "stl_version=24.1.4.0"
 set "stl_title_pid=STL [TROUBLESHOOTING]"
 
 REM ANSI Escape Code for Colors
@@ -269,6 +269,7 @@ set /p "update_choice=Update now? [Y/n]: "
 if /i "%update_choice%"=="" set update_choice=Y
 if /i "%update_choice%"=="Y" (
     REM Update the repository
+    del "%log_dir%\gpu_info_output.txt"
     git pull
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern-Launcher updated successfully. Restarting launcher...%reset%
     timeout /t 10
