@@ -42,7 +42,6 @@ if %errorlevel%==0 (
     ) else if errorlevel 1 (
         echo.
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Fetching Tailscale status...
-
         rem Use the dynamic path based on %~dp0 to write to the logs folder
         powershell -command ^
         "$json = tailscale status --json | ConvertFrom-Json; " ^

@@ -503,6 +503,7 @@ if exist "%log_dir%\gpu_info_output.txt" (
     set "gpuInfo=GPU Info not found"
 )
 
+if exist "%log_dir%\tailscale_status.txt" (
 rem Read the the content of tailscale log into vars 
 set count=0
 for /f "tokens=* delims=" %%i in (%log_dir%\tailscale_status.txt) do (
@@ -511,7 +512,7 @@ for /f "tokens=* delims=" %%i in (%log_dir%\tailscale_status.txt) do (
     if !count! equ 2 set hostName=%%i
     if !count! equ 3 set dnsName=%%i
 )
-
+)
 rem Remove trailing period from dnsName if it exists
 if "!dnsName:~-1!"=="." set "dnsName=!dnsName:~0,-1!"
 
