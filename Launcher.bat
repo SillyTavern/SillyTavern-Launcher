@@ -377,6 +377,25 @@ if %errorlevel% neq 0 (
     echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%"winget"%reset% from app: "App Installer"
 )
 
+REM Check if Tailscale is installed; if not, then install it
+tailscale version > nul 2>&1
+if %errorlevel% neq 0 (
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Tailscale not found, this is optional.
+) else (
+    echo [ %green_fg_strong%OK%reset% ] Found install: %cyan_fg_strong%"Tailscale"%reset%
+            powershell -command ^
+        "$json = tailscale status --json | ConvertFrom-Json; " ^
+        "$self = $json.Self; " ^
+        "$ip4 = $self.TailscaleIPs[0]; " ^
+        "$hostName = $self.HostName; " ^
+        "$dnsName = $self.DNSName; " ^
+        "$logPath = '%~dp0\bin\logs\tailscale_status.txt'; " ^
+        "Out-File -FilePath $logPath -InputObject $ip4 -Encoding ascii; " ^
+        "Out-File -FilePath $logPath -InputObject $hostName -Append -Encoding ascii; " ^
+        "Out-File -FilePath $logPath -InputObject $dnsName -Append -Encoding ascii"
+)
+
+
 
 REM Get the current PATH value from the registry
 for /f "tokens=2*" %%A in ('reg query "HKCU\Environment" /v PATH') do set "current_path=%%B"
