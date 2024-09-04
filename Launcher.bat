@@ -503,6 +503,18 @@ if exist "%log_dir%\gpu_info_output.txt" (
     set "gpuInfo=GPU Info not found"
 )
 
+rem Read the the content of tailscale log into vars 
+set count=0
+for /f "tokens=* delims=" %%i in (%log_dir%\tailscale_status.txt) do (
+    set /a count+=1
+    if !count! equ 1 set ip4=%%i
+    if !count! equ 2 set hostName=%%i
+    if !count! equ 3 set dnsName=%%i
+)
+
+rem Remove trailing period from dnsName if it exists
+if "!dnsName:~-1!"=="." set "dnsName=!dnsName:~0,-1!"
+
 
 REM Read the package.json from SillyTavern and extract the version key value
 for /f "tokens=2 delims=:" %%a in ('findstr /c:"\"version\"" "%st_package_json_path%"') do (
@@ -529,6 +541,17 @@ echo    SillyTavern: %cyan_fg_strong%!st-version!%reset%
 echo    STL: %cyan_fg_strong%!stl_version!%reset%
 echo    !gpuInfo!
 echo    Node.js: %cyan_fg_strong%!node_version!%reset%
+rem Conditionally echo Tailscale URLs only if they exist
+if defined ip4 (
+    echo    Tailscale URL - IP4: %cyan_fg_strong% http://!ip4!:8000%reset%
+)
+if defined hostName (
+    echo    Tailscale URL - Machine Name: %cyan_fg_strong% http://!hostName!:8000%reset%
+)
+if defined dnsName (
+    echo    Tailscale URL - MagicDNS Name: %cyan_fg_strong% http://!dnsName!:8000%reset%
+)
+
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^|                                                              ^|%reset%
 
