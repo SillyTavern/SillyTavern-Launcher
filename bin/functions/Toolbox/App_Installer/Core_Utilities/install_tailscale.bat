@@ -15,7 +15,11 @@ if /i "%tailscale_account%"=="Y" (
     if %errorlevel%==0 (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Tailscale installed successfully.%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Tailscale configuration...
-        call %app_installer_core_utilities_dir%\config_tailscale.bat
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Restart the launcher and go to Toolbox / Editor / Core Utilities / View Tailscale Configuration to see your Tailscale Remote SillyTavern URLS.
+        echo Press any key to restart the launcher
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Restarting launcher...%reset%
+        timeout /t 10
+        start launcher.bat
     ) else (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[ERROR]%reset% %red_fg_strong%Tailscale installation failed.%reset%
     )
@@ -30,8 +34,11 @@ if /i "%tailscale_account%"=="Y" (
 
     if %errorlevel%==0 (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Tailscale installed successfully.%reset%
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Tailscale configuration...
-        call %app_installer_core_utilities_dir%\config_tailscale.bat
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Restart the launcher and go to Toolbox / Editor / Core Utilities / View Tailscale Configuration to see your Tailscale Remote SillyTavern URLS.
+        echo Press any key to restart the launcher
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Restarting launcher...%reset%
+        timeout /t 10
+        start launcher.bat
     ) else (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[ERROR]%reset% %red_fg_strong%Tailscale installation failed.%reset%
     )
