@@ -1,14 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
 
-rem Define color scheme
-set blue_bg=[\033[44m
-set reset=[\033[0m
-set blue_fg_strong=[\033[34m
-set green_fg_strong=[\033[32m
-set red_fg_strong=[\033[31m
-set time=%time:~0,8%
-
 :install_tailscale
 title STL [INSTALL-TAILSCALE]
 set log_dir=%log_dir%
