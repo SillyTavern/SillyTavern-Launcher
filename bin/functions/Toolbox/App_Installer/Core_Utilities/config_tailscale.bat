@@ -13,8 +13,14 @@ rem Normalize the path
 for %%i in ("%log_dir%") do set log_dir=%%~fi
 
 set log_file=%log_dir%\tailscale_status.txt
-rem Clear the log file before writing new data
-powershell -command "Clear-Content '%log_file%'"
+
+rem Check if the log file exists before attempting to clear it
+if exist "%log_file%" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Clearing existing log file...
+    powershell -command "Clear-Content '%log_file%'"
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Log file does not exist, no need to clear.
+)
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Configuring Tailscale...
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Tailscale login...
