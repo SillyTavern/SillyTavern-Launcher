@@ -3160,6 +3160,7 @@ echo    4. Install yq
 echo    5. Install Visual Studio BuildTools
 echo    6. Install CUDA Toolkit
 echo    7. Install w64devkit
+echo    8. Install Tailscale (VPN to access SillyTavern remotely)
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -3261,6 +3262,19 @@ if "%app_installer_core_util_choice%"=="1" (
     ) else (
         echo [%DATE% %TIME%] ERROR: install_w64devkit.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_w64devkit.bat not found in: %app_installer_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_installer_core_utilities
+    )
+) else if "%app_installer_core_util_choice%"=="8" (
+    set "caller=app_installer_core_utilities"
+    if exist "%app_installer_core_utilities_dir%\install_tailscale.bat" (
+        call %app_installer_core_utilities_dir%\install_tailscale.bat
+        goto :app_installer_core_utilities
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_tailscale.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_tailscale.bat not found in: %app_installer_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
@@ -4065,6 +4079,7 @@ echo    1. Edit SillyTavern config.yaml
 echo    %sslOption%
 echo    3. Edit Extras
 echo    4. Edit Environment Variables
+echo    5. View Tailscale configuration
 
 echo %cyan_fg_strong% ____________________________________________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                                              ^|%reset%
@@ -4112,6 +4127,19 @@ if "%editor_core_utilities_choice%"=="1" (
     ) else (
         echo [%DATE% %TIME%] ERROR: edit_env_var.bat not found in: %editor_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_env_var.bat not found in: %editor_core_utilities_dir%%reset%
+        pause
+        goto :editor_core_utilities
+    )
+) else if "%editor_core_utilities_choice%"=="5" (
+    set "caller=editor_core_utilities"
+    if exist "%app_installer_core_utilities_dir%\config_tailscale.bat" (
+        call %app_installer_core_utilities_dir%\config_tailscale.bat
+        goto :editor_core_utilities
+    ) else (
+        echo [%DATE% %TIME%] ERROR: config_tailscale.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] config_tailscale.bat not found in: %app_installer_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
         pause
         goto :editor_core_utilities
     )
