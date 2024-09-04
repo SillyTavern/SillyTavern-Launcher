@@ -20,6 +20,7 @@ if /i "%tailscale_account%"=="Y" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Restarting launcher...%reset%
         timeout /t 10
         start %stl_root%/launcher.bat
+        exit
     ) else (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[ERROR]%reset% %red_fg_strong%Tailscale installation failed.%reset%
     )
@@ -39,6 +40,7 @@ if /i "%tailscale_account%"=="Y" (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Restarting launcher...%reset%
         timeout /t 10
         start %stl_root%/launcher.bat
+        exit
     ) else (
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[ERROR]%reset% %red_fg_strong%Tailscale installation failed.%reset%
     )
