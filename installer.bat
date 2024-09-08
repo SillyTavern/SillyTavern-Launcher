@@ -181,7 +181,7 @@ if %errorlevel% neq 0 (
         echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget failed to install Node.js or is not installed.%reset%
 
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Node.js using PowerShell...
-        powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://nodejs.org/dist/latest/node-v22.7.0-x64.msi', '%bin_dir%\nodejs.msi')"
+        powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://nodejs.org/dist/latest/node-v22.8.0-x64.msi', '%bin_dir%\nodejs.msi')"
 
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Node.js...
         start /wait msiexec /i "%bin_dir%\nodejs.msi" /passive
