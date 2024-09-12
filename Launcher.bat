@@ -1597,7 +1597,8 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 
 echo    1. Start AllTalk
 echo    2. Start XTTS
-echo    3. Start RVC
+echo    3. Start RVC WEBUI
+echo    4. Start RVC REALTIME [Voice Changer to use with Discord, Steam, etc...]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -1609,16 +1610,40 @@ echo %cyan_fg_strong%^|                                                         
 for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
 
 :: Set the prompt with spaces
-set /p "app_launcher_voice_gen_choice=%BS%   Choose Your Destiny: "
+set /p "app_launcher_voice_generation_choice=%BS%   Choose Your Destiny: "
 
 REM ########## APP LAUNCHER TEXT COMPLETION - BACKEND #########
-if "%app_launcher_voice_gen_choice%"=="1" (
+if "%app_launcher_voice_generation_choice%"=="1" (
     call :start_alltalk
-) else if "%app_launcher_voice_gen_choice%"=="2" (
+) else if "%app_launcher_voice_generation_choice%"=="2" (
     call :start_xtts
-) else if "%app_launcher_voice_gen_choice%"=="3" (
-    call :start_rvc
-) else if "%app_launcher_voice_gen_choice%"=="0" (
+) else if "%app_launcher_voice_generation_choice%"=="3" (
+    set "caller=app_launcher_voice_generation"
+    if exist "%app_launcher_voice_generation_dir%\start_rvc.bat" (
+        call %app_launcher_voice_generation_dir%\start_rvc.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_rvc.bat not found in: app_launcher_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_rvc.bat not found in: %app_launcher_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
+) else if "%app_launcher_voice_generation_choice%"=="4" (
+    set "caller=app_launcher_voice_generation"
+    if exist "%app_launcher_voice_generation_dir%\start_rvc_realtime.bat" (
+        call %app_launcher_voice_generation_dir%\start_rvc_realtime.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_rvc_realtime.bat not found in: app_launcher_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_rvc_realtime.bat not found in: %app_launcher_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
+) else if "%app_launcher_voice_generation_choice%"=="0" (
     goto :app_launcher
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
@@ -1663,16 +1688,6 @@ if not defined xtts_start_command (
 
 set "xtts_start_command=%xtts_start_command:xtts_start_command=%"
 start cmd /k "title XTTSv2 API Server && cd /d %xtts_install_path% && %xtts_start_command%"
-goto :home
-
-
-:start_rvc
-REM Activate the alltalk environment
-call conda activate rvc
-
-REM Start RVC with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% RVC launched in a new window.
-start cmd /k "title RVC && cd /d %rvc_install_path% && python infer-web.py --port 7897"
 goto :home
 
 

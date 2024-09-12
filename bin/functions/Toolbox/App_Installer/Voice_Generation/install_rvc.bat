@@ -90,29 +90,35 @@ call "%miniconda_path%\Scripts\activate.bat"
 
 REM Create a Conda environment named rvc
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%rvc%reset%
-call conda create -n rvc python=3.10.6 -y
+call conda create -n rvc python=3.10.9 -y
 
 REM Activate the rvc environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%rvc%reset%
 call conda activate rvc
 
+REM Downgrade pip to version 24.0.0 because fairseq from facebookresearch fails at pip-24.2
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downgrading pip-24.2 to: %cyan_fg_strong%pip-24.0%reset%
+python -m pip install pip==24.0.0
+
 REM Use the GPU choice made earlier to install requirements for RVC
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing NVIDIA version from requirements.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
-    pip install -r requirements.txt
     pip install torch==2.2.1+cu121 torchaudio==2.2.1+cu121 --upgrade --force-reinstall --extra-index-url https://download.pytorch.org/whl/cu121
+    pip install -r requirements.txt
     goto :install_rvc_final
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD version from requirements-amd.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
-    pip install -r requirements-amd.txt
     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/rocm5.6
+    pip install -r requirements-amd.txt
     goto :install_rvc_final
 ) else if "%GPU_CHOICE%"=="3" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing AMD/Intel DirectML version from requirements-dml.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
+    pip install torch torchvision torchaudio
     pip install -r requirements-dml.txt
     goto :install_rvc_final
 ) else if "%GPU_CHOICE%"=="4" (
     echo %blue_bg%[%time%]%reset% %cyan_fg_strong%[rvc]%reset% %blue_fg_strong%[INFO]%reset% Installing Intel Arc IPEX version from  requirements-ipex.txt in conda enviroment: %cyan_fg_strong%rvc%reset%
+    pip install torch torchvision torchaudio
     pip install -r requirements-ipex.txt
     goto :install_rvc_final
 )
@@ -121,7 +127,10 @@ REM Install pip packages that are not in requirements list
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip modules for GUI
 pip install FreeSimpleGUI
 pip install sounddevice
+REM pip install python-dotenv
+
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%RVC successfully installed.%reset%
+echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] In order to start RVC correctly please install FFMPEG from: / Home / Toolbox / App Installer / Core Utilities / Install FFmpeg%reset%
 pause
 goto :app_installer_voice_generation
