@@ -4663,7 +4663,7 @@ if %errorlevel% neq 0 (
     goto :home
 )
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
-start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit && node server.js && pause && popd"
+start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev && node server.js && pause && popd"
 
 if exist "%~dp0bin\settings\custom-shortcut.txt" (
     setlocal EnableDelayedExpansion
