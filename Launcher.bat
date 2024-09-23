@@ -3708,6 +3708,7 @@ echo    6. UNINSTALL yq
 echo    7. UNINSTALL CUDA Toolkit
 echo    8. UNINSTALL Visual Studio BuildTools
 echo    9. UNINSTALL w64devkit
+echo    10. UNINSTALL Tailscale
 
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
@@ -3836,6 +3837,19 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     ) else (
         echo [%DATE% %TIME%] ERROR: uninstall_w64devkit.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_w64devkit.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_uninstaller_core_utilities
+    )
+) else if "%app_uninstaller_core_utilities_choice%"=="10" (
+    set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_tailscale.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_tailscale.bat
+        goto :app_uninstaller_core_utilities
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_tailscale.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_tailscale.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
