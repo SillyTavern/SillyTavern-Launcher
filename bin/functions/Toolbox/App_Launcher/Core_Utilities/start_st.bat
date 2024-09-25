@@ -18,7 +18,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-set NODE_ENV=production
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Node.js in: %cyan_fg_strong%%NODE_ENV% %reset%
 setlocal
 set "command=%~1"
 start /B cmd /C "%command%"

@@ -131,6 +131,7 @@ set "st_install_path=%~dp0SillyTavern"
 set "st_package_json_path=%st_install_path%\package.json"
 set "extras_install_path=%~dp0SillyTavern-extras"
 set "st_backup_path=%~dp0SillyTavern-backups"
+set "NODE_ENV=production"
 
 REM Define variables for install locations (Image Generation)
 set "image_generation_dir=%~dp0image-generation"
@@ -4676,7 +4677,6 @@ if %errorlevel% neq 0 (
     pause
     goto :home
 )
-set NODE_ENV=production
 start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev && node server.js && pause && popd"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern launched in a new window.
 
