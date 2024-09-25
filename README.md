@@ -99,8 +99,9 @@ chmod +x launcher.sh && ./launcher.sh
 | :---------------------------------------- | :------------------------------------------------------------------------------------------------------- |
 
 # Screenshots
-<img width="400" alt="image" src="https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/96775287-df23-4976-980f-a0ce4dead9a5">
-<img width="400" alt="image" src="https://github.com/SillyTavern/SillyTavern-Launcher/assets/61471128/b080c199-4b26-4246-931e-92cc0c4b47eb">
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/b4c69b21-f8ce-4ee8-81c1-78de8204b95e">
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/f821a4bb-4e52-47f3-b714-13621dd25991">
+
 
 <div align="right">
 
