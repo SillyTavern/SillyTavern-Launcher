@@ -37,7 +37,7 @@ if %errorlevel% neq 0 (
 )
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern updated successfully.%reset%
 
-
+set NODE_ENV=production
 setlocal
 set "command=%~1"
 start /B cmd /C "%command%"

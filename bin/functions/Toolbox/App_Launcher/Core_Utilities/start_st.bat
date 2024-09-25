@@ -18,6 +18,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
+set NODE_ENV=production
 setlocal
 set "command=%~1"
 start /B cmd /C "%command%"
