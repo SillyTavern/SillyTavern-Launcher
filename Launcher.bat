@@ -429,8 +429,30 @@ if not exist "%st_install_path%" (
 )
 
 REM Run PowerShell command to retrieve VRAM size and divide by 1GB
-for /f "usebackq tokens=*" %%i in (`powershell -Command "$qwMemorySize = (Get-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*' -Name HardwareInformation.qwMemorySize -ErrorAction SilentlyContinue).'HardwareInformation.qwMemorySize'; if ($null -ne $qwMemorySize -and $qwMemorySize -is [array]) { $qwMemorySize = [double]$qwMemorySize[0] } else { $qwMemorySize = [double]$qwMemorySize }; if ($null -ne $qwMemorySize) { [math]::Round($qwMemorySize/1GB) } else { 'Property not found' }"`) do (
-    set "UVRAM=%%i"
+set /a iteration=0
+set /a last_UVRAM=0
+REM Detect GPU and store name, excluding integrated GPUs if discrete GPUs are found
+for /f "tokens=2 delims==" %%f in ('wmic path Win32_VideoController get name /value ^| find "="') do (
+	REM Run PowerShell command to retrieve VRAM size and divide by 1GB
+	for /f "usebackq tokens=*" %%i in (`powershell -Command "$qwMemorySize = (Get-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*' -Name HardwareInformation.qwMemorySize -ErrorAction SilentlyContinue).'HardwareInformation.qwMemorySize'; if ($null -ne $qwMemorySize -and $qwMemorySize -is [array]) { $qwMemorySize = [double]$qwMemorySize[!iteration!] } else { $qwMemorySize = [double]$qwMemorySize }; if ($null -ne $qwMemorySize) { [math]::Round($qwMemorySize/1GB) } else { 'Property not found' }"`) do (
+		set "UVRAM=%%i"
+	)
+	set /a iteration=!iteration!+1
+	REM If the VRAM is greater than 0 (it always should be, but just in case...) AND the lastUVRAM is not the same as VRAM
+	REM (might have to change this in the case where two cards have the same VRAM, but the user wants the first card...
+	REM in which case we would want to see if it is the first iteration or not... but I'm not here to do all your work!)
+	REM AND the lastUVRAM is Grt than VRAM... set it to the previous card. We don't have to check the other way, because
+	REM we already set VRAM. This way takes more builds into account... but not all.
+	if /i !lastUVRAM! gtr 0 (
+		if /i !lastUVRAM! neq !UVRAM! (
+			if /i !lastUVRAM! gtr !UVRAM! (
+				set "UVRAM=!lastUVRAM!"
+				set "GPU_name=!last_GPU!"
+			)
+		)
+	) else (
+		set "lastUVRAM=!UVRAM!"
+	)
 )
 
 REM Change the current directory to 'sillytavern' folder
