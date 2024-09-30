@@ -516,12 +516,9 @@ echo !counter! > %counter_file%
 
 REM Check if gpu_info_output.txt exists and call GPU detection script if not
 if not exist "%log_dir%\gpu_info_output.txt" (
-	set "prevDir=%CD%"
-	cd %troubleshooting_dir%
 	REM The script runs gpu_info.bat (well, now gpu_info.ps1) every startup, so we can just use the variables we set then in order to set
 	REM the log file info. We should also avoid sending surperfluous data to the log file, like ANSI codes. Those make it harder to read.
    	echo "GPU: %GPU_name% - VRAM: %UVRAM% GB" > "%log_dir%\gpu_info_output.txt"
-	cd prevDir
 )
 
 REM we already ran the gpu_info.ps1 file, and the variables are still set at this point. No need to run more code.
