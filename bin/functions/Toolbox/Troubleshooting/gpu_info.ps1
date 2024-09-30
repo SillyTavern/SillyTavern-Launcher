@@ -21,11 +21,11 @@ foreach ($gpu in $gpus) {
         'Property not found'
     }
 	# Set up an object so we can parse it later.
-    $gpuInfo += [PSCustomObject]@{
+    	$gpuInfo += [PSCustomObject]@{
         Name = $gpu.Name
         VRAM = $qwMemorySize
     }
-	# Have to manually increment or it will only fetch the first gpu's information.
+    # Have to manually increment or it will only fetch the first gpu's information.
     $global:increment++
 }
 
