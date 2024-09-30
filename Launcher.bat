@@ -514,7 +514,7 @@ if !counter! geq 10 (
 REM Save the counter back to the file
 echo !counter! > %counter_file%
 
-REM Check if gpu_info_output.txt exists and call GPU detection script if not
+REM Check if gpu_info_output.txt exists and create it if it does not
 if not exist "%log_dir%\gpu_info_output.txt" (
 	REM The script runs gpu_info.bat (well, now gpu_info.ps1) every startup, so we can just use the variables we set then in order to set
 	REM the log file info. We should also avoid sending surperfluous data to the log file, like ANSI codes. Those make it harder to read.
