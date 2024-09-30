@@ -425,7 +425,6 @@ if not exist "%st_install_path%" (
     goto :no_st_install_path
 )
 
-REM Run PowerShell script to fetch the GPU name and VRAM information.
 REM We have to navigate to the directory the script is in, or powershell will throw a hissyfit.
 cd %troubleshooting_dir%
 REM Call the Troubleshooting powershell file and then parse the output.
