@@ -72,6 +72,7 @@ chmod +x launcher.sh && ./launcher.sh
   * FFmpeg,
   * Node.js,
   * yq,
+  * jq,
   * Visual Studio BuildTools,
   * CUDA Toolkit
 
