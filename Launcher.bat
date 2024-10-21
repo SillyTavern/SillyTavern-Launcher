@@ -582,7 +582,7 @@ echo %yellow_fg_strong%^| Version ^& Compatibility Status:                      
 echo    SillyTavern - Branch: %cyan_fg_strong%!current_branch! %reset%^| Status: %cyan_fg_strong%!update_status_st!%reset%
 echo    SillyTavern: %cyan_fg_strong%!st-version!%reset%
 echo    STL: %cyan_fg_strong%!stl_version!%reset%
-echo    !gpuInfo!
+REM echo    !gpuInfo!
 echo    Node.js: %cyan_fg_strong%!node_version!%reset%
 rem Conditionally echo Tailscale URLs only if they exist
 if defined ip4 (
@@ -2786,7 +2786,7 @@ echo    5. Install Perfect World [REALISM MODEL]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| SDXL Models                                                  ^|%reset%
 echo    6. Install Hassaku XL [ANIME MODEL]
-echo    7. Install AutismMix_confetti [FURRY MODEL]
+echo    7. Install AutismMix_confetti [ANIME/CARTOON/FURRY MIX MODEL]
 echo    8. Install Pony Realism [REALISM MODEL]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| FLUX Models                                                  ^|%reset%
@@ -3072,7 +3072,7 @@ echo    5. Install Perfect World [REALISM MODEL]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| SDXL Models                                                  ^|%reset%
 echo    6. Install Hassaku XL [ANIME MODEL]
-echo    7. Install AutismMix_confetti [FURRY MODEL]
+echo    7. Install AutismMix_confetti [ANIME/CARTOON/FURRY MIX MODEL]
 echo    8. Install Pony Realism [REALISM MODEL]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| FLUX Models                                                  ^|%reset%
