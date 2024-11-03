@@ -1,10 +1,13 @@
 @echo off
-
+setlocal EnableDelayedExpansion
 REM ############################################################
 REM ############## EDIT TABBYAPI MODULES - FRONTEND ############
 REM ############################################################
 :edit_tabbyapi_modules
 title STL [EDIT TABBYAPI MODULES]
+if !exitflag!==1 (
+ goto :save_tabbyapi_modules_exit
+) 
 cls
 echo %blue_fg_strong%/ Home / Toolbox / Editor / Text Completion / Edit TabbyAPI Modules%reset%
 echo -------------------------------------------------------------
@@ -37,6 +40,7 @@ echo 0. Back
 set /p tabbyapi_module_choices="Choose modules to enable/disable: "
 
 REM Handle the user's module choices and construct the Python command
+
 for %%i in (!tabbyapi_module_choices!) do (
     if "%%i"=="1" (
         call :edit_tabbyapi_modules_loadmodel_menu
@@ -72,10 +76,7 @@ for %%i in (!tabbyapi_module_choices!) do (
             set "tabbyapi_updatedeps_trigger=true"
             call :save_tabbyapi_modules
         )
-    ) else if "%%i"=="99" (
-        start "" "%tabbyapi_install_path%\models"
-        goto :edit_tabbyapi_modules
-    ) else if "%%i"=="00" (
+    )  else if "%%i"=="00" (
         set "caller=app_launcher_text_completion"
         if exist "%app_launcher_text_completion_dir%\start_tabbyapi.bat" (
             call %app_launcher_text_completion_dir%\start_tabbyapi.bat
@@ -89,10 +90,15 @@ for %%i in (!tabbyapi_module_choices!) do (
             goto :edit_tabbyapi_modules
     )
     ) else if "%%i"=="0" (
+        set exitflag=1
+        goto :save_tabbyapi_modules_exit
         exit /b 1
+    )else if "%%i"=="99" (
+        start "" "%tabbyapi_install_path%\models"
+        goto :edit_tabbyapi_modules
     )
 )
-
+goto :save_tabbyapi_modules_exit
 
 :edit_tabbyapi_modules_loadmodel_menu
 title STL [EDIT TABBYAPI LOAD MODEL]
@@ -128,7 +134,6 @@ REM Prompt user to select a folder
 echo %red_fg_strong%00. Disable this module%reset%
 echo 0. Cancel
 echo.
-set "selected_tabbyapi_model_folder="
 set /p tabbyapi_model_choice="Choose a model: "
 
 REM Check if the user wants to exit
@@ -139,16 +144,17 @@ if "%tabbyapi_model_choice%"=="0" (
 REM Handle 'Disable' selection
 if "!tabbyapi_model_choice!"=="00" (
     set "selected_tabbyapi_model_folder_trigger=false"
-    call :save_tabbyapi_modules
-    goto :edit_tabbyapi_modules
+    goto :save_tabbyapi_modules
 )
 
 REM Get the selected folder name
 for /l %%i in (1,1,%model_count%) do (
-    if "%tabbyapi_model_choice%"=="%%i" set "selected_tabbyapi_model_folder=!tabbyapi_model_folder_%%i!"
-    set "selected_tabbyapi_model_folder_trigger=true"
+    if "%tabbyapi_model_choice%"=="%%i" (
+        set "selected_tabbyapi_model_folder=!tabbyapi_model_folder_%%i!"
+        set "selected_tabbyapi_model_folder_trigger=true"
+        goto :save_tabbyapi_modules
+    )
 )
-
 REM Validate the selection
 if "%selected_tabbyapi_model_folder%"=="" (
     echo %red_fg_strong%[ERROR] Invalid selection. Please enter a number between 1 and %model_count%, or press 0 to cancel.%reset%
@@ -171,7 +177,6 @@ cls
 echo %blue_fg_strong%/ Home / Toolbox / Editor / Text Completion / Edit TabbyAPI Modules / Port%reset%
 echo -------------------------------------------------------------
 
-setlocal EnableDelayedExpansion
 echo %red_fg_strong%00. Disable this module%reset%
 echo 0. Cancel
 echo. 
@@ -301,7 +306,6 @@ cls
 echo %blue_fg_strong%/ Home / Toolbox / Editor / Text Completion / Edit TabbyAPI Modules / Rope Alpha%reset%
 echo -------------------------------------------------------------
 
-setlocal EnableDelayedExpansion
 echo %red_fg_strong%00. Disable this module%reset%
 echo 0. Cancel
 echo. 
@@ -431,12 +435,17 @@ if "!tabbyapi_updatedeps_trigger!"=="true" (
 REM Save all settings including the start command to modules-tabbyapi.txt
 (
     echo selected_tabbyapi_model_folder_trigger=!selected_tabbyapi_model_folder_trigger!
+    echo selected_tabbyapi_model_folder=!selected_tabbyapi_model_folder!
     echo tabbyapi_ignoreupdate_trigger=!tabbyapi_ignoreupdate_trigger!
     echo tabbyapi_port_trigger=!tabbyapi_port_trigger!
+    echo tabbyapi_port=!tabbyapi_port!
     echo tabbyapi_host_trigger=!tabbyapi_host_trigger!
     echo tabbyapi_maxseqlen_trigger=!tabbyapi_maxseqlen_trigger!
+    echo tabbyapi_maxseqlen=!tabbyapi_maxseqlen!
     echo tabbyapi_ropealpha_trigger=!tabbyapi_ropealpha_trigger!
+    echo tabbyapi_ropealpha=!tabbyapi_ropealpha!
     echo tabbyapi_cachemode_trigger=!tabbyapi_cachemode_trigger!
+    echo tabbyapi_cachemode=!tabbyapi_cachemode!
     echo tabbyapi_updatedeps_trigger=!tabbyapi_updatedeps_trigger!
 ) > "%tabbyapi_modules_path%"
 
@@ -456,6 +465,13 @@ if defined modules_enable (
 
 REM Save the constructed Python command to modules-tabbyapi.txt for testing
 echo tabbyapi_start_command=%python_command% >> %tabbyapi_modules_path%
+
+if exist "%tabbyapi_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%tabbyapi_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
+
 goto :edit_tabbyapi_modules
 
 REM Function to print module options with color based on their status
@@ -465,4 +481,65 @@ if "%2"=="true" (
 ) else (
     echo %red_fg_strong%%1 [Disabled]%reset%
 )
+exit /b
+
+REM ##################################################################################################################################################
+REM ###############################################   SAVE MODULES SETTINGS TO FILE THEN EXIT  #######################################################
+REM ##################################################################################################################################################
+
+:save_tabbyapi_modules_exit
+REM Compile the Python command
+set "python_command=python start.py"
+if "!selected_tabbyapi_model_folder_trigger!"=="true" (
+    set "python_command=!python_command! --model-name !selected_tabbyapi_model_folder!"
+)
+if "!tabbyapi_ignoreupdate_trigger!"=="true" (
+    set "python_command=!python_command! --ignore-upgrade"
+)
+if "!tabbyapi_port_trigger!"=="true" (
+    set "python_command=!python_command! --port !tabbyapi_port!"
+)
+if "!tabbyapi_host_trigger!"=="true" (
+    set "python_command=!python_command! --host 0.0.0.0"
+)
+if "!tabbyapi_maxseqlen_trigger!"=="true" (
+    set "python_command=!python_command! --max-seq-len !tabbyapi_maxseqlen!"
+)
+if "!tabbyapi_ropealpha_trigger!"=="true" (
+    set "python_command=!python_command! --rope-alpha !tabbyapi_ropealpha!"
+)
+if "!tabbyapi_cachemode_trigger!"=="true" (
+    set "python_command=!python_command! --cache-mode !tabbyapi_cachemode!"
+)
+if "!tabbyapi_updatedeps_trigger!"=="true" (
+    set "python_command=!python_command! --update-deps"
+)
+
+REM Save all settings including the start command to modules-tabbyapi.txt
+(
+    echo selected_tabbyapi_model_folder_trigger=!selected_tabbyapi_model_folder_trigger!
+    echo selected_tabbyapi_model_folder=!selected_tabbyapi_model_folder!
+    echo tabbyapi_ignoreupdate_trigger=!tabbyapi_ignoreupdate_trigger!
+    echo tabbyapi_port_trigger=!tabbyapi_port_trigger!
+    echo tabbyapi_port=!tabbyapi_port!
+    echo tabbyapi_host_trigger=!tabbyapi_host_trigger!
+    echo tabbyapi_maxseqlen_trigger=!tabbyapi_maxseqlen_trigger!
+    echo tabbyapi_maxseqlen=!tabbyapi_maxseqlen!
+    echo tabbyapi_ropealpha_trigger=!tabbyapi_ropealpha_trigger!
+    echo tabbyapi_ropealpha=!tabbyapi_ropealpha!
+    echo tabbyapi_cachemode_trigger=!tabbyapi_cachemode_trigger!
+    echo tabbyapi_cachemode=!tabbyapi_cachemode!
+    echo tabbyapi_updatedeps_trigger=!tabbyapi_updatedeps_trigger!
+) > "%tabbyapi_modules_path%"
+
+
+REM Save the constructed Python command to modules-tabbyapi.txt for testing
+echo tabbyapi_start_command=%python_command% >> %tabbyapi_modules_path%
+
+if exist "%tabbyapi_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%tabbyapi_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
+
 exit /b

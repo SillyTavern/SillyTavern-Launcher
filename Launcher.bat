@@ -72,6 +72,11 @@ set "listen_trigger=false"
 set "whisper_trigger=false"
 set "edge_tts_trigger=false"
 set "websearch_trigger=false"
+if exist "%extras_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%extras_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
 
 REM Define variables to track module status (XTTS)
 set "xtts_modules_path=%~dp0bin\settings\modules-xtts.txt"
@@ -81,8 +86,13 @@ set "xtts_deepspeed_trigger=false"
 set "xtts_cache_trigger=false"
 set "xtts_listen_trigger=false"
 set "xtts_model_trigger=false"
+if exist "%xtts_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%xtts_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
 
-REM Define variables to track module status (STABLE DIFUSSION WEBUI)
+REM Define variables to track module status (STABLE DIFFUSION WEBUI)
 set "sdwebui_modules_path=%~dp0bin\settings\modules-sdwebui.txt"
 set "sdwebui_autolaunch_trigger=false"
 set "sdwebui_api_trigger=false"
@@ -93,8 +103,13 @@ set "sdwebui_themedark_trigger=false"
 set "sdwebui_skiptorchcudatest_trigger=false"
 set "sdwebui_lowvram_trigger=false"
 set "sdwebui_medvram_trigger=false"
+if exist "%sdwebui_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%sdwebui_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
 
-REM Define variables to track module status (STABLE DIFUSSION WEBUI FORGE)
+REM Define variables to track module status (STABLE DIFFUSION WEBUI FORGE)
 set "sdwebuiforge_modules_path=%~dp0bin\settings\modules-sdwebuiforge.txt"
 set "sdwebuiforge_autolaunch_trigger=false"
 set "sdwebuiforge_api_trigger=false"
@@ -105,7 +120,11 @@ set "sdwebuiforge_themedark_trigger=false"
 set "sdwebuiforge_skiptorchcudatest_trigger=false"
 set "sdwebuiforge_lowvram_trigger=false"
 set "sdwebuiforge_medvram_trigger=false"
-set "sdwebuiforge_cudamalloc_trigger=false"
+if exist "%sdwebuiforge_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%sdwebuiforge_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
 
 REM Define variables to track module status (TEXT GENERATION WEBUI OOBABOOGA)
 set "ooba_modules_path=%~dp0bin\settings\modules-ooba.txt"
@@ -115,15 +134,34 @@ set "ooba_listen_trigger=false"
 set "ooba_listenport_trigger=false"
 set "ooba_apiport_trigger=false"
 set "ooba_verbose_trigger=false"
+if exist "%ooba_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%ooba_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
 
 REM Define variables to track module status (TABBYAPI)
 set "tabbyapi_modules_path=%~dp0bin\settings\modules-tabbyapi.txt"
 set "tabbyapi_selectedmodelname_trigger=false"
+set "selected_tabbyapi_model_folder="
+
 set "tabbyapi_ignoreupdate_trigger=false"
 set "tabbyapi_port_trigger=false"
+set "tabbyapi_port="
 set "tabbyapi_host_trigger=false"
 set "tabbyapi_maxseqlen_trigger=false"
-set "ooba_verbose_trigger=false"
+set "tabbyapi_maxseqlen="
+set "tabbyapi_ropealpha_trigger="
+set "tabbyapi_ropealpha="
+set "ttabbyapi_cachemode_trigger="
+set "tabbyapi_cachemode="
+set "ttabbyapi_updatedeps_trigger="
+if exist "%tabbyapi_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%tabbyapi_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
+
 
 REM Define variables for install locations (Core Utilities)
 set "stl_root=%~dp0"
@@ -3995,6 +4033,11 @@ if "%editor_text_completion_choice%"=="1" (
 ) else if "%editor_text_completion_choice%"=="3" (
     set "caller=editor_text_completion"
     if exist "%editor_text_completion_dir%\edit_tabbyapi_modules.bat" (
+        if exist "%tabbyapi_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%tabbyapi_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
         call %editor_text_completion_dir%\edit_tabbyapi_modules.bat
         goto :editor_text_completion
     ) else (
