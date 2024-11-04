@@ -1,4 +1,8 @@
-<a name="readme-top"></a>
+> [!IMPORTANT]  
+> Die hier veröffentlichten Informationen sind möglicherweise veraltet oder unvollständig. Für aktuelle Informationen nutzen Sie bitte die englische Version.
+> Letztes Update dieser README: 28.9.2024
+>
+> <a name="readme-top"></a>
 
 <div align="center">
 
@@ -7,7 +11,7 @@
 <h1 align="center">SillyTavern Launcher - (STL)</h1>
 
 <p align="center">
-    【English | <a href="README-de_de.md">German</a> | <a href="README-zh-cn.md">Chinese</a> | <a href="README-ja-jp.md">Japanese</a> | <a href="README-ko-kr.md">Korean</a> | <a href="README-nl-nl.md">Dutch</a> | <a href="README-fr-fr.md">French</a> | <a href="README-vi-vn.md">Vietnamese</a> | <a href="README-pt-pt.md">Portuguese</a> | <a href="README-es-es.md">Spanish</a>】
+    【<a href="README.md">English</a> | German | <a href="README-zh-cn.md">Chinese</a> | <a href="README-ja-jp.md">Japanese</a> | <a href="README-ko-kr.md">Korean</a> | <a href="README-nl-nl.md">Dutch</a> | <a href="README-fr-fr.md">French</a> | <a href="README-vi-vn.md">Vietnamese</a> | <a href="README-pt-pt.md">Portuguese</a> | <a href="README-es-es.md">Spanish</a>】
   
 [![GitHub Stars](https://img.shields.io/github/stars/SillyTavern/SillyTavern-Launcher.svg)](https://github.com/SillyTavern/SillyTavern-Launcher/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/SillyTavern/SillyTavern-Launcher.svg)](https://github.com/SillyTavern/SillyTavern-Launcher/network)
@@ -17,54 +21,54 @@
 
 # 🔧 Installation
 ## 🪟 Windows
-1.  On your keyboard: press **`WINDOWS + R`** to open Run dialog box. Then, run the following command to install git:
+1.  Auf deiner Tastatur: Drücke **`WINDOWS + R`**, um das Dialogfeld Ausführen zu öffnen. Führe dann den folgenden Befehl aus, um Git zu installieren:
 ```shell
 cmd /c winget install -e --id Git.Git
 ```
-2. On your keyboard: press **`WINDOWS + E`** to open File Explorer, then navigate to the folder where you want to install the launcher. Once in the desired folder, type `cmd` into the address bar and press enter. Then, run the following command:
+2. Auf deiner Tastatur: Drücke **`WINDOWS + E`** , um den Datei-Explorer zu öffnen, und navigiere dann zu dem Ordner, in dem du den Launcher installieren möchtest. Sobald du im gewünschten Ordner bist, gib `cmd` in die Adressleiste ein und drücke die Eingabetaste. Führe dann den folgenden Befehl aus:
 ```shell
 git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher && start installer.bat
 ```
 
 ## 🐧 Linux
-1. Open your favorite terminal and install git
-2. Git clone the Sillytavern-Launcher with: 
+1. Öffne dein bevorzugtes Terminal und installiere git
+2. Git klone den Sillytavern-Launcher mit: 
 ```shell
 git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher
 ```
-3. Start the installer.sh with: 
+3. Starte installer.sh mit: 
 ```shell
 chmod +x install.sh && ./install.sh
 ```
-4. After installation start the launcher.sh with: 
+4. Nach der Installation starte die Datei launcher.sh mit: 
 ```shell
 chmod +x launcher.sh && ./launcher.sh
 ```
 
 ## 🍎 Mac
-1. Open a terminal and install brew with: 
+1. Öffne ein Terminal und installiere brew mit: 
 ```shell
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
-2. Install git with: 
+2. Installiere git mit: 
 ```shell
 brew install git
 ```
-3. Git clone the Sillytavern-Launcher with: 
+3. Git klone den Sillytavern-Launcher mit: 
 ```shell
 git clone https://github.com/SillyTavern/SillyTavern-Launcher.git && cd SillyTavern-Launcher
 ```
-4. Start the installer.sh with: 
+4. Starte installer.sh mit: 
 ```shell
 chmod +x install.sh && ./install.sh
 ```
-5. After installation start the launcher.sh with: 
+5. Nach der Installation starte die Datei launcher.sh mit: 
 ```shell
 chmod +x launcher.sh && ./launcher.sh
 ```
 
 # ✨ Features
-* Ability to automatically install Core apps with optional apps:
+* Möglichkeit zur automatischen Installation von Core-Apps mit optionalen Apps:
   * SillyTavern,
   * Extras,
   * XTTS,
@@ -75,25 +79,25 @@ chmod +x launcher.sh && ./launcher.sh
   * Visual Studio BuildTools,
   * CUDA Toolkit
 
-* Ability to automaticly install Text Completion apps:
-  * Text generation web UI oobabooga
+* Möglichkeit zur automatischen Installation von Textvervollständigungs-Apps:
+  * Web-Benutzeroberfläche zur Textgenerierung oobabooga
   * koboldcpp
   * TabbyAPI
 
-* Ability to automaticly install Image Generation apps:
+* Möglichkeit zur automatischen Installation von Image Generation-Apps:
   * Stable Diffusion web UI
   * Stable Diffusion web UI Forge
   * ComfyUI
   * Fooocus
 
-* Auto update all apps
-* Backup and Restore SillyTavern
-* Switch branch
-* Module editors
-* App installer & uninstaller to manage applications
-* Troubleshooting menu to fix most common problems
+* Alle Apps automatisch aktualisieren
+* Sichern und Wiederherstellen von SillyTavern
+* Zweig wechseln
+* Modul-Editoren
+* App-Installer und Deinstallationsprogramm zum Verwalten von Anwendungen
+* Menü zur Fehlerbehebung zur Behebung der häufigsten Probleme
 
-# Questions or suggestions?
+# Fragen oder Anregungen?
 
 | [![][discord-shield-badge]][discord-link] | [Join our Discord community!](https://discord.gg/sillytavern) Get support, share characters and prompts. |
 | :---------------------------------------- | :------------------------------------------------------------------------------------------------------- |
