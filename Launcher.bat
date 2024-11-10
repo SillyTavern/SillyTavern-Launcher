@@ -1,4 +1,5 @@
 @echo off
+chcp 437 > nul
 REM SillyTavern Launcher (STL)
 REM Created by: Deffcolony
 REM
