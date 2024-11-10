@@ -177,23 +177,23 @@ if %errorlevel% neq 0 (
     
     winget install -e --id OpenJS.NodeJS.LTS
     
-    if %errorlevel% neq 0 (
-        echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget failed to install Node.js or is not installed.%reset%
+REM    if %errorlevel% neq 0 (
+REM        echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget failed to install Node.js or is not installed.%reset%
 
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Node.js using PowerShell...
-        powershell -Command "$webClient = New-Object System.Net.WebClient; $latestPage = $webClient.DownloadString('https://nodejs.org/dist/latest/'); $msiFile = ($latestPage -split '`n' | Select-String -Pattern 'node-v.+?-x64\.msi' -AllMatches | ForEach-Object { $_.Matches } | Select-Object -First 1).Value; $webClient.DownloadFile(('https://nodejs.org/dist/latest/' + $msiFile), '%bin_dir%\nodejs.msi')"
+REM        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Node.js using PowerShell...
+REM        powershell -Command "$webClient = New-Object System.Net.WebClient; $latestPage = $webClient.DownloadString('https://nodejs.org/dist/latest/'); $msiFile = ($latestPage -split '`n' | Select-String -Pattern 'node-v.+?-x64\.msi' -AllMatches | ForEach-Object { $_.Matches } | Select-Object -First 1).Value; $webClient.DownloadFile(('https://nodejs.org/dist/latest/' + $msiFile), '%bin_dir%\nodejs.msi')"
 
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Node.js...
-        start /wait msiexec /i "%bin_dir%\nodejs.msi" /passive
+REM        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Node.js...
+REM        start /wait msiexec /i "%bin_dir%\nodejs.msi" /passive
         
-        del "%bin_dir%\nodejs.msi"
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js installed successfully.%reset%
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Please restart installer.bat in order to activate node command%reset%
-        pause
-        exit
-    ) else (
-        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js installed successfully.%reset%
-    )
+REM        del "%bin_dir%\nodejs.msi"
+REM        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js installed successfully.%reset%
+REM        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Please restart installer.bat in order to activate node command%reset%
+REM        pause
+REM        exit
+REM    ) else (
+REM        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Node.js installed successfully.%reset%
+REM    )
 ) else (
     echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%node%reset% from app: Node.js
 )
