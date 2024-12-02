@@ -4387,16 +4387,17 @@ echo %cyan_fg_strong% __________________________________________________________
 echo %cyan_fg_strong%^| Troubleshooting ^& Repair Options:                            ^|%reset%
 
 echo    1. Remove node_modules folder
-echo    2. Clear pip cache
-echo    3. Fix unresolved conflicts or unmerged files [SillyTavern]
-echo    4. Export dxdiag info
-echo    5. Find what app is using port
-echo    6. Set Onboarding Flow
+echo    2. Clear npm cache
+echo    3. Clear pip cache
+echo    4. Fix unresolved conflicts or unmerged files [SillyTavern]
+echo    5. Export dxdiag info
+echo    6. Find what app is using port
+echo    7. Set Onboarding Flow
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Support Options:                                             ^|%reset%
-echo    7. Report an Issue
-echo    8. SillyTavern Documentation
-echo    9. Discord servers
+echo    8. Report an Issue
+echo    9. SillyTavern Documentation
+echo    10. Discord servers
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -4426,6 +4427,17 @@ if "%troubleshooting_choice%"=="1" (
     )
 ) else if "%troubleshooting_choice%"=="2" (
     set "caller=troubleshooting"
+    if exist "%troubleshooting_dir%\remove_npm_cache.bat" (
+        call %troubleshooting_dir%\remove_npm_cache.bat
+        goto :troubleshooting
+    ) else (
+        echo [%DATE% %TIME%] ERROR: remove_npm_cache.bat not found in: %troubleshooting_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] remove_npm_cache.bat not found in: %troubleshooting_dir%%reset%
+        pause
+        goto :troubleshooting
+    )
+) else if "%troubleshooting_choice%"=="3" (
+    set "caller=troubleshooting"
     if exist "%troubleshooting_dir%\remove_pip_cache.bat" (
         call %troubleshooting_dir%\remove_pip_cache.bat
         goto :troubleshooting
@@ -4435,7 +4447,7 @@ if "%troubleshooting_choice%"=="1" (
         pause
         goto :troubleshooting
     )
-) else if "%troubleshooting_choice%"=="3" (
+) else if "%troubleshooting_choice%"=="4" (
     set "caller=troubleshooting"
     if exist "%troubleshooting_dir%\fix_github_conflicts.bat" (
         call %troubleshooting_dir%\fix_github_conflicts.bat
@@ -4446,7 +4458,7 @@ if "%troubleshooting_choice%"=="1" (
         pause
         goto :troubleshooting
     )
-) else if "%troubleshooting_choice%"=="4" (
+) else if "%troubleshooting_choice%"=="5" (
     set "caller=troubleshooting"
     if exist "%troubleshooting_dir%\export_dxdiag.bat" (
         call %troubleshooting_dir%\export_dxdiag.bat
@@ -4457,7 +4469,7 @@ if "%troubleshooting_choice%"=="1" (
         pause
         goto :troubleshooting
     )
-) else if "%troubleshooting_choice%"=="5" (
+) else if "%troubleshooting_choice%"=="6" (
     set "caller=troubleshooting"
     if exist "%troubleshooting_dir%\find_app_port.bat" (
         call %troubleshooting_dir%\find_app_port.bat
@@ -4468,7 +4480,7 @@ if "%troubleshooting_choice%"=="1" (
         pause
         goto :troubleshooting
     )
-) else if "%troubleshooting_choice%"=="6" (
+) else if "%troubleshooting_choice%"=="7" (
     set "caller=troubleshooting"
     if exist "%troubleshooting_dir%\onboarding_flow.bat" (
         call %troubleshooting_dir%\onboarding_flow.bat
@@ -4479,11 +4491,11 @@ if "%troubleshooting_choice%"=="1" (
         pause
         goto :troubleshooting
     )
-) else if "%troubleshooting_choice%"=="7" (
-    call :issue_report
 ) else if "%troubleshooting_choice%"=="8" (
-    call :documentation
+    call :issue_report
 ) else if "%troubleshooting_choice%"=="9" (
+    call :documentation
+) else if "%troubleshooting_choice%"=="10" (
     set "caller=troubleshooting"
     if exist "%troubleshooting_dir%\Support\discord.bat" (
         call %troubleshooting_dir%\Support\discord.bat
