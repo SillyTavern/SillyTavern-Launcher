@@ -278,9 +278,9 @@ echo %blue_fg_strong%/ Installer%reset%
 echo ---------------------------------------------------------------
 echo What would you like to do?
 echo 1. Install SillyTavern
-echo 2. Install Extras
-echo 3. Install XTTS
-echo 4. Install All Options From Above
+REM echo 2. Install Extras
+REM echo 3. Install XTTS
+REM echo 4. Install All Options From Above
 echo 5. Support
 echo 0. Exit
 
@@ -293,12 +293,12 @@ if not defined choice set "choice=1"
 REM Installer menu - Backend
 if "%choice%"=="1" (
     call :install_sillytavern
-) else if "%choice%"=="2" (
-    call :install_extras
-) else if "%choice%"=="3" (
-    call :install_xtts
-) else if "%choice%"=="4" (
-    call :install_all
+REM ) else if "%choice%"=="2" (
+REM     call :install_extras
+REM ) else if "%choice%"=="3" (
+REM     call :install_xtts
+REM ) else if "%choice%"=="4" (
+REM     call :install_all
 ) else if "%choice%"=="5" (
     call :support
 ) else if "%choice%"=="0" (
@@ -580,13 +580,12 @@ title STL [INSTALL XTTS]
 cls
 echo %blue_fg_strong%/ Installer / Install XTTS%reset%
 echo ---------------------------------------------------------------
-
 REM GPU menu - Frontend
 echo What is your GPU?
 echo 1. NVIDIA
 echo 2. AMD
-echo 3. None (CPU-only mode)
-echo 0. Cancel install
+echo 3. None CPU-only mode
+echo 0. Cancel
 
 setlocal enabledelayedexpansion
 chcp 65001 > nul
@@ -612,7 +611,6 @@ set "GPU_CHOICE=%gpu_choice%"
 
 REM Check the user's response
 if "%gpu_choice%"=="1" (
-    REM Install pip requirements
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% GPU choice set to NVIDIA
     goto :install_xtts_pre
 ) else if "%gpu_choice%"=="2" (
@@ -630,13 +628,13 @@ if "%gpu_choice%"=="1" (
 )
 :install_xtts_pre
 REM Check if the folder exists
-if not exist "%~dp0voice-generation" (
-    mkdir "%~dp0voice-generation"
+if not exist "%voice_generation_dir%" (
+    mkdir "%voice_generation_dir%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created folder: "voice-generation"  
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] "voice-generation" folder already exists.%reset%
 )
-cd /d "%~dp0voice-generation"
+cd /d "%voice_generation_dir%"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing XTTS...
 
@@ -685,16 +683,16 @@ pip install -r requirements-custom.txt
 
 REM Create folders for xtts
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating xtts folders...
-mkdir "%~dp0voice-generation\xtts"
-mkdir "%~dp0voice-generation\xtts\speakers"
-mkdir "%~dp0voice-generation\xtts\output"
+mkdir "%xtts_install_path%"
+mkdir "%xtts_install_path%\speakers"
+mkdir "%xtts_install_path%\output"
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding voice examples to speakers directory...
-xcopy "%~dp0voice-generation\xtts-api-server\example\*" "%~dp0voice-generation\xtts\speakers\" /y /e
+xcopy "%voice_generation_dir%\xtts-api-server\example\*" "%xtts_install_path%\speakers\" /y /e
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing the xtts-api-server directory...
-cd /d "%~dp0"
-rmdir /s /q "%~dp0voice-generation\xtts-api-server"
+rmdir /s /q "%voice_generation_dir%\xtts-api-server"
+
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%XTTS installed successfully%reset%
 pause
 goto :installer

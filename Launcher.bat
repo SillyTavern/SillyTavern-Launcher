@@ -192,6 +192,7 @@ set "tabbyapi_install_path=%text_completion_dir%\tabbyAPI"
 REM Define variables for install locations (Voice Generation)
 set "voice_generation_dir=%~dp0voice-generation"
 set "alltalk_install_path=%voice_generation_dir%\alltalk_tts"
+set "alltalk_v2_install_path=%voice_generation_dir%\alltalk_tts"
 set "xtts_install_path=%voice_generation_dir%\xtts"
 set "rvc_install_path=%voice_generation_dir%\Retrieval-based-Voice-Conversion-WebUI"
 
@@ -1657,10 +1658,9 @@ echo %blue_fg_strong% ==========================================================
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo    1. Start AllTalk
+echo    1. AllTalk [Launch Options]
 echo    2. Start XTTS
-echo    3. Start RVC WEBUI
-echo    4. Start RVC REALTIME [Voice Changer to use with Discord, Steam, etc...]
+echo    3. RVC [Launch Options]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -1676,10 +1676,137 @@ set /p "app_launcher_voice_generation_choice=%BS%   Choose Your Destiny: "
 
 REM ########## APP LAUNCHER TEXT COMPLETION - BACKEND #########
 if "%app_launcher_voice_generation_choice%"=="1" (
-    call :start_alltalk
+    call :app_launcher_voice_generation_alltalk
 ) else if "%app_launcher_voice_generation_choice%"=="2" (
-    call :start_xtts
+    set "caller=app_launcher_voice_generation"
+    if exist "%app_launcher_voice_generation_dir%\start_xtts.bat" (
+        call %app_launcher_voice_generation_dir%\start_xtts.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_xtts.bat not found in: app_launcher_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_xtts.bat not found in: %app_launcher_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
 ) else if "%app_launcher_voice_generation_choice%"=="3" (
+    call :app_launcher_voice_generation_rvc
+) else if "%app_launcher_voice_generation_choice%"=="0" (
+    goto :app_launcher
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :app_launcher_voice_generation
+)
+
+REM ############################################################
+REM ####### APP LAUNCHER VOICE GENERATION ALLTALK - FRONTEND ###
+REM ############################################################
+:app_launcher_voice_generation_alltalk
+title STL [APP LAUNCHER VOICE GENERATION ALLTALK]
+cls
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Launcher / Voice Generation / AllTalk^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| AllTalk V2                                                  ^|%reset%
+echo    1. Start AllTalk V2
+echo    2. Start Finetune
+echo    3. Start Diagnostics
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| AllTalk V1                                                   ^|%reset%
+echo    4. Start AllTalk V1
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_launcher_voice_generation_alltalk_choice=%BS%   Choose Your Destiny: "
+
+REM ########## APP LAUNCHER TEXT COMPLETION - BACKEND #########
+if "%app_launcher_voice_generation_alltalk_choice%"=="1" (
+    set "caller=app_launcher_voice_generation"
+    if exist "%app_launcher_voice_generation_dir%\start_alltalk_v2.bat" (
+        call %app_launcher_voice_generation_dir%\start_alltalk_v2.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_alltalk_v2.bat not found in: app_launcher_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_alltalk_v2.bat not found in: %app_launcher_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
+) else if "%app_launcher_voice_generation_alltalk_choice%"=="2" (
+    set "caller=app_launcher_voice_generation"
+    if exist "%app_launcher_voice_generation_dir%\start_alltalk_v2_finetune.bat" (
+        call %app_launcher_voice_generation_dir%\start_alltalk_v2_finetune.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_alltalk_v2_finetune.bat not found in: app_launcher_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_alltalk_v2_finetune.bat not found in: %app_launcher_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
+) else if "%app_launcher_voice_generation_alltalk_choice%"=="3" (
+    set "caller=app_launcher_voice_generation"
+    if exist "%app_launcher_voice_generation_dir%\start_alltalk_v2_diag.bat" (
+        call %app_launcher_voice_generation_dir%\start_alltalk_v2_diag.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_alltalk_v2_diag.bat not found in: app_launcher_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_alltalk_v2_diag.bat not found in: %app_launcher_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
+) else if "%app_launcher_voice_generation_alltalk_choice%"=="0" (
+    goto :app_launcher_voice_generation
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :app_launcher_voice_generation_alltalk
+)
+
+
+REM ############################################################
+REM ####### APP LAUNCHER VOICE GENERATION RVC - FRONTEND #######
+REM ############################################################
+:app_launcher_voice_generation_rvc
+title STL [APP LAUNCHER VOICE GENERATION RVC]
+cls
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Launcher / Voice Generation / RVC   ^|%reset%
+echo %blue_fg_strong% ==============================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Retrieval based Voice Conversion                             ^|%reset%
+echo    1. Start RVC
+echo    2. Start RVC REALTIME [Used with Discord, Steam, etc...]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_launcher_voice_generation_rvc_choice=%BS%   Choose Your Destiny: "
+
+REM ########## APP LAUNCHER TEXT COMPLETION - BACKEND #########
+if "%app_launcher_voice_generation_rvc_choice%"=="1" (
     set "caller=app_launcher_voice_generation"
     if exist "%app_launcher_voice_generation_dir%\start_rvc.bat" (
         call %app_launcher_voice_generation_dir%\start_rvc.bat
@@ -1692,7 +1819,7 @@ if "%app_launcher_voice_generation_choice%"=="1" (
         pause
         goto :home
     )
-) else if "%app_launcher_voice_generation_choice%"=="4" (
+) else if "%app_launcher_voice_generation_rvc_choice%"=="2" (
     set "caller=app_launcher_voice_generation"
     if exist "%app_launcher_voice_generation_dir%\start_rvc_realtime.bat" (
         call %app_launcher_voice_generation_dir%\start_rvc_realtime.bat
@@ -1705,52 +1832,14 @@ if "%app_launcher_voice_generation_choice%"=="1" (
         pause
         goto :home
     )
-) else if "%app_launcher_voice_generation_choice%"=="0" (
-    goto :app_launcher
+) else if "%app_launcher_voice_generation_rvc_choice%"=="0" (
+    goto :app_launcher_voice_generation
 ) else (
     echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
     echo %red_bg%[%time%]%reset% %echo_invalidinput%
     pause
-    goto :app_launcher_voice_generation
+    goto :app_launcher_voice_generation_rvc
 )
-
-
-:start_alltalk
-REM Activate the alltalk environment
-call conda activate alltalk
-
-REM Start AllTalk
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% AllTalk launched in a new window.
-start cmd /k "title AllTalk && cd /d %alltalk_install_path% && python script.py"
-goto :home
-
-
-:start_xtts
-REM Activate the xtts environment
-call conda activate xtts
-
-REM Start XTTS
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% XTTS launched in a new window.
-
-REM Read modules-xtts and find the xtts_start_command line
-set "xtts_start_command="
-
-for /F "tokens=*" %%a in ('findstr /I "xtts_start_command=" "%xtts_modules_path%"') do (
-    set "%%a"
-)
-
-if not defined xtts_start_command (
-    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] No modules enabled!%reset%
-    echo %red_bg%Please make sure you enabled at least one of the modules from Edit XTTS Modules.%reset%
-    echo.
-    echo %blue_bg%We will redirect you to the Edit XTTS Modules menu.%reset%
-    pause
-    goto :edit_xtts_modules
-)
-
-set "xtts_start_command=%xtts_start_command:xtts_start_command=%"
-start cmd /k "title XTTSv2 API Server && cd /d %xtts_install_path% && %xtts_start_command%"
-goto :home
 
 
 REM ############################################################
@@ -2539,9 +2628,10 @@ echo %blue_fg_strong% ==========================================================
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo    1. Install AllTalk
-echo    2. Install XTTS
-echo    3. Install RVC
+echo    1. Install AllTalk V2
+echo    2. Install AllTalk
+echo    3. Install XTTS
+echo    4. Install RVC
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -2559,6 +2649,17 @@ set /p "app_installer_voice_gen_choice=%BS%   Choose Your Destiny: "
 REM ######## APP INSTALLER VOICE GENERATION - BACKEND #########
 if "%app_installer_voice_gen_choice%"=="1" (
     set "caller=app_installer_voice_generation"
+    if exist "%app_installer_voice_generation_dir%\install_alltalk_v2.bat" (
+        call %app_installer_voice_generation_dir%\install_alltalk_v2.bat
+        goto :app_installer_voice_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_alltalk_v2.bat not found in: %app_installer_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_alltalk_v2.bat not found in: %app_installer_voice_generation_dir%%reset%
+        pause
+        goto :app_installer_voice_generation
+    )
+) else if "%app_installer_voice_gen_choice%"=="2" (
+    set "caller=app_installer_voice_generation"
     if exist "%app_installer_voice_generation_dir%\install_alltalk.bat" (
         call %app_installer_voice_generation_dir%\install_alltalk.bat
         goto :app_installer_voice_generation
@@ -2568,7 +2669,7 @@ if "%app_installer_voice_gen_choice%"=="1" (
         pause
         goto :app_installer_voice_generation
     )
-) else if "%app_installer_voice_gen_choice%"=="2" (
+) else if "%app_installer_voice_gen_choice%"=="3" (
     set "caller=app_installer_voice_generation"
     if exist "%app_installer_voice_generation_dir%\install_xtts.bat" (
         call %app_installer_voice_generation_dir%\install_xtts.bat
@@ -2579,7 +2680,7 @@ if "%app_installer_voice_gen_choice%"=="1" (
         pause
         goto :app_installer_voice_generation
     )
-) else if "%app_installer_voice_gen_choice%"=="3" (
+) else if "%app_installer_voice_gen_choice%"=="4" (
     set "caller=app_installer_voice_generation"
     if exist "%app_installer_voice_generation_dir%\install_rvc.bat" (
         call %app_installer_voice_generation_dir%\install_rvc.bat
@@ -3563,9 +3664,10 @@ echo %blue_fg_strong% ==========================================================
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo    1. UNINSTALL AllTalk
-echo    2. UNINSTALL XTTS
-echo    3. UNINSTALL rvc
+echo    1. UNINSTALL AllTalk V2
+echo    2. UNINSTALL AllTalk
+echo    3. UNINSTALL XTTS
+echo    4. UNINSTALL rvc
 
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
@@ -3583,6 +3685,19 @@ set /p "app_uninstaller_voice_gen_choice=%BS%   Choose Your Destiny: "
 REM ######## APP UNINSTALLER VOICE GENERATION - BACKEND #########
 if "%app_uninstaller_voice_gen_choice%"=="1" (
     set "caller=app_uninstaller_voice_generation"
+    if exist "%app_uninstaller_voice_generation_dir%\uninstall_alltalk_v2.bat" (
+        call %app_uninstaller_voice_generation_dir%\uninstall_alltalk_v2.bat
+        goto :app_uninstaller_voice_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_alltalk_v2.bat not found in: %app_uninstaller_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_alltalk_v2.bat not found in: %app_uninstaller_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_uninstaller_voice_generation
+    )
+) else if "%app_uninstaller_voice_gen_choice%"=="2" (
+    set "caller=app_uninstaller_voice_generation"
     if exist "%app_uninstaller_voice_generation_dir%\uninstall_alltalk.bat" (
         call %app_uninstaller_voice_generation_dir%\uninstall_alltalk.bat
         goto :app_uninstaller_voice_generation
@@ -3594,7 +3709,7 @@ if "%app_uninstaller_voice_gen_choice%"=="1" (
         pause
         goto :app_uninstaller_voice_generation
     )
-) else if "%app_uninstaller_voice_gen_choice%"=="2" (
+) else if "%app_uninstaller_voice_gen_choice%"=="3" (
     set "caller=app_uninstaller_voice_generation"
     if exist "%app_uninstaller_voice_generation_dir%\uninstall_xtts.bat" (
         call %app_uninstaller_voice_generation_dir%\uninstall_xtts.bat
@@ -3607,7 +3722,7 @@ if "%app_uninstaller_voice_gen_choice%"=="1" (
         pause
         goto :app_uninstaller_voice_generation
     )
-) else if "%app_uninstaller_voice_gen_choice%"=="3" (
+) else if "%app_uninstaller_voice_gen_choice%"=="4" (
     set "caller=app_uninstaller_voice_generation"
     if exist "%app_uninstaller_voice_generation_dir%\uninstall_rvc.bat" (
         call %app_uninstaller_voice_generation_dir%\uninstall_rvc.bat
@@ -3620,6 +3735,7 @@ if "%app_uninstaller_voice_gen_choice%"=="1" (
         pause
         goto :app_uninstaller_voice_generation
     )
+
 ) else if "%app_uninstaller_voice_gen_choice%"=="0" (
     goto :app_uninstaller
 ) else (
