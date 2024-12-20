@@ -40,6 +40,33 @@ if exist "%SSL_INFO_FILE%" (
     )
 )
 
+REM Debugging: Check auto-repair setting
+if not exist "%log_dir%\autorepair-setting.txt" (
+    echo NO > "%log_dir%\autorepair-setting.txt"
+)
+
+REM Read and sanitize autorepair-setting.txt
+set "st_auto_repair="
+for /f "tokens=*" %%a in ('type "%log_dir%\autorepair-setting.txt" 2^>nul ^| findstr /v "^$"') do set "st_auto_repair=%%a"
+
+REM Remove leading/trailing spaces and validate value
+
+set "st_auto_repair=!st_auto_repair: =!"
+if /i "!st_auto_repair!" neq "YES" if /i "!st_auto_repair!" neq "NO" (
+    set "st_auto_repair=NO"
+)
+
+REM Conditional Logic Based on st_auto_repair
+if "%st_auto_repair%"=="YES" (
+    echo DEBUG: Entered the YES block
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Auto-repair process enabled [this can be toggled in the troubleshooting menu].
+    goto :ST_SSL_Start
+) else (
+    echo DEBUG: Entered the NO block
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Auto-repair disabled [this can be toggled in the troubleshooting menu]. Launching SillyTavern normally...
+    goto :fallback
+)
+
 :ST_SSL_Start
 if "%sslPathsFound%"=="true" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened with SSL in a new window.
@@ -72,7 +99,7 @@ goto :scan_log
 
 :fallback
 REM Fallback to %st_install_path% and start
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Fallback: Starting SillyTavern from %st_install_path%...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Starting SillyTavern from %st_install_path%...
 start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call Start.bat"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern should now be launching in a new window, if you still receive errors please contact the launcher devs in the #launcher-help channel on discord.
 timeout /t 10

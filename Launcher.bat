@@ -231,8 +231,10 @@ set "editor_voice_generation_dir=%functions_dir%\Toolbox\Editor\Voice_Generation
 set "editor_core_utilities_dir=%functions_dir%\Toolbox\Editor\Core_Utilities"
 
 REM Define variables for logging
+set "st_auto_repair=%log_dir%\autorepair-setting.txt"
 set "logs_stl_console_path=%log_dir%\stl.log"
 set "logs_st_console_path=%log_dir%\st_console_output.log"
+
 
 
 REM Create the logs folder if it doesn't exist
@@ -487,7 +489,8 @@ for /f "tokens=2 delims==" %%f in ('wmic path Win32_VideoController get name /va
 		if /i !lastUVRAM! neq !UVRAM! (
 			if /i !lastUVRAM! gtr !UVRAM! (
 				set "UVRAM=!lastUVRAM!"
-				set "GPU_name=!last_GPU!"
+				@REM set "GPU_name=!last_GPU!"
+               
 			)
 		)
 	) else (
@@ -694,7 +697,7 @@ if "%choice%"=="1" (
 ) else if "%choice%"=="8" (
     set "caller=home"
     if exist "%functions_dir%\Home\info_vram.bat" (
-        call %functions_dir%\Home\info_vram.bat
+        call "%functions_dir%\Home\info_vram.bat" "%UVRAM%"
         goto :home
     ) else (
         echo [%DATE% %TIME%] ERROR: info_vram.bat not found in: %functions_dir%\Home >> %logs_stl_console_path%
@@ -4447,12 +4450,24 @@ REM ############################################################
 REM ########## TROUBLESHOOTING & SUPPORT - FRONTEND ############
 REM ############################################################
 :troubleshooting
+setlocal enabledelayedexpansion
+
+REM Check auto-repair setting
+if not exist "%log_dir%\autorepair-setting.txt" (
+    echo NO > "%log_dir%\autorepair-setting.txt"
+)
+for /f "tokens=1 delims= " %%a in ('type "%log_dir%\autorepair-setting.txt"') do set "st_auto_repair=%%a"
+if /i "%st_auto_repair%"=="YES" (
+    set "autorepair_status=Enabled"
+) else (
+    set "autorepair_status=Disabled"
+)
+
 title STL [TROUBLE ^& SUPPORT]
 @echo off
 cls
 echo %blue_fg_strong%^| ^> / Home / Troubleshooting ^& Support                         ^|%reset%
 echo %blue_fg_strong% ==============================================================%reset%   
-setlocal enabledelayedexpansion
 
 REM Call the VPN detection script
 call "%troubleshooting_dir%\detect_vpn.bat" > "%log_dir%\vpn_status.txt"
@@ -4461,7 +4476,7 @@ del "%log_dir%\vpn_status.txt"
 
 REM Call the home port check script
 call "%troubleshooting_dir%\home_port_check.bat" > "%log_dir%\port_8000_status.txt"
-set /p "portStatus="<"%log_dir%\port_8000_status.txt
+set /p "portStatus="<"%log_dir%\port_8000_status.txt"
 del "%log_dir%\port_8000_status.txt"
 
 REM Get the current Git branch
@@ -4509,11 +4524,12 @@ echo    4. Fix unresolved conflicts or unmerged files [SillyTavern]
 echo    5. Export dxdiag info
 echo    6. Find what app is using port
 echo    7. Set Onboarding Flow
+echo    8. Toggle Logging/Auto-repair (Current: %cyan_fg_strong%!autorepair_status!%reset%)
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Support Options:                                             ^|%reset%
-echo    8. Report an Issue
-echo    9. SillyTavern Documentation
-echo    10. Discord servers
+echo    9. Report an Issue
+echo    10. SillyTavern Documentation
+echo    11. Discord servers
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -4526,7 +4542,6 @@ for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
 
 :: Set the prompt with spaces
 set /p "troubleshooting_choice=%BS%   Choose Your Destiny: "
-
 
 
 REM ############## TROUBLESHOOTING - BACKEND ##################
@@ -4608,10 +4623,20 @@ if "%troubleshooting_choice%"=="1" (
         goto :troubleshooting
     )
 ) else if "%troubleshooting_choice%"=="8" (
-    call :issue_report
+    for /f "tokens=1 delims= " %%a in ('type "%log_dir%\autorepair-setting.txt"') do set "st_auto_repair=%%a"
+    if /i "%st_auto_repair%"=="YES" (
+        echo NO > "%log_dir%\autorepair-setting.txt"
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Auto-repair and logging disabled.
+    ) else (
+        echo YES > "%log_dir%\autorepair-setting.txt"
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Auto-repair and logging enabled.
+    )
+    goto :troubleshooting
 ) else if "%troubleshooting_choice%"=="9" (
-    call :documentation
+    call :issue_report
 ) else if "%troubleshooting_choice%"=="10" (
+    call :documentation
+) else if "%troubleshooting_choice%"=="11" (
     set "caller=troubleshooting"
     if exist "%troubleshooting_dir%\Support\discord.bat" (
         call %troubleshooting_dir%\Support\discord.bat
@@ -4646,6 +4671,7 @@ goto :troubleshooting
 :documentation
 start "" "https://docs.sillytavern.app/"
 goto :troubleshooting
+
 
 
 REM ############################################################

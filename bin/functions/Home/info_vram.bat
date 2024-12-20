@@ -1,25 +1,38 @@
 @echo off
-
 :info_vram
 title STL [VRAM INFO]
 chcp 65001 > nul
 setlocal enabledelayedexpansion
-REM Get GPU information
-for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-    set "gpu_info=!gpu_info! %%i"
+
+
+REM Confirm script start and input arguments
+set "UVRAM=%~1"
+
+REM Handle undefined or invalid UVRAM
+if not defined UVRAM (
+    echo DEBUG: UVRAM is not defined. Defaulting to 0.
+    set "UVRAM=0"
+) else if "%UVRAM%"=="Property not found" (
+    echo DEBUG: UVRAM could not be detected. Defaulting to 0.
+    set "UVRAM=0"
 )
 
+REM Get GPU information safely
+set "gpu_info="
+for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
+    if not "%%i"=="" set "gpu_info=!gpu_info! %%i"
+)
 
 cls
 echo %blue_fg_strong%^| ^> / Home / VRAM ^& LLM Info                                                                           ^|%reset%
 echo %blue_fg_strong% ======================================================================================================%reset%   
 REM Recommendations Based on VRAM Size
 if %UVRAM% lss 8 (
-    echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
+    @REM echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
     echo %cyan_fg_strong%GPU VRAM: %UVRAM% GB%reset% - It's recommended to stick with APIs like OpenAI, Claude or OpenRouter for LLM usage, 
     echo Local models will result in memory error or perform a REAL SLOW output
 ) else if %UVRAM% lss 12 (
-    echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
+    @REM echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
     echo %cyan_fg_strong%GPU VRAM: %UVRAM% GB%reset% - Great for 7B and 8B models. Check info below for BPW
     endlocal
     echo.
@@ -42,7 +55,7 @@ if %UVRAM% lss 8 (
     echo ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
     echo.
 ) else if %UVRAM% lss 22 (
-    echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
+    @REM echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
     echo %cyan_fg_strong%GPU VRAM: %UVRAM% GB%reset% - Great for 7B, 8B and 13B models. Check info below for BPW
     endlocal
     echo.
@@ -65,7 +78,7 @@ if %UVRAM% lss 8 (
     echo ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
     echo.
 ) else if %UVRAM% lss 25 (
-    echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
+    @REM echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
     echo %cyan_fg_strong%GPU VRAM: %UVRAM% GB%reset% - Great for 7B, 8B, 13B and 30B models, Check info below for BPW
     endlocal
     echo.
@@ -88,7 +101,7 @@ if %UVRAM% lss 8 (
     echo ╚═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
     echo.
 ) else if %UVRAM% gtr 25 (
-    echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
+    @REM echo %cyan_fg_strong%GPU: %gpu_info:~1%%reset%
     echo %cyan_fg_strong%GPU VRAM: %UVRAM% GB%reset% - Great for 7B, 8B, 13B, 30B and 70B models. Check info below for BPW
     endlocal
     echo.
