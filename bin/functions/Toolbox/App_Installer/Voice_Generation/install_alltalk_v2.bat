@@ -50,12 +50,6 @@ if "%gpu_choice%"=="1" (
 :install_alltalk_v2_pre
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing AllTalk...
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Visual Studio Community...
-curl -o "VisualStudioSetup.exe" "https://aka.ms/vs/17/release/vs_community.exe"
-
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python C and SDK Requirements...
-"VisualStudioSetup.exe" --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended --includeOptional --passive --wait
-
 REM Check if the folder exists
 if not exist "%voice_generation_dir%" (
     mkdir "%voice_generation_dir%"
@@ -81,6 +75,12 @@ if %errorlevel% neq 0 (
     goto :home
 )
 cd /d "%alltalk_v2_install_path%"
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Visual Studio Community...
+curl -L -o "VisualStudioSetup.exe" "https://aka.ms/vs/17/release/vs_community.exe"
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Python C and SDK Requirements...
+"VisualStudioSetup.exe" --add Microsoft.VisualStudio.Workload.NativeDesktop --includeRecommended --includeOptional --passive --wait
 
 REM Activate the Miniconda installation
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
