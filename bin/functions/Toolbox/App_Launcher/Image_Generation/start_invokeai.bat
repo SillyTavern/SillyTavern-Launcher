@@ -14,5 +14,5 @@ call conda activate invokeai
 REM Start InvokeAI
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% InvokeAI launched in a new window.
 
-start cmd /k "title InvokeAI && cd /d %invokeai_install_path% && python -m invokeai-web"
+start cmd /k "title InvokeAI && cd /d %invokeai_install_path% && invokeai-web"
 goto :home
