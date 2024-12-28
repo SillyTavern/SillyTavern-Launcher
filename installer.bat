@@ -12,6 +12,7 @@ REM
 REM GitHub: https://github.com/SillyTavern/SillyTavern-Launcher
 REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title STL Installer [STARTUP CHECK]
+
 setlocal
 
 REM ANSI Escape Code for Colors
@@ -60,6 +61,39 @@ set "st_desktopPath=%userprofile%\Desktop"
 set "st_shortcutName=SillyTavern.lnk"
 set "st_startIn=%~dp0"
 set "st_comment=SillyTavern"
+
+REM Check if the script is being run from a cloud storage folder (OneDrive, Google Drive, or Dropbox)
+echo "%CD%" | findstr /I "OneDrive" > nul
+if %errorlevel% equ 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Installation in OneDrive folders is not supported!%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] Installing the SillyTavern Launcher and SillyTavern in OneDrive can cause issues with dependency installs.
+    echo Not to mention it's bad for privacy and speed because of cloud syncing.%reset%
+    echo Please move the installer to a different directory and try again.
+    pause
+    exit /b 1
+)
+
+echo "%CD%" | findstr /I "Google Drive" > nul
+if %errorlevel% equ 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Installation in Google Drive folders is not supported!%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] Installing the SillyTavern Launcher and SillyTavern in Google Drive can cause issues with dependency installs.
+    echo Not to mention it's bad for privacy and speed because of cloud syncing.%reset%
+    echo Please move the installer to a different directory and try again.
+    pause
+    exit /b 1
+)
+
+echo "%CD%" | findstr /I "Dropbox" > nul
+if %errorlevel% equ 0 (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Installation in Dropbox folders is not supported!%reset%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO] Installing the SillyTavern Launcher and SillyTavern in Dropbox can cause issues with dependency installs.
+    echo Not to mention it's bad for privacy and speed because of cloud syncing..%reset%
+    echo Please move the installer to a different directory and try again.
+    pause
+    exit /b 1
+)
+
+
 
 REM Create the logs folder if it doesn't exist
 if not exist "%log_dir%" (
