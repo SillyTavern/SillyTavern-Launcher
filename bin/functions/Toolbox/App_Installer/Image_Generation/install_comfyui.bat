@@ -39,14 +39,14 @@ call "%miniconda_path%\Scripts\activate.bat"
 
 REM Create a Conda environment named comfyui
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Creating Conda environment: %cyan_fg_strong%comfyui%reset%
-call conda create -n comfyui python=3.11 -y
+call conda create -n comfyui python=3.12 -y
 
 REM Activate the comfyui environment
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment %cyan_fg_strong%comfyui%reset%
 call conda activate comfyui
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pytorch...
-pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu121
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu124
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
 pip install -r requirements.txt
