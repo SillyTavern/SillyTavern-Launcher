@@ -237,13 +237,13 @@ find_terminal()
 start_st()
 {
     check_nodejs
+    cd "SillyTavern" || exit 1
+
     #if LAUNCH_NEW_WIN is set to 0, SillyTavern will launch in the same window
     if [ "$LAUNCH_NEW_WIN" = "0" ]; then
         log_message "INFO" "SillyTavern launched"
-        cd "SillyTavern" || exit 1
         ./start.sh
     else
-        cd "SillyTavern" || exit 1
         log_message "INFO" "SillyTavern launched in a new window."
         # Find a suitable terminal
         local detected_terminal
