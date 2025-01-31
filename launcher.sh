@@ -261,6 +261,7 @@ start_st()
         fi
     fi
 
+    cd ..
     home
 }
 
