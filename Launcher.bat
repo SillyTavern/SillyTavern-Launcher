@@ -141,6 +141,11 @@ if exist "%ooba_modules_path%" (
     )
 )
 
+REM Define variables to track module status (KOBOLDCPP)
+set "koboldcpp_modules_path=%~dp0bin\settings\modules-koboldcpp.txt"
+set "koboldcpp_preferred_exe=koboldcpp.exe"
+set "koboldcpp_verbose_trigger=false"
+
 REM Define variables to track module status (TABBYAPI)
 set "tabbyapi_modules_path=%~dp0bin\settings\modules-tabbyapi.txt"
 set "tabbyapi_selectedmodelname_trigger=false"
@@ -371,6 +376,13 @@ if not exist %ooba_modules_path% (
 REM Load modules-ooba flags from modules-ooba
 for /f "tokens=*" %%a in (%ooba_modules_path%) do set "%%a"
 
+REM Create modules-koboldcpp if it doesn't exist
+if not exist %koboldcpp_modules_path% (
+    type nul > %koboldcpp_modules_path%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created text file: "modules-koboldcpp.txt"
+)
+REM Load modules-koboldcpp flags from modules-koboldcpp
+for /f "tokens=*" %%a in (%koboldcpp_modules_path%) do set "%%a"
 
 REM Create modules-tabbyapi if it doesn't exist
 if not exist %tabbyapi_modules_path% (
@@ -866,26 +878,39 @@ if not exist "%koboldcpp_install_path%" (
     goto :update_manager_text_completion
 )
 
+REM Check if the versions differ
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Yonkers.%reset%
+if exist "%koboldcpp_install_path%\.version.txt" (
+    for /f "tokens=*" %%a in ("%koboldcpp_install_path%\.version.txt") do set koboldcpp_version=%%a
+    for /f %%i in ('curl -L -s "https://api.github.com/repos/LostRuins/koboldcpp/releases/latest"  ^| jq ".tag_name"') do set koboldcpp_release_tag=%%i
+    if "%koboldcpp_version%"=="%koboldcpp_release_tag%" (
+        set "update_status_koboldcpp=%yellow_fg_strong%Update Available%reset%"
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Update found: %koboldcpp_version% =} %koboldcpp_release_tag%.%reset%
+    ) else (
+        set "update_status_koboldcpp=%green_fg_strong%Up to Date%reset%"
+    )
+
+    goto :update_manager_text_completion
+)
+
 REM Check if koboldcpp file exists [koboldcpp NVIDIA]
-if exist "%koboldcpp_install_path%\koboldcpp.exe" (
-    REM Remove koboldcpp
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing koboldcpp.exe
-    del "%koboldcpp_install_path%\koboldcpp.exe"
-    curl -L -o "%koboldcpp_install_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
+if exist "%koboldcpp_install_path%\%koboldcpp_preferred_exe%" (
+    call :uninstall_koboldcpp
+    call :install_koboldcpp
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp updated successfully.%reset%
     pause
     goto :update_manager_text_completion
 )
 REM Check if koboldcpp file exists [koboldcpp AMD]
-if exist "%koboldcpp_install_path%\koboldcpp_rocm.exe" (
-    REM Remove koboldcpp_rocm
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing koboldcpp_rocm.exe
-    del "%koboldcpp_install_path%\koboldcpp_rocm.exe"
-    curl -L -o "%koboldcpp_install_path%\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp_rocm updated successfully.%reset%
-    pause
-    goto :update_manager_text_completion
-)
+REM if exist "%koboldcpp_install_path%\koboldcpp_rocm.exe" (
+REM     REM Remove koboldcpp_rocm
+REM     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing koboldcpp_rocm.exe
+REM     del "%koboldcpp_install_path%\koboldcpp_rocm.exe"
+REM     curl -L -o "%koboldcpp_install_path%\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
+REM     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp_rocm updated successfully.%reset%
+REM     pause
+REM     goto :update_manager_text_completion
+REM )
 
 
 :update_tabbyapi
@@ -1283,6 +1308,7 @@ echo    3. Update 7-Zip
 echo    4. Update FFmpeg
 echo    5. Update Node.js
 echo    6. Update yq
+echo    6. Update jq
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -1309,6 +1335,8 @@ if "%update_manager_core_util_choice%"=="1" (
     call :update_nodejs
 ) else if "%update_manager_core_util_choice%"=="6" (
     call :update_yq
+) else if "%update_manager_core_util_choice%"=="7" (
+    call :update_jq
 ) else if "%update_manager_core_util_choice%"=="0" (
     goto :update_manager
 ) else (
@@ -1435,6 +1463,11 @@ goto :update_manager_core_utilities
 
 :update_yq
 winget upgrade MikeFarah.yq
+pause
+goto :update_manager_core_utilities
+
+:update_jq
+winget upgrade jqlang.yq
 pause
 goto :update_manager_core_utilities
 
@@ -3381,10 +3414,11 @@ echo    1. Install 7-Zip
 echo    2. Install FFmpeg
 echo    3. Install Node.js
 echo    4. Install yq
-echo    5. Install Visual Studio BuildTools
-echo    6. Install CUDA Toolkit
-echo    7. Install w64devkit
-echo    8. Install Tailscale (VPN to access SillyTavern remotely)
+echo    5. Install jq
+echo    6. Install Visual Studio BuildTools
+echo    7. Install CUDA Toolkit
+echo    8. Install w64devkit
+echo    9. Install Tailscale (VPN to access SillyTavern remotely)
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -3454,6 +3488,19 @@ if "%app_installer_core_util_choice%"=="1" (
     )
 ) else if "%app_installer_core_util_choice%"=="5" (
     set "caller=app_installer_core_utilities"
+    if exist "%app_installer_core_utilities_dir%\install_jq.bat" (
+        call %app_installer_core_utilities_dir%\install_jq.bat
+        goto :app_installer_core_utilities
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_jq.bat not found in: %app_installer_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_jq.bat not found in: %app_installer_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_installer_core_utilities
+    )
+) else if "%app_installer_core_util_choice%"=="6" (
+    set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_vsbuildtools.bat" (
         call %app_installer_core_utilities_dir%\install_vsbuildtools.bat
         goto :app_installer_core_utilities
@@ -3465,7 +3512,7 @@ if "%app_installer_core_util_choice%"=="1" (
         pause
         goto :app_installer_core_utilities
     )
-) else if "%app_installer_core_util_choice%"=="6" (
+) else if "%app_installer_core_util_choice%"=="7" (
     set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_cudatoolkit.bat" (
         call %app_installer_core_utilities_dir%\install_cudatoolkit.bat
@@ -3478,7 +3525,7 @@ if "%app_installer_core_util_choice%"=="1" (
         pause
         goto :app_installer_core_utilities
     )
-) else if "%app_installer_core_util_choice%"=="7" (
+) else if "%app_installer_core_util_choice%"=="8" (
     set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_w64devkit.bat" (
         call %app_installer_core_utilities_dir%\install_w64devkit.bat
@@ -3491,7 +3538,7 @@ if "%app_installer_core_util_choice%"=="1" (
         pause
         goto :app_installer_core_utilities
     )
-) else if "%app_installer_core_util_choice%"=="8" (
+) else if "%app_installer_core_util_choice%"=="9" (
     set "caller=app_installer_core_utilities"
     if exist "%app_installer_core_utilities_dir%\install_tailscale.bat" (
         call %app_installer_core_utilities_dir%\install_tailscale.bat
@@ -3886,10 +3933,11 @@ echo    3. UNINSTALL 7-Zip
 echo    4. UNINSTALL FFmpeg
 echo    5. UNINSTALL Node.js
 echo    6. UNINSTALL yq
-echo    7. UNINSTALL CUDA Toolkit
-echo    8. UNINSTALL Visual Studio BuildTools
-echo    9. UNINSTALL w64devkit
-echo    10. UNINSTALL Tailscale
+echo    7. UNINSTALL jq
+echo    8. UNINSTALL CUDA Toolkit
+echo    9. UNINSTALL Visual Studio BuildTools
+echo    10. UNINSTALL w64devkit
+echo    11. UNINSTALL Tailscale
 
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
@@ -3986,6 +4034,19 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
     )
 ) else if "%app_uninstaller_core_utilities_choice%"=="7" (
     set "caller=app_uninstaller_core_utilities"
+    if exist "%app_uninstaller_core_utilities_dir%\uninstall_jq.bat" (
+        call %app_uninstaller_core_utilities_dir%\uninstall_jq.bat
+        goto :app_uninstaller_core_utilities
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_jq.bat not found in: %app_uninstaller_core_utilities_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_jq.bat not found in: %app_uninstaller_core_utilities_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_uninstaller_core_utilities
+    )
+) else if "%app_uninstaller_core_utilities_choice%"=="8" (
+    set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_cudatoolkit.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_cudatoolkit.bat
         goto :app_uninstaller_core_utilities
@@ -3997,7 +4058,7 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_uninstaller_core_utilities_choice%"=="8" (
+) else if "%app_uninstaller_core_utilities_choice%"=="9" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_vsbuildtools.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_vsbuildtools.bat
@@ -4010,7 +4071,7 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_uninstaller_core_utilities_choice%"=="9" (
+) else if "%app_uninstaller_core_utilities_choice%"=="10" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_w64devkit.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_w64devkit.bat
@@ -4023,7 +4084,7 @@ if "%app_uninstaller_core_utilities_choice%"=="1" (
         pause
         goto :app_uninstaller_core_utilities
     )
-) else if "%app_uninstaller_core_utilities_choice%"=="10" (
+) else if "%app_uninstaller_core_utilities_choice%"=="11" (
     set "caller=app_uninstaller_core_utilities"
     if exist "%app_uninstaller_core_utilities_dir%\uninstall_tailscale.bat" (
         call %app_uninstaller_core_utilities_dir%\uninstall_tailscale.bat
