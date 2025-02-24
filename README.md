@@ -99,8 +99,13 @@ chmod +x launcher.sh && ./launcher.sh
 | :---------------------------------------- | :------------------------------------------------------------------------------------------------------- |
 
 # Screenshots
-<img width="400" alt="image" src="https://github.com/user-attachments/assets/b4c69b21-f8ce-4ee8-81c1-78de8204b95e">
-<img width="400" alt="image" src="https://github.com/user-attachments/assets/f821a4bb-4e52-47f3-b714-13621dd25991">
+## Windows
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/ac9edfe4-b5a7-4d7f-a21c-acd702b3d2fe">
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/8830d523-87e1-4e0a-8fb0-75d8a48d763f">
+
+## Linux
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/e1db688d-7cb0-4fbc-825c-3560ca4b901d">
+<img width="400" alt="image" src="https://github.com/user-attachments/assets/180b9fbb-e4b4-4992-bb0c-72386f30a513">
 
 
 <div align="right">
