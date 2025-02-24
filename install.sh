@@ -121,12 +121,6 @@ install_miniconda() {
     echo "Miniconda installed successfully in $HOME/miniconda"
 }
 
-# Define the paths and filenames for the shortcut creation
-script_path="$(realpath "$(dirname "$0")")/launcher.sh"
-icon_path="$(realpath "$(dirname "$0")")/st-launcher.ico"
-script_name=st-launcher
-desktop_dir="$(eval echo ~$(logname))/Desktop"
-desktop_file="$desktop_dir/st-launcher.desktop"
 
 # Function to log messages with timestamps and colors
 log_message() {
@@ -231,77 +225,73 @@ install_git() {
 }
 
 
-# Function to install Node.js and npm
-install_nodejs_npm() {
-    if ! command -v npm &>/dev/null || ! command -v node &>/dev/null; then
-        echo -e "${yellow_fg_strong}[WARN] Node.js and/or npm are not installed on this system.${reset}"
+install_nodejs() {
+    if ! command -v node &> /dev/null; then
+        log_message "WARN" "${yellow_fg_strong}Node.js is not installed on this system${reset}"
 
-        if command -v apt-get &>/dev/null; then
-            # Debian/Ubuntu-based system
-            log_message "INFO" "Installing Node.js and npm using apt..."
-            sudo apt-get update
-            sudo apt-get install -y curl
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            source "$NVM_DIR/nvm.sh"
-            read -p "Press Enter to continue..."
-            nvm install --lts
-            nvm use --lts
-        elif command -v yum &>/dev/null; then
-            # Red Hat/Fedora-based system
-            log_message "INFO" "Installing Node.js and npm using yum..."
-            sudo yum install -y curl
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            source "$NVM_DIR/nvm.sh"
-            read -p "Press Enter to continue..."
-            nvm install --lts
-            nvm use --lts
-        elif command -v apk &>/dev/null; then
-            # Alpine Linux-based system
-            log_message "INFO" "Installing Node.js and npm using apk..."
-            sudo apk add curl
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            source "$NVM_DIR/nvm.sh"
-            read -p "Press Enter to continue..."
-            nvm install --lts
-            nvm use --lts
-        elif command -v pacman &>/dev/null; then
-            # Arch Linux-based system
-            log_message "INFO" "Installing Node.js and npm using pacman..."
-            sudo pacman -S --noconfirm curl
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            source "$NVM_DIR/nvm.sh"
-            read -p "Press Enter to continue..."
-            nvm install --lts
-            nvm use --lts
-        elif command -v emerge &>/dev/null; then
-            # Gentoo-based system
-            log_message "INFO" "Installing Node.js and npm using emerge..."
-            sudo emerge -av net-misc/curl
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            source "$NVM_DIR/nvm.sh"
-            read -p "Press Enter to continue..."
-            nvm install --lts
-            nvm use --lts
-        elif command -v pkg &>/dev/null; then
-            # Termux on Android
-            log_message "INFO" "Installing Node.js and npm using pkg..."
-            pkg install nodejs npm
-        elif command -v brew &>/dev/null; then
-            # macOS
-            log_message "INFO" "Installing Node.js and npm using Homebrew..."
-            brew install node
-        elif command -v zypper &>/dev/null; then
-            # openSUSE
-            log_message "INFO" "Installing Node.js and npm using zypper..."
-            sudo zypper --non-interactive install nodejs npm
-        else
-            log_message "ERROR" "${red_fg_strong}Unsupported Linux distribution.${reset}"
-            exit 1
-        fi
+        case "$(uname -s)" in
+            Linux)
+                package_manager=$(detect_package_manager)
+                case "$package_manager" in
+                    apt)
+                        log_message "INFO" "Detected apt (Debian/Ubuntu). Installing Node.js..."
+                        sudo apt update && sudo apt install -y nodejs npm
+                        ;;
+                    dnf|yum)
+                        log_message "INFO" "Detected dnf/yum (Red Hat/Fedora). Installing Node.js..."
+                        sudo $package_manager install -y nodejs npm
+                        ;;
+                    apk)
+                        log_message "INFO" "Detected apk (Alpine). Installing Node.js..."
+                        sudo apk add nodejs npm
+                        ;;
+                    pacman)
+                        log_message "INFO" "Detected pacman (Arch). Installing Node.js..."
+                        sudo pacman -Sy --noconfirm nodejs npm
+                        ;;
+                    emerge)
+                        log_message "INFO" "Detected emerge (Gentoo). Installing Node.js..."
+                        sudo emerge --ask nodejs npm
+                        ;;
+                    zypper)
+                        log_message "INFO" "Detected zypper (openSUSE). Installing Node.js..."
+                        sudo zypper install -y nodejs npm
+                        ;;
+                    xbps)
+                        log_message "INFO" "Detected xbps (Void). Installing Node.js..."
+                        sudo xbps-install -y nodejs npm
+                        ;;
+                    nix)
+                        log_message "INFO" "Detected nix (NixOS). Installing Node.js..."
+                        nix-env -iA nixpkgs.nodejs
+                        ;;
+                    guix)
+                        log_message "INFO" "Detected guix (Guix). Installing Node.js..."
+                        guix package -i node
+                        ;;
+                    *)
+                        log_message "ERROR" "${red_fg_strong}Unsupported package manager or distribution.${reset}"
+                        exit 1
+                        ;;
+                esac
+                ;;
+            Darwin)
+                log_message "INFO" "Detected macOS. Installing Node.js via Homebrew..."
+                if ! command -v brew &> /dev/null; then
+                    log_message "ERROR" "${red_fg_strong}Homebrew not installed. Install it first: https://brew.sh/${reset}"
+                    exit 1
+                fi
+                brew install node
+                ;;
+            *)
+                log_message "ERROR" "${red_fg_strong}Unsupported operating system.${reset}"
+                exit 1
+                ;;
+        esac
 
-        echo "${green_fg_strong}Node.js and npm installed and configured with nvm.${reset}"
+        log_message "INFO" "${green_fg_strong}Node.js is installed.${reset}"
     else
-        echo -e "${blue_fg_strong}[INFO] Node.js and npm are already installed.${reset}"
+        log_message "INFO" "${blue_fg_strong}Node.js is already installed.${reset}"
     fi
 }
 
@@ -552,6 +542,103 @@ install_all_final() {
 }
 
 
+
+
+
+
+
+
+
+########################################################################################
+########################################################################################
+####################### SUPPORT MENU FUNCTIONS  ########################################
+########################################################################################
+########################################################################################
+
+# Functions for Support Menu - Backend
+issue_report() {
+    if [ "$EUID" -eq 0 ]; then
+        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
+    else
+        if [ "$(uname -s)" == "Darwin" ]; then
+            open https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose
+        else
+            xdg-open https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose
+        fi
+    fi
+    read -p "Press Enter to continue..."
+    support
+}
+
+documentation() {
+    if [ "$EUID" -eq 0 ]; then
+        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
+    else
+        if [ "$(uname -s)" == "Darwin" ]; then
+            open https://docs.sillytavern.app/
+        else
+            xdg-open https://docs.sillytavern.app/
+        fi
+    fi
+    read -p "Press Enter to continue..."
+    support
+}
+
+discord() {
+    if [ "$EUID" -eq 0 ]; then
+        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
+    else
+        if [ "$(uname -s)" == "Darwin" ]; then
+            open https://discord.gg/sillytavern
+        else
+            xdg-open https://discord.gg/sillytavern
+        fi
+    fi
+    read -p "Press Enter to continue..."
+    support
+}
+
+
+############################################################
+################# SUPPORT MENU - FRONTEND ##################
+############################################################
+support() {
+    echo -e "\033]0;SillyTavern [SUPPORT]\007"
+    clear
+    echo -e "${blue_fg_strong}| > / Installer / Support                                     |${reset}"
+    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| What would you like to do?                                  |${reset}"
+    echo "  1. I want to report an issue"
+    echo "  2. Documentation"
+    echo "  3. Discord"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Menu Options:                                               |${reset}"
+    echo "  0. Back"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}|                                                             |${reset}"
+    read -p "  Choose Your Destiny: " support_choice
+
+    # Support Menu - Backend
+    case $support_choice in
+        1) issue_report ;;
+        2) documentation ;;
+        3) discord ;;
+        0) installer ;;
+        *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
+           read -p "Press Enter to continue..."
+           support ;;
+    esac
+}
+
+########################################################################################
+########################################################################################
+####################### INSTALLER MENU FUNCTIONS  ######################################
+########################################################################################
+########################################################################################
+
+
+
 # Function to install SillyTavern
 install_sillytavern() {
     echo -e "\033]0;SillyTavern [INSTALL-ST]\007"
@@ -564,24 +651,10 @@ install_sillytavern() {
     git clone https://github.com/SillyTavern/SillyTavern.git
     log_message "INFO" "${green_fg_strong}SillyTavern installed successfully.${reset}"
 
-    # Ask if the user wants to create a desktop shortcut
-    read -p "Do you want to create a shortcut on the desktop? [Y/n] " create_shortcut
-    if [[ "${create_shortcut}" == "Y" || "${create_shortcut}" == "y" ]]; then
-
-    # Create the desktop shortcut
-    echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Creating desktop shortcut..."
-	
-	echo "[Desktop Entry]" > "$desktop_file"
-	echo "Version=1.0" >> "$desktop_file"
-	echo "Type=Application" >> "$desktop_file"
-	echo "Name=$script_name" >> "$desktop_file"
-	echo "Exec=$script_path" >> "$desktop_file"
-	echo "Icon=$icon_path" >> "$desktop_file"
-	echo "Terminal=true" >> "$desktop_file"
-	echo "Comment=SillyTavern Launcher" >> "$desktop_file"
-	chmod +x "$desktop_file"
-
-    echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} ${green_fg_strong}Desktop shortcut created at: $desktop_file${reset}"
+    # Ask if the user wants to create desktop shortcuts
+    read -p "Do you want to create desktop shortcuts? [Y/n] " create_shortcut
+    if [[ "${create_shortcut}" =~ ^[Yy]$ ]]; then
+        create_desktop_shortcuts
     fi
 
     # Ask if the user wants to start the launcher
@@ -596,6 +669,102 @@ install_sillytavern() {
     installer
 }
 
+
+create_desktop_shortcuts() {
+    # Common variables
+    stl_root="$(dirname "$(realpath "$0")")"
+    st_install_path="$stl_root/SillyTavern"
+    desktop_dir=""
+    launcher_script="$stl_root/launcher.sh"
+    sillytavern_script="$st_install_path/start.sh"
+    icon_launcher="$stl_root/st-launcher.ico"
+    icon_sillytavern="$stl_root/st.ico"
+
+    # Detect desktop environment
+    case "$(uname -s)" in
+        Linux)
+            desktop_dir="$HOME/Desktop"
+            # Create directory if it doesn't exist
+            mkdir -p "$desktop_dir"
+            
+            # Create launcher shortcut
+            echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Creating ST-Launcher shortcut..."
+            cat << EOF > "$desktop_dir/ST-Launcher.desktop"
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SillyTavern Launcher
+Exec="$launcher_script"
+Icon=$icon_launcher
+Terminal=true
+Comment=Launch SillyTavern AI Interface
+Path=$stl_root
+EOF
+            chmod +x "$desktop_dir/ST-Launcher.desktop"
+
+            # Create SillyTavern direct start shortcut
+            echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Creating SillyTavern shortcut..."
+            cat << EOF > "$desktop_dir/SillyTavern.desktop"
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=SillyTavern
+Exec="$sillytavern_script"
+Icon=$icon_sillytavern
+Terminal=true
+Comment=Start SillyTavern Directly
+Path=$st_install_path
+EOF
+            chmod +x "$desktop_dir/SillyTavern.desktop"
+            ;;
+
+        Darwin)
+            desktop_dir="$HOME/Desktop"
+            # Create launcher shortcut
+            echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Creating ST-Launcher shortcut..."
+            cat << EOF > "$desktop_dir/ST-Launcher.command"
+#!/bin/zsh
+cd "$stl_root" && ./launcher.sh
+EOF
+            chmod +x "$desktop_dir/ST-Launcher.command"
+
+            # Create SillyTavern direct start shortcut
+            echo -e "${blue_bg}[$(date +%T)]${reset} ${blue_fg_strong}[INFO]${reset} Creating SillyTavern shortcut..."
+            cat << EOF > "$desktop_dir/SillyTavern.command"
+#!/bin/zsh
+cd "$st_install_path" && ./start.sh
+EOF
+            chmod +x "$desktop_dir/SillyTavern.command"
+            
+            # Set custom icons (requires osascript)
+            if [ -f "$icon_launcher" ]; then
+                osascript << EOF
+set iconPath to POSIX file "$icon_launcher"
+tell application "Finder" to set label icon of alias file ("$desktop_dir/ST-Launcher.command" as POSIX file) to iconPath
+EOF
+            fi
+            
+            if [ -f "$icon_sillytavern" ]; then
+                osascript << EOF
+set iconPath to POSIX file "$icon_sillytavern"
+tell application "Finder" to set label icon of alias file ("$desktop_dir/SillyTavern.command" as POSIX file) to iconPath
+EOF
+            fi
+            ;;
+
+        *)
+            echo -e "${red_fg_strong}Unsupported operating system for desktop shortcuts${reset}"
+            return 1
+            ;;
+    esac
+
+    # Verify creation
+    if [ -f "$desktop_dir/ST-Launcher"* ] && [ -f "$desktop_dir/SillyTavern"* ]; then
+        echo -e "${green_fg_strong}Shortcuts created successfully on "$desktop_dir/SillyTavern" ${reset}"
+    else
+        echo -e "${yellow_fg_strong}Warning: Shortcuts might not have been created correctly${reset}"
+    fi
+}
 
 # Function to install Extras
 install_extras() {
@@ -788,23 +957,35 @@ install_xtts_successful() {
 }
 
 
+# Exit Function
+exit_program() {
+    clear
+    echo "Bye!"
+    exit 0
+}
+
 ############################################################
 ################# INSTALLER - FRONTEND #####################
 ############################################################
 installer() {
     echo -e "\033]0;SillyTavern [INSTALLER]\007"
     clear
-    echo -e "${blue_fg_strong}/ Installer${reset}"
-    echo "-------------------------------------"
-    echo "What would you like to do?"
-    echo "1. Install SillyTavern"
-    echo "2. Install Extras"
-    echo "3. Install XTTS"
-    echo "4. Install All Options From Above"
-    echo "5. Support"
-    echo "0. Exit"
-
-    read -p "Choose Your Destiny (default is 1): " choice
+    echo -e "${blue_fg_strong}| > / Installer                                               |${reset}"
+    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| What would you like to do?                                  |${reset}"
+    echo "  1. Install SillyTavern"
+    echo "  2. Install XTTS"
+    echo "  3. Support"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Discontinued                                                |${reset}"
+    echo "  4. Install Extras"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Menu Options:                                               |${reset}"
+    echo "  0. Exit"
+    echo -e "${cyan_fg_strong} _____________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}|                                                             |${reset}"
+    read -p "  Choose Your Destiny (default is 1): " choice
 
     # Default to choice 1 if no input is provided
     if [ -z "$choice" ]; then
@@ -814,152 +995,164 @@ installer() {
 ################# INSTALLER - BACKEND #####################
     case $choice in
         1) install_sillytavern ;;
-        2) install_extras ;;
-        3) install_xtts ;;
-        4) install_all ;;
-        5) support ;;
-        0) exit ;;
+        2) install_xtts ;;
+        3) support ;; 
+        4) install_extras ;;
+#        4) install_all ;;
+        0) exit_program ;;
         *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
            read -p "Press Enter to continue..."
            installer ;;
     esac
 }
 
-# Functions for Support Menu - Backend
-issue_report() {
-    if [ "$EUID" -eq 0 ]; then
-        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
-    else
-        if [ "$(uname -s)" == "Darwin" ]; then
-            open https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose
+
+detect_package_manager() {
+    local package_manager
+
+    # Check for macOS first
+    if [ "$(uname)" = "Darwin" ]; then
+        if command -v brew &> /dev/null; then
+            echo "brew"
+            return 0
         else
-            xdg-open https://github.com/SillyTavern/SillyTavern-Launcher/issues/new/choose
+            echo "unknown"
+            return 1
         fi
     fi
-    read -p "Press Enter to continue..."
-    support
+
+    # Check for Linux package managers
+    case "$(true; command -v apt dnf yum apk pacman emerge zypper xbps-install guix nix-env 2>/dev/null | head -n1)" in
+        *apt) package_manager="apt" ;;
+        *dnf) package_manager="dnf" ;;
+        *yum) package_manager="yum" ;;
+        *apk) package_manager="apk" ;;
+        *pacman) package_manager="pacman" ;;
+        *emerge) package_manager="emerge" ;;
+        *zypper) package_manager="zypper" ;;
+        *xbps-install) package_manager="xbps" ;;
+        *guix) package_manager="guix" ;;
+        *nix-env) package_manager="nix" ;;
+        *)
+            if [ -f /etc/os-release ]; then
+                os_id=$(grep -E '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+                case "$os_id" in
+                    almalinux|centos_stream|ol|rhel|rocky|fedora|fedoraremixforwsl|nobara)
+                        package_manager="yum" ;;
+                    alpine|wolfi)
+                        package_manager="apk" ;;
+                    arch|arch32|archcraft|arcolinux|arkane|artix|aurora|bazzite|blackarch|blendos|bluefin|bodhi|cachyos|chimera|chimeraos|endeavouros|garuda|hyperbola|kaos|manjaro|manjaro-arm|rebornos|steamos|void)
+                        package_manager="pacman" ;;
+                    debian|devuan|elementary|kali|linuxmint|parrot|pika|pisilinux|pop|pureos|raspbian|tails|ubuntu|ubuntu_kylin|vanillaos|zorin)
+                        package_manager="apt" ;;
+                    opensuse-leap|opensuse-tumbleweed|sled|sles)
+                        package_manager="zypper" ;;
+                    gentoo|funtoo)
+                        package_manager="emerge" ;;
+                    nixos)
+                        package_manager="nix" ;;
+                    guix)
+                        package_manager="guix" ;;
+                    clear-linux-os|miraclelinux|photon|solus|tencentos|tinycore|trisquel|ultramarine)
+                        package_manager="unknown" ;; # Custom handling needed
+                    *)
+                        package_manager="unknown" ;;
+                esac
+            else
+                package_manager="unknown"
+            fi
+            ;;
+    esac
+
+    echo "$package_manager"
 }
 
-documentation() {
-    if [ "$EUID" -eq 0 ]; then
-        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
-    else
-        if [ "$(uname -s)" == "Darwin" ]; then
-            open https://docs.sillytavern.app/
-        else
-            xdg-open https://docs.sillytavern.app/
-        fi
-    fi
-    read -p "Press Enter to continue..."
-    support
-}
 
-discord() {
-    if [ "$EUID" -eq 0 ]; then
-        log_message "ERROR" "${red_fg_strong}Cannot run xdg-open as root. Please run the script without root permission.${reset}"
-    else
-        if [ "$(uname -s)" == "Darwin" ]; then
-            open https://discord.gg/sillytavern
-        else
-            xdg-open https://discord.gg/sillytavern
-        fi
-    fi
-    read -p "Press Enter to continue..."
-    support
-}
+# Main function to install dependencies based on package manager
+install_dependencies() {
+    PACKAGE_MANAGER=$(detect_package_manager)
 
-
-# Support Menu - Frontend
-support() {
-    echo -e "\033]0;SillyTavern [SUPPORT]\007"
-    clear
-    echo -e "${blue_fg_strong}/ Home / Support${reset}"
-    echo "-------------------------------------"
-    echo "What would you like to do?"
-    echo "1. I want to report an issue"
-    echo "2. Documentation"
-    echo "3. Discord"
-    echo "0. Back to installer"
-
-    read -p "Choose Your Destiny: " support_choice
-
-    # Support Menu - Backend
-    case $support_choice in
-        1) issue_report ;;
-        2) documentation ;;
-        3) discord ;;
-        0) installer ;;
-        *) echo -e "${yellow_fg_strong}WARNING: Invalid number. Please insert a valid number.${reset}"
-           read -p "Press Enter to continue..."
-           support ;;
+    case "$PACKAGE_MANAGER" in
+        apt)
+            log_message "INFO" "Detected APT on Debian/Ubuntu-based system."
+            sudo apt update -y
+            install_git
+            install_nodejs
+            install_miniconda
+            installer
+            ;;
+        dnf|yum)
+            log_message "INFO" "Detected DNF/YUM on RHEL-based system."
+            sudo $PACKAGE_MANAGER install -y epel-release
+            install_git
+            install_nodejs
+            install_miniconda
+            installer
+            ;;
+        pacman)
+            log_message "INFO" "Detected Pacman on Arch-based system."
+            sudo pacman -Sy --noconfirm
+            install_git
+            install_nodejs
+            install_miniconda
+            installer
+            ;;
+        apk)
+            log_message "INFO" "Detected APK on Alpine Linux."
+            sudo apk update
+            install_git
+            install_nodejs
+            install_miniconda
+            installer
+            ;;
+        zypper)
+            log_message "INFO" "Detected Zypper on openSUSE."
+            sudo zypper refresh
+            install_git
+            install_nodejs
+            install_miniconda
+            installer
+            ;;
+        emerge)
+            log_message "INFO" "Detected Portage on Gentoo."
+            sudo emerge --sync
+            install_git
+            install_nodejs
+            install_miniconda
+            installer
+            ;;
+        nix)
+            log_message "INFO" "Detected Nix Package Manager."
+            nix-env -iA nixpkgs.git nixpkgs.nodejs
+            install_miniconda
+            installer
+            ;;
+        guix)
+            log_message "INFO" "Detected Guix Package Manager."
+            install_git
+            install_nodejs
+            install_miniconda
+            installer
+            ;;
+        brew)
+            log_message "INFO" "Detected Homebrew on macOS."
+            if ! command -v brew &> /dev/null; then
+                log_message "ERROR" "Homebrew is not installed. Please install it first: https://brew.sh/"
+                exit 1
+            fi
+            install_git
+            install_nodejs
+            install_miniconda
+            installer
+            ;;
+        *)
+            log_message "ERROR" "Unknown package manager. Please install dependencies manually."
+            exit 1
+            ;;
     esac
 }
 
-# Check if the script is running on macOS
-if [ "$(uname)" == "Darwin" ]; then
-    IS_MACOS="1"
-fi
-
-# Detect the package manager and execute the appropriate installation
-if [ -n "$IS_MACOS" ]; then
-    log_message "INFO" "${blue_fg_strong}Detected macOS system.${reset}"
-    # macOS
-    install_git
-    install_nodejs_npm
-    install_miniconda
-    installer
-elif command -v apt-get &>/dev/null; then
-    log_message "INFO" "${blue_fg_strong}Detected Debian/Ubuntu-based system.${reset}"
-    # Debian/Ubuntu
-    install_git
-    install_nodejs_npm
-    install_miniconda
-    installer
-elif command -v yum &>/dev/null; then
-    log_message "INFO" "${blue_fg_strong}Detected Red Hat/Fedora-based system.${reset}"
-    # Red Hat/Fedora
-    install_git
-    install_nodejs_npm
-    install_miniconda
-    installer
-elif command -v apk &>/dev/null; then
-    log_message "INFO" "${blue_fg_strong}Detected Alpine Linux-based system.${reset}"
-    # Alpine Linux
-    install_git
-    install_nodejs_npm
-    install_miniconda
-    installer
-elif command -v pacman &>/dev/null; then
-    log_message "INFO" "${blue_fg_strong}Detected Arch Linux-based system.${reset}"
-    # Arch Linux
-    install_git
-    install_nodejs_npm
-    install_miniconda
-    installer
-elif command -v emerge &>/dev/null; then
-    log_message "INFO" "${blue_fg_strong}Detected Gentoo Linux-based system. Now you are the real CHAD${reset}"
-    # Gentoo Linux
-    install_git
-    install_nodejs_npm
-    install_miniconda
-    installer
-elif command -v pkg &>/dev/null; then
-    log_message "INFO" "${blue_fg_strong}Detected pkg System${reset}"
-    # pkg
-    install_git
-    install_nodejs_npm
-    install_miniconda
-    installer
-elif command -v zypper &>/dev/null; then
-    log_message "INFO" "${blue_fg_strong}Detected openSUSE system.${reset}"
-    # openSUSE
-    install_git
-    install_nodejs_npm
-    install_miniconda
-    installer
-else
-    log_message "ERROR" "${red_fg_strong}Unsupported package manager. Cannot detect Linux distribution.${reset}"
-    exit 1
-fi
-
-
+# Startup functions
+detect_package_manager
+install_dependencies
+installer
