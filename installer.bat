@@ -15,22 +15,25 @@ title STL Installer [STARTUP CHECK]
 
 setlocal
 
+REM Generate the ESC character
+for /F %%a in ('echo prompt $E ^| cmd') do set "ESC=%%a"
+
 REM ANSI Escape Code for Colors
-set "reset=[0m"
+set "reset=%ESC%[0m"
 
 REM Strong Foreground Colors
-set "white_fg_strong=[90m"
-set "red_fg_strong=[91m"
-set "green_fg_strong=[92m"
-set "yellow_fg_strong=[93m"
-set "blue_fg_strong=[94m"
-set "magenta_fg_strong=[95m"
-set "cyan_fg_strong=[96m"
+set "white_fg_strong=%ESC%[90m"
+set "red_fg_strong=%ESC%[91m"
+set "green_fg_strong=%ESC%[92m"
+set "yellow_fg_strong=%ESC%[93m"
+set "blue_fg_strong=%ESC%[94m"
+set "magenta_fg_strong=%ESC%[95m"
+set "cyan_fg_strong=%ESC%[96m"
 
 REM Normal Background Colors
-set "red_bg=[41m"
-set "blue_bg=[44m"
-set "yellow_bg=[43m"
+set "red_bg=%ESC%[41m"
+set "blue_bg=%ESC%[44m"
+set "yellow_bg=%ESC%[43m"
 
 REM Define variables for the core directories
 set "bin_dir=%~dp0bin"
