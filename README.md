@@ -64,34 +64,72 @@ chmod +x launcher.sh && ./launcher.sh
 ```
 
 # ✨ Features
-* Ability to automatically install Core apps with optional apps:
-  * SillyTavern,
-  * Extras,
-  * XTTS,
-  * 7-Zip,
-  * FFmpeg,
-  * Node.js,
-  * yq,
-  * Visual Studio BuildTools,
-  * CUDA Toolkit
+## **Core Utilities**
+Manage essential tools for SillyTavern and other applications.
 
-* Ability to automaticly install Text Completion apps:
-  * Text generation web UI oobabooga
-  * koboldcpp
-  * TabbyAPI
+### **Supported Apps:**
+- SillyTavern
+- 7-Zip, FFmpeg, Node.js, yq, Visual Studio BuildTools, CUDA Toolkit, Tailscale, w64devkit
 
-* Ability to automaticly install Image Generation apps:
-  * Stable Diffusion web UI
-  * Stable Diffusion web UI Forge
-  * ComfyUI
-  * Fooocus
+### **Functions:**
+- Install, uninstall, and configure core utilities
+- Edit environment variables and configurations via menu options
 
-* Auto update all apps
-* Backup and Restore SillyTavern
-* Switch branch
-* Module editors
-* App installer & uninstaller to manage applications
-* Troubleshooting menu to fix most common problems
+## **Text Completion Apps**
+Set up and manage text generation platforms.
+
+### **Supported Apps:**
+- Text Generation Web UI (oobabooga)
+- KoboldCPP
+- KoboldCPP Raw
+- LlamaCPP
+- TabbyAPI
+- TabbyAPI with ST Extensions
+
+### **Functions:**
+- Install, launch, uninstall, and customize modules through menu selections
+
+## **Image Generation Apps**
+Handle image generation platforms.
+
+### **Supported Apps:**
+- Stable Diffusion Web UI
+- Stable Diffusion Web UI Forge
+- ComfyUI
+- Fooocus
+- Ostris AI Toolkit
+
+### **Functions:**
+- Install, launch, uninstall, and tweak settings via the menu system
+
+## **Voice Generation Apps**
+Manage voice synthesis and processing tools.
+
+### **Supported Apps:**
+- XTTS
+- AllTalk
+- AllTalk v2 (with diagnostic and fine-tuning modes)
+- RVC (Retrieval-based Voice Conversion, including real-time support)
+
+### **Functions:**
+- Install, launch, uninstall, and adjust configurations for voice generation tools
+
+## **Additional Features**
+- **Backup and Restore:** Create and restore SillyTavern backups.
+- **SSL Support:** Generate SSL certificates via a dedicated menu.
+- **Troubleshooting:**
+  - Detect VPN issues
+  - Gather GPU information
+  - Check ports
+  - Resolve GitHub conflicts
+  - Clear caches (Node.js, npm, pip)
+  - Export diagnostic data
+  - Restart the launcher
+  - Discord Servers
+- **App Management:** Auto-update, switch branches, manage installations/uninstallations.
+- **Logging:** View logs for troubleshooting (`logs/` directory).
+- **Custom Settings:** Configure custom shortcuts and modules (`settings/` directory).
+
 
 # Questions or suggestions?
 
