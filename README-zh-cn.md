@@ -7,7 +7,7 @@
 <h1 align="center">SillyTavern Launcher - (STL)</h1>
 
 <p align="center">
-    【<a href="README-zh-cn.md">English</a> | 中文 | <a href="README-ja-jp.md">Japanese</a> | <a href="README-ko-kr.md">Korean</a> | <a href="README-nl-nl.md">Dutch</a> | <a href="README-fr-fr.md">French</a> | <a href="README-vi-vn.md">Vietnamese</a> | <a href="README-pt-pt.md">Portuguese</a> | <a href="README-es-es.md">Spanish</a>】
+    <a href="README.md">English</a> | 中文 | <a href="README-zh-tw.md">繁體中文</a> | <a href="README-ja-jp.md">日本語</a> | <a href="README-ko-kr.md">한국어</a> | <a href="README-nl-nl.md">Nederlands</a> | <a href="README-fr-fr.md">Français</a> | <a href="README-vi-vn.md">Tiếng Việt</a> | <a href="README-pt-pt.md">Português</a> | <a href="README-es-es.md">Español</a>
   
 [![GitHub Stars](https://img.shields.io/github/stars/SillyTavern/SillyTavern-Launcher.svg)](https://github.com/SillyTavern/SillyTavern-Launcher/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/SillyTavern/SillyTavern-Launcher.svg)](https://github.com/SillyTavern/SillyTavern-Launcher/network)
