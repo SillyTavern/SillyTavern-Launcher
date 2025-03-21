@@ -2943,7 +2943,7 @@ git clone https://github.com/ashen-sensored/sd_webui_SAG.git
 git clone https://github.com/NoCrypt/sd-fast-pnginfo.git
 git clone https://github.com/Bing-su/adetailer.git
 git clone https://github.com/hako-mikan/sd-webui-supermerger.git
-git clone https://github.com/AlUlkesh/stable-diffusion-webui-images-browser.git
+git clone https://github.com/zanllp/sd-webui-infinite-image-browsing.git
 git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git
 git clone https://github.com/Gourieff/sd-webui-reactor-sfw.git
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git
@@ -3229,7 +3229,7 @@ git clone https://github.com/ashen-sensored/sd_webui_SAG.git
 git clone https://github.com/NoCrypt/sd-fast-pnginfo.git
 git clone https://github.com/Bing-su/adetailer.git
 git clone https://github.com/hako-mikan/sd-webui-supermerger.git
-git clone https://github.com/AlUlkesh/stable-diffusion-webui-images-browser.git
+git clone https://github.com/zanllp/sd-webui-infinite-image-browsing.git
 git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git
 git clone https://github.com/Gourieff/sd-webui-reactor-sfw.git
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git
