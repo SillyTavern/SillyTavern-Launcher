@@ -2308,10 +2308,11 @@ echo %blue_fg_strong% ==========================================================
 echo %cyan_fg_strong% ____________________________________________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                                                 ^|%reset%
 
-echo    1. Install Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2 [RP, General, UNCENSORED]
-echo    2. Install L3-8B-Stheno-v3.2-exl2 [RP, UNCENSORED]
-echo    3. Install Replete-Coder-Instruct-8b-Merged-exl2 [Programming, Cybersecurity, UNCENSORED]
-echo    4. Install a custom model
+echo    1. Install Captain-Eris_Violet-V0.420-12B-4bpw-exl2 [RP, General, UNCENSORED]
+echo    2. Install Hathor_Tahsin-L3-8B-v0.85-5bpw-exl2 [RP, General, UNCENSORED]
+echo    3. Install L3-8B-Stheno-v3.2-exl2 [RP, UNCENSORED]
+echo    4. Install Replete-Coder-Instruct-8b-Merged-exl2 [Programming, Cybersecurity, UNCENSORED]
+echo    5. Install a custom model
 echo %cyan_fg_strong% ____________________________________________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                                              ^|%reset%
 echo    0. Back
@@ -2328,12 +2329,14 @@ set /p "app_installer_tabbyapi_model_choice=%BS%   Choose Your Destiny: "
 
 REM ######## APP INSTALLER TABBYAPI Models - BACKEND #########
 if "%app_installer_tabbyapi_model_choice%"=="1" (
-    call :install_tabbyapi_model_hathor
+    call :install_tabbyapi_model_captainiris
 ) else if "%app_installer_tabbyapi_model_choice%"=="2" (
-    goto :install_tabbyapi_model_stheno
+    goto :install_tabbyapi_model_hathor
 ) else if "%app_installer_tabbyapi_model_choice%"=="3" (
-    goto :install_tabbyapi_model_repletecoder
+    goto :install_tabbyapi_model_stheno
 ) else if "%app_installer_tabbyapi_model_choice%"=="4" (
+    goto :install_tabbyapi_model_repletecoder
+) else if "%app_installer_tabbyapi_model_choice%"=="5" (
     goto :install_tabbyapi_model_custom
 ) else if "%app_installer_tabbyapi_model_choice%"=="0" (
     goto :install_tabbyapi_menu
@@ -2343,6 +2346,66 @@ if "%app_installer_tabbyapi_model_choice%"=="1" (
     pause
     goto :install_tabbyapi_model_menu
 )
+
+:install_tabbyapi_model_captainiris
+cd /d "%tabbyapi_install_path%\models"
+REM Install model Based on VRAM Size
+if %UVRAM% lss 8 (
+echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Sorry... You need atleast 8GB VRAM or more to run a local LLM%reset%
+pause
+goto :install_tabbyapi_model_menu
+) else if %UVRAM% lss 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset%Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
+REM Check if model exists
+if exist "Captain-Eris_Violet-V0.420-12B-4bpw-exl2" (
+    REM Remove model if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
+    rmdir /s /q "Captain-Eris_Violet-V0.420-12B-4bpw-exl2"
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model size bits: 4.0
+echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or more, depending on your internet speed.%reset%
+echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
+git clone https://huggingface.co/Nitrals-Quants/Captain-Eris_Violet-V0.420-12B-4bpw-exl2
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Captain-Eris_Violet-V0.420-12B-4bpw-exl2%reset%
+goto :install_tabbyapi_model_captainiris_presets
+
+) else if %UVRAM% equ 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
+REM Check if model exists
+if exist "Captain-Eris_Violet-V0.420-12B-4bpw-exl2" (
+    REM Remove model if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
+    rmdir /s /q "Captain-Eris_Violet-V0.420-12B-4bpw-exl2"
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model size bits: 4.0
+echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or more, depending on your internet speed.%reset%
+echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
+git clone https://huggingface.co/Nitrals-Quants/Captain-Eris_Violet-V0.420-12B-4bpw-exl2
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Captain-Eris_Violet-V0.420-12B-4bpw-exl2%reset%
+goto :install_tabbyapi_model_captainiris_presets
+
+) else if %UVRAM% gtr 12 (
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Detected GPU VRAM: %cyan_fg_strong%%UVRAM% GB%reset%
+REM Check if model exists
+if exist "Captain-Eris_Violet-V0.420-12B-4bpw-exl2" (
+    REM Remove model if it already exists
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing model...
+    rmdir /s /q "Captain-Eris_Violet-V0.420-12B-4bpw-exl2"
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading model size bits: 4.0
+echo %cyan_fg_strong%The download will take a while, approximately 5 minutes or more, depending on your internet speed.%reset%
+echo %cyan_fg_strong%When you see: Unpacking objects: 100, please wait until you see Successfully installed model in green text.%reset%
+git clone https://huggingface.co/Nitrals-Quants/Captain-Eris_Violet-V0.420-12B-4bpw-exl2
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed model: Captain-Eris_Violet-V0.420-12B-4bpw-exl2%reset%
+goto :install_tabbyapi_model_captainiris_presets
+
+) else (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] An unexpected amount of VRAM detected or unable to detect VRAM. Check your system specifications.%reset%
+    pause
+    goto :install_tabbyapi_model_menu
+)
+
+
 
 :install_tabbyapi_model_hathor
 cd /d "%tabbyapi_install_path%\models"
@@ -2528,6 +2591,9 @@ goto :install_tabbyapi_model_menu
     pause
     goto :install_tabbyapi_model_menu
 )
+
+:install_tabbyapi_model_captainiris_presets
+
 
 :install_tabbyapi_model_hathor_presets
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hathor presets...
@@ -2879,7 +2945,7 @@ git clone https://github.com/Bing-su/adetailer.git
 git clone https://github.com/hako-mikan/sd-webui-supermerger.git
 git clone https://github.com/AlUlkesh/stable-diffusion-webui-images-browser.git
 git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git
-git clone https://github.com/Gourieff/sd-webui-reactor.git
+git clone https://github.com/Gourieff/sd-webui-reactor-sfw.git
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git
 
 REM Installs better upscaler models
@@ -3165,7 +3231,7 @@ git clone https://github.com/Bing-su/adetailer.git
 git clone https://github.com/hako-mikan/sd-webui-supermerger.git
 git clone https://github.com/AlUlkesh/stable-diffusion-webui-images-browser.git
 git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git
-git clone https://github.com/Gourieff/sd-webui-reactor.git
+git clone https://github.com/Gourieff/sd-webui-reactor-sfw.git
 git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git
 
 REM Installs better upscaler models
