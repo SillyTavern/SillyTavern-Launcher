@@ -110,6 +110,19 @@ if exist "%sdwebui_modules_path%" (
     )
 )
 
+REM Define variables to track module status (COMFYUI)
+set "comfyui_modules_path=%~dp0bin\settings\modules-comfyui.txt"
+set "comfyui_disableautolaunch_trigger=false"
+set "comfyui_listen_trigger=false"
+set "comfyui_port_trigger=false"
+set "comfyui_lowvram_trigger=false"
+set "comfyui_medvram_trigger=false"
+if exist "%comfyui_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%comfyui_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
+
 REM Define variables to track module status (STABLE DIFFUSION WEBUI FORGE)
 set "sdwebuiforge_modules_path=%~dp0bin\settings\modules-sdwebuiforge.txt"
 set "sdwebuiforge_autolaunch_trigger=false"
@@ -361,6 +374,14 @@ if not exist %sdwebui_modules_path% (
 )
 REM Load modules-xtts flags from modules-xtts
 for /f "tokens=*" %%a in (%sdwebui_modules_path%) do set "%%a"
+
+REM Create modules-comfyui if it doesn't exist
+if not exist %comfyui_modules_path% (
+    type nul > %comfyui_modules_path%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created text file: "modules-comfyui.txt"  
+)
+REM Load modules-xtts flags from modules-xtts
+for /f "tokens=*" %%a in (%comfyui_modules_path%) do set "%%a"
 
 
 REM Create modules-ooba if it doesn't exist
