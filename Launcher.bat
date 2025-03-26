@@ -1923,7 +1923,18 @@ if "%app_launcher_image_generation_choice%"=="1" (
         goto :home
     )
 ) else if "%app_launcher_image_generation_choice%"=="3" (
-    goto :start_comfyui
+    set "caller=app_launcher_image_generation"
+    if exist "%app_launcher_image_generation_dir%\start_comfyui.bat" (
+        call %app_launcher_image_generation_dir%\start_comfyui.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_comfyui.bat not found in: app_launcher_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_comfyui.bat not found in: %app_launcher_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
 ) else if "%app_launcher_image_generation_choice%"=="4" (
     goto :start_fooocus
 ) else if "%app_launcher_image_generation_choice%"=="5" (
@@ -1947,23 +1958,6 @@ if "%app_launcher_image_generation_choice%"=="1" (
     pause
     goto :app_launcher_image_generation
 )
-
-
-
-
-:start_comfyui
-REM Run conda activate from the Miniconda installation
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
-call "%miniconda_path%\Scripts\activate.bat"
-
-REM Activate the comfyui environment
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%comfyui%reset%
-call conda activate comfyui
-
-REM Start ComfyUI with desired configurations
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% ComfyUI launched in a new window.
-start cmd /k "title ComfyUI && cd /d %comfyui_install_path% && python main.py --auto-launch --listen --port 7901"
-goto :home
 
 
 :start_fooocus

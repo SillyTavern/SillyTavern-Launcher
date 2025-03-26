@@ -16,7 +16,7 @@ call :printModule "2. Port (--port 7969)" %comfyui_port_trigger%
 call :printModule "3. Listen (--listen)" %comfyui_listen_trigger%
 call :printModule "4. Low VRAM (--lowvram)" %comfyui_lowvram_trigger%
 call :printModule "5. Med VRAM (--medvram)" %comfyui_medvram_trigger%
-echo 00. Quick Start Stable Diffusion WebUI
+echo 00. Quick Start ComfyUI
 echo 0. Back
 
 set "python_command="
@@ -91,7 +91,7 @@ REM remove modules_enable
 set "modules_enable="
 
 REM Compile the Python command
-set "python_command=python launch.py"
+set "python_command=python main.py"
 if "%comfyui_disableautolaunch_trigger%"=="true" (
     set "python_command=%python_command% --disable-auto-launch"
 )
