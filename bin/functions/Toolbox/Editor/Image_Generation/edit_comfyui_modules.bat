@@ -16,6 +16,7 @@ call :printModule "2. Port (--port 7969)" %comfyui_port_trigger%
 call :printModule "3. Listen (--listen)" %comfyui_listen_trigger%
 call :printModule "4. Low VRAM (--lowvram)" %comfyui_lowvram_trigger%
 call :printModule "5. Med VRAM (--medvram)" %comfyui_medvram_trigger%
+call :printModule "6. Use CPU Only (--cpu)" %comfyui_cpu_trigger%
 echo 00. Quick Start ComfyUI
 echo 0. Back
 
@@ -61,6 +62,13 @@ for %%i in (%comfyui_module_choices%) do (
             set "comfyui_medvram_trigger=true"
         )
 
+    ) else if "%%i"=="6" (
+        if "%comfyui_cpu_trigger%"=="true" (
+            set "comfyui_cpu_trigger=false"
+        ) else (
+            set "comfyui_cpu_trigger=true"
+        )
+
     ) else if "%%i"=="00" (
         set "caller=app_launcher_image_generation"
         if exist "%app_launcher_image_generation_dir%\start_comfyui.bat" (
@@ -86,6 +94,7 @@ echo comfyui_port_trigger=%comfyui_port_trigger%>>%comfyui_modules_path%
 echo comfyui_listen_trigger=%comfyui_listen_trigger%>>%comfyui_modules_path%
 echo comfyui_lowvram_trigger=%comfyui_lowvram_trigger%>>%comfyui_modules_path%
 echo comfyui_medvram_trigger=%comfyui_medvram_trigger%>>%comfyui_modules_path%
+echo comfyui_cpu_trigger=%comfyui_cpu_trigger%>>%comfyui_modules_path%
 
 REM remove modules_enable
 set "modules_enable="
@@ -111,6 +120,10 @@ if "%comfyui_lowvram_trigger%"=="true" (
 
 if "%comfyui_medvram_trigger%"=="true" (
     set "python_command=%python_command% --medvram"
+)
+
+if "%comfyui_cpu_trigger%"=="true" (
+    set "python_command=%python_command% --cpu"
 )
 
 REM is modules_enable empty?
