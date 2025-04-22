@@ -1084,8 +1084,8 @@ echo %blue_fg_strong%^| ^> / Home / Update Manager / Image Generation           
 echo %blue_fg_strong% ==============================================================%reset%   
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
-echo    1. Update Stable Diffusion web UI
-echo    2. Update Stable Diffusion web UI forge
+echo    1. Update Stable Diffusion WebUI
+echo    2. Update Stable Diffusion WebUI Forge
 echo    3. Update ComfyUI
 echo    4. Update Fooocus
 echo    5. Update InvokeAI
@@ -1198,7 +1198,7 @@ set retry_count=0
 :retry_update_comfyui
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating ComfyUI...
 cd /d "%comfyui_install_path%"
-call git pull
+call git pull master
 if %errorlevel% neq 0 (
     set /A retry_count+=1
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
@@ -1877,8 +1877,8 @@ echo %blue_fg_strong% ==========================================================
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo    1. Start Stable Diffusion web UI
-echo    2. Start Stable Diffusion web UI forge
+echo    1. Start Stable Diffusion WebUI
+echo    2. Start Stable Diffusion WebUI Forge
 echo    3. Start ComfyUI
 echo    4. Start Fooocus
 echo    5. Start InvokeAI
@@ -2797,8 +2797,8 @@ echo %blue_fg_strong% ==========================================================
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo    1. Stable Diffusion web UI [Install options]
-echo    2. Stable Diffusion web UI forge [Install options]
+echo    1. Stable Diffusion WebUI [Install options]
+echo    2. Stable Diffusion WebUI Forge [Install options]
 echo    3. Install ComfyUI
 echo    4. Install Fooocus
 echo    5. Install InvokeAI
@@ -2889,12 +2889,12 @@ if exist "%sdwebui_install_path%" (
 )
 
 cls
-echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Image Generation / Stable Diffusion Web UI ^|%reset%
-echo %blue_fg_strong% =================================================================================%reset%   
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Image Generation / Stable Diffusion WebUI ^|%reset%
+echo %blue_fg_strong% ================================================================================%reset%   
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo    1. Install Stable Diffusion web UI
+echo    1. Install Stable Diffusion WebUI
 echo    2. Install Extensions
 echo    3. Models [Install Options]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
@@ -2970,7 +2970,7 @@ mkdir ESRGAN && cd ESRGAN
 curl -o 4x-AnimeSharp.pth https://huggingface.co/Kim2091/AnimeSharp/resolve/main/4x-AnimeSharp.pth
 curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
 pause
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extensions for Stable Diffusion web UI installed Successfully.%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extensions for Stable Diffusion WebUI installed Successfully.%reset%
 goto :install_sdwebui_menu
 
 
@@ -2998,20 +2998,24 @@ call conda activate sdwebui
 cd /d "%sdwebui_install_path%"
 
 cls
-echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / sdwebui Models          ^|%reset%
-echo %blue_fg_strong% ==============================================================%reset%
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Stable Diffusion WebUI / Models    ^|%reset%
+echo %blue_fg_strong% =========================================================================%reset%
 echo    1. Install a custom model
 echo    2. Add Civit AI API Key
 echo %cyan_fg_strong% ______________________________________________________________%reset%
-echo %cyan_fg_strong%^| SD 1.5 Models                                                ^|%reset%
-echo    3. Install Hassaku [ANIME MODEL]
-echo    4. Install YiffyMix [FURRY MODEL]
-echo    5. Install Perfect World [REALISM MODEL]
+echo %cyan_fg_strong%^| SD 1.5 Models [SD 1.5]                                       ^|%reset%
+echo    3. Install Hassaku [ANIME]
+echo    4. Install YiffyMix [FURRY]
+echo    5. Install Perfect World [REALISM]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
-echo %cyan_fg_strong%^| SDXL Models                                                  ^|%reset%
-echo    6. Install Hassaku XL [ANIME MODEL]
-echo    7. Install AutismMix_confetti [ANIME/CARTOON/FURRY MIX MODEL]
-echo    8. Install Pony Realism [REALISM MODEL]
+echo %cyan_fg_strong%^| SDXL Models [PONY]                                           ^|%reset%
+echo    6. Install Hassaku XL [ANIME] 
+echo    7. Install AutismMix_confetti [ANIME/CARTOON/FURRY MIX] 
+echo    8. Install Pony Realism [REALISM]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| SDXL Models [ILLUSTRIOUS]                                    ^|%reset%
+echo    9. Install WAI-NSFW-illustrious-SDXL [ANIME]
+
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| FLUX Models                                                  ^|%reset%
 echo    NOT SUPPORTED YET.
@@ -3044,8 +3048,8 @@ if "%app_installer_sdwebui_model_choice%"=="1" (
     goto :install_sdwebui_model_autismMixconfetti
 ) else if "%app_installer_sdwebui_model_choice%"=="8" (
     goto :install_sdwebui_model_ponyrealism
-REM ) else if "%app_installer_sdwebui_model_choice%"=="9" (
-REM     goto :install_sdwebui_model_flux
+ ) else if "%app_installer_sdwebui_model_choice%"=="9" (
+    goto :install_sdwebui_model_wai_nsfw_illustrious_sdxl
 ) else if "%app_installer_sdwebui_model_choice%"=="0" (
     goto :install_sdwebui_menu
 ) else (
@@ -3056,23 +3060,23 @@ REM     goto :install_sdwebui_model_flux
 )
 
 :install_sdwebui_model_hassaku
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku [SD 1.5] Model...
 civitdl 2583 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku [SD 1.5] Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebui_model_menu
 
 
 :install_sdwebui_model_yiffymix
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix [SD 1.5] Model...
 civitdl 3671 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Config...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix [SD 1.5] Config...
 civitdl 3671 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix VAE...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix [SD 1.5] VAE...
 civitdl 3671 -s basic "models\VAE"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%sdwebui_install_path%\models\VAE"%reset%
 pause
@@ -3080,7 +3084,7 @@ goto :install_sdwebui_model_menu
 
 
 :install_sdwebui_model_perfectworld
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World [SD 1.5] Model...
 civitdl 8281 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
@@ -3088,28 +3092,34 @@ goto :install_sdwebui_model_menu
 
 
 :install_sdwebui_model_hassakuxl
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku XL [PONY] Model...
 civitdl 376031 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku XL [PONY] Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebui_model_menu
 
 
 :install_sdwebui_model_autismMixconfetti
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading AutismMix SDXL [PONY] Model...
 civitdl 288584 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed AutismMix SDXL [PONY] Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebui_model_menu
 
 
 :install_sdwebui_model_ponyrealism
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Pony Realism [PONY] Model...
 civitdl 372465 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Pony Realism [PONY] Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebui_model_menu
 
+:install_sdwebui_model_wai_nsfw_illustrious_sdxl
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading WAI-NSFW-illustrious-SDXL [ILLUSTRIOUS] Model...
+civitdl 827184 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed WAI-NSFW-illustrious-SDXL [ILLUSTRIOUS] Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebui_model_menu
 
 REM :install_sdwebui_model_flux
 REM echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Flux...
@@ -3175,12 +3185,12 @@ if exist "%sdwebuiforge_install_path%" (
 )
 
 cls
-echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Stable Diffusion web UI forge ^|%reset%
-echo %blue_fg_strong% ====================================================================%reset%   
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Stable Diffusion WebUI Forge ^|%reset%
+echo %blue_fg_strong% ===================================================================%reset%   
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo    1. Install Stable Diffusion web UI forge
+echo    1. Install Stable Diffusion WebUI Forge
 echo    2. Install Extensions
 echo    3. Models [Install Options]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
@@ -3284,23 +3294,26 @@ call conda activate sdwebuiforge
 cd /d "%sdwebuiforge_install_path%"
 
 cls
-echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / SDWebUI Forge Models    ^|%reset%
-echo %blue_fg_strong% ==============================================================%reset%
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Stable Diffusion WebUI Forge / Models    ^|%reset%
+echo %blue_fg_strong% ===============================================================================%reset%
 echo    1. Install a custom model
 echo    2. Add Civit AI API Key
 echo %cyan_fg_strong% ______________________________________________________________%reset%
-echo %cyan_fg_strong%^| SD 1.5 Models                                                ^|%reset%
-echo    3. Install Hassaku [ANIME MODEL]
-echo    4. Install YiffyMix [FURRY MODEL]
-echo    5. Install Perfect World [REALISM MODEL]
+echo %cyan_fg_strong%^| SD 1.5 Models [SD 1.5]                                       ^|%reset%
+echo    3. Install Hassaku [ANIME]
+echo    4. Install YiffyMix [FURRY]
+echo    5. Install Perfect World [REALISM]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
-echo %cyan_fg_strong%^| SDXL Models                                                  ^|%reset%
-echo    6. Install Hassaku XL [ANIME MODEL]
-echo    7. Install AutismMix_confetti [ANIME/CARTOON/FURRY MIX MODEL]
-echo    8. Install Pony Realism [REALISM MODEL]
+echo %cyan_fg_strong%^| SDXL Models [PONY]                                           ^|%reset%
+echo    6. Install Hassaku XL [ANIME] 
+echo    7. Install AutismMix_confetti [ANIME/CARTOON/FURRY MIX] 
+echo    8. Install Pony Realism [REALISM]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| SDXL Models [ILLUSTRIOUS]                                    ^|%reset%
+echo    9. Install WAI-NSFW-illustrious-SDXL [ANIME]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| FLUX Models                                                  ^|%reset%
-echo    9. Install Flux.1-Dev/Schnell BNB NF4 [REALISM MODEL]
+echo    10. Install Flux.1-Dev/Schnell BNB NF4 [REALISM MODEL]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -3331,6 +3344,8 @@ if "%app_installer_sdwebuiforge_model_choice%"=="1" (
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="8" (
     goto :install_sdwebuiforge_model_ponyrealism
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="9" (
+    goto :install_sdwebuiforge_model_wai_nsfw_illustrious_sdxl
+) else if "%app_installer_sdwebuiforge_model_choice%"=="10" (
     goto :install_sdwebuiforge_model_flux
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="0" (
     goto :install_sdwebuiforge_menu
@@ -3342,23 +3357,23 @@ if "%app_installer_sdwebuiforge_model_choice%"=="1" (
 )
 
 :install_sdwebuiforge_model_hassaku
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku [SD 1.5] Model...
 civitdl 2583 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku [SD 1.5] Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebuiforge_model_menu
 
 
 :install_sdwebuiforge_model_yiffymix
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix [SD 1.5] Model...
 civitdl 3671 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix Config...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix [SD 1.5] Config...
 civitdl 3671 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix VAE...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix [SD 1.5] VAE...
 civitdl 3671 -s basic "models\VAE"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%sdwebuiforge_install_path%\models\VAE"%reset%
 pause
@@ -3366,7 +3381,7 @@ goto :install_sdwebuiforge_model_menu
 
 
 :install_sdwebuiforge_model_perfectworld
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World [SD 1.5] Model...
 civitdl 8281 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 pause
@@ -3374,25 +3389,32 @@ goto :install_sdwebuiforge_model_menu
 
 
 :install_sdwebuiforge_model_hassakuxl
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku XL [PONY] Model...
 civitdl 376031 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku XL [PONY] Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebuiforge_model_menu
 
 
 :install_sdwebuiforge_model_autismMixconfetti
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading AutismMix SDXL [PONY] Model...
 civitdl 288584 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed AutismMix SDXL [PONY] Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebuiforge_model_menu
 
 
 :install_sdwebuiforge_model_ponyrealism
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World Model...
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Pony Realism [PONY] Model...
 civitdl 372465 -s basic "models\Stable-diffusion"
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Pony Realism [PONY] Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
+
+:install_sdwebuiforge_model_wai_nsfw_illustrious_sdxl
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading WAI-NSFW-illustrious-SDXL [ILLUSTRIOUS] Model...
+civitdl 827184 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed WAI-NSFW-illustrious-SDXL [ILLUSTRIOUS] Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebuiforge_model_menu
 
@@ -3842,8 +3864,8 @@ echo %blue_fg_strong% ==========================================================
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo    1. UNINSTALL Stable Diffusion web UI
-echo    2. UNINSTALL Stable Diffusion web UI forge
+echo    1. UNINSTALL Stable Diffusion WebUI
+echo    2. UNINSTALL Stable Diffusion WebUI Forge
 echo    3. UNINSTALL ComfyUI
 echo    4. UNINSTALL Fooocus
 echo    5. UNINSTALL InvokeAI
@@ -4317,8 +4339,8 @@ echo %blue_fg_strong% ==========================================================
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
-echo    1. Edit Stable Diffusion web UI
-echo    2. Edit Stable Diffusion web UI forge
+echo    1. Edit Stable Diffusion WebUI
+echo    2. Edit Stable Diffusion WebUI Forge
 echo    3. Edit ComfyUI
 echo    4. Edit Fooocus
 echo %cyan_fg_strong% ______________________________________________________________%reset%

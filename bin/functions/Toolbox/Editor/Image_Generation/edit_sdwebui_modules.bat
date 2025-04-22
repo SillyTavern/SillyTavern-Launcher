@@ -6,7 +6,7 @@ REM ############################################################
 :edit_sdwebui_modules
 title STL [EDIT SDWEBUI MODULES]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Image Generation / Edit SDWEBUI Modules%reset%
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Image Generation / Edit Stable Diffusion WebUI Modules%reset%
 echo -------------------------------------------------------------
 echo Choose SDWEBUI modules to enable or disable (e.g., "1 2 4" to enable autolaunch, api, and opt-sdp-attention)
 

@@ -6,7 +6,7 @@ REM ############################################################
 :edit_sdwebuiforge_modules
 title STL [EDIT SDWEBUIFORGE MODULES]
 cls
-echo %blue_fg_strong%/ Home / Toolbox / Editor / Image Generation / Edit SDWEBUI FORGE Modules%reset%
+echo %blue_fg_strong%/ Home / Toolbox / Editor / Image Generation / Edit Stable Diffusion WebUI Forge Modules%reset%
 echo -------------------------------------------------------------
 echo Choose sdwebuiforge modules to enable or disable (e.g., "1 2 4" to enable autolaunch, api, and opt-sdp-attention)
 
@@ -21,7 +21,7 @@ call :printModule "7. skip torchcudatest (--skip-torch-cuda-test)" %sdwebuiforge
 call :printModule "8. low vram (--lowvram)" %sdwebuiforge_lowvram_trigger%
 call :printModule "9. med vram (--medvram)" %sdwebuiforge_medvram_trigger%
 call :printModule "10. cuda malloc (--cuda-malloc)" %sdwebuiforge_cudamalloc_trigger%
-echo 00. Quick Start Stable Diffusion WebUI
+echo 00. Quick Start Stable Diffusion WebUI Forge
 echo 0. Back
 
 set "python_command="
