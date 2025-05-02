@@ -93,6 +93,21 @@ if exist "%xtts_modules_path%" (
     )
 )
 
+REM Define variables to track module status (RVC-PYTHON)
+set "rvc_python_modules_path=%~dp0bin\settings\modules-rvc-python.txt"
+set "rvc_python_cuda_trigger=false"
+set "rvc_python_harvest_trigger=false"
+set "rvc_python_listen_trigger=false"
+set "rvc_python_preload_trigger=false"
+if exist "%rvc_python_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%rvc_python_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
+
+
+
+
 REM Define variables to track module status (STABLE DIFFUSION WEBUI)
 set "sdwebui_modules_path=%~dp0bin\settings\modules-sdwebui.txt"
 set "sdwebui_autolaunch_trigger=false"
@@ -208,6 +223,7 @@ set "alltalk_install_path=%voice_generation_dir%\alltalk_tts"
 set "alltalk_v2_install_path=%voice_generation_dir%\alltalk_tts"
 set "xtts_install_path=%voice_generation_dir%\xtts"
 set "rvc_install_path=%voice_generation_dir%\Retrieval-based-Voice-Conversion-WebUI"
+set "rvc_python_install_path=%voice_generation_dir%\rvc-python"
 
 REM Define variables for the core directories
 set "bin_dir=%~dp0bin"
@@ -365,6 +381,15 @@ if not exist %xtts_modules_path% (
 )
 REM Load modules-xtts flags from modules-xtts
 for /f "tokens=*" %%a in (%xtts_modules_path%) do set "%%a"
+
+
+REM Create modules-rvc-python if it doesn't exist
+if not exist %rvc_python_modules_path% (
+    type nul > %rvc_python_modules_path%
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created text file: "modules-rvc-python.txt"  
+)
+REM Load modules-xtts flags from modules-xtts
+for /f "tokens=*" %%a in (%rvc_python_modules_path%) do set "%%a"
 
 
 REM Create modules-sdwebui if it doesn't exist
@@ -1685,6 +1710,7 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 echo    1. AllTalk [Launch Options]
 echo    2. Start XTTS
 echo    3. RVC [Launch Options]
+echo    4. Start RVC-Python
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -1716,6 +1742,19 @@ if "%app_launcher_voice_generation_choice%"=="1" (
     )
 ) else if "%app_launcher_voice_generation_choice%"=="3" (
     call :app_launcher_voice_generation_rvc
+) else if "%app_launcher_voice_generation_choice%"=="4" (
+    set "caller=app_launcher_voice_generation"
+    if exist "%app_launcher_voice_generation_dir%\start_rvc_python.bat" (
+        call %app_launcher_voice_generation_dir%\start_rvc_python.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_rvc_python.bat not found in: app_launcher_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_rvc_python.bat not found in: %app_launcher_voice_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
 ) else if "%app_launcher_voice_generation_choice%"=="0" (
     goto :app_launcher
 ) else (
@@ -2716,6 +2755,7 @@ echo    1. Install AllTalk V2
 echo    2. Install AllTalk
 echo    3. Install XTTS
 echo    4. Install RVC
+echo    5. Install RVC-Python
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -2772,6 +2812,17 @@ if "%app_installer_voice_gen_choice%"=="1" (
     ) else (
         echo [%DATE% %TIME%] ERROR: install_rvc.bat not found in: %app_installer_voice_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_rvc.bat not found in: %app_installer_voice_generation_dir%%reset%
+        pause
+        goto :app_installer_voice_generation
+    )
+) else if "%app_installer_voice_gen_choice%"=="5" (
+    set "caller=app_installer_voice_generation"
+    if exist "%app_installer_voice_generation_dir%\install_rvc_python.bat" (
+        call %app_installer_voice_generation_dir%\install_rvc_python.bat
+        goto :app_installer_voice_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_rvc_python.bat not found in: %app_installer_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_rvc_python.bat not found in: %app_installer_voice_generation_dir%%reset%
         pause
         goto :app_installer_voice_generation
     )
@@ -4292,6 +4343,7 @@ echo %cyan_fg_strong% __________________________________________________________
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
 echo    1. Edit XTTS Modules
+echo    2. Edit RVC-PYTHON Modules
 
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
@@ -4315,6 +4367,17 @@ if "%editor_voice_generation_choice%"=="1" (
     ) else (
         echo [%DATE% %TIME%] ERROR: edit_xtts_modules.bat not found in: %editor_voice_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_xtts_modules.bat not found in: %editor_voice_generation_dir%%reset%
+        pause
+        goto :editor_voice_generation
+    )
+) else if "%editor_voice_generation_choice%"=="2" (
+    set "caller=editor_voice_generation"
+    if exist "%editor_voice_generation_dir%\edit_rvc_python_modules.bat" (
+        call %editor_voice_generation_dir%\edit_rvc_python_modules.bat
+        goto :editor_voice_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_rvc_python_modules.bat not found in: %editor_voice_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_rvc_python_modules.bat not found in: %editor_voice_generation_dir%%reset%
         pause
         goto :editor_voice_generation
     )
