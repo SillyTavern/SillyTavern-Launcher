@@ -4,7 +4,6 @@ title STL [VRAM INFO]
 chcp 65001 > nul
 setlocal enabledelayedexpansion
 
-
 REM Confirm script start and input arguments
 set "UVRAM=%~1"
 
@@ -17,10 +16,10 @@ if not defined UVRAM (
     set "UVRAM=0"
 )
 
-REM Get GPU information safely
+REM Get GPU information safely using PowerShell
 set "gpu_info="
-for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-    if not "%%i"=="" set "gpu_info=!gpu_info! %%i"
+for /f "tokens=*" %%i in ('powershell -Command "Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name -First 1"') do (
+    if not "%%i"=="" set "gpu_info=%%i"
 )
 
 cls

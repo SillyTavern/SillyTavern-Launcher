@@ -15,8 +15,9 @@ echo 0. Cancel
 setlocal enabledelayedexpansion
 chcp 65001 > nul
 REM Get GPU information
-for /f "skip=1 delims=" %%i in ('wmic path win32_videocontroller get caption') do (
-    set "gpu_info=!gpu_info! %%i"
+set "gpu_info="
+for /f "tokens=*" %%i in ('powershell -Command "Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name -First 1"') do (
+    set "gpu_info=%%i"
 )
 
 echo.

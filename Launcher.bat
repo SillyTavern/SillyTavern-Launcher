@@ -516,33 +516,40 @@ if not exist "%st_install_path%" (
     goto :no_st_install_path
 )
 
-REM Run PowerShell command to retrieve VRAM size and divide by 1GB
+REM Initialize variables for VRAM detection
 set /a iteration=0
 set /a last_UVRAM=0
+set "GPU_name=Unknown"
+set "last_GPU=Unknown"
+
 REM Detect GPU and store name, excluding integrated GPUs if discrete GPUs are found
-for /f "tokens=2 delims==" %%f in ('wmic path Win32_VideoController get name /value ^| find "="') do (
-	REM Run PowerShell command to retrieve VRAM size and divide by 1GB
-	for /f "usebackq tokens=*" %%i in (`powershell -Command "$qwMemorySize = (Get-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*' -Name HardwareInformation.qwMemorySize -ErrorAction SilentlyContinue).'HardwareInformation.qwMemorySize'; if ($null -ne $qwMemorySize -and $qwMemorySize -is [array]) { $qwMemorySize = [double]$qwMemorySize[!iteration!] } else { $qwMemorySize = [double]$qwMemorySize }; if ($null -ne $qwMemorySize) { [math]::Round($qwMemorySize/1GB) } else { 'Property not found' }"`) do (
-		set "UVRAM=%%i"
-	)
-	set /a iteration=!iteration!+1
-	REM If the VRAM is greater than 0 (it always should be, but just in case...) AND the lastUVRAM is not the same as VRAM
-	REM (might have to change this in the case where two cards have the same VRAM, but the user wants the first card...
-	REM in which case we would want to see if it is the first iteration or not... but I'm not here to do all your work!)
-	REM AND the lastUVRAM is Grt than VRAM... set it to the previous card. We don't have to check the other way, because
-	REM we already set VRAM. This way takes more builds into account... but not all.
-	if /i !lastUVRAM! gtr 0 (
-		if /i !lastUVRAM! neq !UVRAM! (
-			if /i !lastUVRAM! gtr !UVRAM! (
-				set "UVRAM=!lastUVRAM!"
-				@REM set "GPU_name=!last_GPU!"
-               
-			)
-		)
-	) else (
-		set "lastUVRAM=!UVRAM!"
-	)
+for /f "tokens=*" %%f in ('powershell -Command "Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name"') do (
+    REM Update GPU name and store previous name
+    if "!GPU_name!"=="" (
+        set "GPU_name=%%f"
+    ) else if "!GPU_name!" neq "%%f" (
+        set "last_GPU=!GPU_name!"
+        set "GPU_name=%%f"
+    )
+
+    REM Run PowerShell command to retrieve VRAM size and divide by 1GB
+    for /f "usebackq tokens=*" %%i in (`powershell -Command "$qwMemorySize = (Get-ItemProperty -Path 'HKLM:\SYSTEM\ControlSet001\Control\Class\{4d36e968-e325-11ce-bfc1-08002be10318}\0*' -Name HardwareInformation.qwMemorySize -ErrorAction SilentlyContinue).'HardwareInformation.qwMemorySize'; if ($null -ne $qwMemorySize -and $qwMemorySize -is [array]) { $qwMemorySize = [double]$qwMemorySize[!iteration!] } else { $qwMemorySize = [double]$qwMemorySize }; if ($null -ne $qwMemorySize) { [math]::Round($qwMemorySize/1GB) } else { 'Property not found' }"`) do (
+        set "UVRAM=%%i"
+    )
+
+    REM Increment iteration for array indexing
+    set /a iteration=!iteration!+1
+
+    REM Update UVRAM and GPU name only if current UVRAM is greater than last_UVRAM
+    if /i !UVRAM! gtr !last_UVRAM! (
+        set /a last_UVRAM=!UVRAM!
+        set "last_GPU=!GPU_name!"
+    )
 )
+
+REM Restore the GPU name and UVRAM to the one with the highest VRAM
+set "UVRAM=!last_UVRAM!"
+set "GPU_name=!last_GPU!"
 
 REM Change the current directory to 'sillytavern' folder
 cd /d "%st_install_path%"
