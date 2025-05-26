@@ -71,7 +71,7 @@ cd /d "%koboldcpp_install_path%"
 REM Use the GPU choice made earlier to install koboldcpp
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
-    curl -L -o "%koboldcpp_install_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/download/v1.92.1/koboldcpp_cu12.exe"
+    curl -L -o "%koboldcpp_install_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp_cu12.exe"
     start "" "koboldcpp.exe"
     goto :install_koboldcpp_final
 ) else if "%GPU_CHOICE%"=="2" (
