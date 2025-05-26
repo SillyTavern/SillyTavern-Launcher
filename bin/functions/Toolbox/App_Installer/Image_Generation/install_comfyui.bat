@@ -46,7 +46,7 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda env
 call conda activate comfyui
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pytorch...
-pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu124
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu128
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
 pip install -r requirements.txt
