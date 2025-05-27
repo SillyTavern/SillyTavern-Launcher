@@ -924,7 +924,7 @@ if exist "%koboldcpp_install_path%\koboldcpp.exe" (
     REM Remove koboldcpp
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing koboldcpp.exe
     del "%koboldcpp_install_path%\koboldcpp.exe"
-    curl -L -o "%koboldcpp_install_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
+    curl -L -o "%koboldcpp_install_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp_cu12.exe"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%koboldcpp updated successfully.%reset%
     pause
     goto :update_manager_text_completion
