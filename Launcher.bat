@@ -306,7 +306,7 @@ if %errorlevel% neq 0 (
         echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget failed to install Git or is not installed.%reset%
 
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Git using powershell...
-        powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://github.com/git-for-windows/git/releases/download/v2.47.0.windows.2/Git-2.47.0.2-64-bit.exe', '%bin_dir%\git.exe')"
+        curl -L -o "$bin_dir\git.exe" https://github.com/git-for-windows/git/releases/download/v2.45.2.windows.1/Git-2.45.2-64-bit.exe
 
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing git...
         start /wait %bin_dir%\git.exe /VERYSILENT /NORESTART

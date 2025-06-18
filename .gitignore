@@ -5,9 +5,11 @@ text-completion/
 image-generation/
 voice-generation/
 xtts/
-bin/*
+
 !bin/functions/
 !bin/functions/**
+bin/logs
+bin/settings
 *.txt
 *.logs
 /bin/functions/Toolbox/Troubleshooting/telemetry/venv

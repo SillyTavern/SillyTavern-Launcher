@@ -189,7 +189,7 @@ if %errorlevel% neq 0 (
         echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget failed to install Git or is not installed.%reset%
 
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Git using powershell...
-        powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://github.com/git-for-windows/git/releases/download/v2.45.2.windows.1/Git-2.45.2-64-bit.exe', '%bin_dir%\git.exe')"
+        curl -L -o "%bin_dir%\git.exe" https://github.com/git-for-windows/git/releases/download/v2.50.0.windows.1/Git-2.50.0-64-bit.exe
 
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing git...
         start /wait %bin_dir%\git.exe /VERYSILENT /NORESTART
@@ -242,7 +242,7 @@ if %errorlevel% neq 0 (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3 using PowerShell...
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Miniconda3...
-    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe', '%bin_dir%\Miniconda3-latest-Windows-x86_64.exe')"
+    curl -L -o "%bin_dir%\Miniconda3-latest-Windows-x86_64.exe" https://repo.anaconda.com/miniconda/Miniconda3-latest-Windows-x86_64.exe
 
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3...
     start /wait %bin_dir%\Miniconda3-latest-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /AddToPath=1 /S
@@ -553,7 +553,7 @@ if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget is not installed or failed to install Microsoft.VCRedist.2015+.x64%reset%
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Attempting to install Microsoft.VCRedist.2015+.x64 using powershell...
 
-    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/c7707d68-d6ce-4479-973e-e2a3dc4341fe/1AD7988C17663CC742B01BEF1A6DF2ED1741173009579AD50A94434E54F56073/VC_redist.x64.exe', '%bin_dir%\VC_redist.x64.exe')"
+    curl -L -o "$bin_dir\VC_redist.x64.exe" https://download.visualstudio.microsoft.com/download/pr/c7707d68-d6ce-4479-973e-e2a3dc4341fe/1AD7988C17663CC742B01BEF1A6DF2ED1741173009579AD50A94434E54F56073/VC_redist.x64.exe
     if %errorlevel% neq 0 (
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to download VC_redist.x64.exe.%reset%
     )
@@ -572,7 +572,7 @@ if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget is not installed or failed to install Microsoft.VCRedist.2015+.x86%reset%
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Attempting to install Microsoft.VCRedist.2015+.x86 using powershell...
 
-    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/71c6392f-8df5-4b61-8d50-dba6a525fb9d/510FC8C2112E2BC544FB29A72191EABCC68D3A5A7468D35D7694493BC8593A79/VC_redist.x86.exe', '%bin_dir%\VC_redist.x86.exe')"
+    curl -L -o "$bin_dir\VC_redist.x86.exe" https://download.visualstudio.microsoft.com/download/pr/71c6392f-8df5-4b61-8d50-dba6a525fb9d/510FC8C2112E2BC544FB29A72191EABCC68D3A5A7468D35D7694493BC8593A79/VC_redist.x86.exe
     if %errorlevel% neq 0 (
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to download VC_redist.x86.exe.%reset%
     )
@@ -593,7 +593,7 @@ if exist "%bin_dir%\vs_buildtools.exe" (
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://aka.ms/vs/17/release/vs_BuildTools.exe', '%bin_dir%\vs_buildtools.exe')"
+curl -L -o "$bin_dir\vs_buildtools.exe" https://aka.ms/vs/17/release/vs_BuildTools.exe
 start "" "%bin_dir%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extras installed successfully.%reset%
@@ -958,7 +958,7 @@ if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget is not installed or failed to install Microsoft.VCRedist.2015+.x64%reset%
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Attempting to install Microsoft.VCRedist.2015+.x64 using powershell...
 
-    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/c7707d68-d6ce-4479-973e-e2a3dc4341fe/1AD7988C17663CC742B01BEF1A6DF2ED1741173009579AD50A94434E54F56073/VC_redist.x64.exe', '%bin_dir%\VC_redist.x64.exe')"
+    curl -L -o "$bin_dir\VC_redist.x64.exe" https://download.visualstudio.microsoft.com/download/pr/c7707d68-d6ce-4479-973e-e2a3dc4341fe/1AD7988C17663CC742B01BEF1A6DF2ED1741173009579AD50A94434E54F56073/VC_redist.x64.exe
     if %errorlevel% neq 0 (
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to download VC_redist.x64.exe.%reset%
     )
@@ -977,7 +977,7 @@ if %errorlevel% neq 0 (
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] winget is not installed or failed to install Microsoft.VCRedist.2015+.x86%reset%
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Attempting to install Microsoft.VCRedist.2015+.x86 using powershell...
 
-    powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://download.visualstudio.microsoft.com/download/pr/71c6392f-8df5-4b61-8d50-dba6a525fb9d/510FC8C2112E2BC544FB29A72191EABCC68D3A5A7468D35D7694493BC8593A79/VC_redist.x86.exe', '%bin_dir%\VC_redist.x86.exe')"
+    curl -L -o "$bin_dir\VC_redist.x86.exe" https://download.visualstudio.microsoft.com/download/pr/71c6392f-8df5-4b61-8d50-dba6a525fb9d/510FC8C2112E2BC544FB29A72191EABCC68D3A5A7468D35D7694493BC8593A79/VC_redist.x86.exe
     if %errorlevel% neq 0 (
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR]%reset% Failed to download VC_redist.x86.exe.%reset%
     )
@@ -997,7 +997,7 @@ if exist "%bin_dir%\vs_buildtools.exe" (
 )
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing vs_BuildTools...
-powershell -Command "(New-Object System.Net.WebClient).DownloadFile('https://aka.ms/vs/17/release/vs_BuildTools.exe', '%bin_dir%\vs_buildtools.exe')"
+curl -L -o "$bin_dir\vs_buildtools.exe" https://aka.ms/vs/17/release/vs_BuildTools.exe
 start "" "%bin_dir%\vs_buildtools.exe" --norestart --passive --downloadThenInstall --includeRecommended --add Microsoft.VisualStudio.Workload.NativeDesktop --add Microsoft.VisualStudio.Workload.VCTools --add Microsoft.VisualStudio.Workload.MSBuildTools
 
 
