@@ -40,12 +40,6 @@ red_bg="\033[41m"
 blue_bg="\033[44m"
 yellow_bg="\033[43m"
 
-# Environment Variables (miniconda3)
-miniconda_path="$HOME/miniconda3"
-miniconda_path_mingw="$miniconda_path/Library/mingw-w64/bin"
-miniconda_path_usrbin="$miniconda_path/Library/usr/bin"
-miniconda_path_bin="$miniconda_path/Library/bin"
-miniconda_path_scripts="$miniconda_path/Scripts"
 
 # Environment Variables (FFmpeg)
 ffmpeg_download_url="https://www.gyan.dev/ffmpeg/builds/ffmpeg-git-full.7z"
@@ -188,7 +182,7 @@ rvc_install_path="$voice_generation_dir/Retrieval-based-Voice-Conversion-WebUI"
 # Define variables for the core directories
 bin_dir="$stl_root/bin"
 log_dir="$bin_dir/logs"
-functions_dir="$bin_dir/functions"
+functions_dir="$bin_dir/functions_linux"
 
 # Define variables for the directories for Toolbox
 toolbox_dir="$functions_dir/Toolbox"
@@ -255,7 +249,36 @@ log_message() {
 #read -p "Press Enter to continue..."
 
 
+# Function to find Miniconda installation directory
+find_conda() {
+    local paths=(
+        "$HOME/miniconda3"
+        "$HOME/miniconda"
+        "/opt/miniconda3"
+        "/opt/miniconda"
+        "/usr/local/miniconda3"
+        "/usr/local/miniconda"
+        "/usr/miniconda3"
+        "/usr/miniconda"
+        "$HOME/anaconda3"
+        "$HOME/anaconda"
+        "/opt/anaconda3"
+        "/opt/anaconda"
+        "/usr/local/anaconda3"
+        "/usr/local/anaconda"
+        "/usr/anaconda3"
+        "/usr/anaconda"
+    )
 
+    for path in "${paths[@]}"; do
+        if [ -d "$path" ]; then
+            echo "$path"
+            return 0
+        fi
+    done
+
+    return 1
+}
 
 # Function to install Git
 install_git() {
@@ -481,7 +504,7 @@ create_backup() {
     echo -e "\033]0;STL [CREATE BACKUP]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Toolbox / Backup / Create Backup                  |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
 
     # Scan for user folders
     user_folders=()
@@ -571,7 +594,7 @@ restore_backup() {
     echo -e "\033]0;STL [RESTORE BACKUP]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Toolbox / Backup / Restore Backup                 |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
 
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| Available Backups                                            |${reset}"
@@ -663,7 +686,7 @@ backup() {
     echo -e "\033]0;STL [BACKUP]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Toolbox / Backup                                  |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
     echo "    1. Create Backup"
@@ -1003,7 +1026,7 @@ config_tailscale() {
     clear
 
     echo -e "${blue_fg_strong}| > / Home / Toolbox / App Installer / Core Utilities / Tailscale${reset}"
-    echo -e "${blue_fg_strong}============================================================================================${reset}"
+    echo -e "${blue_fg_strong} ============================================================================================${reset}"
     echo -e "${cyan_fg_strong}____________________________________________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                                                 |${reset}"
 
@@ -1106,7 +1129,7 @@ editor_core_utilities() {
     fi
 
     echo -e "${blue_fg_strong}| > / Home / Toolbox / Editor / Core Utilities                                               |${reset}"
-    echo -e "${blue_fg_strong}============================================================================================${reset}"
+    echo -e "${blue_fg_strong} ============================================================================================${reset}"
     echo -e "${cyan_fg_strong}____________________________________________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                                                 |${reset}"
 
@@ -1152,7 +1175,7 @@ editor() {
     echo -e "\033]0;STL [EDITOR]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Toolbox / Editor                                  |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
     echo "    1. Text Completion"
@@ -1194,6 +1217,14 @@ remove_node_modules() {
     troubleshooting
 }
 
+remove_npm_cache() {
+    log_message "INFO" "Clearing npm cache..."
+    npm cache clean --force
+    log_message "INFO" "npm cache cleared successfully."
+    read -p "Press Enter to continue..."
+    troubleshooting
+}
+
 remove_pip_cache() {
     log_message "INFO" "Clearing pip cache..."
     pip cache purge
@@ -1223,7 +1254,7 @@ find_app_port() {
     echo -e "\033]0;STL [FIND APP PORT]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Troubleshooting & Support / Find App Port         |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| Menu Options:                                                |${reset}"
     echo "    0. Cancel"
@@ -1312,7 +1343,7 @@ discord_servers_menu() {
     echo -e "\033]0;STL [DISCORD SERVERS]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Troubleshooting & Support / Discord Servers       |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo "    1. Join SillyTavern"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| Discord - LLM Backends:                                      |${reset}"
@@ -1430,7 +1461,7 @@ troubleshooting() {
     echo -e "\033]0;STL [TROUBLESHOOTING SUPPORT]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Troubleshooting & Support                         |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| Troubleshooting & Repair Options                             |${reset}"
     echo "    1. Remove node_modules folder"
@@ -1537,7 +1568,7 @@ switch_branch() {
     echo -e "\033]0;STL [SWITCH BRANCH]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Toolbox / Switch Branch                           |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${yellow_fg_strong} ______________________________________________________________${reset}"
     echo -e "${yellow_fg_strong}| Version Status                                               |${reset}"
     current_st_branch=$(git -C "$st_install_path" branch --show-current)
@@ -1953,17 +1984,195 @@ install_ngrok() {
     app_installer_core_utilities
 }
 
+install_tabbyapi_menu() {
+    # Check if the tabbyapi folder exists and deactivate Conda environment if necessary
+    if [[ -d "$tabbyapi_install_path" ]]; then
+        log_message "INFO" "Deactivating Conda environment: tabbyapi"
+        conda deactivate
+    fi
+
+    clear
+    echo -e "${blue_fg_strong}| > / Home / Toolbox / App Installer / Text Completion / TabbyAPI |${reset}"
+    echo -e "${blue_fg_strong} =================================================================${reset}"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
+    echo "   1. Install TabbyAPI"
+    echo "   2. Install ST-tabbyAPI-loader Extension"
+    echo "   3. Models [Install Options]"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Menu Options:                                                |${reset}"
+    echo "   0. Back"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}|                                                              |${reset}"
+    read -p "   Choose Your Destiny: " app_installer_tabbyapi_choice
+    echo
+
+    # Handle user input
+    case "$app_installer_tabbyapi_choice" in
+        1)
+            if [[ -f "$app_installer_text_completion_dir/install_tabbyapi.sh" ]]; then
+                bash "$app_installer_text_completion_dir/install_tabbyapi.sh"
+                install_tabbyapi_menu
+            else
+                log_message "ERROR" "install_tabbyapi.sh not found in: $app_installer_text_completion_dir"
+                read -p "Press Enter to continue..."
+                install_tabbyapi_menu
+            fi
+            ;;
+        2)
+            if [[ -f "$app_installer_text_completion_dir/install_tabbyapi_st_ext.sh" ]]; then
+                bash "$app_installer_text_completion_dir/install_tabbyapi_st_ext.sh"
+                install_tabbyapi_menu
+            else
+                log_message "ERROR" "install_tabbyapi_st_ext.sh not found in: $app_installer_text_completion_dir"
+                read -p "Press Enter to continue..."
+                install_tabbyapi_menu
+            fi
+            ;;
+        3)
+            bash "$app_installer_text_completion_dir/install_tabbyapi_model_menu.sh"
+            install_tabbyapi_menu
+            ;;
+        0)
+            app_installer_text_completion
+            ;;
+        *)
+            log_message "ERROR" "Invalid input"
+            read -p "Press Enter to continue..."
+            install_tabbyapi_menu
+            ;;
+    esac
+}
+
 
 app_installer_text_completion() {
-    log_message "INFO" "coming soon"
-    read -p "Press Enter to continue..."
-    app_installer
+    echo -e "\033]0;STL [APP INSTALLER TEXT COMPLETION]\007"
+    clear
+
+    echo -e "${blue_fg_strong}| > / Home / Toolbox / App Installer / Text Completion         |${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
+
+    echo "    1. Install Text generation web UI oobabooga"
+    echo "    2. koboldcpp [Install options]"
+    echo "    3. TabbyAPI [Install options]"
+    echo "    4. Install llamacpp"
+
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Menu Options:                                                |${reset}"
+    echo "    0. Back"
+
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}|                                                              |${reset}"
+    read -p "  Choose Your Destiny: " app_installer_text_completion_choice
+
+    case "$app_installer_text_completion_choice" in
+        1)
+            if [[ -f "$app_installer_text_completion_dir/install_ooba.sh" ]]; then
+                bash "$app_installer_text_completion_dir/install_ooba.sh"
+                app_installer_text_completion
+            else
+                log_message "ERROR" "install_ooba.sh not found in: $app_installer_text_completion_dir"
+                read -p "Press Enter to continue..."
+                app_installer_text_completion
+            fi
+            ;;
+        2)
+            install_koboldcpp_menu
+            ;;
+        3)
+            install_tabbyapi_menu
+            ;;
+        4)
+            if [[ -f "$app_installer_text_completion_dir/install_llamacpp.sh" ]]; then
+                bash "$app_installer_text_completion_dir/install_llamacpp.sh"
+                app_installer_text_completion
+            else
+                log_message "ERROR" "install_llamacpp.sh not found in: $app_installer_text_completion_dir"
+                read -p "Press Enter to continue..."
+                app_installer_text_completion
+            fi
+            ;;
+        0)
+            app_installer
+            ;;
+        *)
+            log_message "ERROR" "Invalid input"
+            read -p "Press Enter to continue..."
+            app_installer_text_completion
+            ;;
+    esac
 }
 
 app_installer_voice_generation() {
-    log_message "INFO" "coming soon"
-    read -p "Press Enter to continue..."
-    app_installer
+    echo -e "\033]0;STL [APP INSTALLER VOICE GENERATION]\007"
+    clear
+
+    echo -e "${blue_fg_strong}| > / Home / Toolbox / App Installer / Voice Generation        |${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
+
+    echo "    1. Install AllTalk V2"
+    echo "    2. Install AllTalk"
+    echo "    3. Install XTTS"
+    echo "    4. Install RVC"
+    echo "    5. Install RVC-Python"
+
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Menu Options:                                                |${reset}"
+    echo "    0. Back"
+
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}|                                                              |${reset}"
+    read -p "   Choose Your Destiny: " app_installer_voice_generation_choice
+
+    case "$app_installer_voice_generation_choice" in
+        1)
+            if [[ -f "$app_installer_voice_generation_dir/install_alltalk_v2.sh" ]]; then
+                bash "$app_installer_voice_generation_dir/install_alltalk_v2.sh"
+                app_installer_voice_generation
+            else
+                log_message "ERROR" "install_alltalk_v2.sh not found in: $app_installer_voice_generation_dir"
+                read -p "Press Enter to continue..."
+                app_installer_voice_generation
+            fi
+            ;;
+        2)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_installer_voice_generation
+            ;;
+        3)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_installer_voice_generation
+            ;;
+        4)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_installer_voice_generation
+            ;;
+        5)
+            if [[ -f "$app_installer_voice_generation_dir/install_rvc_python.sh" ]]; then
+                bash "$app_installer_voice_generation_dir/install_rvc_python.sh"
+                app_installer_voice_generation
+            else
+                log_message "ERROR" "install_rvc_python.sh not found in: $app_installer_voice_generation_dir"
+                read -p "Press Enter to continue..."
+                app_installer_voice_generation
+            fi
+            ;;
+        0)
+            app_installer
+            ;;
+        *)
+            log_message "ERROR" "Invalid input"
+            read -p "Press Enter to continue..."
+            app_installer_voice_generation
+            ;;
+    esac
 }
 
 app_installer_image_generation() {
@@ -1977,7 +2186,7 @@ app_installer_core_utilities() {
     clear
 
     echo -e "${blue_fg_strong}| > / Home / Toolbox / App Installer / Core Utilities          |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
 
@@ -2026,7 +2235,7 @@ app_installer() {
     echo -e "\033]0;STL [APP INSTALLER]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Toolbox / App Installer                           |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
     echo "    1. Text Completion"
@@ -2540,21 +2749,323 @@ uninstall_ngrok() {
 }
 
 app_uninstaller_text_completion() {
-    log_message "INFO" "coming soon"
-    read -p "Press Enter to continue..."
-    app_installer
+    clear
+    echo -e "${blue_fg_strong}| > / Home / Toolbox / App Uninstaller / Text Completion       |${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
+    echo "   1. UNINSTALL Text generation web UI oobabooga"
+    echo "   2. UNINSTALL koboldcpp"
+    echo "   3. UNINSTALL TabbyAPI"
+    echo "   4. UNINSTALL llamacpp"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Menu Options:                                                |${reset}"
+    echo "   0. Back"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}|                                                              |${reset}"
+    read -p "   Choose Your Destiny: " app_uninstaller_text_completion_choice
+    echo
+
+    # Handle user input
+    case "$app_uninstaller_text_completion_choice" in
+        1)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_text_completion
+
+            if [[ -f "$app_uninstaller_text_completion_dir/uninstall_ooba.sh" ]]; then
+                bash "$app_uninstaller_text_completion_dir/uninstall_ooba.sh"
+                app_uninstaller_text_completion
+            else
+                log_message "ERROR" "uninstall_ooba.sh not found in: $app_uninstaller_text_completion_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_text_completion
+            fi
+            ;;
+        2)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_text_completion
+
+            if [[ -f "$app_uninstaller_text_completion_dir/uninstall_koboldcpp.sh" ]]; then
+                bash "$app_uninstaller_text_completion_dir/uninstall_koboldcpp.sh"
+                app_uninstaller_text_completion
+            else
+                log_message "ERROR" "uninstall_koboldcpp.sh not found in: $app_uninstaller_text_completion_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_text_completion
+            fi
+            ;;
+        3)
+            if [[ -f "$app_uninstaller_text_completion_dir/uninstall_tabbyapi.sh" ]]; then
+                bash "$app_uninstaller_text_completion_dir/uninstall_tabbyapi.sh"
+                app_uninstaller_text_completion
+            else
+                log_message "ERROR" "uninstall_tabbyapi.sh not found in: $app_uninstaller_text_completion_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_text_completion
+            fi
+            ;;
+        4)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_text_completion
+
+            if [[ -f "$app_uninstaller_text_completion_dir/uninstall_llamacpp.sh" ]]; then
+                bash "$app_uninstaller_text_completion_dir/uninstall_llamacpp.sh"
+                app_uninstaller_text_completion
+            else
+                log_message "ERROR" "uninstall_llamacpp.sh not found in: $app_uninstaller_text_completion_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_text_completion
+            fi
+            ;;
+        0)
+            app_uninstaller
+            ;;
+        *)
+            log_message "ERROR" "Invalid input"
+            read -p "Press Enter to continue..."
+            app_uninstaller_text_completion
+            ;;
+    esac
 }
 
 app_uninstaller_voice_generation() {
-    log_message "INFO" "coming soon"
-    read -p "Press Enter to continue..."
-    app_installer
+    clear
+    echo -e "${blue_fg_strong}| > / Home / Toolbox / App Uninstaller / Voice Generation      |${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
+    echo "   1. UNINSTALL AllTalk V2"
+    echo "   2. UNINSTALL AllTalk"
+    echo "   3. UNINSTALL XTTS"
+    echo "   4. UNINSTALL RVC"
+    echo "   5. UNINSTALL RVC-Python"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Menu Options:                                                |${reset}"
+    echo "   0. Back"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}|                                                              |${reset}"
+    read -p "   Choose Your Destiny: " app_uninstaller_voice_generation_choice
+    echo
+
+    # Handle user input
+    case "$app_uninstaller_voice_generation_choice" in
+        1)
+            if [[ -f "$app_uninstaller_voice_generation_dir/uninstall_alltalk_v2.sh" ]]; then
+                bash "$app_uninstaller_voice_generation_dir/uninstall_alltalk_v2.sh"
+                app_uninstaller_voice_generation
+            else
+                log_message "ERROR" "uninstall_alltalk_v2.sh not found in: $app_uninstaller_voice_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_voice_generation
+            fi
+            ;;
+        2)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_voice_generation
+
+            if [[ -f "$app_uninstaller_voice_generation_dir/uninstall_alltalk.sh" ]]; then
+                bash "$app_uninstaller_voice_generation_dir/uninstall_alltalk.sh"
+                app_uninstaller_voice_generation
+            else
+                log_message "ERROR" "uninstall_alltalk.sh not found in: $app_uninstaller_voice_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_voice_generation
+            fi
+            ;;
+        3)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_voice_generation
+
+            if [[ -f "$app_uninstaller_voice_generation_dir/uninstall_xtts.sh" ]]; then
+                bash "$app_uninstaller_voice_generation_dir/uninstall_xtts.sh"
+                app_uninstaller_voice_generation
+            else
+                log_message "ERROR" "uninstall_xtts.sh not found in: $app_uninstaller_voice_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_voice_generation
+            fi
+            ;;
+        4)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_voice_generation
+
+            if [[ -f "$app_uninstaller_voice_generation_dir/uninstall_rvc.sh" ]]; then
+                bash "$app_uninstaller_voice_generation_dir/uninstall_rvc.sh"
+                app_uninstaller_voice_generation
+            else
+                log_message "ERROR" "uninstall_rvc.sh not found in: $app_uninstaller_voice_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_voice_generation
+            fi
+            ;;
+        5)
+            if [[ -f "$app_uninstaller_voice_generation_dir/uninstall_rvc_python.sh" ]]; then
+                bash "$app_uninstaller_voice_generation_dir/uninstall_rvc_python.sh"
+                app_uninstaller_voice_generation
+            else
+                log_message "ERROR" "uninstall_rvc_python.sh not found in: $app_uninstaller_voice_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_voice_generation
+            fi
+            ;;
+        0)
+            app_uninstaller
+            ;;
+        *)
+            log_message "ERROR" "Invalid input"
+            read -p "Press Enter to continue..."
+            app_uninstaller_voice_generation
+            ;;
+    esac
 }
 
 app_uninstaller_image_generation() {
-    log_message "INFO" "coming soon"
-    read -p "Press Enter to continue..."
-    app_uninstaller
+    clear
+    echo -e "${blue_fg_strong}| > / Home / Toolbox / App Uninstaller / Image Generation      |${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
+    echo "   1. UNINSTALL Stable Diffusion WebUI"
+    echo "   2. UNINSTALL Stable Diffusion WebUI Forge"
+    echo "   3. UNINSTALL ComfyUI"
+    echo "   4. UNINSTALL Fooocus"
+    echo "   5. UNINSTALL InvokeAI"
+    echo "   6. UNINSTALL Ostris AI Toolkit"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}| Menu Options:                                                |${reset}"
+    echo "   0. Back"
+    echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
+    echo -e "${cyan_fg_strong}|                                                              |${reset}"
+    read -p "   Choose Your Destiny: " app_uninstaller_image_generation_choice
+    echo
+
+    # Handle user input
+    case "$app_uninstaller_image_generation_choice" in
+        1)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_image_generation
+
+            if [[ -f "$app_uninstaller_image_generation_dir/uninstall_sdwebui.sh" ]]; then
+                bash "$app_uninstaller_image_generation_dir/uninstall_sdwebui.sh"
+                app_uninstaller_image_generation
+            else
+                log_message "ERROR" "uninstall_sdwebui.sh not found in: $app_uninstaller_image_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_image_generation
+            fi
+            ;;
+        2)
+            if [[ -f "$app_uninstaller_image_generation_dir/uninstall_sdwebuiforge.sh" ]]; then
+                bash "$app_uninstaller_image_generation_dir/uninstall_sdwebuiforge.sh"
+                app_uninstaller_image_generation
+            else
+                log_message "ERROR" "uninstall_sdwebuiforge.sh not found in: $app_uninstaller_image_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_image_generation
+            fi
+            ;;
+        3)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_image_generation
+
+            if [[ -f "$app_uninstaller_image_generation_dir/uninstall_comfyui.sh" ]]; then
+                bash "$app_uninstaller_image_generation_dir/uninstall_comfyui.sh"
+                app_uninstaller_image_generation
+            else
+                log_message "ERROR" "uninstall_comfyui.sh not found in: $app_uninstaller_image_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_image_generation
+            fi
+            ;;
+        4)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_image_generation
+            
+            if [[ -f "$app_uninstaller_image_generation_dir/uninstall_fooocus.sh" ]]; then
+                bash "$app_uninstaller_image_generation_dir/uninstall_fooocus.sh"
+                app_uninstaller_image_generation
+            else
+                log_message "ERROR" "uninstall_fooocus.sh not found in: $app_uninstaller_image_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_image_generation
+            fi
+            ;;
+        5)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_image_generation
+            
+            if [[ -f "$app_uninstaller_image_generation_dir/uninstall_invokeai.sh" ]]; then
+                bash "$app_uninstaller_image_generation_dir/uninstall_invokeai.sh"
+                app_uninstaller_image_generation
+            else
+                log_message "ERROR" "uninstall_invokeai.sh not found in: $app_uninstaller_image_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_image_generation
+            fi
+            ;;
+        6)
+            log_message "INFO" "coming soon"
+            read -p "Press Enter to continue..."
+            app_uninstaller_image_generation
+            
+            if [[ -f "$app_uninstaller_image_generation_dir/uninstall_ostris_aitoolkit.sh" ]]; then
+                bash "$app_uninstaller_image_generation_dir/uninstall_ostris_aitoolkit.sh"
+                app_uninstaller_image_generation
+            else
+                log_message "ERROR" "uninstall_ostris_aitoolkit.sh not found in: $app_uninstaller_image_generation_dir"
+                log_message "INFO" "Running Automatic Repair..."
+                git pull
+                read -p "Press Enter to continue..."
+                app_uninstaller_image_generation
+            fi
+            ;;
+        0)
+            app_uninstaller
+            ;;
+        *)
+            log_message "ERROR" "Invalid input"
+            read -p "Press Enter to continue..."
+            app_uninstaller_image_generation
+            ;;
+    esac
 }
 
 app_uninstaller_core_utilities() {
@@ -2562,7 +3073,7 @@ app_uninstaller_core_utilities() {
     clear
 
     echo -e "${blue_fg_strong}| > / Home / Toolbox / App Uninstaller / Core Utilities        |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
 
@@ -2614,7 +3125,7 @@ app_uninstaller() {
     echo -e "\033]0;STL [APP UNINSTALLER]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Toolbox / App Uninstaller                         |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
     echo "    1. Text Completion"
@@ -2650,7 +3161,7 @@ toolbox() {
     echo -e "\033]0;STL [TOOLBOX]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / Toolbox                                           |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
     echo "    1. App Launcher"
@@ -2825,12 +3336,32 @@ create_module_files() {
 
 # Function to check if Miniconda3 is installed
 check_miniconda() {
-    if ! command -v conda &> /dev/null; then
+    # Try to find Miniconda installation
+    miniconda_path=$(find_conda)
+    if [ $? -ne 0 ]; then
         log_message "WARN" "${yellow_fg_strong}Miniconda3 is not installed on this system.${reset}"
         log_message "INFO" "Please install Miniconda3 manually from https://docs.conda.io/en/latest/miniconda.html"
-    else
-        log_message "INFO" "${blue_fg_strong}Miniconda3 is already installed.${reset}"
+        return 1
     fi
+
+    # Source Conda initialization script
+    if [ -f "${miniconda_path}/etc/profile.d/conda.sh" ]; then
+        source "${miniconda_path}/etc/profile.d/conda.sh"
+    else
+        log_message "ERROR" "${red_fg_strong}Conda initialization script not found at ${miniconda_path}/etc/profile.d/conda.sh${reset}"
+        log_message "INFO" "Please ensure Miniconda3 is properly installed from https://docs.conda.io/en/latest/miniconda.html"
+        return 1
+    fi
+    
+    # Check if conda command is available
+    if ! command -v conda &> /dev/null; then
+        log_message "ERROR" "${red_fg_strong}Conda command not available after initialization.${reset}"
+        log_message "INFO" "Please ensure Miniconda3 is properly installed from https://docs.conda.io/en/latest/miniconda.html"
+        return 1
+    fi
+
+    log_message "INFO" "${blue_fg_strong}Miniconda3 is installed at ${miniconda_path}${reset}"
+    return 0
 }
 
 # Function to check if SillyTavern folder exists
@@ -3084,7 +3615,7 @@ start_st_remotelink() {
     echo -e "\033]0;STL [ST REMOTE LINK]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home / SillyTavern Remote Link                           |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
 
     # Warning and confirmation prompt
     echo
@@ -3172,7 +3703,7 @@ info_vram() {
 
     # Display header
     echo -e "${blue_fg_strong}| > / Home / VRAM & LLM Info                                                                           |${reset}"
-    echo -e "${blue_fg_strong}======================================================================================================${reset}"
+    echo -e "${blue_fg_strong} ======================================================================================================${reset}"
 
     # Display GPU information
     echo -e "${cyan_fg_strong}GPU: $gpu_info${reset}"
@@ -3242,7 +3773,7 @@ home() {
     echo -e "\033]0;STL [HOME]\007"
     clear
     echo -e "${blue_fg_strong}| > / Home                                                     |${reset}"
-    echo -e "${blue_fg_strong}==============================================================${reset}"
+    echo -e "${blue_fg_strong} ==============================================================${reset}"
     echo -e "${cyan_fg_strong} ______________________________________________________________${reset}"
     echo -e "${cyan_fg_strong}| What would you like to do?                                   |${reset}"
     echo "    1. Update & Start SillyTavern"
@@ -3312,7 +3843,7 @@ startup() {
     read_tailscale_status
     get_sillytavern_version
     node_version=$(node -v)
-    stl_version="24.1.0.0"
+    stl_version="25.1.0.0"
     update_status_st="Up to date"
 }
 

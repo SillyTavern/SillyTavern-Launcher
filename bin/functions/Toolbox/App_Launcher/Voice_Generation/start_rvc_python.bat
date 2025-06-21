@@ -2,7 +2,7 @@
 
 :start_rvc_python
 REM Activate the rvc-python environment
-call conda activate rvc-python
+call conda activate rvcpython
 
 REM Start rvc-python
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% rvc-python launched in a new window.
