@@ -3070,10 +3070,12 @@ echo %cyan_fg_strong%^| SDXL Models [PONY]                                      
 echo    6. Install Hassaku XL [ANIME] 
 echo    7. Install AutismMix_confetti [ANIME/CARTOON/FURRY MIX] 
 echo    8. Install Pony Realism [REALISM]
+echo    9. Install CyberRealistic Pony [REALISM]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| SDXL Models [ILLUSTRIOUS]                                    ^|%reset%
-echo    9. Install WAI-NSFW-illustrious-SDXL [ANIME]
-
+echo    10. Install WAI-NSFW-illustrious-SDXL [ANIME]
+echo    11. Install Hassaku XL Illustrious [ANIME]
+echo    12. Install CyberIllustrious [REALISM]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| FLUX Models                                                  ^|%reset%
 echo    NOT SUPPORTED YET.
@@ -3106,8 +3108,14 @@ if "%app_installer_sdwebui_model_choice%"=="1" (
     goto :install_sdwebui_model_autismMixconfetti
 ) else if "%app_installer_sdwebui_model_choice%"=="8" (
     goto :install_sdwebui_model_ponyrealism
- ) else if "%app_installer_sdwebui_model_choice%"=="9" (
+) else if "%app_installer_sdwebui_model_choice%"=="9" (
+    goto :install_sdwebui_model_cyberrealistic_pony
+ ) else if "%app_installer_sdwebui_model_choice%"=="10" (
     goto :install_sdwebui_model_wai_nsfw_illustrious_sdxl
+ ) else if "%app_installer_sdwebui_model_choice%"=="11" (
+    goto :install_sdwebui_model_hassaku_xl_illustrious
+ ) else if "%app_installer_sdwebui_model_choice%"=="12" (
+    goto :install_sdwebui_model_cyberillustrious
 ) else if "%app_installer_sdwebui_model_choice%"=="0" (
     goto :install_sdwebui_menu
 ) else (
@@ -3172,10 +3180,24 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Suc
 pause
 goto :install_sdwebui_model_menu
 
+:install_sdwebui_model_cyberrealistic_pony
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading cyberrealistic-pony [PONY] Model...
+civitdl 443821 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed cyberrealistic-pony [PONY] Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebui_model_menu
+
 :install_sdwebui_model_wai_nsfw_illustrious_sdxl
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading WAI-NSFW-illustrious-SDXL [ILLUSTRIOUS] Model...
 civitdl 827184 -s basic "models\Stable-diffusion"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed WAI-NSFW-illustrious-SDXL [ILLUSTRIOUS] Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebui_model_menu
+
+:install_sdwebui_model_hassaku_xl_illustrious
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading hassaku-xl-illustrious [ILLUSTRIOUS] Model...
+civitdl 140272 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed hassaku-xl-illustrious [ILLUSTRIOUS] Model in: "%sdwebui_install_path%\models\Stable-diffusion"%reset%
 pause
 goto :install_sdwebui_model_menu
 
@@ -3366,12 +3388,15 @@ echo %cyan_fg_strong%^| SDXL Models [PONY]                                      
 echo    6. Install Hassaku XL [ANIME] 
 echo    7. Install AutismMix_confetti [ANIME/CARTOON/FURRY MIX] 
 echo    8. Install Pony Realism [REALISM]
+echo    9. Install CyberRealistic Pony [REALISM]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| SDXL Models [ILLUSTRIOUS]                                    ^|%reset%
-echo    9. Install WAI-NSFW-illustrious-SDXL [ANIME]
+echo    10. Install WAI-NSFW-illustrious-SDXL [ANIME]
+echo    11. Install Hassaku XL Illustrious [ANIME]
+echo    12. Install CyberIllustrious [REALISM]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| FLUX Models                                                  ^|%reset%
-echo    10. Install Flux.1-Dev/Schnell BNB NF4 [REALISM MODEL]
+echo    13. Install Flux.1-Dev/Schnell BNB NF4 [REALISM]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -3402,9 +3427,16 @@ if "%app_installer_sdwebuiforge_model_choice%"=="1" (
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="8" (
     goto :install_sdwebuiforge_model_ponyrealism
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="9" (
-    goto :install_sdwebuiforge_model_wai_nsfw_illustrious_sdxl
+    goto :install_sdwebuiforge_model_cyberrealistic_pony
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="10" (
+    goto :install_sdwebuiforge_model_wai_nsfw_illustrious_sdxl
+) else if "%app_installer_sdwebuiforge_model_choice%"=="11" (
+    goto :install_sdwebuiforge_model_hassaku_xl_illustrious
+) else if "%app_installer_sdwebuiforge_model_choice%"=="12" (
+    goto :install_sdwebuiforge_model_cyberillustrious
+) else if "%app_installer_sdwebuiforge_model_choice%"=="13" (
     goto :install_sdwebuiforge_model_flux
+
 ) else if "%app_installer_sdwebuiforge_model_choice%"=="0" (
     goto :install_sdwebuiforge_menu
 ) else (
@@ -3469,6 +3501,13 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Suc
 pause
 goto :install_sdwebuiforge_model_menu
 
+:install_sdwebuiforge_model_cyberrealistic_pony
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading cyberrealistic-pony [PONY] Model...
+civitdl 443821 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed cyberrealistic-pony [PONY] Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
+
 :install_sdwebuiforge_model_wai_nsfw_illustrious_sdxl
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading WAI-NSFW-illustrious-SDXL [ILLUSTRIOUS] Model...
 civitdl 827184 -s basic "models\Stable-diffusion"
@@ -3476,6 +3515,19 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Suc
 pause
 goto :install_sdwebuiforge_model_menu
 
+:install_sdwebuiforge_model_hassaku_xl_illustrious
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading hassaku-xl-illustrious [ILLUSTRIOUS] Model...
+civitdl 140272 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed hassaku-xl-illustrious [ILLUSTRIOUS] Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
+
+:install_sdwebuiforge_model_cyberillustrious
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading CyberIllustrious [ILLUSTRIOUS] Model...
+civitdl 1125067 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed CyberIllustrious [ILLUSTRIOUS] Model in: "%sdwebuiforge_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforge_model_menu
 
 :install_sdwebuiforge_model_flux
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Flux...
