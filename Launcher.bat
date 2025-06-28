@@ -1230,7 +1230,19 @@ set retry_count=0
 :retry_update_comfyui
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating ComfyUI...
 cd /d "%comfyui_install_path%"
-call git pull master
+call git pull
+
+REM Activate the comfyui environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%comfyui%reset%
+call conda activate comfyui
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing pip requirements...
+pip install -r requirements.txt
+
+REM Activate the comfyui environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Deactivating Conda environment: %cyan_fg_strong%comfyui%reset%
+call conda deactivate
+
 if %errorlevel% neq 0 (
     set /A retry_count+=1
     echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
