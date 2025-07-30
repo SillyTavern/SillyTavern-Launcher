@@ -8,6 +8,7 @@ xtts/
 
 !bin/functions/
 !bin/functions/**
+bin/*.exe
 bin/logs
 bin/settings
 *.txt
