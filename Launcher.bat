@@ -1940,6 +1940,7 @@ echo    2. Start Stable Diffusion WebUI Forge
 echo    3. Start ComfyUI
 echo    4. Start Fooocus
 echo    5. Start InvokeAI
+echo    6. Start Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -2003,6 +2004,19 @@ if "%app_launcher_image_generation_choice%"=="1" (
     ) else (
         echo [%DATE% %TIME%] ERROR: start_invokeai.bat not found in: app_launcher_image_generation_dir% >> %logs_stl_console_path%
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_invokeai.bat not found in: %app_launcher_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
+) else if "%app_launcher_image_generation_choice%"=="6" (
+    set "caller=app_launcher_image_generation"
+    if exist "%app_launcher_image_generation_dir%\start_ostrisaitoolkit_nextjs.bat" (
+        call %app_launcher_image_generation_dir%\start_ostrisaitoolkit_nextjs.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_ostrisaitoolkit_nextjs.bat not found in: app_launcher_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_ostrisaitoolkit_nextjs.bat not found in: %app_launcher_image_generation_dir%%reset%
         echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
         git pull
         pause
