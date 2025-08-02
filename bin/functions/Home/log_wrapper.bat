@@ -11,9 +11,9 @@ if "%1"=="ssl" (
     set NODE_CMD=node server.js
 )
 
-REM Start the Node.js server and log the output using PowerShell Tee-Object, suppressing specific warnings
+REM Start the Node.js server and log the output using PowerShell Tee-Object
 echo Starting Node.js server with command: %NODE_CMD%
-powershell -Command "& {%NODE_CMD% 2>&1 | Where-Object {$_ -notmatch 'Security has been overridden'} | Tee-Object -FilePath '%logs_st_console_path%'}"
+cmd /c "%NODE_CMD%" 2>&1 | powershell -Command "$input | Tee-Object -FilePath '%logs_st_console_path%'"
 echo Node.js server started.
 pause
 
