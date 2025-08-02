@@ -14,8 +14,5 @@ if "%1"=="ssl" (
 REM Start the Node.js server and log the output using PowerShell Tee-Object
 echo Starting Node.js server with command: %NODE_CMD%
 cmd /c "%NODE_CMD%" 2>&1 | powershell -Command "$input | Tee-Object -FilePath '%logs_st_console_path%'"
-echo Node.js server started.
-pause
-
-REM Pause to keep the window open
+echo Node.js server stopped.
 pause
