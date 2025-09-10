@@ -205,6 +205,7 @@ set "image_generation_dir=%~dp0image-generation"
 set "sdwebui_install_path=%image_generation_dir%\stable-diffusion-webui"
 set "sdwebuiforge_install_path=%image_generation_dir%\stable-diffusion-webui-forge"
 set "comfyui_install_path=%image_generation_dir%\ComfyUI"
+set "swarmui_install_path=%image_generation_dir%\SwarmUI"
 set "fooocus_install_path=%image_generation_dir%\Fooocus"
 set "invokeai_install_path=%image_generation_dir%\InvokeAI"
 set "ostrisaitoolkit_install_path=%image_generation_dir%\ai-toolkit"
@@ -1119,9 +1120,10 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 echo    1. Update Stable Diffusion WebUI
 echo    2. Update Stable Diffusion WebUI Forge
 echo    3. Update ComfyUI
-echo    4. Update Fooocus
-echo    5. Update InvokeAI
-echo    6. Update Ostris AI Toolkit
+echo    4. Update SwarmUI
+echo    5. Update Fooocus
+echo    6. Update InvokeAI
+echo    7. Update Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -1143,10 +1145,12 @@ if "%update_manager_img_gen_choice%"=="1" (
 ) else if "%update_manager_img_gen_choice%"=="3" (
     goto :update_comfyui
 ) else if "%update_manager_img_gen_choice%"=="4" (
-    goto :update_fooocus
+    goto :update_swarmui
 ) else if "%update_manager_img_gen_choice%"=="5" (
-    goto :update_invokeai
+    goto :update_fooocus
 ) else if "%update_manager_img_gen_choice%"=="6" (
+    goto :update_invokeai
+) else if "%update_manager_img_gen_choice%"=="7" (
     goto :update_ostrisaitoolkit
 ) else if "%update_manager_img_gen_choice%"=="0" (
     goto :update_manager
@@ -1252,6 +1256,36 @@ if %errorlevel% neq 0 (
     goto :update_manager_image_generation
 )
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%ComfyUI updated successfully.%reset%
+pause
+goto :update_manager_image_generation
+
+
+:update_swarmui
+REM Check if the folder exists
+if not exist "%swarmui_install_path%" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] SwarmUI directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+
+REM Update SwarmUI
+set max_retries=3
+set retry_count=0
+
+:retry_update_swarmui
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating SwarmUI...
+cd /d "%swarmui_install_path%"
+call git pull
+
+if %errorlevel% neq 0 (
+    set /A retry_count+=1
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Retry %retry_count% of %max_retries%%reset%
+    if %retry_count% lss %max_retries% goto :retry_update_swarmui
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Failed to update SwarmUI repository after %max_retries% retries.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SwarmUI updated successfully.%reset%
 pause
 goto :update_manager_image_generation
 
@@ -1938,9 +1972,10 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 echo    1. Start Stable Diffusion WebUI
 echo    2. Start Stable Diffusion WebUI Forge
 echo    3. Start ComfyUI
-echo    4. Start Fooocus
-echo    5. Start InvokeAI
-echo    6. Start Ostris AI Toolkit
+echo    4. Start SwarmUI
+echo    5. Start Fooocus
+echo    6. Start InvokeAI
+echo    7. Start Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -1995,8 +2030,21 @@ if "%app_launcher_image_generation_choice%"=="1" (
         goto :home
     )
 ) else if "%app_launcher_image_generation_choice%"=="4" (
-    goto :start_fooocus
+    set "caller=app_launcher_image_generation"
+    if exist "%app_launcher_image_generation_dir%\start_swarmui.bat" (
+        call %app_launcher_image_generation_dir%\start_swarmui.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_swarmui.bat not found in: app_launcher_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_swarmui.bat not found in: %app_launcher_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
 ) else if "%app_launcher_image_generation_choice%"=="5" (
+    goto :start_fooocus
+) else if "%app_launcher_image_generation_choice%"=="6" (
     set "caller=app_launcher_image_generation"
     if exist "%app_launcher_image_generation_dir%\start_invokeai.bat" (
         call %app_launcher_image_generation_dir%\start_invokeai.bat
@@ -2009,7 +2057,8 @@ if "%app_launcher_image_generation_choice%"=="1" (
         pause
         goto :home
     )
-) else if "%app_launcher_image_generation_choice%"=="6" (
+
+) else if "%app_launcher_image_generation_choice%"=="7" (
     set "caller=app_launcher_image_generation"
     if exist "%app_launcher_image_generation_dir%\start_ostrisaitoolkit_nextjs.bat" (
         call %app_launcher_image_generation_dir%\start_ostrisaitoolkit_nextjs.bat
@@ -2884,9 +2933,10 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 echo    1. Stable Diffusion WebUI [Install options]
 echo    2. Stable Diffusion WebUI Forge [Install options]
 echo    3. Install ComfyUI
-echo    4. Install Fooocus
-echo    5. Install InvokeAI
-echo    6. Install Ostris AI Toolkit
+echo    4. Install SwarmUI
+echo    5. Install Fooocus
+echo    6. Install InvokeAI
+echo    7. Install Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -2918,6 +2968,17 @@ if "%app_installer_image_generation_choice%"=="1" (
     )
 ) else if "%app_installer_image_generation_choice%"=="4" (
     set "caller=app_installer_image_generation"
+    if exist "%app_installer_image_generation_dir%\install_swarmui.bat" (
+        call %app_installer_image_generation_dir%\install_swarmui.bat
+        goto :app_installer_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_swarmui.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_swarmui.bat not found in: %app_installer_image_generation_dir%%reset%
+        pause
+        goto :app_installer_image_generation
+    )
+) else if "%app_installer_image_generation_choice%"=="5" (
+    set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_fooocus.bat" (
         call %app_installer_image_generation_dir%\install_fooocus.bat
         goto :app_installer_image_generation
@@ -2927,7 +2988,7 @@ if "%app_installer_image_generation_choice%"=="1" (
         pause
         goto :app_installer_image_generation
     )
-) else if "%app_installer_image_generation_choice%"=="5" (
+) else if "%app_installer_image_generation_choice%"=="6" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_invokeai.bat" (
         call %app_installer_image_generation_dir%\install_invokeai.bat
@@ -2938,7 +2999,7 @@ if "%app_installer_image_generation_choice%"=="1" (
         pause
         goto :app_installer_image_generation
     )
-) else if "%app_installer_image_generation_choice%"=="6" (
+) else if "%app_installer_image_generation_choice%"=="7" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_ostris_aitoolkit.bat" (
         call %app_installer_image_generation_dir%\install_ostris_aitoolkit.bat
@@ -4003,9 +4064,10 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 echo    1. UNINSTALL Stable Diffusion WebUI
 echo    2. UNINSTALL Stable Diffusion WebUI Forge
 echo    3. UNINSTALL ComfyUI
-echo    4. UNINSTALL Fooocus
-echo    5. UNINSTALL InvokeAI
-echo    6. UNINSTALL Ostris AI Toolkit
+echo    4. UNINSTALL SwarmUI
+echo    5. UNINSTALL Fooocus
+echo    6. UNINSTALL InvokeAI
+echo    7. UNINSTALL Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -4061,6 +4123,19 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
     )
 ) else if "%app_uninstaller_img_gen_choice%"=="4" (
     set "caller=app_uninstaller_image_generation"
+    if exist "%app_uninstaller_image_generation_dir%\uninstall_swarmui.bat" (
+        call %app_uninstaller_image_generation_dir%\uninstall_swarmui.bat
+        goto :app_uninstaller_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_swarmui.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_swarmui.bat not found in: %app_uninstaller_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_uninstaller_image_generation
+    )
+) else if "%app_uninstaller_img_gen_choice%"=="5" (
+    set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_fooocus.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_fooocus.bat
         goto :app_uninstaller_image_generation
@@ -4072,7 +4147,7 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
         pause
         goto :app_uninstaller_image_generation
     )
-) else if "%app_uninstaller_img_gen_choice%"=="5" (
+) else if "%app_uninstaller_img_gen_choice%"=="6" (
     set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_invokeai.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_invokeai.bat
@@ -4085,7 +4160,7 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
         pause
         goto :app_uninstaller_image_generation
     )
-) else if "%app_uninstaller_img_gen_choice%"=="6" (
+) else if "%app_uninstaller_img_gen_choice%"=="7" (
     set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_ostris_aitoolkit.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_ostris_aitoolkit.bat
