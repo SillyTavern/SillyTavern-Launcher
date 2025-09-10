@@ -55,7 +55,7 @@ REM Default env configuration, gets overwritten by the C# code's settings handle
 set ASPNETCORE_ENVIRONMENT="Production"
 set ASPNETCORE_URLS="http://*:7801"
 
-echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Launching SwarmUI...
-.\src\bin\live_release\SwarmUI.exe %*
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SwarmUI launched in a new window.
+start cmd /k "title SwarmUI && cd /d %swarmui_install_path% && .\src\bin\live_release\SwarmUI.exe %*"
 
 goto :home
