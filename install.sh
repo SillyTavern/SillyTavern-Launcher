@@ -115,6 +115,12 @@ install_miniconda() {
     # Activate Conda environment
     source "$HOME/miniconda/etc/profile.d/conda.sh"
 
+    # Accept the Anaconda Terms of Service for all main channels
+    echo -e "${blue_fg_strong}[INFO] Accepting Anaconda Terms of Service...${reset}"
+
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/msys2
     # Clean up the Downloaded file
     rm /tmp/miniconda_installer.sh
 

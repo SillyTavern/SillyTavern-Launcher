@@ -245,10 +245,21 @@ if %errorlevel% neq 0 (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Miniconda3...
     start /wait %bin_dir%\Miniconda3-latest-Windows-x86_64.exe /InstallationType=JustMe /RegisterPython=0 /AddToPath=1 /S
 
+    REM Activate the Miniconda installation
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+    call "%miniconda_path%\Scripts\activate.bat"
 
+    REM Accept the Anaconda Terms of Service for all main channels
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Accepting Anaconda Terms of Service...
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/msys2
+
+    REM Clean up the installer
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cleaning up Miniconda3 installer...
     del %bin_dir%\Miniconda3-latest-Windows-x86_64.exe
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Miniconda3 installed successfully.%reset%
 
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Miniconda3 installed successfully.%reset%
 ) else (
     echo [ %green_fg_strong%OK%reset% ] Found app command: %cyan_fg_strong%conda%reset% from app: Miniconda3
 )
