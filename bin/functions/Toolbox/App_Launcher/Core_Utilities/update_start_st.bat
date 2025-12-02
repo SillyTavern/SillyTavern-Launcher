@@ -62,10 +62,10 @@ if exist "%SSL_INFO_FILE%" (
 :ST_SSL_Start
 if "%sslPathsFound%"=="true" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened with SSL in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat ssl"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat ssl"
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat"
 )
 
 REM Clear the old log file if it exists

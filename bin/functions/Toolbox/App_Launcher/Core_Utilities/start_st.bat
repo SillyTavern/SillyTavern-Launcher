@@ -70,10 +70,10 @@ if "%st_auto_repair%"=="YES" (
 :ST_SSL_Start
 if "%sslPathsFound%"=="true" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened with SSL in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat ssl"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat ssl"
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat"
+    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat"
 )
 
 REM Clear the old log file if it exists
@@ -100,7 +100,7 @@ goto :scan_log
 :fallback
 REM Fallback to %st_install_path% and start
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Starting SillyTavern from %st_install_path%...
-start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call Start.bat"
+start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call Start.bat"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern should now be launching in a new window, if you still receive errors please contact the launcher devs in the #launcher-help channel on discord.
 timeout /t 10
 exit /b 1
