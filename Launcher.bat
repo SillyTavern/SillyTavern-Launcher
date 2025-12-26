@@ -14,7 +14,7 @@ REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title STL [STARTUP CHECK]
 setlocal
 
-set "stl_version=24.1.5.0"
+set "stl_version=25.12.1.0"
 set "stl_title_pid=STL [TROUBLESHOOTING]"
 
 REM ANSI Escape Code for Colors
@@ -155,6 +155,35 @@ if exist "%sdwebuiforge_modules_path%" (
     )
 )
 
+REM Define variables to track module status (STABLE DIFFUSION WEBUI FORGE NEO)
+set "sdwebuiforgeneo_modules_path=%~dp0bin\settings\modules-sdwebuiforgeneo.txt"
+REM Performance
+set "sdwfn_uv_trigger=true"
+set "sdwfn_xformers_trigger=false"
+set "sdwfn_sage_trigger=true"
+set "sdwfn_flash_trigger=false"
+set "sdwfn_cudamalloc_trigger=true"
+set "sdwfn_cudastream_trigger=false"
+set "sdwfn_fastfp16_trigger=false"
+REM Memory
+set "sdwfn_highvram_trigger=false"
+set "sdwfn_lowvram_trigger=false"
+set "sdwfn_bnb_trigger=false"
+REM Networking/UI
+set "sdwfn_autolaunch_trigger=false"
+set "sdwfn_api_trigger=false"
+set "sdwfn_listen_trigger=false"
+set "sdwfn_port_trigger=false"
+set "sdwfn_themedark_trigger=true"
+
+if exist "%sdwebuiforgeneo_modules_path%" (
+    for /f "tokens=1,* delims==" %%A in ('type "%sdwebuiforgeneo_modules_path%"') do (
+        set "%%A=%%B"
+    )
+)
+
+
+
 REM Define variables to track module status (TEXT GENERATION WEBUI OOBABOOGA)
 set "ooba_modules_path=%~dp0bin\settings\modules-ooba.txt"
 set "ooba_autolaunch_trigger=false"
@@ -204,6 +233,7 @@ REM Define variables for install locations (Image Generation)
 set "image_generation_dir=%~dp0image-generation"
 set "sdwebui_install_path=%image_generation_dir%\stable-diffusion-webui"
 set "sdwebuiforge_install_path=%image_generation_dir%\stable-diffusion-webui-forge"
+set "sdwebuiforgeneo_install_path=%image_generation_dir%\stable-diffusion-webui-forge-neo"
 set "comfyui_install_path=%image_generation_dir%\ComfyUI"
 set "swarmui_install_path=%image_generation_dir%\SwarmUI"
 set "fooocus_install_path=%image_generation_dir%\Fooocus"
@@ -586,7 +616,8 @@ if exist "%SSL_INFO_FILE%" (
 )
  
 echo %blue_fg_strong%^| ^> / Home                                                     ^|%reset%
-echo %blue_fg_strong% ==============================================================%reset%   
+echo %blue_fg_strong% ==============================================================%reset%
+echo     %red_bg%If you paid for this launcher, you have been scammed...%reset%
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 echo    1. Update ^& Start SillyTavern%sslOptionSuffix%
@@ -1119,11 +1150,12 @@ echo %cyan_fg_strong% __________________________________________________________
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 echo    1. Update Stable Diffusion WebUI
 echo    2. Update Stable Diffusion WebUI Forge
-echo    3. Update ComfyUI
-echo    4. Update SwarmUI
-echo    5. Update Fooocus
-echo    6. Update InvokeAI
-echo    7. Update Ostris AI Toolkit
+echo    3. Update Stable Diffusion WebUI Forge NEO
+echo    4. Update ComfyUI
+echo    5. Update SwarmUI
+echo    6. Update Fooocus
+echo    7. Update InvokeAI
+echo    8. Update Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -1143,14 +1175,16 @@ if "%update_manager_img_gen_choice%"=="1" (
 ) else if "%update_manager_img_gen_choice%"=="2" (
     goto :update_sdwebuiforge
 ) else if "%update_manager_img_gen_choice%"=="3" (
-    goto :update_comfyui
+    goto :update_sdwebuiforgeneo
 ) else if "%update_manager_img_gen_choice%"=="4" (
-    goto :update_swarmui
+    goto :update_comfyui
 ) else if "%update_manager_img_gen_choice%"=="5" (
-    goto :update_fooocus
+    goto :update_swarmui
 ) else if "%update_manager_img_gen_choice%"=="6" (
-    goto :update_invokeai
+    goto :update_fooocus
 ) else if "%update_manager_img_gen_choice%"=="7" (
+    goto :update_invokeai
+) else if "%update_manager_img_gen_choice%"=="8" (
     goto :update_ostrisaitoolkit
 ) else if "%update_manager_img_gen_choice%"=="0" (
     goto :update_manager
@@ -1215,6 +1249,21 @@ if %errorlevel% neq 0 (
     goto :update_manager_image_generation
 )
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%stable-diffusion-webui-forge updated successfully.%reset%
+pause
+goto :update_manager_image_generation
+
+
+:update_sdwebuiforgeneo
+if not exist "%sdwebuiforgeneo_install_path%" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Forge-NEO directory not found.%reset%
+    pause
+    goto :update_manager_image_generation
+)
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Updating Forge-NEO via Git and Pixi...
+cd /d "%sdwebuiforgeneo_install_path%"
+call git pull
+call pixi update
+echo %green_fg_strong%Update Complete.%reset%
 pause
 goto :update_manager_image_generation
 
@@ -1971,11 +2020,12 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 
 echo    1. Start Stable Diffusion WebUI
 echo    2. Start Stable Diffusion WebUI Forge
-echo    3. Start ComfyUI
-echo    4. Start SwarmUI
-echo    5. Start Fooocus
-echo    6. Start InvokeAI
-echo    7. Start Ostris AI Toolkit
+echo    3. Start Stable Diffusion WebUI Forge NEO
+echo    4. Start ComfyUI
+echo    5. Start SwarmUI
+echo    6. Start Fooocus
+echo    7. Start InvokeAI
+echo    8. Start Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -2018,6 +2068,19 @@ if "%app_launcher_image_generation_choice%"=="1" (
     )
 ) else if "%app_launcher_image_generation_choice%"=="3" (
     set "caller=app_launcher_image_generation"
+    if exist "%app_launcher_image_generation_dir%\start_sdwebuiforgeneo.bat" (
+        call %app_launcher_image_generation_dir%\start_sdwebuiforgeneo.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_sdwebuiforgeneo.bat not found in: app_launcher_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_sdwebuiforgeneo.bat not found in: %app_launcher_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+    )
+) else if "%app_launcher_image_generation_choice%"=="4" (
+    set "caller=app_launcher_image_generation"
     if exist "%app_launcher_image_generation_dir%\start_comfyui.bat" (
         call %app_launcher_image_generation_dir%\start_comfyui.bat
         goto :home
@@ -2029,7 +2092,7 @@ if "%app_launcher_image_generation_choice%"=="1" (
         pause
         goto :home
     )
-) else if "%app_launcher_image_generation_choice%"=="4" (
+) else if "%app_launcher_image_generation_choice%"=="5" (
     set "caller=app_launcher_image_generation"
     if exist "%app_launcher_image_generation_dir%\start_swarmui.bat" (
         call %app_launcher_image_generation_dir%\start_swarmui.bat
@@ -2042,9 +2105,9 @@ if "%app_launcher_image_generation_choice%"=="1" (
         pause
         goto :home
     )
-) else if "%app_launcher_image_generation_choice%"=="5" (
-    goto :start_fooocus
 ) else if "%app_launcher_image_generation_choice%"=="6" (
+    goto :start_fooocus
+) else if "%app_launcher_image_generation_choice%"=="7" (
     set "caller=app_launcher_image_generation"
     if exist "%app_launcher_image_generation_dir%\start_invokeai.bat" (
         call %app_launcher_image_generation_dir%\start_invokeai.bat
@@ -2057,8 +2120,7 @@ if "%app_launcher_image_generation_choice%"=="1" (
         pause
         goto :home
     )
-
-) else if "%app_launcher_image_generation_choice%"=="7" (
+) else if "%app_launcher_image_generation_choice%"=="8" (
     set "caller=app_launcher_image_generation"
     if exist "%app_launcher_image_generation_dir%\start_ostrisaitoolkit_nextjs.bat" (
         call %app_launcher_image_generation_dir%\start_ostrisaitoolkit_nextjs.bat
@@ -2932,11 +2994,12 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 
 echo    1. Stable Diffusion WebUI [Install options]
 echo    2. Stable Diffusion WebUI Forge [Install options]
-echo    3. Install ComfyUI
-echo    4. Install SwarmUI
-echo    5. Install Fooocus
-echo    6. Install InvokeAI
-echo    7. Install Ostris AI Toolkit
+echo    3. Stable Diffusion WebUI Forge NEO [Install options]
+echo    4. Install ComfyUI
+echo    5. Install SwarmUI
+echo    6. Install Fooocus
+echo    7. Install InvokeAI
+echo    8. Install Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -2956,6 +3019,8 @@ if "%app_installer_image_generation_choice%"=="1" (
 ) else if "%app_installer_image_generation_choice%"=="2" (
     goto :install_sdwebuiforge_menu
 ) else if "%app_installer_image_generation_choice%"=="3" (
+    goto :install_sdwebuiforgeneo_menu
+) else if "%app_installer_image_generation_choice%"=="4" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_comfyui.bat" (
         call %app_installer_image_generation_dir%\install_comfyui.bat
@@ -2966,7 +3031,7 @@ if "%app_installer_image_generation_choice%"=="1" (
         pause
         goto :app_installer_image_generation
     )
-) else if "%app_installer_image_generation_choice%"=="4" (
+) else if "%app_installer_image_generation_choice%"=="5" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_swarmui.bat" (
         call %app_installer_image_generation_dir%\install_swarmui.bat
@@ -2977,7 +3042,7 @@ if "%app_installer_image_generation_choice%"=="1" (
         pause
         goto :app_installer_image_generation
     )
-) else if "%app_installer_image_generation_choice%"=="5" (
+) else if "%app_installer_image_generation_choice%"=="6" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_fooocus.bat" (
         call %app_installer_image_generation_dir%\install_fooocus.bat
@@ -2988,7 +3053,7 @@ if "%app_installer_image_generation_choice%"=="1" (
         pause
         goto :app_installer_image_generation
     )
-) else if "%app_installer_image_generation_choice%"=="6" (
+) else if "%app_installer_image_generation_choice%"=="7" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_invokeai.bat" (
         call %app_installer_image_generation_dir%\install_invokeai.bat
@@ -2999,7 +3064,7 @@ if "%app_installer_image_generation_choice%"=="1" (
         pause
         goto :app_installer_image_generation
     )
-) else if "%app_installer_image_generation_choice%"=="7" (
+) else if "%app_installer_image_generation_choice%"=="8" (
     set "caller=app_installer_image_generation"
     if exist "%app_installer_image_generation_dir%\install_ostris_aitoolkit.bat" (
         call %app_installer_image_generation_dir%\install_ostris_aitoolkit.bat
@@ -3342,7 +3407,7 @@ REM ############################################################
 REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE - FRONTEND ###
 REM ############################################################
 :install_sdwebuiforge_menu
-title STL [APP INSTALLER STABLE DIFUSSION WEBUI forge]
+title STL [APP INSTALLER STABLE DIFUSSION WEBUI FORGE]
 
 REM Check if the folder exists
 if exist "%sdwebuiforge_install_path%" (
@@ -3352,8 +3417,8 @@ if exist "%sdwebuiforge_install_path%" (
 )
 
 cls
-echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Stable Diffusion WebUI Forge ^|%reset%
-echo %blue_fg_strong% ===================================================================%reset%   
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Image Generation / Stable Diffusion WebUI Forge ^|%reset%
+echo %blue_fg_strong% ================================================================================%reset%   
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 
@@ -3663,6 +3728,351 @@ echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding API key...
 civitconfig default --api-key %civitaiapikey%
 pause
 goto :install_sdwebuiforge_model_menu
+
+
+REM ##############################################################
+REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE NEO - FRONTEND ###
+REM ##############################################################
+:install_sdwebuiforgeneo_menu
+title STL [APP INSTALLER STABLE DIFUSSION WEBUI FORGE NEO]
+
+REM Check if Theme is installed to change menu text
+set "theme_label=Install Theme (Lobe Theme)"
+if exist "%sdwebuiforgeneo_install_path%\extensions\sd-webui-lobe-theme" (
+    set "theme_label=%red_fg_strong%UNINSTALL Theme (Lobe Theme)%reset%"
+)
+
+cls
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Image Generation / Stable Diffusion WebUI Forge NEO ^|%reset%
+echo %blue_fg_strong% ================================================================================%reset%   
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
+
+echo    1. Install Stable Diffusion WebUI Forge NEO
+echo    2. Install Extensions (Bulk)
+echo    3. %theme_label%
+echo    4. Models [Install Options]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_sdwebuiforgeneo_choice=%BS%   Choose Your Destiny: "
+
+
+REM ## APP INSTALLER STABLE DIFUSSION WEBUI FORGE NEO - BACKEND ###
+if "%app_installer_sdwebuiforgeneo_choice%"=="1" (
+    set "caller=app_installer_image_generation_sdwebuiforgeneo"
+    if exist "%app_installer_image_generation_dir%\install_sdwebuiforgeneo.bat" (
+        call %app_installer_image_generation_dir%\install_sdwebuiforgeneo.bat
+        goto :install_sdwebuiforgeneo_menu
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_sdwebuiforgeneo.bat not found in: %app_installer_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_sdwebuiforgeneo.bat not found in: %app_installer_image_generation_dir%%reset%
+        pause
+        goto :install_sdwebuiforgeneo_menu
+    )
+) else if "%app_installer_sdwebuiforgeneo_choice%"=="2" (
+    goto :install_sdwebuiforgeneo_extensions
+) else if "%app_installer_sdwebuiforgeneo_choice%"=="3" (
+    goto :toggle_sdwebuiforgeneo_theme
+) else if "%app_installer_sdwebuiforgeneo_choice%"=="4" (
+    goto :install_sdwebuiforgeneo_model_menu
+) else if "%app_installer_sdwebuiforgeneo_choice%"=="0" (
+    goto :app_installer_image_generation
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :install_sdwebuiforgeneo_menu
+)
+
+:toggle_sdwebuiforgeneo_theme
+if exist "%sdwebuiforgeneo_install_path%\extensions\sd-webui-lobe-theme" (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing Lobe Theme...
+    rmdir /s /q "%sdwebuiforgeneo_install_path%\extensions\sd-webui-lobe-theme"
+    echo %green_fg_strong%Theme removed successfully.%reset%
+) else (
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Lobe Theme...
+    if not exist "%sdwebuiforgeneo_install_path%\extensions" mkdir "%sdwebuiforgeneo_install_path%\extensions"
+    cd /d "%sdwebuiforgeneo_install_path%\extensions"
+    git clone https://github.com/PeterBai923/sd-webui-lobe-theme
+    echo %green_fg_strong%Theme installed successfully.%reset%
+)
+pause
+goto :install_sdwebuiforgeneo_menu
+
+
+:install_sdwebuiforgeneo_extensions
+REM Check if the folder exists
+if not exist "%sdwebuiforgeneo_install_path%" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion WebUI Forge NEO is not installed. Please install it first.%reset%
+    pause
+    goto :install_sdwebuiforgeneo_menu
+)
+
+REM Clone extensions for stable-diffusion-webui-forge-neo
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for stable-diffusion-webui-forge-neo...
+cd /d "%sdwebuiforgeneo_install_path%\extensions"
+git clone https://github.com/ussoewwin/sd-webui-ar-gradio4.git
+git clone https://github.com/SiliconeShojo/Stable-Diffusion-Webui-Civitai-Helper.git
+git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git
+git clone https://github.com/EnsignMK/danbooru-prompt.git
+git clone https://github.com/xiaofeng-ling/sd-webui-openpose-editor.git
+git clone https://github.com/Mikubill/sd-webui-controlnet.git
+git clone https://github.com/ashen-sensored/sd_webui_SAG.git
+git clone https://github.com/NoCrypt/sd-fast-pnginfo.git
+git clone https://github.com/newtextdoc1111/adetailer.git
+git clone https://github.com/hako-mikan/sd-webui-supermerger.git
+git clone https://github.com/zanllp/sd-webui-infinite-image-browsing.git
+git clone https://github.com/hako-mikan/sd-webui-regional-prompter.git
+REM git clone https://github.com/Gourieff/sd-webui-reactor-sfw.git
+git clone https://github.com/maksabuzyarov/stable-diffusion-webui-rembg.git
+
+REM Installs better upscaler models
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Installing Better Upscaler models...
+cd /d "%sdwebuiforgeneo_install_path%\models"
+mkdir ESRGAN && cd ESRGAN
+curl -o 4x-AnimeSharp.pth https://huggingface.co/Kim2091/AnimeSharp/resolve/main/4x-AnimeSharp.pth
+curl -o 4x-UltraSharp.pth https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth
+pause
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Extensions for Stable Diffusion WebUI Forge NEO installed Successfully.%reset%
+goto :install_sdwebuiforgeneo_menu
+
+
+REM ############################################################
+REM ##### APP INSTALLER SDWEBUI FORGE NEO Models - FRONTEND ########
+REM ############################################################
+:install_sdwebuiforgeneo_model_menu
+title STL [APP INSTALLER SDWEBUIFORGE NEO MODELS]
+
+REM Check if the folder exists
+if not exist "%sdwebuiforgeneo_install_path%" (
+    echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] Stable Diffusion WebUI Forge NEO is not installed. Please install it first.%reset%
+    pause
+    goto :install_sdwebuiforgeneo_menu
+)
+
+REM Run conda activate from the Miniconda installation
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Miniconda environment...
+call "%miniconda_path%\Scripts\activate.bat"
+
+REM Activate the sdwebuiforgeneo environment
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Activating Conda environment: %cyan_fg_strong%sdwebuiforgeneo%reset%
+call conda activate sdwebuiforgeneo
+
+cd /d "%sdwebuiforgeneo_install_path%"
+
+cls
+echo %blue_fg_strong%^| ^> / Home / Toolbox / App Installer / Stable Diffusion WebUI Forge NEO / Models    ^|%reset%
+echo %blue_fg_strong% ===============================================================================%reset%
+echo    1. Install a custom model
+echo    2. Add Civit AI API Key
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| SD 1.5 Models [SD 1.5]                                       ^|%reset%
+echo    3. Install Hassaku [ANIME]
+echo    4. Install YiffyMix [FURRY]
+echo    5. Install Perfect World [REALISM]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| SDXL Models [PONY]                                           ^|%reset%
+echo    6. Install Hassaku XL [ANIME] 
+echo    7. Install AutismMix_confetti [ANIME/CARTOON/FURRY MIX] 
+echo    8. Install Pony Realism [REALISM]
+echo    9. Install CyberRealistic Pony [REALISM]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| SDXL Models [ILLUSTRIOUS]                                    ^|%reset%
+echo    10. Install WAI-NSFW-illustrious-SDXL [ANIME]
+echo    11. Install Hassaku XL Illustrious [ANIME]
+echo    12. Install CyberIllustrious [REALISM]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| FLUX Models                                                  ^|%reset%
+echo    13. Install Flux.1-Dev/Schnell BNB NF4 [REALISM]
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
+echo    0. Back
+echo %cyan_fg_strong% ______________________________________________________________%reset%
+echo %cyan_fg_strong%^|                                                              ^|%reset%
+
+:: Define a variable containing a single backspace character
+for /f %%A in ('"prompt $H &echo on &for %%B in (1) do rem"') do set "BS=%%A"
+
+:: Set the prompt with spaces
+set /p "app_installer_sdwebuiforgeneo_model_choice=%BS%   Choose Your Destiny: "
+
+REM ######## APP INSTALLER IMAGE GENERATION - BACKEND #########
+if "%app_installer_sdwebuiforgeneo_model_choice%"=="1" (
+    call :install_sdwebuiforgeneo_model_custom
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="2" (
+    goto :install_sdwebuiforgeneo_model_apikey
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="3" (
+    goto :install_sdwebuiforgeneo_model_hassaku
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="4" (
+    goto :install_sdwebuiforgeneo_model_yiffymix
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="5" (
+    goto :install_sdwebuiforgeneo_model_perfectworld
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="6" (
+    goto :install_sdwebuiforgeneo_model_hassakuxl
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="7" (
+    goto :install_sdwebuiforgeneo_model_autismMixconfetti
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="8" (
+    goto :install_sdwebuiforgeneo_model_ponyrealism
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="9" (
+    goto :install_sdwebuiforgeneo_model_cyberrealistic_pony
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="10" (
+    goto :install_sdwebuiforgeneo_model_wai_nsfw_illustrious_sdxl
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="11" (
+    goto :install_sdwebuiforgeneo_model_hassaku_xl_illustrious
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="12" (
+    goto :install_sdwebuiforgeneo_model_cyberillustrious
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="13" (
+    goto :install_sdwebuiforgeneo_model_flux
+
+) else if "%app_installer_sdwebuiforgeneo_model_choice%"=="0" (
+    goto :install_sdwebuiforgeneo_menu
+) else (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :install_sdwebuiforgeneo_model_menu
+)
+
+:install_sdwebuiforgeneo_model_hassaku
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku [SD 1.5] Model...
+civitdl 2583 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku [SD 1.5] Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+
+:install_sdwebuiforgeneo_model_yiffymix
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix [SD 1.5] Model...
+civitdl 3671 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix [SD 1.5] Config...
+civitdl 3671 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix Config in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading YiffyMix [SD 1.5] VAE...
+civitdl 3671 -s basic "models\VAE"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed YiffyMix VAE in: "%sdwebuiforgeneo_install_path%\models\VAE"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+
+:install_sdwebuiforgeneo_model_perfectworld
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Perfect World [SD 1.5] Model...
+civitdl 8281 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+
+:install_sdwebuiforgeneo_model_hassakuxl
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Hassaku XL [PONY] Model...
+civitdl 376031 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Hassaku XL [PONY] Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+
+:install_sdwebuiforgeneo_model_autismMixconfetti
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading AutismMix SDXL [PONY] Model...
+civitdl 288584 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed AutismMix SDXL [PONY] Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+
+:install_sdwebuiforgeneo_model_ponyrealism
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Pony Realism [PONY] Model...
+civitdl 372465 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Pony Realism [PONY] Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+:install_sdwebuiforgeneo_model_cyberrealistic_pony
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading cyberrealistic-pony [PONY] Model...
+civitdl 443821 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed cyberrealistic-pony [PONY] Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+:install_sdwebuiforgeneo_model_wai_nsfw_illustrious_sdxl
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading WAI-NSFW-illustrious-SDXL [ILLUSTRIOUS] Model...
+civitdl 827184 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed WAI-NSFW-illustrious-SDXL [ILLUSTRIOUS] Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+:install_sdwebuiforgeneo_model_hassaku_xl_illustrious
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading hassaku-xl-illustrious [ILLUSTRIOUS] Model...
+civitdl 140272 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed hassaku-xl-illustrious [ILLUSTRIOUS] Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+:install_sdwebuiforgeneo_model_cyberillustrious
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading CyberIllustrious [ILLUSTRIOUS] Model...
+civitdl 1125067 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed CyberIllustrious [ILLUSTRIOUS] Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+:install_sdwebuiforgeneo_model_flux
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading Flux...
+civitdl 638187 -s basic "models\Stable-diffusion"
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed Perfect World Model in: "%sdwebuiforgeneo_install_path%\models\Stable-diffusion"%reset%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+
+:install_sdwebuiforgeneo_model_custom
+cls
+set /p civitaimodelid="(0 to cancel)Insert Model ID: "
+
+if "%civitaimodelid%"=="0" goto :install_sdwebuiforgeneo_model_menu
+
+REM Check if the input is a valid number
+echo %civitaimodelid%| findstr /R "^[0-9]*$" > nul
+if errorlevel 1 (
+    echo [%DATE% %TIME%] %log_invalidinput% >> %logs_stl_console_path%
+    echo %red_bg%[%time%]%reset% %echo_invalidinput%
+    pause
+    goto :install_sdwebuiforgeneo_model_custom
+)
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading...
+civitdl %civitaimodelid% -s basic "models\Stable-diffusion"
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
+
+:install_sdwebuiforgeneo_model_apikey
+cls
+echo To generate a Civit AI API key, follow these steps:
+echo * %cyan_fg_strong%Go to%reset% %yellow_fg_strong%https://civitai.com/user/account%reset% %cyan_fg_strong%or click on your user picture then click on Account settings%reset%
+echo * %cyan_fg_strong%Scroll down until you see "API Keys"%reset%
+echo * %cyan_fg_strong%Click Add API key%reset%
+echo * %cyan_fg_strong%Name it "civitdl" then click on Save%reset%
+echo * %cyan_fg_strong%Copy the API Key and paste it here below%reset%
+echo.
+
+set /p civitaiapikey="(0 to cancel)Insert API key: "
+
+if "%civitaiapikey%"=="0" goto :install_sdwebuiforgeneo_model_menu
+
+echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Adding API key...
+civitconfig default --api-key %civitaiapikey%
+pause
+goto :install_sdwebuiforgeneo_model_menu
+
 
 
 
@@ -4063,11 +4473,12 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 
 echo    1. UNINSTALL Stable Diffusion WebUI
 echo    2. UNINSTALL Stable Diffusion WebUI Forge
-echo    3. UNINSTALL ComfyUI
-echo    4. UNINSTALL SwarmUI
-echo    5. UNINSTALL Fooocus
-echo    6. UNINSTALL InvokeAI
-echo    7. UNINSTALL Ostris AI Toolkit
+echo    3. UNINSTALL Stable Diffusion WebUI Forge NEO
+echo    4. UNINSTALL ComfyUI
+echo    5. UNINSTALL SwarmUI
+echo    6. UNINSTALL Fooocus
+echo    7. UNINSTALL InvokeAI
+echo    8. UNINSTALL Ostris AI Toolkit
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -4110,6 +4521,19 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
     )
 ) else if "%app_uninstaller_img_gen_choice%"=="3" (
     set "caller=app_uninstaller_image_generation"
+    if exist "%app_uninstaller_image_generation_dir%\uninstall_sdwebuiforgeneo.bat" (
+        call %app_uninstaller_image_generation_dir%\uninstall_sdwebuiforgeneo.bat
+        goto :app_uninstaller_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: uninstall_sdwebuiforgeneo.bat not found in: %app_uninstaller_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] uninstall_sdwebuiforgeneo.bat not found in: %app_uninstaller_image_generation_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :app_uninstaller_image_generation
+    )
+) else if "%app_uninstaller_img_gen_choice%"=="4" (
+    set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_comfyui.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_comfyui.bat
         goto :app_uninstaller_image_generation
@@ -4121,7 +4545,7 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
         pause
         goto :app_uninstaller_image_generation
     )
-) else if "%app_uninstaller_img_gen_choice%"=="4" (
+) else if "%app_uninstaller_img_gen_choice%"=="5" (
     set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_swarmui.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_swarmui.bat
@@ -4134,7 +4558,7 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
         pause
         goto :app_uninstaller_image_generation
     )
-) else if "%app_uninstaller_img_gen_choice%"=="5" (
+) else if "%app_uninstaller_img_gen_choice%"=="6" (
     set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_fooocus.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_fooocus.bat
@@ -4147,7 +4571,7 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
         pause
         goto :app_uninstaller_image_generation
     )
-) else if "%app_uninstaller_img_gen_choice%"=="6" (
+) else if "%app_uninstaller_img_gen_choice%"=="7" (
     set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_invokeai.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_invokeai.bat
@@ -4160,7 +4584,7 @@ if "%app_uninstaller_img_gen_choice%"=="1" (
         pause
         goto :app_uninstaller_image_generation
     )
-) else if "%app_uninstaller_img_gen_choice%"=="7" (
+) else if "%app_uninstaller_img_gen_choice%"=="8" (
     set "caller=app_uninstaller_image_generation"
     if exist "%app_uninstaller_image_generation_dir%\uninstall_ostris_aitoolkit.bat" (
         call %app_uninstaller_image_generation_dir%\uninstall_ostris_aitoolkit.bat
@@ -4564,8 +4988,9 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 
 echo    1. Edit Stable Diffusion WebUI
 echo    2. Edit Stable Diffusion WebUI Forge
-echo    3. Edit ComfyUI
-echo    4. Edit Fooocus
+echo    3. Edit Stable Diffusion WebUI Forge NEO
+echo    4. Edit ComfyUI
+echo    5. Edit Fooocus
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -4604,6 +5029,17 @@ if "%editor_image_generation_choice%"=="1" (
     )
 ) else if "%editor_image_generation_choice%"=="3" (
     set "caller=editor_image_generation"
+    if exist "%editor_image_generation_dir%\edit_sdwebuiforgeneo_modules.bat" (
+        call %editor_image_generation_dir%\edit_sdwebuiforgeneo_modules.bat
+        goto :editor_image_generation
+    ) else (
+        echo [%DATE% %TIME%] ERROR: edit_sdwebuiforgeneo_modules.bat not found in: %editor_image_generation_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] edit_sdwebuiforgeneo_modules.bat not found in: %editor_image_generation_dir%%reset%
+        pause
+        goto :editor_image_generation
+    )
+) else if "%editor_image_generation_choice%"=="4" (
+    set "caller=editor_image_generation"
     if exist "%editor_image_generation_dir%\edit_comfyui_modules.bat" (
         call %editor_image_generation_dir%\edit_comfyui_modules.bat
         goto :editor_image_generation
@@ -4613,7 +5049,7 @@ if "%editor_image_generation_choice%"=="1" (
         pause
         goto :editor_image_generation
     )
-) else if "%editor_image_generation_choice%"=="4" (
+) else if "%editor_image_generation_choice%"=="5" (
     set "caller=editor_image_generation"
     if exist "%editor_image_generation_dir%\edit_fooocus_modules.bat" (
         call %editor_image_generation_dir%\edit_fooocus_modules.bat
