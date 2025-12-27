@@ -14,7 +14,7 @@ REM Issues: https://github.com/SillyTavern/SillyTavern-Launcher/issues
 title STL [STARTUP CHECK]
 setlocal
 
-set "stl_version=25.12.1.0"
+set "stl_version=25.12.1.1"
 set "stl_title_pid=STL [TROUBLESHOOTING]"
 
 REM ANSI Escape Code for Colors
@@ -617,7 +617,7 @@ if exist "%SSL_INFO_FILE%" (
  
 echo %blue_fg_strong%^| ^> / Home                                                     ^|%reset%
 echo %blue_fg_strong% ==============================================================%reset%
-echo     %red_bg%If you paid for this launcher, you have been scammed...%reset%
+REM echo     %red_bg%If you paid for this launcher, you have been scammed...%reset%
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| What would you like to do?                                   ^|%reset%
 echo    1. Update ^& Start SillyTavern%sslOptionSuffix%
