@@ -245,6 +245,7 @@ REM Define variables for install locations (Text Completion)
 set "text_completion_dir=%~dp0text-completion"
 set "ooba_install_path=%text_completion_dir%\text-generation-webui"
 set "koboldcpp_install_path=%text_completion_dir%\dev-koboldcpp"
+set "koboldcpp_temp_path=%text_completion_dir%\dev-koboldcpp-tmp"
 set "llamacpp_install_path=%text_completion_dir%\dev-llamacpp"
 set "tabbyapi_install_path=%text_completion_dir%\tabbyAPI"
 
@@ -880,7 +881,8 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 
 echo    1. Update Text generation web UI (oobabooga)
 echo    2. Update koboldcpp
-echo    3. Update TabbyAPI
+echo    3. Update unpacked koboldcpp
+echo    4. Update TabbyAPI
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -901,6 +903,8 @@ if "%update_manager_txt_comp_choice%"=="1" (
 ) else if "%update_manager_txt_comp_choice%"=="2" (
     call :update_koboldcpp
 ) else if "%update_manager_txt_comp_choice%"=="3" (
+    call :update_unpacked_koboldcpp
+) else if "%update_manager_txt_comp_choice%"=="4" (
     call :update_tabbyapi
 ) else if "%update_manager_txt_comp_choice%"=="0" (
     goto :update_manager
@@ -972,6 +976,69 @@ if exist "%koboldcpp_install_path%\koboldcpp_rocm.exe" (
     goto :update_manager_text_completion
 )
 
+:update_unpacked_koboldcpp
+REM Check if dev-koboldcpp directory exists
+if not exist "%koboldcpp_install_path%" (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] dev-koboldcpp directory not found. Skipping update.%reset%
+    pause
+    goto :update_manager_text_completion
+)
+
+REM Check if tmp folder exists
+if not exist "%koboldcpp_temp_path%" (
+    mkdir "%koboldcpp_temp_path%"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Created temporary folder
+) else (
+    echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Temporary folder already exists. A previous installation or update may have ended prematurely. Please check %koboldcpp_temp_path% for files before proceeding.%reset%
+	set /p "confirmation=Are you sure you want to proceed? [Y/N]: "
+	if /i "%confirmation%"=="Y" (
+	echo %yellow_bg%[%time%]%reset% %yellow_fg_strong%[WARN] Proceeding.%reset%
+	del /q "%koboldcpp_temp_path%"
+	) else (
+    goto :update_manager_text_completion
+	)
+)
+
+REM Check if koboldcpp file exists [koboldcpp NVIDIA]
+if exist "%koboldcpp_install_path%\koboldcpp.exe" (
+    REM Remake install folder
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing koboldcpp installation.
+    rmdir /s /q "%koboldcpp_install_path%"
+	mkdir "%koboldcpp_install_path%"
+	REM Download koboldcpp.exe to temp folder
+    curl -L -o "%koboldcpp_temp_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
+	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Unpacking koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
+	REM Unpack koboldcpp.exe to install folder
+    start "" "%koboldcpp_temp_path%\koboldcpp.exe" --unpack "%koboldcpp_install_path%"
+	REM Move koboldcpp.exe to install folder & remove temp folder
+	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving koboldcpp executable to install folder.
+	move /Y "%koboldcpp_temp_path%\koboldcpp.exe" "%koboldcpp_install_path%"
+	rmdir /s /q "%koboldcpp_temp_path%"
+	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cleaned up temporary folder.
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong% koboldcpp updated successfully.%reset%
+    pause
+    goto :update_manager_text_completion
+)
+REM Check if koboldcpp file exists [koboldcpp AMD]
+if exist "%koboldcpp_install_path%\koboldcpp_rocm.exe" (
+    REM Remake install folder
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Removing existing koboldcpp installation.
+    rmdir /s /q "%koboldcpp_install_path%"
+	mkdir "%koboldcpp_install_path%"
+	REM Download koboldcpp_rocm.exe to temp folder
+    curl -L -o "%koboldcpp_temp_path%\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
+	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Unpacking koboldcpp_rocm.exe for: %cyan_fg_strong%AMD%reset% 
+	REM Unpack koboldcpp_rocm.exe to install folder
+    start "" "%koboldcpp_temp_path%\koboldcpp_rocm.exe" --unpack "%koboldcpp_install_path%"
+	REM Move koboldcpp_rocm.exe to install folder & remove temp folder
+	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving koboldcpp executable to install folder.
+	move /Y "%koboldcpp_temp_path%\koboldcpp_rocm.exe" "%koboldcpp_install_path%"
+	rmdir /s /q "%koboldcpp_temp_path%"
+	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cleaned up temporary folder.
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong% koboldcpp updated successfully.%reset%
+    pause
+    goto :update_manager_text_completion
+)
 
 :update_tabbyapi
 REM Check if tabbyAPI directory exists
@@ -1702,7 +1769,8 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 
 echo    1. Start Text generation web UI (oobabooga)
 echo    2. Start koboldcpp
-echo    3. Start TabbyAPI
+echo    3. Start unpacked koboldcpp
+echo    4. Start TabbyAPI
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -1722,6 +1790,8 @@ if "%app_launcher_txt_comp_choice%"=="1" (
 ) else if "%app_launcher_txt_comp_choice%"=="2" (
     call :start_koboldcpp
 ) else if "%app_launcher_txt_comp_choice%"=="3" (
+    call :start_unpacked_koboldcpp
+) else if "%app_launcher_txt_comp_choice%"=="4" (
     call :start_tabbyapi
 ) else if "%app_launcher_txt_comp_choice%"=="0" (
     goto :app_launcher
@@ -1782,6 +1852,19 @@ goto :home
         goto :home
 )
 
+:start_unpacked_koboldcpp
+    set "caller=app_launcher_text_completion"
+    if exist "%app_launcher_text_completion_dir%\start_unpacked_koboldcpp.bat" (
+        call %app_launcher_text_completion_dir%\start_unpacked_koboldcpp.bat
+        goto :home
+    ) else (
+        echo [%DATE% %TIME%] ERROR: start_unpacked_koboldcpp.bat not found in: %app_launcher_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] start_unpacked_koboldcpp.bat not found in: %app_launcher_text_completion_dir%%reset%
+        echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Automatic Repair...
+        git pull
+        pause
+        goto :home
+)
 
 :start_tabbyapi
     set "caller=app_launcher_text_completion"
@@ -2361,6 +2444,7 @@ echo %cyan_fg_strong%^| What would you like to do?                              
 
 echo    1. Install koboldcpp from prebuild .exe [Recommended]
 echo    2. Build dll files and compile the .exe installer [Advanced]
+echo    3. Install and unpack koboldcpp from prebuild .exe [Advanced]
 echo %cyan_fg_strong% ______________________________________________________________%reset%
 echo %cyan_fg_strong%^| Menu Options:                                                ^|%reset%
 echo    0. Back
@@ -2397,6 +2481,16 @@ if "%app_installer_koboldcpp_choice%"=="1" (
         pause
         goto :install_koboldcpp_menu
     )
+)else if "%app_installer_koboldcpp_choice%"=="3" (
+    set "caller=app_installer_text_completion_koboldcpp"
+    if exist "%app_installer_text_completion_dir%\install_unpacked_koboldcpp.bat" (
+        call %app_installer_text_completion_dir%\install_unpacked_koboldcpp.bat
+        goto :app_installer_text_completion
+    ) else (
+        echo [%DATE% %TIME%] ERROR: install_unpacked_koboldcpp.bat not found in: %app_installer_text_completion_dir% >> %logs_stl_console_path%
+        echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_unpacked_koboldcpp.bat not found in: %app_installer_text_completion_dir%%reset%
+        pause
+        goto :install_koboldcpp_menu
 ) else if "%app_installer_koboldcpp_choice%"=="0" (
     goto :app_installer_text_completion
 ) else (
@@ -5605,14 +5699,15 @@ echo ---------------------------------------------------------
 REM Define options and corresponding commands in a structured format
 set "option1=Oobabooga"
 set "option2=Koboldcpp"
-set "option3=TabbyAPI"
-set "option4=AllTalk"
-set "option5=XTTS"
-set "option6=RVC"
-set "option7=Stable Diffusion"
-set "option8=Stable Diffusion Forge"
-set "option9=ComfyUI"
-set "option10=Fooocus"
+set "option3=Unpacked Koboldcpp"
+set "option4=TabbyAPI"
+set "option5=AllTalk"
+set "option6=XTTS"
+set "option7=RVC"
+set "option8=Stable Diffusion"
+set "option9=Stable Diffusion Forge"
+set "option10=ComfyUI"
+set "option11=Fooocus"
 
 REM Display each option using a loop
 for /L %%i in (1,1,10) do (
@@ -5626,14 +5721,15 @@ if "%user_apps%"=="0" goto :home
 REM Array-like structure for mapping names and commands
 set "command1=call :start_ooba"
 set "command2=call :start_koboldcpp"
-set "command3=call :start_tabbyapi"
-set "command4=call :start_alltalk"
-set "command5=call :start_xtts"
-set "command6=call :start_rvc"
-set "command7=call :start_sdwebui"
-set "command8=call :start_sdwebuiforge"
-set "command9=call :start_comfyui"
-set "command10=call :start_fooocus"
+set "command3=call :start_unpacked_koboldcpp"
+set "command4=call :start_tabbyapi"
+set "command5=call :start_alltalk"
+set "command6=call :start_xtts"
+set "command7=call :start_rvc"
+set "command8=call :start_sdwebui"
+set "command9=call :start_sdwebuiforge"
+set "command10=call :start_comfyui"
+set "command11=call :start_fooocus"
 
 REM Retrieve the selected application name and command
 call set "shortcut_name=Start SillyTavern With %%option%user_apps%%%"
@@ -5698,3 +5794,4 @@ if exist "%~dp0bin\settings\custom-shortcut.txt" (
     pause
     goto :toolbox
 )
+
