@@ -1009,7 +1009,7 @@ if exist "%koboldcpp_install_path%\koboldcpp.exe" (
     curl -L -o "%koboldcpp_temp_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
 	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Unpacking koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
 	REM Unpack koboldcpp.exe to install folder
-    start "" "%koboldcpp_temp_path%\koboldcpp.exe" --unpack "%koboldcpp_install_path%"
+    start /w "" "%koboldcpp_temp_path%\koboldcpp.exe" --unpack "%koboldcpp_install_path%"
 	REM Move koboldcpp.exe to install folder & remove temp folder
 	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving koboldcpp executable to install folder.
 	move /Y "%koboldcpp_temp_path%\koboldcpp.exe" "%koboldcpp_install_path%"
@@ -1029,7 +1029,7 @@ if exist "%koboldcpp_install_path%\koboldcpp_rocm.exe" (
     curl -L -o "%koboldcpp_temp_path%\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
 	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Unpacking koboldcpp_rocm.exe for: %cyan_fg_strong%AMD%reset% 
 	REM Unpack koboldcpp_rocm.exe to install folder
-    start "" "%koboldcpp_temp_path%\koboldcpp_rocm.exe" --unpack "%koboldcpp_install_path%"
+    start /w "" "%koboldcpp_temp_path%\koboldcpp_rocm.exe" --unpack "%koboldcpp_install_path%"
 	REM Move koboldcpp_rocm.exe to install folder & remove temp folder
 	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving koboldcpp executable to install folder.
 	move /Y "%koboldcpp_temp_path%\koboldcpp_rocm.exe" "%koboldcpp_install_path%"
@@ -5794,4 +5794,5 @@ if exist "%~dp0bin\settings\custom-shortcut.txt" (
     pause
     goto :toolbox
 )
+
 
