@@ -97,11 +97,11 @@ REM Unpack koboldcpp to install folder
 :install_koboldcpp_unpack
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Unpacking koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
-    start "" "koboldcpp.exe" --unpack "%koboldcpp_install_path%"
+    start /w "" "koboldcpp.exe" --unpack "%koboldcpp_install_path%"
 	goto :install_koboldcpp_cleanup
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Unpacking koboldcpp_rocm.exe for: %cyan_fg_strong%AMD%reset% 
-    start "" "koboldcpp_rocm.exe" --unpack "%koboldcpp_install_path%"
+    start /w "" "koboldcpp_rocm.exe" --unpack "%koboldcpp_install_path%"
 	goto :install_koboldcpp_cleanup
 )
 
@@ -127,4 +127,5 @@ if "%GPU_CHOICE%"=="1" (
 :install_koboldcpp_final
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed and unpacked koboldcpp%reset%
 pause
+
 goto :app_installer_text_completion
