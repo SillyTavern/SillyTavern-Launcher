@@ -2481,7 +2481,7 @@ if "%app_installer_koboldcpp_choice%"=="1" (
         pause
         goto :install_koboldcpp_menu
     )
-)else if "%app_installer_koboldcpp_choice%"=="3" (
+) else if "%app_installer_koboldcpp_choice%"=="3" (
     set "caller=app_installer_text_completion_koboldcpp"
     if exist "%app_installer_text_completion_dir%\install_unpacked_koboldcpp.bat" (
         call %app_installer_text_completion_dir%\install_unpacked_koboldcpp.bat
@@ -5794,5 +5794,6 @@ if exist "%~dp0bin\settings\custom-shortcut.txt" (
     pause
     goto :toolbox
 )
+
 
 
