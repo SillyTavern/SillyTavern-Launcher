@@ -82,50 +82,38 @@ if not exist "%koboldcpp_temp_path%" (
 )
 cd /d "%koboldcpp_temp_path%"
 
-REM Use the GPU choice made earlier to install koboldcpp
+REM Use the GPU choice made earlier to install koboldcpp, unpack koboldcpp, and remove the tmp directory
 if "%GPU_CHOICE%"=="1" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
     curl -L -o "%koboldcpp_temp_path%\koboldcpp.exe" "https://github.com/LostRuins/koboldcpp/releases/latest/download/koboldcpp.exe"
-	goto :install_koboldcpp_unpack
+	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Clearing koboldcpp install folder
+	rmdir /s /q "%koboldcpp_install_path%"
+	mkdir "%koboldcpp_install_path%"
+    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Unpacking koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
+    start /w "" "koboldcpp.exe" --unpack "%koboldcpp_install_path%"
+	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving koboldcpp executable to install folder
+	move /Y "%koboldcpp_temp_path%\koboldcpp.exe" "%koboldcpp_install_path%"
+	cd /d "%koboldcpp_install_path%"
+	rmdir /s /q "%koboldcpp_temp_path%"
+	pause
+	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cleaned up temporary folder
 ) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Downloading koboldcpp_rocm.exe for: %cyan_fg_strong%AMD%reset% 
     curl -L -o "%koboldcpp_temp_path%\koboldcpp_rocm.exe" "https://github.com/YellowRoseCx/koboldcpp-rocm/releases/latest/download/koboldcpp_rocm.exe"
-	goto :install_koboldcpp_unpack
-)
-
-REM Unpack koboldcpp to install folder
-:install_koboldcpp_unpack
-if "%GPU_CHOICE%"=="1" (
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Unpacking koboldcpp.exe for: %cyan_fg_strong%NVIDIA%reset% 
-    start /w "" "koboldcpp.exe" --unpack "%koboldcpp_install_path%"
-	goto :install_koboldcpp_cleanup
-) else if "%GPU_CHOICE%"=="2" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Unpacking koboldcpp_rocm.exe for: %cyan_fg_strong%AMD%reset% 
+	rmdir /s /q "%koboldcpp_install_path%"
+	mkdir "%koboldcpp_install_path%"
     start /w "" "koboldcpp_rocm.exe" --unpack "%koboldcpp_install_path%"
-	goto :install_koboldcpp_cleanup
-)
-
-REM Move .exe to install directory and remove tmp directory
-:install_koboldcpp_cleanup
-if "%GPU_CHOICE%"=="1" (
 	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving koboldcpp executable to install folder
-	move "%koboldcpp_temp_path%\koboldcpp.exe" "%koboldcpp_install_path%"
-	cd \d "%koboldcpp_install_path%"
-	rmdir /s /q "%koboldcpp_temp_path%"
-	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cleaned up temporary folder
-	start "" "koboldcpp-launcher.exe"
-	goto :install_koboldcpp_final
-) else if "%GPU_CHOICE%"=="2" (
-	echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Moving koboldcpp executable to install folder
-	move "%koboldcpp_temp_path%\koboldcpp_rocm.exe" "%koboldcpp_install_path%"
-	cd \d "%koboldcpp_install_path%"
+	move /Y "%koboldcpp_temp_path%\koboldcpp_rocm.exe" "%koboldcpp_install_path%"
+	cd /d "%koboldcpp_install_path%"
 	rmdir /s /q "%koboldcpp_temp_path%"
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cleaned up temporary folder
-	start "" "koboldcpp-launcher.exe"
-	goto :install_koboldcpp_final
 )
-:install_koboldcpp_final
+
+start "" "koboldcpp-launcher.exe"
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%Successfully installed and unpacked koboldcpp%reset%
 pause
 
 goto :app_installer_text_completion
+
