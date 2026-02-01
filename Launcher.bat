@@ -2491,6 +2491,7 @@ if "%app_installer_koboldcpp_choice%"=="1" (
         echo %red_bg%[%time%]%reset% %red_fg_strong%[ERROR] install_unpacked_koboldcpp.bat not found in: %app_installer_text_completion_dir%%reset%
         pause
         goto :install_koboldcpp_menu
+	)
 ) else if "%app_installer_koboldcpp_choice%"=="0" (
     goto :app_installer_text_completion
 ) else (
@@ -5794,6 +5795,7 @@ if exist "%~dp0bin\settings\custom-shortcut.txt" (
     pause
     goto :toolbox
 )
+
 
 
 
