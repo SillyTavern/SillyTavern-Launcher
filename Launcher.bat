@@ -3821,7 +3821,7 @@ REM Clone extensions for stable-diffusion-webui-forge-neo
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cloning extensions for stable-diffusion-webui-forge-neo...
 cd /d "%sdwebuiforgeneo_install_path%\extensions"
 git clone https://github.com/ussoewwin/sd-webui-ar-gradio4.git
-git clone https://github.com/SiliconeShojo/Stable-Diffusion-Webui-Civitai-Helper.git
+git clone https://github.com/SalmonRK/Stable-Diffusion-Webui-Civitai-Helper.git
 git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git
 git clone https://github.com/EnsignMK/danbooru-prompt.git
 git clone https://github.com/xiaofeng-ling/sd-webui-openpose-editor.git
