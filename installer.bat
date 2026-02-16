@@ -251,9 +251,9 @@ if %errorlevel% neq 0 (
 
     REM Accept the Anaconda Terms of Service for all main channels
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Accepting Anaconda Terms of Service...
-    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
-    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
-    conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/msys2
+    call conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+    call conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+    call conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/msys2
 
     REM Clean up the installer
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Cleaning up Miniconda3 installer...
