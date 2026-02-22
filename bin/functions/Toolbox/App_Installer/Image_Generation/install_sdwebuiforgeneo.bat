@@ -33,7 +33,7 @@ echo channels = ["conda-forge", "pytorch", "nvidia"]
 echo platforms = ["win-64"]
 echo.
 echo [dependencies]
-echo python = "3.11.9.*"
+echo python = "3.13.12.*"
 echo uv = "*"
 ) > pixi.toml
 
