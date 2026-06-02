@@ -38,17 +38,6 @@ if %errorlevel% neq 0 (
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% %green_fg_strong%SillyTavern updated successfully.%reset%
 
 echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Running Node.js in: %cyan_fg_strong%%NODE_ENV% %reset%
-setlocal
-set "command=%~1"
-start /B cmd /C "%command%"
-for /f "tokens=2 delims=," %%a in ('tasklist /FI "IMAGENAME eq cmd.exe" /FO CSV /NH') do (
-    set "pid=%%a"
-    echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% Started process with PID: %cyan_fg_strong%!pid!%reset%
-    echo !pid!>>"%log_dir%\pids.txt"
-    goto :st_found_pid
-)
-:st_found_pid
-endlocal
 
 REM Check if SSL info file exists and set the command accordingly
 set "sslPathsFound=false"
@@ -62,10 +51,10 @@ if exist "%SSL_INFO_FILE%" (
 :ST_SSL_Start
 if "%sslPathsFound%"=="true" (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened with SSL in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat ssl"
+    start "" cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat ssl"
 ) else (
     echo %blue_bg%[%time%]%reset% %blue_fg_strong%[INFO]%reset% SillyTavern opened in a new window.
-    start cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat"
+    start "" cmd /k "title SillyTavern && cd /d %st_install_path% && call npm install --no-save --no-audit --no-fund --loglevel=error --no-progress --omit=dev && call %functions_dir%\Home\log_wrapper.bat"
 )
 
 REM Clear the old log file if it exists
