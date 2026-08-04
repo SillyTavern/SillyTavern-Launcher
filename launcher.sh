@@ -3272,7 +3272,8 @@ check_path_spaces() {
 
 # Function to check if the folder path has no special characters
 check_path_special_chars() {
-    if [[ "$PWD" =~ [\!\#\$\%\&\*\+\,\;\<\=\>\?\@\[\]\^\`\{\|\}\~] ]]; then
+    local special_chars_re='[][!#$%&*+,;<=>?@^`{|}~]'
+    if [[ $PWD =~ $special_chars_re ]]; then
         log_message "ERROR" "${red_fg_strong}Path cannot have special characters! Please remove them.${reset}"
         log_message "ERROR" "Folders containing special characters make the launcher unstable."
         log_message "ERROR" "Path: ${red_fg_strong}$PWD${reset}"
